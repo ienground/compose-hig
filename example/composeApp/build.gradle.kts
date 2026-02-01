@@ -16,6 +16,7 @@
  */
 
 
+import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -27,12 +28,23 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.serialization)
     id("com.android.library")
-//    alias(libs.plugins.android.kotlin.multiplatform.library) apply false
-    kotlin("multiplatform")
+//    id(libs.plugins.android.kotlin.multiplatform.library.get().pluginId)
+    id(libs.plugins.kotlin.multiplatform.get().pluginId)
 }
 
 kotlin {
-
+//    androidLibrary {
+//        namespace = "com.compose.cupertino.example"
+//        compileSdk = (findProperty("android.compileSdk") as String).toInt()
+//
+//        compilerOptions {
+//            jvmTarget.set(JvmTarget.JVM_17)
+//        }
+//
+//        androidResources {
+//            enable = true
+//        }
+//    }
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
