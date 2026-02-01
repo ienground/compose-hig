@@ -32,7 +32,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "compose-cupertino"
+rootProject.name = "compose-hig"
 
 // Skip the example app when building the libraries
 if (gradle.startParameter.taskNames.none { it.startsWith(":example:composeApp") }) {
@@ -55,4 +55,5 @@ include(
     ":cupertino-decompose",
     ":cupertino-icons-extended",
     ":example:composeApp",
+    ":example:androidApp",
 )
