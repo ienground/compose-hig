@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-import com.android.build.api.dsl.androidLibrary
-import com.android.build.gradle.internal.component.ComponentCreationConfig
-import com.android.build.gradle.internal.scope.publishBuildArtifacts
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 @Suppress("DSL_SCOPE_VIOLATION")
@@ -59,17 +56,6 @@ kotlin {
             }
         }
     }
-
-//    androidTarget {
-//        compilations.all {
-//            compileTaskProvider.configure {
-//                compilerOptions {
-//                    jvmTarget.set(JvmTarget.JVM_17)
-//                }
-//            }
-//        }
-//        publishLibraryVariants("release")
-//    }
 
     iosArm64()
     iosX64()
@@ -132,22 +118,3 @@ kotlin {
 
     compilerOptions.freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
 }
-
-/*
-android {
-    namespace = "com.slapps.cupertino${name.filter { it.isLetter() }}"
-    compileSdk = (findProperty("android.compileSdk") as String).toInt()
-
-    defaultConfig {
-        minSdk = (findProperty("android.minSdk") as String).toInt()
-        lint {
-            targetSdk = (findProperty("android.targetSdk") as String).toInt()
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-}
-
- */

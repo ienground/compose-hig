@@ -24,8 +24,6 @@ plugins {
 
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.compose.multiplatform) apply false
-
-    id(libs.plugins.kotlin.android.get().pluginId) apply false
 }
 
 subprojects {

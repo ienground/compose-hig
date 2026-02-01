@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id(libs.plugins.kotlin.android.get().pluginId)
     id(libs.plugins.android.application.get().pluginId)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
