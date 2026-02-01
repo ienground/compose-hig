@@ -27,9 +27,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(projects.cupertinoCore)
-            implementation(compose.runtime)
-            implementation(compose.ui)
-            implementation(compose.animation)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.animation)
             implementation(libs.decompose.compose)
             implementation(libs.decompose.core)
         }

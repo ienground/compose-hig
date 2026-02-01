@@ -26,7 +26,8 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.serialization)
-    id("com.android.application")
+    id("com.android.library")
+//    alias(libs.plugins.android.kotlin.multiplatform.library) apply false
     kotlin("multiplatform")
 }
 
@@ -35,7 +36,7 @@ kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 
@@ -80,7 +81,6 @@ kotlin {
     sourceSets {
         val commonMain by getting
         val desktopMain by getting
-        val androidMain by getting
 
         commonMain.dependencies {
             implementation(projects.cupertino)
@@ -93,16 +93,10 @@ kotlin {
             api(libs.decompose.core)
             api(libs.essenty)
             implementation(libs.decompose.compose)
-            implementation(compose.runtime)
-            implementation(compose.ui)
-            implementation(compose.foundation)
-            implementation(compose.material3)
+            implementation(libs.compose.material3)
             implementation(compose.materialIconsExtended)
             implementation(libs.datetime)
             implementation(libs.serialization)
-        }
-        androidMain.dependencies {
-            implementation(libs.androidx.activity.compose)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -117,11 +111,7 @@ android {
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
 
     defaultConfig {
-        applicationId = "com.compose.cupertino.example"
         minSdk = (findProperty("android.minSdk") as String).toInt()
-        versionCode = 1
-        versionName = "1.0"
-        targetSdk = (findProperty("android.targetSdk") as String).toInt()
     }
     packaging {
         resources {
@@ -134,13 +124,9 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-}
-
-dependencies {
-    debugImplementation(compose.uiTooling)
 }
 
 compose.desktop {

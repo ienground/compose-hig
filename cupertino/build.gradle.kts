@@ -22,6 +22,7 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
     id("publishing-convention")
+
 }
 
 kotlin {
@@ -29,9 +30,10 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(projects.cupertinoCore)
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.uiUtil)
+
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.ui.util)
             implementation(libs.datetime)
             implementation(libs.atomicfu)
             implementation(libs.serialization)

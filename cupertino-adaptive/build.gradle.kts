@@ -31,12 +31,12 @@ kotlin {
         commonMain.dependencies {
             api(projects.cupertino)
             api(projects.cupertinoNative)
-            api(compose.material3)
+            api(libs.compose.material3)
             implementation(projects.cupertinoCore)
-            implementation(compose.runtime)
-            implementation(compose.foundation)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
             implementation(compose.materialIconsExtended)
-            implementation(compose("org.jetbrains.compose.ui:ui-util"))
+            implementation(libs.compose.ui.util)
         }
     }
 }

@@ -29,8 +29,8 @@ kotlin {
         commonMain.dependencies {
             api(projects.cupertinoCore)
             implementation(projects.cupertino)
-            implementation(compose.runtime)
-            implementation(compose.foundation)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
         }
     }
 }
