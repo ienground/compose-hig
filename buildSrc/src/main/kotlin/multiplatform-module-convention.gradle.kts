@@ -17,10 +17,13 @@
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    id("com.android.library")
-    kotlin("multiplatform")
+    id("com.android.kotlin.multiplatform.library")
+    id("org.jetbrains.kotlin.multiplatform")
 }
+
+val projectName = name.filter { it.isLetter() }
 
 kotlin {
     applyDefaultHierarchyTemplate()
@@ -37,15 +40,21 @@ kotlin {
         }
     }
 
-    androidTarget {
+    androidLibrary {
+        namespace = "com.slapps.cupertino${projectName}"
+        compileSdk = (findProperty("android.compileSdk") as String).toInt()
+        minSdk = (findProperty("android.minSdk") as String).toInt()
+        lint {
+            targetSdk = (findProperty("android.targetSdk") as String).toInt()
+        }
+
         compilations.all {
             compileTaskProvider.configure {
                 compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_11)
+                    jvmTarget.set(JvmTarget.JVM_17)
                 }
             }
         }
-        publishLibraryVariants("release")
     }
 
     iosArm64()
@@ -58,7 +67,7 @@ kotlin {
         compilations.all {
             compileTaskProvider.configure {
                 compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_11)
+                    jvmTarget.set(JvmTarget.JVM_17)
                 }
             }
         }
@@ -108,20 +117,4 @@ kotlin {
     }
 
     compilerOptions.freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
-}
-
-android {
-    namespace = "com.slapps.cupertino${name.filter { it.isLetter() }}"
-    compileSdk = (findProperty("android.compileSdk") as String).toInt()
-
-    defaultConfig {
-        minSdk = (findProperty("android.minSdk") as String).toInt()
-        lint {
-            targetSdk = (findProperty("android.targetSdk") as String).toInt()
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
 }

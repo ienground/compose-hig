@@ -17,25 +17,29 @@
 
 
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
-    alias(libs.plugins.composeJB)
+    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.serialization)
-    id("com.android.application")
-    kotlin("multiplatform")
+    id(libs.plugins.android.kotlin.multiplatform.library.get().pluginId)
+    id(libs.plugins.kotlin.multiplatform.get().pluginId)
 }
 
 kotlin {
+    androidLibrary {
+        namespace = "com.compose.cupertino.example.lib"
+        compileSdk = (findProperty("android.compileSdk") as String).toInt()
 
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+
+        androidResources {
+            enable = true
         }
     }
 
@@ -80,7 +84,6 @@ kotlin {
     sourceSets {
         val commonMain by getting
         val desktopMain by getting
-        val androidMain by getting
 
         commonMain.dependencies {
             implementation(projects.cupertino)
@@ -93,16 +96,10 @@ kotlin {
             api(libs.decompose.core)
             api(libs.essenty)
             implementation(libs.decompose.compose)
-            implementation(compose.runtime)
-            implementation(compose.ui)
-            implementation(compose.foundation)
-            implementation(compose.material3)
+            implementation(libs.compose.material3)
             implementation(compose.materialIconsExtended)
             implementation(libs.datetime)
             implementation(libs.serialization)
-        }
-        androidMain.dependencies {
-            implementation(libs.androidx.activity.compose)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -110,37 +107,6 @@ kotlin {
     }
 
     compilerOptions.freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
-}
-
-android {
-    namespace = "com.compose.cupertino.example"
-    compileSdk = (findProperty("android.compileSdk") as String).toInt()
-
-    defaultConfig {
-        applicationId = "com.compose.cupertino.example"
-        minSdk = (findProperty("android.minSdk") as String).toInt()
-        versionCode = 1
-        versionName = "1.0"
-        targetSdk = (findProperty("android.targetSdk") as String).toInt()
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-}
-
-dependencies {
-    debugImplementation(compose.uiTooling)
 }
 
 compose.desktop {

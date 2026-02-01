@@ -19,15 +19,15 @@
 plugins {
     id("multiplatform-module-convention")
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.composeJB)
-    id("publishing-convention")
+    alias(libs.plugins.compose.multiplatform)
+    id(libs.plugins.vanniktech.mavenPublish.get().pluginId)
 }
 
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(compose.ui)
-            implementation(compose.foundation)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.foundation)
         }
     }
 }

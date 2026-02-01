@@ -19,15 +19,15 @@
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     id("multiplatform-module-convention")
-    alias(libs.plugins.composeJB)
+    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
-    id("publishing-convention")
+    id(libs.plugins.vanniktech.mavenPublish.get().pluginId)
 }
 
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(compose.ui)
+            implementation(libs.compose.ui)
             api(projects.cupertinoCore)
             implementation(projects.cupertino)
         }
