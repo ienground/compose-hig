@@ -21,7 +21,6 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose.multiplatform)
     id(libs.plugins.vanniktech.mavenPublish.get().pluginId)
-//    id("publishing-convention")
 }
 
 kotlin {

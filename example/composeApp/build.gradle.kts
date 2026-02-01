@@ -118,6 +118,7 @@ kotlin {
     compilerOptions.freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
 }
 
+///*
 android {
     namespace = "com.compose.cupertino.example"
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
@@ -140,6 +141,8 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
+
+// */
 
 compose.desktop {
     application {

@@ -15,12 +15,19 @@
  * limitations under the License.
  */
 
+import com.android.build.api.dsl.androidLibrary
+import com.android.build.gradle.internal.component.ComponentCreationConfig
+import com.android.build.gradle.internal.scope.publishBuildArtifacts
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
+//    id("com.android.kotlin.multiplatform.library")
     id("com.android.library")
     id("org.jetbrains.kotlin.multiplatform")
 }
+
+val projectName = name.filter { it.isLetter() }
 
 kotlin {
     applyDefaultHierarchyTemplate()
@@ -36,6 +43,23 @@ kotlin {
             }
         }
     }
+
+//    androidLibrary {
+//        namespace = "com.slapps.cupertino${projectName}"
+//        compileSdk = (findProperty("android.compileSdk") as String).toInt()
+//        minSdk = (findProperty("android.minSdk") as String).toInt()
+//        lint {
+//            targetSdk = (findProperty("android.targetSdk") as String).toInt()
+//        }
+//
+//        compilations.all {
+//            compileTaskProvider.configure {
+//                compilerOptions {
+//                    jvmTarget.set(JvmTarget.JVM_17)
+//                }
+//            }
+//        }
+//    }
 
     androidTarget {
         compilations.all {
@@ -110,6 +134,7 @@ kotlin {
     compilerOptions.freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
 }
 
+///*
 android {
     namespace = "com.slapps.cupertino${name.filter { it.isLetter() }}"
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
@@ -125,3 +150,5 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
+
+// */
