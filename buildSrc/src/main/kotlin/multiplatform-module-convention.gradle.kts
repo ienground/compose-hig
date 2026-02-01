@@ -22,8 +22,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-//    id("com.android.kotlin.multiplatform.library")
-    id("com.android.library")
+    id("com.android.kotlin.multiplatform.library")
     id("org.jetbrains.kotlin.multiplatform")
 }
 
@@ -44,24 +43,14 @@ kotlin {
         }
     }
 
-//    androidLibrary {
-//        namespace = "com.slapps.cupertino${projectName}"
-//        compileSdk = (findProperty("android.compileSdk") as String).toInt()
-//        minSdk = (findProperty("android.minSdk") as String).toInt()
-//        lint {
-//            targetSdk = (findProperty("android.targetSdk") as String).toInt()
-//        }
-//
-//        compilations.all {
-//            compileTaskProvider.configure {
-//                compilerOptions {
-//                    jvmTarget.set(JvmTarget.JVM_17)
-//                }
-//            }
-//        }
-//    }
+    androidLibrary {
+        namespace = "com.slapps.cupertino${projectName}"
+        compileSdk = (findProperty("android.compileSdk") as String).toInt()
+        minSdk = (findProperty("android.minSdk") as String).toInt()
+        lint {
+            targetSdk = (findProperty("android.targetSdk") as String).toInt()
+        }
 
-    androidTarget {
         compilations.all {
             compileTaskProvider.configure {
                 compilerOptions {
@@ -69,8 +58,18 @@ kotlin {
                 }
             }
         }
-        publishLibraryVariants("release")
     }
+
+//    androidTarget {
+//        compilations.all {
+//            compileTaskProvider.configure {
+//                compilerOptions {
+//                    jvmTarget.set(JvmTarget.JVM_17)
+//                }
+//            }
+//        }
+//        publishLibraryVariants("release")
+//    }
 
     iosArm64()
     iosX64()
@@ -134,7 +133,7 @@ kotlin {
     compilerOptions.freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
 }
 
-///*
+/*
 android {
     namespace = "com.slapps.cupertino${name.filter { it.isLetter() }}"
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
@@ -151,4 +150,4 @@ android {
     }
 }
 
-// */
+ */
