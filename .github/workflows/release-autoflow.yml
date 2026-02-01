@@ -1,0 +1,48 @@
+name: 📝 Auto Changelog & Draft Release
+on:
+  push:
+    tags: ['v*.*.*']
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 전체 히스토리
+
+      # 1. PR/이슈 기반 Changelog 생성
+      - id: changelog
+        uses: mikepenz/release-changelog-builder@v4
+        with:
+          fromCommit: ${{ github.event.before.sha || 'origin/main' }}
+
+      # 2. Draft Release 생성 (파일 업로드 X)
+      - uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: ${{ github.ref_name }}
+          body: |
+            # ${{ github.ref_name }}
+            
+            **릴리스 날짜**: {{ date: YYYY-MM-DD }}
+            
+            ## ✨ 주요 변경사항
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ## 🔗 연관 PR/이슈
+            ${{ steps.changelog.outputs.linked-prs }}
+          draft: true  # 검토 후 Publish
+          prerelease: false
+
+      # 3. CHANGELOG.md 업데이트
+      - run: |
+          echo "${{ steps.changelog.outputs.changelog }}" > CHANGELOG.md
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: update CHANGELOG"

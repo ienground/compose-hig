@@ -1,0 +1,17 @@
+name: ❓ 질문
+description: 코드나 프로젝트에 대한 질문입니다.
+title: '[QUESTION] '
+labels: ['question']
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: "💬 질문 내용"
+      placeholder: "궁금하신 점을 자세히..."
+    validations:
+      required: true
+  - type: textarea
+    id: code
+    attributes:
+      label: "📱 관련 코드 (선택)"
+      render: kotlin

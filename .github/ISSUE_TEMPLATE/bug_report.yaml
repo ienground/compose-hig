@@ -1,0 +1,42 @@
+name: 🐛 버그 리포트
+description: 발견된 버그를 작성해 주세요.
+title: '[BUG] '
+labels: ['bug']
+body:
+  - type: checkboxes
+    id: platform
+    attributes:
+      label: "📱 발생 플랫폼"
+      options:
+        - label: "Android"
+        - label: "iOS"
+        - label: "Common (Shared)"
+  - type: textarea
+    id: description
+    attributes:
+      label: "📝 버그 설명"
+      placeholder: "발생한 버그에 대해 설명해 주세요."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: "🚀 재현 절차"
+      placeholder: |
+        1. 
+        2. 
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "🎯 기대 결과"
+      placeholder: "정상적인 동작은 무엇인가요?"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: "📸 로그 / 스크린샷"
+      placeholder: "```kotlin\n// 로그 붙여넣기\n```"

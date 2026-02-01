@@ -1,0 +1,23 @@
+name: 🔄 리팩토링
+description: 코드 리팩토링 요청입니다.
+title: '[REFACTOR] '
+labels: ['refactoring']
+body:
+  - type: textarea
+    id: code
+    attributes:
+      label: "🎯 리팩토링 대상"
+      placeholder: "```kotlin\n// 코드 붙여넣기\n```"
+      render: kotlin
+    validations:
+      required: true
+  - type: dropdown
+    id: reason
+    attributes:
+      label: "💡 개선 이유"
+      multiple: true
+      options:
+        - "가독성 향상"
+        - "성능 최적화"
+        - "유지보수성"
+        - "코드 중복 제거"
