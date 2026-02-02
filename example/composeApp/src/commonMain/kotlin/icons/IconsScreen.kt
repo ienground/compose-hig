@@ -710,7 +710,7 @@ import com.slapps.cupertino.icons.outlined.PaperclipCircle
 import zone.ien.hig.icons.outlined.Paperplane
 import com.slapps.cupertino.icons.outlined.Paragraphsign
 import com.slapps.cupertino.icons.outlined.PartyPopper
-import com.slapps.cupertino.icons.outlined.Pause
+import zone.ien.hig.icons.outlined.Pause
 import com.slapps.cupertino.icons.outlined.PauseCircle
 import com.slapps.cupertino.icons.outlined.Pawprint
 import zone.ien.hig.icons.outlined.Pencil
