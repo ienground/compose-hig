@@ -53,8 +53,6 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMapNotNull
 import androidx.compose.ui.util.fastMaxOfOrNull
-import com.slapps.cupertino.Accessibility
-import com.slapps.cupertino.isReduceTransparencyEnabled
 import zone.ien.hig.theme.CupertinoTheme
 
 /**

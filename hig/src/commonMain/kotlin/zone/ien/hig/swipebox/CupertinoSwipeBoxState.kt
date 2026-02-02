@@ -29,7 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalDensity
-import com.slapps.cupertino.InternalCupertinoApi
+import zone.ien.hig.InternalCupertinoApi
 import zone.ien.hig.CupertinoSwipeBoxDefaults
 import kotlinx.coroutines.CoroutineScope
 

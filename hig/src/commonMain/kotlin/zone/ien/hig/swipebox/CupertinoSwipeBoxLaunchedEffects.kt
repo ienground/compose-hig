@@ -31,8 +31,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import com.slapps.cupertino.CupertinoHapticFeedback
-import com.slapps.cupertino.InternalCupertinoApi
+import zone.ien.hig.CupertinoHapticFeedback
+import zone.ien.hig.InternalCupertinoApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

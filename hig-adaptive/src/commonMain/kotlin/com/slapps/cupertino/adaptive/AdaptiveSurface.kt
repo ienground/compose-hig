@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.slapps.cupertino.LocalContentColor
+import zone.ien.hig.LocalContentColor
 import zone.ien.hig.CupertinoSurface
 import zone.ien.hig.theme.CupertinoTheme
 

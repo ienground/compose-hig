@@ -16,11 +16,13 @@
  * limitations under the License.
  */
 
-package com.slapps.cupertino
+
+
+package zone.ien.hig
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.platform.LocalHapticFeedback
 
 @Composable
-@InternalCupertinoApi
-actual fun SystemBarAppearance(dark: Boolean) {
-}
+actual fun rememberCupertinoHapticFeedback(): HapticFeedback = LocalHapticFeedback.current

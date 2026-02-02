@@ -39,9 +39,9 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconDefaults
-import com.slapps.cupertino.theme.CupertinoColors
+import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
-import com.slapps.cupertino.theme.White
+import zone.ien.hig.theme.White
 
 /**
  * Icon with colored background and rounded corners often used in [CupertinoSection] label

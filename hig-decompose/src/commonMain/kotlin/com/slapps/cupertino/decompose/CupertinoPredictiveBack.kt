@@ -43,7 +43,7 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimator
 import com.arkivanov.essenty.backhandler.BackEvent
 import com.arkivanov.essenty.backhandler.BackHandler
-import com.slapps.cupertino.cupertinoTween
+import zone.ien.hig.cupertinoTween
 
 @ExperimentalDecomposeApi
 @Composable

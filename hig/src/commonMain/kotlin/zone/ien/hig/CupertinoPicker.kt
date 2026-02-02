@@ -75,9 +75,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFirstOrNull
-import com.slapps.cupertino.CupertinoHapticFeedback
-import com.slapps.cupertino.InternalCupertinoApi
-import com.slapps.cupertino.LocalContentColor
 import zone.ien.hig.theme.CupertinoTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

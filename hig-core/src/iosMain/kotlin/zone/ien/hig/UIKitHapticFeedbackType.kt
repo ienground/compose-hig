@@ -20,7 +20,7 @@
 
 @file:OptIn(InternalCupertinoApi::class)
 
-package com.slapps.cupertino
+package zone.ien.hig
 
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 

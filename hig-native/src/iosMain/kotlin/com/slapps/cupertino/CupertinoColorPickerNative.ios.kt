@@ -27,6 +27,8 @@ import platform.UIKit.UIColorPickerViewController
 import platform.UIKit.UIColorPickerViewControllerDelegateProtocol
 import platform.darwin.NSObject
 import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.toComposeColor
+import zone.ien.hig.toUIColor
 
 @Composable
 @ExperimentalCupertinoApi

@@ -64,14 +64,10 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.slapps.cupertino.CupertinoHapticFeedback
-import com.slapps.cupertino.InternalCupertinoApi
-import com.slapps.cupertino.LocalContentColor
-import com.slapps.cupertino.cupertinoTween
-import com.slapps.cupertino.theme.CupertinoColors
+import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
-import com.slapps.cupertino.theme.Gray
-import com.slapps.cupertino.theme.systemGreen
+import zone.ien.hig.theme.Gray
+import zone.ien.hig.theme.systemGreen
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 

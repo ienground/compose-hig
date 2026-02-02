@@ -37,8 +37,8 @@ import zone.ien.hig.AlertActionStyle
 import com.slapps.cupertino.CupertinoAlertDialogNative
 import zone.ien.hig.CupertinoDialogsDefaults
 import com.slapps.cupertino.NativeAlertDialogActionsScope
-import com.slapps.cupertino.theme.CupertinoColors
-import com.slapps.cupertino.theme.systemGray7
+import zone.ien.hig.theme.CupertinoColors
+import zone.ien.hig.theme.systemGray7
 
 @ExperimentalAdaptiveApi
 @Composable

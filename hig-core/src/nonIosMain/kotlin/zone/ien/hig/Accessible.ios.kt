@@ -18,13 +18,10 @@
 
 
 
-package com.slapps.cupertino
-
-import platform.UIKit.UIAccessibilityDarkerSystemColorsEnabled
-import platform.UIKit.UIAccessibilityIsReduceTransparencyEnabled
+package zone.ien.hig
 
 actual val Accessibility.isHighContrastEnabled: Boolean
-    get() = UIAccessibilityDarkerSystemColorsEnabled()
+    get() = false
 
 actual val Accessibility.isReduceTransparencyEnabled: Boolean
-    get() = UIAccessibilityIsReduceTransparencyEnabled()
+    get() = false

@@ -18,7 +18,7 @@
 
 
 
-package com.slapps.cupertino
+package zone.ien.hig
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing

@@ -55,7 +55,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.slapps.cupertino.InternalCupertinoApi
 import zone.ien.hig.section.CupertinoSectionDefaults
 import zone.ien.hig.swipebox.AnchorsEffect
 import zone.ien.hig.swipebox.DismissFullyExpandedEffect

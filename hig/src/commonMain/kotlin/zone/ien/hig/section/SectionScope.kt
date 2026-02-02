@@ -60,7 +60,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.slapps.cupertino.LocalContentColor
+import zone.ien.hig.LocalContentColor
 import zone.ien.hig.CupertinoButtonTokens
 import zone.ien.hig.CupertinoDatePickerDefaults
 import zone.ien.hig.CupertinoDatePickerState
@@ -75,7 +75,7 @@ import zone.ien.hig.CupertinoTimePickerState
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.ProvideTextStyle
 import zone.ien.hig.copy
-import com.slapps.cupertino.cupertinoTween
+import zone.ien.hig.cupertinoTween
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.ChevronDown
 import zone.ien.hig.icons.outlined.ChevronUp

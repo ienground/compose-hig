@@ -54,11 +54,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import zone.ien.hig.CupertinoButtonDefaults.filledButtonColors
 import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
-import com.slapps.cupertino.theme.CupertinoColors
+import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
-import com.slapps.cupertino.theme.DefaultAlpha
-import com.slapps.cupertino.theme.Shapes
-import com.slapps.cupertino.theme.Typography
+import zone.ien.hig.theme.DefaultAlpha
+import zone.ien.hig.theme.Shapes
+import zone.ien.hig.theme.Typography
 
 enum class CupertinoButtonSize(
     val shape: (Shapes) -> Shape,

@@ -26,23 +26,13 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalHapticFeedback
-import com.slapps.cupertino.LocalContentColor
-import com.slapps.cupertino.LocalTextStyle
+import zone.ien.hig.LocalContentColor
+import zone.ien.hig.LocalTextStyle
 import zone.ien.hig.ExperimentalCupertinoApi
-import com.slapps.cupertino.InternalCupertinoApi
-import com.slapps.cupertino.SystemBarAppearance
-import com.slapps.cupertino.rememberCupertinoHapticFeedback
+import zone.ien.hig.InternalCupertinoApi
+import zone.ien.hig.SystemBarAppearance
+import zone.ien.hig.rememberCupertinoHapticFeedback
 import zone.ien.hig.rememberCupertinoIndication
-import com.slapps.cupertino.theme.ColorScheme
-import com.slapps.cupertino.theme.CupertinoColors
-import com.slapps.cupertino.theme.Gray
-import com.slapps.cupertino.theme.LocalColorScheme
-import com.slapps.cupertino.theme.LocalShapes
-import com.slapps.cupertino.theme.LocalTypography
-import com.slapps.cupertino.theme.Shapes
-import com.slapps.cupertino.theme.Typography
-import com.slapps.cupertino.theme.darkColorScheme
-import com.slapps.cupertino.theme.lightColorScheme
 
 @OptIn(InternalCupertinoApi::class, ExperimentalCupertinoApi::class)
 @Composable

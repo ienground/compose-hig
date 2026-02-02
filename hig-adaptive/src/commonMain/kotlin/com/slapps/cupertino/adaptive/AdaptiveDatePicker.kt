@@ -46,7 +46,7 @@ import zone.ien.hig.CupertinoDatePicker
 import zone.ien.hig.CupertinoDatePickerState
 import zone.ien.hig.DatePickerStyle
 import zone.ien.hig.ExperimentalCupertinoApi
-import com.slapps.cupertino.InternalCupertinoApi
+import zone.ien.hig.InternalCupertinoApi
 import zone.ien.hig.LocalContainerColor
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull

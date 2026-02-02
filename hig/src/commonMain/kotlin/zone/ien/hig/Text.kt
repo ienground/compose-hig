@@ -38,8 +38,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
-import com.slapps.cupertino.LocalContentColor
-import com.slapps.cupertino.LocalTextStyle
 
 /**
  * High level element that displays text and provides semantics / accessibility information.

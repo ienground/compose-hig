@@ -18,14 +18,14 @@
 
 
 
-package com.slapps.cupertino.theme
+package zone.ien.hig.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.slapps.cupertino.InternalCupertinoApi
+import zone.ien.hig.InternalCupertinoApi
 
 @Immutable
 class Typography(

@@ -37,11 +37,12 @@ import com.slapps.cupertino.adaptive.ExperimentalAdaptiveApi
 import com.slapps.cupertino.adaptive.MaterialThemeSpec
 import com.slapps.cupertino.adaptive.Theme
 import com.slapps.cupertino.decompose.cupertinoPredictiveBackAnimation
-import com.slapps.cupertino.theme.darkColorScheme
-import com.slapps.cupertino.theme.lightColorScheme
+import zone.ien.hig.theme.darkColorScheme
+import zone.ien.hig.theme.lightColorScheme
 import cupertino.CupertinoWidgetsScreen
 import icons.IconsScreen
 import sections.SectionsScreen
+import zone.ien.hig.theme.Shapes
 
 
 expect val IsIos: Boolean
@@ -137,7 +138,7 @@ fun GeneratedAdaptiveTheme(
             colorScheme = if (useDarkTheme)
                 darkColorScheme(accent = primaryColor)
             else lightColorScheme(accent = primaryColor),
-            shapes = com.slapps.cupertino.theme.Shapes(
+            shapes = Shapes(
                 extraSmall = shapes.extraSmall,
                 small = shapes.small,
                 medium = shapes.medium,

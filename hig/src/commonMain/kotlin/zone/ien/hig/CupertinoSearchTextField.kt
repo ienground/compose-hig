@@ -75,16 +75,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.slapps.cupertino.LocalContentColor
-import com.slapps.cupertino.LocalTextStyle
 import zone.ien.hig.theme.isDark
 import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.MagnifyingGlass
 import zone.ien.hig.section.CupertinoSectionTokens
-import com.slapps.cupertino.theme.CupertinoColors
+import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
-import com.slapps.cupertino.theme.systemRed
+import zone.ien.hig.theme.systemRed
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 

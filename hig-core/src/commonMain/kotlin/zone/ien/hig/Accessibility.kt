@@ -33,14 +33,14 @@
     "unused", "unused", "unused", "unused", "unused", "unused"
 )
 
-package com.slapps.cupertino
+package zone.ien.hig
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
-import com.slapps.cupertino.theme.CupertinoColors
-import com.slapps.cupertino.theme.White
-import com.slapps.cupertino.theme.isDark
+import zone.ien.hig.theme.CupertinoColors
+import zone.ien.hig.theme.White
+import zone.ien.hig.theme.isDark
 
 /**
  * This object provides access to native accessibility preferences

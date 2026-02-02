@@ -45,11 +45,10 @@ import androidx.compose.ui.window.ComposeUIViewController
 import com.arkivanov.decompose.Child
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
-import com.slapps.cupertino.InternalCupertinoApi
-import com.slapps.cupertino.SystemBarAppearance
-import com.slapps.cupertino.rememberCupertinoHapticFeedback
-import com.slapps.cupertino.theme.CupertinoTheme
-import com.slapps.cupertino.theme.isInitializedCupertinoTheme
+import zone.ien.hig.InternalCupertinoApi
+import zone.ien.hig.rememberCupertinoHapticFeedback
+import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.theme.isInitializedCupertinoTheme
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.UIGestureRecognizer
 import platform.UIKit.UIGestureRecognizerDelegateProtocol
@@ -130,7 +129,10 @@ private class UIViewControllerWrapper<C : Any, T : Any>(
                         context = foundationContext,
                     ) {
                         if (isInitializedCupertinoTheme()) {
-                            SystemBarAppearance(CupertinoTheme.colorScheme.isDark, this)
+                            zone.ien.hig.SystemBarAppearance(
+                                CupertinoTheme.colorScheme.isDark,
+                                this
+                            )
                         }
 
                         CompositionLocalProvider(

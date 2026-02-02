@@ -40,8 +40,8 @@ import zone.ien.hig.AlertDialogActionsScope
 import zone.ien.hig.CupertinoAlertDialog
 import zone.ien.hig.CupertinoDialogsDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
-import com.slapps.cupertino.theme.CupertinoColors
-import com.slapps.cupertino.theme.systemGray7
+import zone.ien.hig.theme.CupertinoColors
+import zone.ien.hig.theme.systemGray7
 
 @ExperimentalAdaptiveApi
 @OptIn(ExperimentalCupertinoApi::class)

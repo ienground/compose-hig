@@ -18,14 +18,14 @@
 
 
 
-package com.slapps.cupertino.theme
+package zone.ien.hig.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
-import com.slapps.cupertino.LocalContentColor
-import com.slapps.cupertino.Accessibility
-import com.slapps.cupertino.isHighContrastEnabled
+import zone.ien.hig.LocalContentColor
+import zone.ien.hig.Accessibility
+import zone.ien.hig.isHighContrastEnabled
 
 object CupertinoColors
 

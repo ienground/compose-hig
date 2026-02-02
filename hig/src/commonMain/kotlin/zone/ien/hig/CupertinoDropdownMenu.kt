@@ -83,17 +83,16 @@ import androidx.compose.ui.util.fastSumBy
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import com.slapps.cupertino.LocalContentColor
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.Checkmark
 import zone.ien.hig.section.CupertinoSectionDefaults
 import zone.ien.hig.section.CupertinoSectionTokens
 import zone.ien.hig.section.SectionStyle
 import zone.ien.hig.theme.BrightSeparatorColor
-import com.slapps.cupertino.theme.CupertinoColors
+import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
-import com.slapps.cupertino.theme.systemGray7
-import com.slapps.cupertino.theme.systemRed
+import zone.ien.hig.theme.systemGray7
+import zone.ien.hig.theme.systemRed
 import kotlin.math.max
 import kotlin.math.min
 

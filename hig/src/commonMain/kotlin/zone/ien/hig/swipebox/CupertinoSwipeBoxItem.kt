@@ -46,15 +46,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.slapps.cupertino.LocalContentColor
+import zone.ien.hig.LocalContentColor
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.ProvideTextStyle
-import com.slapps.cupertino.cupertinoTween
-import com.slapps.cupertino.theme.CupertinoColors
+import zone.ien.hig.cupertinoTween
+import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
-import com.slapps.cupertino.theme.White
+import zone.ien.hig.theme.White
 import kotlinx.coroutines.launch
 
 /**

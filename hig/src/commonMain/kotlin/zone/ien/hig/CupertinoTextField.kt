@@ -62,11 +62,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.slapps.cupertino.LocalContentColor
-import com.slapps.cupertino.LocalTextStyle
-import com.slapps.cupertino.theme.CupertinoColors
+import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
-import com.slapps.cupertino.theme.systemRed
+import zone.ien.hig.theme.systemRed
 
 @Composable
 fun CupertinoTextField(

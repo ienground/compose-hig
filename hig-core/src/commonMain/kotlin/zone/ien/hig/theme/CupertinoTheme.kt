@@ -18,11 +18,11 @@
 
 
 
-package com.slapps.cupertino.theme
+package zone.ien.hig.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import com.slapps.cupertino.InternalCupertinoApi
+import zone.ien.hig.InternalCupertinoApi
 
 @OptIn(InternalCupertinoApi::class)
 object CupertinoTheme {

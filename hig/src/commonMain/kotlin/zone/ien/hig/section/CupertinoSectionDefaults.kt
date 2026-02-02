@@ -54,7 +54,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.slapps.cupertino.LocalContentColor
+import zone.ien.hig.LocalContentColor
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconDefaults
 import zone.ien.hig.copy

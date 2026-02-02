@@ -16,9 +16,11 @@
  * limitations under the License.
  */
 
+package zone.ien.hig
 
+import androidx.compose.runtime.Composable
 
-package com.slapps.cupertino
-
-@RequiresOptIn("This is internal api used by cupertino modules")
-annotation class InternalCupertinoApi
+@Composable
+@InternalCupertinoApi
+actual fun SystemBarAppearance(dark: Boolean) {
+}

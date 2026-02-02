@@ -67,13 +67,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
-import com.slapps.cupertino.cupertinoTween
 import zone.ien.hig.section.CupertinoSectionDefaults
-import com.slapps.cupertino.theme.CupertinoColors
+import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
-import com.slapps.cupertino.theme.White
+import zone.ien.hig.theme.White
 import zone.ien.hig.theme.isDark
-import com.slapps.cupertino.theme.systemGray8
+import zone.ien.hig.theme.systemGray8
 
 /**
  * Sliding segmented control

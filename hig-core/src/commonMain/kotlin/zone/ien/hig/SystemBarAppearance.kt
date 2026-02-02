@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.slapps.cupertino
+package zone.ien.hig
 
 import androidx.compose.runtime.Composable
 
