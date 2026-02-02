@@ -34,39 +34,12 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeViewport
-import com.arkivanov.decompose.DefaultComponentContext
-import com.arkivanov.essenty.lifecycle.LifecycleRegistry
-import com.arkivanov.essenty.lifecycle.resume
-import com.arkivanov.essenty.lifecycle.stop
 import kotlinx.browser.document
 import org.w3c.dom.Document
 
-/*
- * Copyright (c) 2023 Compose Cupertino project and open source contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 @OptIn(ExperimentalComposeUiApi::class)
 fun WasmApp() {
-    val lifecycle = LifecycleRegistry()
-
-    val root =
-        DefaultRootComponent(
-            DefaultComponentContext(lifecycle = lifecycle),
-        )
-
-    lifecycle.attachToDocument()
+    koinInitialize()
 
     ComposeViewport(document.body!!) {
         var mobile by remember {
@@ -97,23 +70,9 @@ fun WasmApp() {
                 Text("Mobile")
             }
 
-            App2(root)
+            App()
         }
     }
-}
-
-private fun LifecycleRegistry.attachToDocument() {
-    fun onVisibilityChanged() {
-        if (visibilityState(document) == "visible") {
-            resume()
-        } else {
-            stop()
-        }
-    }
-
-    onVisibilityChanged()
-
-    document.addEventListener(type = "visibilitychange", callback = { onVisibilityChanged() })
 }
 
 @JsFun("(document) => document.visibilityState")

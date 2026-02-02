@@ -1,7 +1,7 @@
 [versions]
 agp = "9.0.0"
 #agp = "8.12.0"
-kotlin = "2.3.0"
+kotlin = "2.3.20-Beta2"
 lib-version-name = "0.1.0-alpha01"
 
 # plugin
@@ -12,8 +12,6 @@ compose-navigation3 = "1.0.0-alpha06"
 # ui
 activity-compose = "1.12.3"
 lifecycle = "2.10.0-alpha07"
-decompose = "3.3.0"
-essenty = "2.5.0"
 
 # functionality
 datetime = "0.7.1"
@@ -42,10 +40,6 @@ compose-ui-tooling = { group = "org.jetbrains.compose.ui", name = "ui-tooling", 
 compose-ui-util = { group = "org.jetbrains.compose.ui", name = "ui-util", version.ref = "compose-plugin" }
 compose-resources = { group = "org.jetbrains.compose.components", name = "components-resources", version.ref = "compose-plugin" }
 compose-navigation3 = { group = "org.jetbrains.androidx.navigation3", name = "navigation3-ui", version.ref = "compose-navigation3" }
-
-decompose-core = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
-decompose-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
-essenty = { module = "com.arkivanov.essenty:lifecycle", version.ref = "essenty" }
 
 # functionality
 datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }

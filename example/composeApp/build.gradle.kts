@@ -52,10 +52,6 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "shared"
             isStatic = true
-
-            export(libs.decompose.core)
-            export(libs.essenty)
-            export("com.arkivanov.essenty:lifecycle:${libs.versions.essenty}")
         }
     }
 
@@ -90,14 +86,9 @@ kotlin {
             implementation(projects.hig)
             implementation(projects.higAdaptive)
             implementation(projects.higNative)
-            implementation(projects.higDecompose)
             implementation(projects.higIconsExtended)
             implementation(libs.material.kolor)
 
-            api(libs.decompose.core)
-            api(libs.essenty)
-
-            implementation(libs.decompose.compose)
             implementation(libs.compose.material3)
             implementation(compose.materialIconsExtended)
             implementation(libs.datetime)

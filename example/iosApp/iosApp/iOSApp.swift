@@ -11,20 +11,13 @@ struct iOSApp: App {
     @Environment(\.scenePhase)
     var scenePhase: ScenePhase
 
-    var rootHolder: RootHolder { appDelegate.rootHolder }
-
+    init() {
+        RootViewModelKt.koinInitialize()
+    }
 
 	var body: some Scene {
 		WindowGroup {
-            ContentView(component: rootHolder.root)
-                .onChange(of: scenePhase) { newPhase in
-                    switch newPhase {
-                    case .background: LifecycleRegistryExtKt.stop(rootHolder.lifecycle)
-                    case .inactive: LifecycleRegistryExtKt.pause(rootHolder.lifecycle)
-                    case .active: LifecycleRegistryExtKt.resume(rootHolder.lifecycle)
-                    @unknown default: break
-                    }
-                }
+            ContentView()
 		}
 	}
 }

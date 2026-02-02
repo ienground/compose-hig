@@ -22,6 +22,8 @@ import zone.ien.hig.theme.Shapes
 import zone.ien.hig.theme.darkColorScheme
 import zone.ien.hig.theme.lightColorScheme
 
+expect val IsIos: Boolean
+
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 fun App() {
