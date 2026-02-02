@@ -24,4 +24,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "compose-cupertino-buildsrc"
+rootProject.name = "compose-hig-buildsrc"
