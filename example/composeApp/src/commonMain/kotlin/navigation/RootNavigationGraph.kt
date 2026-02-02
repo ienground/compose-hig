@@ -14,6 +14,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import cupertino.CupertinoWidgetsScreen
+import icons.IconsScreen
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -66,7 +67,9 @@ fun RootNavigationGraph(
                 )
             }
             entry<RootRoute.Icons> {
-
+                IconsScreen(
+                    navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                )
             }
             entry<RootRoute.Sections> {
 

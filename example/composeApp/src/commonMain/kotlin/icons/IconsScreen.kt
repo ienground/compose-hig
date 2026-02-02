@@ -51,6 +51,7 @@ import zone.ien.hig.CupertinoText
 import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveWidget
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.default
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.filled.Airtag
@@ -886,10 +887,10 @@ import zone.ien.hig.icons.outlined.Yensign
 import zone.ien.hig.icons.outlined.Zzz
 import zone.ien.hig.icons.outlined._4kTv
 
-@OptIn(ExperimentalCupertinoApi::class)
+@OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun IconsScreen(
-    component: IconsComponent
+    navigateBack: () -> Unit
 ) {
 
     var isOutlined by remember {
@@ -908,18 +909,17 @@ fun IconsScreen(
         topBar = {
             CupertinoTopAppBar(
                 navigationIcon = {
-
                     AdaptiveWidget(
                         cupertino = {
                             CupertinoNavigateBackButton(
-                                onClick = component::onNavigateBack,
+                                onClick = navigateBack,
                             ) {
                                 CupertinoText("Back")
                             }
                         },
                         material = {
                             IconButton(
-                                onClick = component::onNavigateBack
+                                onClick = navigateBack
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
