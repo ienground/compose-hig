@@ -39,7 +39,6 @@
 package cupertino
 
 import IsIos
-import RootComponent
 import RootDetails
 import RootUiState
 import androidx.compose.animation.AnimatedContent

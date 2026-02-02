@@ -40,10 +40,7 @@ class MainActivity : ComponentActivity() {
             koinInitialize()
         }
 
-//        val context = defaultComponentContext()
-//        val component = DefaultRootComponent(context)
         setContent {
-//            App2(component)
             App()
         }
     }

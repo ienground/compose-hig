@@ -24,23 +24,5 @@ struct iOSApp: App {
 
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    let rootHolder: RootHolder = RootHolder()
-}
 
-class RootHolder : ObservableObject {
-    let lifecycle: LifecycleRegistry
-    let root: RootComponent
-
-    init() {
-        lifecycle = LifecycleRegistryKt.LifecycleRegistry()
-
-        root = Main_iosKt.RootComponent(lifecycleRegistry: lifecycle)
-
-        LifecycleRegistryExtKt.create(lifecycle)
-    }
-
-    deinit {
-        // Destroy the root component before it is deallocated
-        LifecycleRegistryExtKt.destroy(lifecycle)
-    }
 }
