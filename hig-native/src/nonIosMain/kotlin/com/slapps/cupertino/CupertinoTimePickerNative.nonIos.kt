@@ -24,6 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
+import zone.ien.hig.CupertinoTimePicker
+import zone.ien.hig.CupertinoTimePickerState
+import zone.ien.hig.ExperimentalCupertinoApi
 
 @Composable
 @ExperimentalCupertinoApi

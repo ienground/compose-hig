@@ -27,7 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.interop.LocalUIViewController
-import com.slapps.cupertino.theme.CupertinoTheme
+import zone.ien.hig.theme.CupertinoTheme
 import platform.UIKit.UIPresentationController
 import platform.UIKit.UIViewController
 import platform.UIKit.UIViewControllerAnimatedTransitioningProtocol

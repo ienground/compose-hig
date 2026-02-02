@@ -25,7 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.Dp
-import com.slapps.cupertino.theme.CupertinoTheme
+import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.CupertinoPickerDefaults
+import zone.ien.hig.CupertinoTimePickerState
+import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.LocalContainerColor
 
 @Composable
 @ExperimentalCupertinoApi

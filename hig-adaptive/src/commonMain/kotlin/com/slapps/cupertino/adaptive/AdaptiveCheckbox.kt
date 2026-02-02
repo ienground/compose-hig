@@ -31,10 +31,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.state.ToggleableState
-import com.slapps.cupertino.CupertinoCheckBox
-import com.slapps.cupertino.CupertinoCheckboxColors
-import com.slapps.cupertino.CupertinoCheckboxDefaults
-import com.slapps.cupertino.CupertinoTriStateCheckBox
+import zone.ien.hig.CupertinoCheckBox
+import zone.ien.hig.CupertinoCheckboxColors
+import zone.ien.hig.CupertinoCheckboxDefaults
+import zone.ien.hig.CupertinoTriStateCheckBox
 
 @ExperimentalAdaptiveApi
 @Composable

@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import com.slapps.cupertino.icons.CupertinoIcons
+import zone.ien.hig.icons.CupertinoIcons
 
 val CupertinoIcons.Filled.PowerCircle: ImageVector
     get() {

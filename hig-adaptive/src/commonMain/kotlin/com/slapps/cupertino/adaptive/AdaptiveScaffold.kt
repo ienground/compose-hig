@@ -34,10 +34,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
-import com.slapps.cupertino.CupertinoScaffold
-import com.slapps.cupertino.CupertinoScaffoldDefaults
-import com.slapps.cupertino.ExperimentalCupertinoApi
-import com.slapps.cupertino.FabPosition
+import zone.ien.hig.CupertinoScaffold
+import zone.ien.hig.CupertinoScaffoldDefaults
+import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.FabPosition
 
 
 @OptIn(ExperimentalCupertinoApi::class)

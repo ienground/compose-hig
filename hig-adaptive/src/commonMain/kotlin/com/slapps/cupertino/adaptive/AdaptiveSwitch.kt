@@ -32,9 +32,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.slapps.cupertino.CupertinoSwitch
-import com.slapps.cupertino.CupertinoSwitchColors
-import com.slapps.cupertino.CupertinoSwitchDefaults
+import zone.ien.hig.CupertinoSwitch
+import zone.ien.hig.CupertinoSwitchColors
+import zone.ien.hig.CupertinoSwitchDefaults
 
 /**
  * Adaptive Switch depending on current [Theme].

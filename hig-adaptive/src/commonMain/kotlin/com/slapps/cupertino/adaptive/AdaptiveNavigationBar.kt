@@ -38,11 +38,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import com.slapps.cupertino.CupertinoNavigationBar
-import com.slapps.cupertino.CupertinoNavigationBarDefaults
-import com.slapps.cupertino.CupertinoNavigationBarItem
-import com.slapps.cupertino.CupertinoNavigationBarItemColors
-import com.slapps.cupertino.ExperimentalCupertinoApi
+import zone.ien.hig.CupertinoNavigationBar
+import zone.ien.hig.CupertinoNavigationBarDefaults
+import zone.ien.hig.CupertinoNavigationBarItem
+import zone.ien.hig.CupertinoNavigationBarItemColors
+import zone.ien.hig.ExperimentalCupertinoApi
 
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi

@@ -22,7 +22,7 @@ package com.slapps.cupertino.adaptive.icons
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
-import com.slapps.cupertino.icons.CupertinoIcons
+import zone.ien.hig.icons.CupertinoIcons
 import com.slapps.cupertino.named
 
 @Composable

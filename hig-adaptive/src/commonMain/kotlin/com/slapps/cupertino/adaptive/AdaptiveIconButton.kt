@@ -32,10 +32,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.slapps.cupertino.CupertinoButtonColors
-import com.slapps.cupertino.CupertinoButtonDefaults.filledButtonColors
-import com.slapps.cupertino.CupertinoButtonDefaults.plainButtonColors
-import com.slapps.cupertino.CupertinoIconButton
+import zone.ien.hig.CupertinoButtonColors
+import zone.ien.hig.CupertinoButtonDefaults.filledButtonColors
+import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
+import zone.ien.hig.CupertinoIconButton
 
 @ExperimentalAdaptiveApi
 @Composable

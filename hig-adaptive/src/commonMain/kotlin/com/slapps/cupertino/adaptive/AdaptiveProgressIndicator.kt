@@ -37,9 +37,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.Dp
-import com.slapps.cupertino.CupertinoActivityIndicator
-import com.slapps.cupertino.CupertinoActivityIndicatorDefaults
-import com.slapps.cupertino.ExperimentalCupertinoApi
+import zone.ien.hig.CupertinoActivityIndicator
+import zone.ien.hig.CupertinoActivityIndicatorDefaults
+import zone.ien.hig.ExperimentalCupertinoApi
 
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi

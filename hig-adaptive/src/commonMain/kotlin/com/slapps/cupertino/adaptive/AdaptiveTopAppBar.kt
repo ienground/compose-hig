@@ -35,10 +35,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.slapps.cupertino.CupertinoTopAppBar
-import com.slapps.cupertino.CupertinoTopAppBarColors
-import com.slapps.cupertino.CupertinoTopAppBarDefaults
-import com.slapps.cupertino.ExperimentalCupertinoApi
+import zone.ien.hig.CupertinoTopAppBar
+import zone.ien.hig.CupertinoTopAppBarColors
+import zone.ien.hig.CupertinoTopAppBarDefaults
+import zone.ien.hig.ExperimentalCupertinoApi
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi

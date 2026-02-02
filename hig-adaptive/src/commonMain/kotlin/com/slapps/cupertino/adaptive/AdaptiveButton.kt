@@ -38,14 +38,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
-import com.slapps.cupertino.CupertinoButton
-import com.slapps.cupertino.CupertinoButtonColors
-import com.slapps.cupertino.CupertinoButtonDefaults.filledButtonColors
-import com.slapps.cupertino.CupertinoButtonDefaults.plainButtonColors
-import com.slapps.cupertino.CupertinoButtonDefaults.tintedButtonColors
-import com.slapps.cupertino.CupertinoButtonSize
-import com.slapps.cupertino.ExperimentalCupertinoApi
-import com.slapps.cupertino.theme.CupertinoTheme
+import zone.ien.hig.CupertinoButton
+import zone.ien.hig.CupertinoButtonColors
+import zone.ien.hig.CupertinoButtonDefaults.filledButtonColors
+import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
+import zone.ien.hig.CupertinoButtonDefaults.tintedButtonColors
+import zone.ien.hig.CupertinoButtonSize
+import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.theme.CupertinoTheme
 
 /**
  * Adaptive button that takes [Button] or borderedProminent [CupertinoButton] appearance

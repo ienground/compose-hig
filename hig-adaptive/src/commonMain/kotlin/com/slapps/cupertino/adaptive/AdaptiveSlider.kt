@@ -33,10 +33,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.slapps.cupertino.CupertinoRangeSlider
-import com.slapps.cupertino.CupertinoSlider
-import com.slapps.cupertino.CupertinoSliderColors
-import com.slapps.cupertino.CupertinoSliderDefaults
+import zone.ien.hig.CupertinoRangeSlider
+import zone.ien.hig.CupertinoSlider
+import zone.ien.hig.CupertinoSliderColors
+import zone.ien.hig.CupertinoSliderDefaults
 
 /**
  * Sliders allow users to make selections from a range of values.

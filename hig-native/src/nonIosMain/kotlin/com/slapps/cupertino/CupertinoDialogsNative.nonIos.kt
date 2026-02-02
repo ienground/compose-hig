@@ -25,6 +25,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.window.DialogProperties
+import zone.ien.hig.CupertinoActionSheet
+import zone.ien.hig.CupertinoAlertDialog
+import zone.ien.hig.CupertinoText
+import zone.ien.hig.ExperimentalCupertinoApi
 
 @OptIn(ExperimentalCupertinoApi::class)
 @Composable

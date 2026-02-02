@@ -33,9 +33,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -51,9 +48,9 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.slapps.cupertino.CupertinoNavigateBackButton
-import com.slapps.cupertino.CupertinoText
-import com.slapps.cupertino.ExperimentalCupertinoApi
+import zone.ien.hig.CupertinoNavigateBackButton
+import zone.ien.hig.CupertinoText
+import zone.ien.hig.ExperimentalCupertinoApi
 import com.slapps.cupertino.adaptive.AdaptiveAlertDialog
 import com.slapps.cupertino.adaptive.AdaptiveButton
 import com.slapps.cupertino.adaptive.AdaptiveCheckbox
@@ -82,9 +79,9 @@ import com.slapps.cupertino.adaptive.icons.Search
 import com.slapps.cupertino.adaptive.icons.Settings
 import com.slapps.cupertino.adaptive.icons.Share
 import com.slapps.cupertino.adaptive.icons.ThumbUp
-import com.slapps.cupertino.cancel
-import com.slapps.cupertino.default
-import com.slapps.cupertino.rememberCupertinoDatePickerState
+import zone.ien.hig.cancel
+import zone.ien.hig.default
+import zone.ien.hig.rememberCupertinoDatePickerState
 
 @OptIn(
     ExperimentalAdaptiveApi::class,

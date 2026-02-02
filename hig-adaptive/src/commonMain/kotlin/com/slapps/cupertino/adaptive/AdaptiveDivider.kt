@@ -30,9 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import com.slapps.cupertino.CupertinoDividerDefaults
-import com.slapps.cupertino.CupertinoHorizontalDivider
-import com.slapps.cupertino.CupertinoVerticalDivider
+import zone.ien.hig.CupertinoDividerDefaults
+import zone.ien.hig.CupertinoHorizontalDivider
+import zone.ien.hig.CupertinoVerticalDivider
 
 @Deprecated(
     replaceWith = ReplaceWith(

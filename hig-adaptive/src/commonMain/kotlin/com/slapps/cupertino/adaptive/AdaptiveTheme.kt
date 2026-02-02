@@ -31,7 +31,7 @@ import androidx.compose.material3.Typography as MaterialTypography
 import com.slapps.cupertino.theme.ColorScheme as CupertinoColorScheme
 import com.slapps.cupertino.theme.Typography as CupertinoTypography
 import com.slapps.cupertino.theme.Shapes as CupertinoShapes
-import com.slapps.cupertino.theme.CupertinoTheme
+import zone.ien.hig.theme.CupertinoTheme
 import com.slapps.cupertino.theme.lightColorScheme as cupertinoLightColorScheme
 
 import androidx.compose.runtime.Composable
@@ -40,8 +40,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.slapps.cupertino.LocalContentColorProvider
 import com.slapps.cupertino.LocalTextStyleProvider
-import com.slapps.cupertino.CupertinoIcon
-import com.slapps.cupertino.CupertinoText
+import zone.ien.hig.CupertinoIcon
+import zone.ien.hig.CupertinoText
 
 import androidx.compose.material3.LocalContentColor as MaterialLocalContentColor
 import androidx.compose.material3.LocalTextStyle as MaterialLocalTextStyle

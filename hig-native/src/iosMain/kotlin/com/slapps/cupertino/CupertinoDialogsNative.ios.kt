@@ -38,6 +38,7 @@ import platform.UIKit.UIAlertActionStyleDestructive
 import platform.UIKit.UIAlertController
 import platform.UIKit.UIAlertControllerStyleActionSheet
 import platform.UIKit.UIAlertControllerStyleAlert
+import zone.ien.hig.AlertActionStyle
 
 @Composable
 @NonRestartableComposable

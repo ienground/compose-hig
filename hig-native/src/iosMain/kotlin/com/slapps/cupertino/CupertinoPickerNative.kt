@@ -28,8 +28,12 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
-import com.slapps.cupertino.theme.CupertinoTheme
+import zone.ien.hig.theme.CupertinoTheme
 import platform.UIKit.UIPickerView
+import zone.ien.hig.CupertinoPickerDefaults
+import zone.ien.hig.CupertinoPickerState
+import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.LocalContainerColor
 
 @Composable
 @ExperimentalCupertinoApi
