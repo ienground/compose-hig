@@ -37,7 +37,7 @@ import zone.ien.hig.CupertinoVerticalDivider
 @Deprecated(
     replaceWith = ReplaceWith(
         "AdaptiveHorizontalDivider(modifier,adaptation)",
-        "com.slapps.cupertino.adaptive.AdaptiveHorizontalDivider"
+        "import zone.ien.hig.adaptive.AdaptiveHorizontalDivider"
     ),
     message = "Use AdaptiveHorizontalDivider instead")
 @Composable

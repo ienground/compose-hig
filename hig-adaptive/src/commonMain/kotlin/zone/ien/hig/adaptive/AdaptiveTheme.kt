@@ -129,8 +129,8 @@ fun AdaptiveTheme(
     message = "Use variant with theme specs instead of lambdas",
     replaceWith = ReplaceWith(
         "AdaptiveTheme(target, MaterialThemeSpec.Default(), CupertinoThemeSpec.Default(), content)",
-        "com.slapps.cupertino.adaptive.MaterialThemeSpec",
-        "com.slapps.cupertino.adaptive.CupertinoThemeSpec",
+        "import zone.ien.hig.adaptive.MaterialThemeSpec",
+        "import zone.ien.hig.adaptive.CupertinoThemeSpec",
     )
 )
 @Composable

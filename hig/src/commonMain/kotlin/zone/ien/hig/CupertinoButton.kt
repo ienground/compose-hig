@@ -320,7 +320,7 @@ object CupertinoButtonDefaults {
         "Use filledButtonColors instead",
         replaceWith = ReplaceWith(
             "filledButtonColors(contentColor,containerColor,disabledContentColor,disabledContainerColor,indicationColor)",
-            "com.slapps.cupertino.filledButtonColors"
+            "import zone.ien.hig.filledButtonColors"
         )
     )
     fun borderedProminentButtonColors(
@@ -344,7 +344,7 @@ object CupertinoButtonDefaults {
         "Use tintedButtonColors instead",
         replaceWith = ReplaceWith(
             "tintedButtonColors(contentColor,containerColor,disabledContentColor,disabledContainerColor,indicationColor)",
-            "com.slapps.cupertino.tintedButtonColors"
+            "import zone.ien.hig.tintedButtonColors"
         )
     )
     @Composable
@@ -370,7 +370,7 @@ object CupertinoButtonDefaults {
         "Use plainButtonColors instead",
         replaceWith = ReplaceWith(
             "plainButtonColors(contentColor,containerColor,disabledContentColor,disabledContainerColor,indicationColor)",
-            "com.slapps.cupertino.plainButtonColors"
+            "import zone.ien.hig.plainButtonColors"
         )
     )
     @Composable
@@ -396,7 +396,7 @@ object CupertinoButtonDefaults {
         "Use grayButtonColors instead",
         replaceWith = ReplaceWith(
             "grayButtonColors(contentColor,containerColor,disabledContentColor,disabledContainerColor,indicationColor)",
-            "com.slapps.cupertino.grayButtonColors"
+            "import zone.ien.hig.grayButtonColors"
         )
     )
     @Composable

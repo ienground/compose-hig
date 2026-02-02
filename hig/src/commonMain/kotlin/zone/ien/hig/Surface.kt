@@ -121,7 +121,7 @@ fun CupertinoSurface(
     "Use CupertinoSurface instead",
     replaceWith = ReplaceWith(
         "CupertinoSurface(modifier,shape,color,shadowElevation,contentColor,content)",
-        "com.slapps.cupertino.CupertinoSurface"
+        "import zone.ien.hig.CupertinoSurface"
     )
 )
 @Composable
@@ -145,7 +145,7 @@ fun Surface(
     "Use CupertinoSurface instead",
     replaceWith = ReplaceWith(
         "CupertinoSurface(onClick,modifier,enabled,shape,color,contentColor,border,indication,interactionSource,content)",
-        "com.slapps.cupertino.CupertinoSurface"
+        "import zone.ien.hig.CupertinoSurface"
     )
 )
 @Composable

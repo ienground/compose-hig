@@ -42,7 +42,7 @@ kotlin {
     }
 
     androidLibrary {
-        namespace = "com.slapps.cupertino${projectName}"
+        namespace = "zone.ien.hig${projectName}"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
         lint {

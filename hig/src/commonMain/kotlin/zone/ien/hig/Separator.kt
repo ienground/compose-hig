@@ -46,7 +46,7 @@ internal val LocalSeparatorColor = compositionLocalOf {
 @Deprecated(
     replaceWith = ReplaceWith(
         "CupertinoHorizontalDivider(modifier,thickness,color)",
-        "com.slapps.cupertino.CupertinoHorizontalDivider"
+        "import zone.ien.hig.CupertinoHorizontalDivider"
     ),
     message = "Use CupertinoHorizontalDivider instead")
 fun CupertinoDivider(
