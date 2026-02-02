@@ -96,11 +96,18 @@ kotlin {
 
             api(libs.decompose.core)
             api(libs.essenty)
+
             implementation(libs.decompose.compose)
             implementation(libs.compose.material3)
             implementation(compose.materialIconsExtended)
             implementation(libs.datetime)
             implementation(libs.serialization)
+
+            implementation(libs.compose.navigation3)
+            implementation(libs.lifecycle.viewmodel)
+            implementation(libs.lifecycle.runtime)
+
+            implementation(libs.bundles.koin)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
