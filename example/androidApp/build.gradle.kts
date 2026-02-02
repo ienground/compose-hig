@@ -44,5 +44,7 @@ kotlin {
         implementation(project(":example:composeApp"))
         implementation(libs.activity.compose)
         debugImplementation(libs.compose.ui.tooling)
+
+        implementation(libs.koin.android)
     }
 }

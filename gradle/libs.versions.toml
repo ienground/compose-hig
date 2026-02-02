@@ -1,7 +1,7 @@
 [versions]
 agp = "9.0.0"
 #agp = "8.12.0"
-kotlin = "2.3.0"
+kotlin = "2.3.20-Beta2"
 lib-version-name = "0.1.0-alpha01"
 
 # plugin
@@ -11,8 +11,7 @@ compose-navigation3 = "1.0.0-alpha06"
 
 # ui
 activity-compose = "1.12.3"
-decompose = "3.3.0"
-essenty = "2.5.0"
+lifecycle = "2.10.0-alpha07"
 
 # functionality
 datetime = "0.7.1"
@@ -22,11 +21,14 @@ material-kolor = "4.1.0"
 serialization = "1.10.0"
 vanniktech-mavenPublish = "0.30.0"
 atomicfu = "0.23.2"
+koin = "4.2.0-beta4"
 
 [libraries]
 
 # ui
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-navigation3", version.ref = "lifecycle" }
+lifecycle-runtime = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 
 compose-material3 = { group = "org.jetbrains.compose.material3", name = "material3", version.ref = "compose-plugin-experimental"}
 compose-preview = { group = "org.jetbrains.compose.ui", name = "ui-tooling-preview", version.ref = "compose-plugin" }
@@ -39,10 +41,6 @@ compose-ui-util = { group = "org.jetbrains.compose.ui", name = "ui-util", versio
 compose-resources = { group = "org.jetbrains.compose.components", name = "components-resources", version.ref = "compose-plugin" }
 compose-navigation3 = { group = "org.jetbrains.androidx.navigation3", name = "navigation3-ui", version.ref = "compose-navigation3" }
 
-decompose-core = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
-decompose-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
-essenty = { module = "com.arkivanov.essenty:lifecycle", version.ref = "essenty" }
-
 # functionality
 datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 material-kolor = { module = "com.materialkolor:material-kolor", version.ref = "material-kolor" }
@@ -51,10 +49,19 @@ material-kolor = { module = "com.materialkolor:material-kolor", version.ref = "m
 serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
 
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koin" }
+koin-compose-nav3 = { group = "io.insert-koin", name = "koin-compose-navigation3", version.ref = "koin" }
+koin-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koin" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+
 vanniktech-mavenPublish = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "vanniktech-mavenPublish" }
 vanniktech-maven-publish-gradle-plugin = { module = "com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin", version.ref = "vanniktech-mavenPublish" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+
+[bundles]
+koin = ["koin-compose", "koin-core", "koin-viewmodel", "koin-compose-nav3"]
 
 [plugins]
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }

@@ -53,7 +53,6 @@ include(
     ":hig-core",
     ":hig-native",
     ":hig-adaptive",
-    ":hig-decompose",
     ":hig-icons-extended",
     ":example:composeApp",
     ":example:androidApp",
