@@ -18,22 +18,18 @@
 
 
 
-package com.slapps.cupertino
+package zone.ien.hig
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import zone.ien.hig.theme.CupertinoTheme
-import zone.ien.hig.CupertinoDatePickerState
-import zone.ien.hig.DatePickerStyle
-import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.LocalContainerColor
 
 @Composable
 @ExperimentalCupertinoApi
-expect fun CupertinoDatePickerNative(
-    state: CupertinoDatePickerState,
+expect fun CupertinoDateTimePickerNative(
+    state: CupertinoDateTimePickerState,
     modifier: Modifier = Modifier,
     style: DatePickerStyle = DatePickerStyle.Wheel(),
     containerColor: Color =

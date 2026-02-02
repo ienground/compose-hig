@@ -18,7 +18,7 @@
 
 
 
-package com.slapps.cupertino
+package zone.ien.hig
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,10 +32,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import platform.UIKit.UIDatePickerMode
-import zone.ien.hig.CupertinoTimePickerState
-import zone.ien.hig.DatePickerStyle
-import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.InternalCupertinoApi
 import kotlin.time.Clock
 
 @OptIn(InternalCupertinoApi::class)

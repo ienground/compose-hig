@@ -159,9 +159,9 @@ package cupertino///*
 //import com.slapps.cupertino.cancel
 //import com.slapps.cupertino.default
 //import com.slapps.cupertino.destructive
-//import com.slapps.cupertino.icons.CupertinoIcons
-//import com.slapps.cupertino.icons.outlined.*
-//import com.slapps.cupertino.icons.filled.*
+//import zone.ien.hig.icons.CupertinoIcons
+//import zone.ien.hig.icons.outlined.*
+//import zone.ien.hig.icons.filled.*
 //import com.slapps.cupertino.isNavigationBarTransparent
 //import com.slapps.cupertino.isTopBarTransparent
 //import com.slapps.cupertino.isTowardsEnd

@@ -18,42 +18,22 @@
 
 
 
-package com.slapps.cupertino
+package zone.ien.hig
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import platform.UIKit.UIDatePickerMode
-import zone.ien.hig.CupertinoDateTimePickerState
-import zone.ien.hig.DatePickerStyle
-import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.InternalCupertinoApi
 
-@OptIn(InternalCupertinoApi::class)
 @Composable
 @ExperimentalCupertinoApi
-actual fun CupertinoDateTimePickerNative(
-    state: CupertinoDateTimePickerState,
+actual fun CupertinoDatePickerNative(
+    state: CupertinoDatePickerState,
     modifier: Modifier,
     style: DatePickerStyle,
     containerColor: Color,
-) {
-    LaunchedEffect(state) {
-        state.isManual = true
-    }
-
-    key(state) {
-        CupertinoDatePickerNativeImpl(
-            millis = state.selectedDateTimeMillis,
-            mode = UIDatePickerMode.UIDatePickerModeDateAndTime,
-            onChange = {
-                state.setSelection(it)
-            },
-            modifier = modifier,
-            style = style,
-            containerColor = containerColor,
-        )
-    }
-}
+) = CupertinoDatePicker(
+    state = state,
+    modifier = modifier,
+    style = style,
+    containerColor = containerColor,
+)

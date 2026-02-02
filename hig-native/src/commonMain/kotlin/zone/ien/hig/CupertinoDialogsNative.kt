@@ -18,7 +18,7 @@
 
 
 
-package com.slapps.cupertino
+package zone.ien.hig
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.Composable
@@ -28,10 +28,6 @@ import androidx.compose.ui.window.DialogProperties
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.systemGray7
-import zone.ien.hig.AlertActionStyle
-import zone.ien.hig.AlertDialogActionsScope
-import zone.ien.hig.CupertinoDialogsDefaults
-import zone.ien.hig.CupertinoText
 
 /**
  * Native analog for the compose [CupertinoAlertDialog].

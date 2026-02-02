@@ -23,7 +23,7 @@ package zone.ien.hig.adaptive.icons
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import zone.ien.hig.icons.CupertinoIcons
-import com.slapps.cupertino.named
+import zone.ien.hig.named
 
 @Composable
 internal actual fun systemImage(name: String): Painter? = CupertinoIcons.named(name)

@@ -18,46 +18,22 @@
 
 
 
-package com.slapps.cupertino
+package zone.ien.hig
 
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.viewinterop.UIKitInteropProperties
-import androidx.compose.ui.viewinterop.UIKitView
 import zone.ien.hig.theme.CupertinoTheme
-import platform.UIKit.UIPickerView
-import zone.ien.hig.CupertinoPickerDefaults
-import zone.ien.hig.CupertinoPickerState
-import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.LocalContainerColor
 
 @Composable
 @ExperimentalCupertinoApi
-fun <T> CupertinoPickerNative(
-    state: CupertinoPickerState,
-    items: List<T>,
+expect fun CupertinoDatePickerNative(
+    state: CupertinoDatePickerState,
     modifier: Modifier = Modifier,
-    height: Dp = CupertinoPickerDefaults.Height,
+    style: DatePickerStyle = DatePickerStyle.Wheel(),
     containerColor: Color =
         LocalContainerColor.current.takeOrElse {
             CupertinoTheme.colorScheme.secondarySystemGroupedBackground
         },
-    enabled: Boolean = true,
-    content: (T) -> String,
-) {
-    UIKitView(
-        factory = {
-            UIPickerView()
-        },
-        modifier = modifier.height(height),
-        properties =
-            UIKitInteropProperties(
-                isInteractive = true,
-                isNativeAccessibilityEnabled = true,
-            ),
-    )
-}
+)

@@ -18,7 +18,7 @@
 
 
 
-package com.slapps.cupertino
+package zone.ien.hig
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.Composable
@@ -38,7 +38,6 @@ import platform.UIKit.UIAlertActionStyleDestructive
 import platform.UIKit.UIAlertController
 import platform.UIKit.UIAlertControllerStyleActionSheet
 import platform.UIKit.UIAlertControllerStyleAlert
-import zone.ien.hig.AlertActionStyle
 
 @Composable
 @NonRestartableComposable

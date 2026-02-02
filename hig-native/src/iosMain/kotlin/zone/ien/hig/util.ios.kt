@@ -18,26 +18,28 @@
 
 
 
-package com.slapps.cupertino
+package zone.ien.hig
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
-import zone.ien.hig.CupertinoTimePicker
-import zone.ien.hig.CupertinoTimePickerState
-import zone.ien.hig.ExperimentalCupertinoApi
+import platform.UIKit.UIUserInterfaceStyle
+import platform.UIKit.UIView
+import platform.UIKit.UIViewController
 
-@Composable
-@ExperimentalCupertinoApi
-actual fun CupertinoTimePickerNative(
-    state: CupertinoTimePickerState,
-    modifier: Modifier,
-    height: Dp,
-    containerColor: Color,
-) = CupertinoTimePicker(
-    state = state,
-    modifier = modifier,
-    height = height,
-    containerColor = containerColor,
-)
+internal fun UIViewController.applyTheme(dark: Boolean) {
+    overrideUserInterfaceStyle =
+        if (dark) {
+            UIUserInterfaceStyle.UIUserInterfaceStyleDark
+        } else {
+            UIUserInterfaceStyle.UIUserInterfaceStyleLight
+        }
+}
+
+internal fun UIView.applyTheme(dark: Boolean) {
+    listOf(this, superview).forEach {
+        it?.overrideUserInterfaceStyle =
+            if (dark) {
+                UIUserInterfaceStyle.UIUserInterfaceStyleDark
+            } else {
+                UIUserInterfaceStyle.UIUserInterfaceStyleLight
+            }
+    }
+}

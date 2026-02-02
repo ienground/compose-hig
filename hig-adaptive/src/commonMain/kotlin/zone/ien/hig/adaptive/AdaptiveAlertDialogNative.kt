@@ -34,9 +34,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.window.DialogProperties
 import zone.ien.hig.AlertActionStyle
-import com.slapps.cupertino.CupertinoAlertDialogNative
+import zone.ien.hig.CupertinoAlertDialogNative
 import zone.ien.hig.CupertinoDialogsDefaults
-import com.slapps.cupertino.NativeAlertDialogActionsScope
+import zone.ien.hig.NativeAlertDialogActionsScope
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.systemGray7
 

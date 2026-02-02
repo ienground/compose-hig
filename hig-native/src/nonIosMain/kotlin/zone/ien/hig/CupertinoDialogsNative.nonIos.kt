@@ -18,17 +18,13 @@
 
 
 
-package com.slapps.cupertino
+package zone.ien.hig
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.window.DialogProperties
-import zone.ien.hig.CupertinoActionSheet
-import zone.ien.hig.CupertinoAlertDialog
-import zone.ien.hig.CupertinoText
-import zone.ien.hig.ExperimentalCupertinoApi
 
 @OptIn(ExperimentalCupertinoApi::class)
 @Composable

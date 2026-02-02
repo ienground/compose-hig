@@ -18,28 +18,22 @@
 
 
 
-package com.slapps.cupertino
+package zone.ien.hig
 
-import platform.UIKit.UIUserInterfaceStyle
-import platform.UIKit.UIView
-import platform.UIKit.UIViewController
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 
-internal fun UIViewController.applyTheme(dark: Boolean) {
-    overrideUserInterfaceStyle =
-        if (dark) {
-            UIUserInterfaceStyle.UIUserInterfaceStyleDark
-        } else {
-            UIUserInterfaceStyle.UIUserInterfaceStyleLight
-        }
-}
-
-internal fun UIView.applyTheme(dark: Boolean) {
-    listOf(this, superview).forEach {
-        it?.overrideUserInterfaceStyle =
-            if (dark) {
-                UIUserInterfaceStyle.UIUserInterfaceStyleDark
-            } else {
-                UIUserInterfaceStyle.UIUserInterfaceStyleLight
-            }
-    }
-}
+@Composable
+@ExperimentalCupertinoApi
+actual fun CupertinoDateTimePickerNative(
+    state: CupertinoDateTimePickerState,
+    modifier: Modifier,
+    style: DatePickerStyle,
+    containerColor: Color,
+) = CupertinoDateTimePicker(
+    state = state,
+    style = style,
+    containerColor = containerColor,
+    modifier = modifier,
+)

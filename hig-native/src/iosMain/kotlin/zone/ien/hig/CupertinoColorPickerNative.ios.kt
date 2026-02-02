@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.slapps.cupertino
+package zone.ien.hig
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,9 +26,6 @@ import androidx.compose.ui.graphics.Color
 import platform.UIKit.UIColorPickerViewController
 import platform.UIKit.UIColorPickerViewControllerDelegateProtocol
 import platform.darwin.NSObject
-import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.toComposeColor
-import zone.ien.hig.toUIColor
 
 @Composable
 @ExperimentalCupertinoApi

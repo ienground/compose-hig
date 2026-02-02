@@ -18,7 +18,7 @@
 
 
 
-package com.slapps.cupertino
+package zone.ien.hig
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -55,11 +55,6 @@ import platform.UIKit.UIDatePicker
 import platform.UIKit.UIDatePickerMode
 import platform.UIKit.UIDatePickerStyle
 import platform.UIKit.UIView
-import zone.ien.hig.CupertinoDatePickerState
-import zone.ien.hig.DatePickerStyle
-import zone.ien.hig.ExperimentalCupertinoApi
-import zone.ien.hig.InternalCupertinoApi
-import zone.ien.hig.toUIColor
 
 @OptIn(InternalCupertinoApi::class)
 @Composable
