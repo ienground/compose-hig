@@ -18,6 +18,7 @@ import icons.IconsScreen
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
+import sections.SectionsScreen
 
 @Serializable
 sealed interface RootRoute: NavKey {
@@ -72,7 +73,9 @@ fun RootNavigationGraph(
                 )
             }
             entry<RootRoute.Sections> {
-
+                SectionsScreen(
+                    navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                )
             }
         }
     )

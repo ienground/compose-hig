@@ -110,43 +110,4 @@ fun App2(rootComponent: RootComponent) {
     }
 }
 
-@ExperimentalAdaptiveApi
-@Composable
-fun GeneratedAdaptiveTheme(
-    target: Theme,
-    primaryColor: Color,
-    useDarkTheme: Boolean = isSystemInDarkTheme(),
-    shapes: zone.ien.hig.adaptive.Shapes = zone.ien.hig.adaptive.Shapes(),
-    content: @Composable () -> Unit
-) {
-    AdaptiveTheme(
-        target = target,
-        material = MaterialThemeSpec.Default(
-            colorScheme = dynamicColorScheme(
-                seedColor = primaryColor,
-                isDark = useDarkTheme
-            ),
-            shapes = androidx.compose.material3.Shapes(
-                extraSmall = shapes.extraSmall,
-                small = shapes.small,
-                medium = shapes.medium,
-                large = shapes.large,
-                extraLarge = shapes.extraLarge
-            )
-        ),
-        cupertino = CupertinoThemeSpec.Default(
-            colorScheme = if (useDarkTheme)
-                darkColorScheme(accent = primaryColor)
-            else lightColorScheme(accent = primaryColor),
-            shapes = Shapes(
-                extraSmall = shapes.extraSmall,
-                small = shapes.small,
-                medium = shapes.medium,
-                large = shapes.large,
-                extraLarge = shapes.extraLarge
-            )
-        ),
-        content = content
-    )
-}
 

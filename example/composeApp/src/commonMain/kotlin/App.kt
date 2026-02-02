@@ -1,21 +1,26 @@
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation3.runtime.rememberNavBackStack
+import com.materialkolor.dynamicColorScheme
 import navigation.RootNavigationGraph
 import navigation.RootRoute
 import navigation.rootConfig
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.context.startKoin
-import org.koin.core.module.dsl.viewModel
-import org.koin.dsl.module
+import zone.ien.hig.adaptive.AdaptiveTheme
+import zone.ien.hig.adaptive.CupertinoThemeSpec
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.MaterialThemeSpec
 import zone.ien.hig.adaptive.Theme
+import zone.ien.hig.theme.Shapes
+import zone.ien.hig.theme.darkColorScheme
+import zone.ien.hig.theme.lightColorScheme
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
@@ -59,4 +64,44 @@ fun App() {
             )
         }
     }
+}
+
+@ExperimentalAdaptiveApi
+@Composable
+fun GeneratedAdaptiveTheme(
+    target: Theme,
+    primaryColor: Color,
+    useDarkTheme: Boolean = isSystemInDarkTheme(),
+    shapes: zone.ien.hig.adaptive.Shapes = zone.ien.hig.adaptive.Shapes(),
+    content: @Composable () -> Unit
+) {
+    AdaptiveTheme(
+        target = target,
+        material = MaterialThemeSpec.Default(
+            colorScheme = dynamicColorScheme(
+                seedColor = primaryColor,
+                isDark = useDarkTheme
+            ),
+            shapes = androidx.compose.material3.Shapes(
+                extraSmall = shapes.extraSmall,
+                small = shapes.small,
+                medium = shapes.medium,
+                large = shapes.large,
+                extraLarge = shapes.extraLarge
+            )
+        ),
+        cupertino = CupertinoThemeSpec.Default(
+            colorScheme = if (useDarkTheme)
+                darkColorScheme(accent = primaryColor)
+            else lightColorScheme(accent = primaryColor),
+            shapes = Shapes(
+                extraSmall = shapes.extraSmall,
+                small = shapes.small,
+                medium = shapes.medium,
+                large = shapes.large,
+                extraLarge = shapes.extraLarge
+            )
+        ),
+        content = content
+    )
 }
