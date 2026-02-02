@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
  * Copyright (c) 2025. Scott Lanoue.
+ * Copyright (c) 2026. IENGROUND of IENLAB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +32,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "com.compose.cupertino.example.lib"
+        namespace = "zone.ien.hig.example.lib"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
 
         compilerOptions {
@@ -86,11 +87,11 @@ kotlin {
         val desktopMain by getting
 
         commonMain.dependencies {
-            implementation(projects.cupertino)
-            implementation(projects.cupertinoAdaptive)
-            implementation(projects.cupertinoNative)
-            implementation(projects.cupertinoDecompose)
-            implementation(projects.cupertinoIconsExtended)
+            implementation(projects.hig)
+            implementation(projects.higAdaptive)
+            implementation(projects.higNative)
+            implementation(projects.higDecompose)
+            implementation(projects.higIconsExtended)
             implementation(libs.material.kolor)
 
             api(libs.decompose.core)
@@ -115,7 +116,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.compose.cupertino.example"
+            packageName = "zone.ien.hig.example"
             packageVersion = "1.0.0"
         }
     }

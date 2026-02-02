@@ -1,4 +1,4 @@
-# Compose Cupertino Example app
+# Compose Hig Example app
 
 This application (excluded from the default `gradle build`) runs an example application across iOS, Android, Desktop, and Web (using WasmJS).
 
