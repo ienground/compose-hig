@@ -20,6 +20,8 @@
 
 package adaptive
 
+import RootDetails
+import RootUiState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -89,7 +91,11 @@ import zone.ien.hig.rememberCupertinoDatePickerState
     ExperimentalCupertinoApi::class,
 )
 @Composable
-fun AdaptiveWidgetsScreen(component: AdaptiveWidgetsComponent) {
+fun AdaptiveWidgetsScreen(
+    uiState: RootUiState,
+    onItemValueChanged: (RootDetails) -> Unit,
+    navigateBack: () -> Unit,
+) {
     AdaptiveScaffold(
         topBar = {
             AdaptiveTopAppBar(
@@ -97,14 +103,14 @@ fun AdaptiveWidgetsScreen(component: AdaptiveWidgetsComponent) {
                     AdaptiveWidget(
                         cupertino = {
                             CupertinoNavigateBackButton(
-                                onClick = component::onNavigateBack,
+                                onClick = navigateBack,
                             ) {
                                 CupertinoText("Back")
                             }
                         },
                         material = {
                             IconButton(
-                                onClick = component::onNavigateBack,
+                                onClick = navigateBack,
                             ) {
                                 Icon(
                                     imageVector =
@@ -126,10 +132,8 @@ fun AdaptiveWidgetsScreen(component: AdaptiveWidgetsComponent) {
                     Text("Theme")
                     AdaptiveSwitch(
                         modifier = Modifier.padding(horizontal = 6.dp),
-                        checked = component.isMaterial.value,
-                        onCheckedChange = {
-                            component.onThemeChanged()
-                        },
+                        checked = uiState.item.isMaterial,
+                        onCheckedChange = { onItemValueChanged(uiState.item.copy(isMaterial = it)) },
                     )
                 },
             )

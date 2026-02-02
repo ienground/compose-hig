@@ -3,6 +3,7 @@ package navigation
 import RootDetails
 import RootUiState
 import RootViewModel
+import adaptive.AdaptiveWidgetsScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -58,7 +59,11 @@ fun RootNavigationGraph(
                 )
             }
             entry<RootRoute.Adaptive> {
-
+                AdaptiveWidgetsScreen(
+                    uiState = viewModel.uiState,
+                    onItemValueChanged = viewModel::updateUiState,
+                    navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                )
             }
             entry<RootRoute.Icons> {
 

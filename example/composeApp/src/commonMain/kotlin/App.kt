@@ -1,5 +1,6 @@
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -20,16 +21,6 @@ import zone.ien.hig.adaptive.Theme
 @Composable
 fun App() {
     val backStack = rememberNavBackStack(rootConfig, RootRoute.Cupertino)
-
-    startKoin {
-        modules(
-            listOf(
-                module {
-                    viewModel { RootViewModel() }
-                }
-            )
-        )
-    }
 
     val viewModel: RootViewModel = koinViewModel()
 

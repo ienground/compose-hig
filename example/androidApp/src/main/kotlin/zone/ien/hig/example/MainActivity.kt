@@ -19,19 +19,26 @@
 package zone.ien.hig.example
 
 import App
-import App2
-import DefaultRootComponent
+import RootViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.arkivanov.decompose.defaultComponentContext
+import koinInitialize
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.startKoin
+import org.koin.core.module.dsl.viewModel
+import org.koin.dsl.module
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
+
+        if (GlobalContext.getKoinApplicationOrNull() == null) {
+            koinInitialize()
+        }
 
 //        val context = defaultComponentContext()
 //        val component = DefaultRootComponent(context)

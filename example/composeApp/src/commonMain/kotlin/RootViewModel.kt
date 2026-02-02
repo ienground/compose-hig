@@ -4,8 +4,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import org.koin.core.context.startKoin
+import org.koin.core.module.dsl.viewModel
+import org.koin.dsl.module
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.systemBlue
+
+fun koinInitialize() {
+    startKoin {
+        modules(
+            listOf(
+                module {
+                    viewModel { RootViewModel() }
+                }
+            )
+        )
+    }
+}
 
 class RootViewModel: ViewModel() {
     var uiState by mutableStateOf(RootUiState())
