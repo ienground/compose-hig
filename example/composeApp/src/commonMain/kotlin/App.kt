@@ -31,11 +31,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.materialkolor.dynamicColorScheme
-import com.slapps.cupertino.adaptive.AdaptiveTheme
-import com.slapps.cupertino.adaptive.CupertinoThemeSpec
-import com.slapps.cupertino.adaptive.ExperimentalAdaptiveApi
-import com.slapps.cupertino.adaptive.MaterialThemeSpec
-import com.slapps.cupertino.adaptive.Theme
+import zone.ien.hig.adaptive.AdaptiveTheme
+import zone.ien.hig.adaptive.CupertinoThemeSpec
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.MaterialThemeSpec
+import zone.ien.hig.adaptive.Theme
 import com.slapps.cupertino.decompose.cupertinoPredictiveBackAnimation
 import zone.ien.hig.theme.darkColorScheme
 import zone.ien.hig.theme.lightColorScheme
@@ -116,7 +116,7 @@ fun GeneratedAdaptiveTheme(
     target: Theme,
     primaryColor: Color,
     useDarkTheme: Boolean = isSystemInDarkTheme(),
-    shapes: com.slapps.cupertino.adaptive.Shapes = com.slapps.cupertino.adaptive.Shapes(),
+    shapes: zone.ien.hig.adaptive.Shapes = zone.ien.hig.adaptive.Shapes(),
     content: @Composable () -> Unit
 ) {
     AdaptiveTheme(

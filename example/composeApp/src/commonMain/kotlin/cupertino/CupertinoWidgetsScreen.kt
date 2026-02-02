@@ -128,10 +128,10 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
 import zone.ien.hig.MenuSection
 import zone.ien.hig.PresentationStyle
-import com.slapps.cupertino.adaptive.icons.AdaptiveIcons
-import com.slapps.cupertino.adaptive.icons.Add
-import com.slapps.cupertino.adaptive.icons.Settings
-import com.slapps.cupertino.adaptive.icons.Share
+import zone.ien.hig.adaptive.icons.AdaptiveIcons
+import zone.ien.hig.adaptive.icons.Add
+import zone.ien.hig.adaptive.icons.Settings
+import zone.ien.hig.adaptive.icons.Share
 import zone.ien.hig.cancel
 import zone.ien.hig.default
 import zone.ien.hig.destructive

@@ -50,7 +50,7 @@ import zone.ien.hig.CupertinoSegmentedControlTab
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.ExperimentalCupertinoApi
-import com.slapps.cupertino.adaptive.AdaptiveWidget
+import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.default
 import zone.ien.hig.icons.CupertinoIcons
 import com.slapps.cupertino.icons.filled.Airtag
