@@ -12,6 +12,8 @@ compose-navigation3 = "1.0.0-alpha06"
 # ui
 activity-compose = "1.12.3"
 lifecycle = "2.10.0-alpha07"
+backdrop = "2.0.0-alpha01"
+haze = "1.7.1"
 
 # functionality
 datetime = "0.7.1"
@@ -21,7 +23,7 @@ material-kolor = "4.1.0"
 serialization = "1.10.0"
 vanniktech-mavenPublish = "0.30.0"
 atomicfu = "0.23.2"
-koin = "4.2.0-beta4"
+koin = "4.2.0-RC1"
 
 [libraries]
 
@@ -40,6 +42,9 @@ compose-ui-tooling = { group = "org.jetbrains.compose.ui", name = "ui-tooling", 
 compose-ui-util = { group = "org.jetbrains.compose.ui", name = "ui-util", version.ref = "compose-plugin" }
 compose-resources = { group = "org.jetbrains.compose.components", name = "components-resources", version.ref = "compose-plugin" }
 compose-navigation3 = { group = "org.jetbrains.androidx.navigation3", name = "navigation3-ui", version.ref = "compose-navigation3" }
+
+backdrop = { group = "io.github.kyant0", name = "backdrop", version.ref = "backdrop"}
+haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 
 # functionality
 datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
