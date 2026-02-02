@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.compose.cupertino.example"
+    namespace = "zone.ien.hig.example"
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
 
     defaultConfig {
-        applicationId = "com.compose.cupertino.example"
+        applicationId = "zone.ien.hig.example"
         minSdk = (findProperty("android.minSdk") as String).toInt()
         versionCode = 1
         versionName = libs.versions.lib.version.name.get()

@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
  * Copyright (c) 2025. Scott Lanoue.
+ * Copyright (c) 2026. IENGROUND of IENLAB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +42,7 @@ kotlin {
     }
 
     androidLibrary {
-        namespace = "com.slapps.cupertino${projectName}"
+        namespace = "zone.ien.hig${projectName}"
         compileSdk = (findProperty("android.compileSdk") as String).toInt()
         minSdk = (findProperty("android.minSdk") as String).toInt()
         lint {

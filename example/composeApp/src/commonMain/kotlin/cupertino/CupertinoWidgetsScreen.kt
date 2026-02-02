@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
  * Copyright (c) 2025. Scott Lanoue.
+ * Copyright (c) 2026. IENGROUND of IENLAB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,115 +83,112 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
-import com.slapps.cupertino.CupertinoActionSheet
-import com.slapps.cupertino.CupertinoActionSheetNative
-import com.slapps.cupertino.CupertinoActivityIndicator
-import com.slapps.cupertino.CupertinoAlertDialog
-import com.slapps.cupertino.CupertinoAlertDialogNative
-import com.slapps.cupertino.CupertinoBorderedTextField
-import com.slapps.cupertino.CupertinoBorderedTextFieldDefaults
-import com.slapps.cupertino.CupertinoBottomSheetContent
-import com.slapps.cupertino.CupertinoBottomSheetScaffold
-import com.slapps.cupertino.CupertinoBottomSheetScaffoldDefaults
-import com.slapps.cupertino.CupertinoBottomSheetScaffoldState
-import com.slapps.cupertino.CupertinoButton
-import com.slapps.cupertino.CupertinoButtonDefaults
-import com.slapps.cupertino.CupertinoButtonSize
-import com.slapps.cupertino.CupertinoCheckBox
-import com.slapps.cupertino.CupertinoDatePicker
-import com.slapps.cupertino.CupertinoDatePickerNative
-import com.slapps.cupertino.CupertinoDatePickerState
-import com.slapps.cupertino.CupertinoDateTimePicker
-import com.slapps.cupertino.CupertinoDateTimePickerNative
-import com.slapps.cupertino.CupertinoDateTimePickerState
-import com.slapps.cupertino.CupertinoDropdownMenu
-import com.slapps.cupertino.CupertinoIcon
-import com.slapps.cupertino.CupertinoIconButton
-import com.slapps.cupertino.CupertinoIconDefaults
-import com.slapps.cupertino.CupertinoNavigationBar
-import com.slapps.cupertino.CupertinoNavigationBarItem
-import com.slapps.cupertino.CupertinoNavigationTitle
-import com.slapps.cupertino.CupertinoPickerState
-import com.slapps.cupertino.CupertinoSearchTextField
-import com.slapps.cupertino.CupertinoSearchTextFieldDefaults
-import com.slapps.cupertino.CupertinoSegmentedControl
-import com.slapps.cupertino.CupertinoSegmentedControlTab
-import com.slapps.cupertino.CupertinoSlider
-import com.slapps.cupertino.CupertinoSwipeBox
-import com.slapps.cupertino.CupertinoSwitch
-import com.slapps.cupertino.CupertinoText
-import com.slapps.cupertino.CupertinoTextField
-import com.slapps.cupertino.CupertinoTimePicker
-import com.slapps.cupertino.CupertinoTimePickerNative
-import com.slapps.cupertino.CupertinoTimePickerState
-import com.slapps.cupertino.CupertinoTopAppBar
-import com.slapps.cupertino.CupertinoTriStateCheckBox
-import com.slapps.cupertino.CupertinoWheelPicker
-import com.slapps.cupertino.ExperimentalCupertinoApi
-import com.slapps.cupertino.MenuAction
-import com.slapps.cupertino.MenuSection
-import com.slapps.cupertino.PresentationStyle
-import com.slapps.cupertino.adaptive.icons.AdaptiveIcons
-import com.slapps.cupertino.adaptive.icons.Add
-import com.slapps.cupertino.adaptive.icons.Settings
-import com.slapps.cupertino.adaptive.icons.Share
-import com.slapps.cupertino.cancel
-import com.slapps.cupertino.default
-import com.slapps.cupertino.destructive
-import com.slapps.cupertino.icons.CupertinoIcons
-import com.slapps.cupertino.icons.filled.Alarm
-import com.slapps.cupertino.icons.filled.Archivebox
-import com.slapps.cupertino.icons.filled.Banknote
-import com.slapps.cupertino.icons.filled.Gearshape
-import com.slapps.cupertino.icons.filled.Person
-import com.slapps.cupertino.icons.filled.Pin
-import com.slapps.cupertino.icons.filled.Trash
-import com.slapps.cupertino.icons.outlined.Bookmark
-import com.slapps.cupertino.icons.outlined.FaceSmiling
-import com.slapps.cupertino.icons.outlined.Heart
-import com.slapps.cupertino.icons.outlined.Iphone
-import com.slapps.cupertino.icons.outlined.MoonStars
-import com.slapps.cupertino.icons.outlined.Paintpalette
-import com.slapps.cupertino.icons.outlined.Paperclip
-import com.slapps.cupertino.icons.outlined.RectangleStack
-import com.slapps.cupertino.icons.outlined.SquareAndArrowUp
-import com.slapps.cupertino.icons.outlined.SquareSplit1x2
-import com.slapps.cupertino.icons.outlined.SunMax
-import com.slapps.cupertino.icons.outlined.Trash
-import com.slapps.cupertino.isNavigationBarTransparent
-import com.slapps.cupertino.isTopBarTransparent
-import com.slapps.cupertino.rememberCupertinoBottomSheetScaffoldState
-import com.slapps.cupertino.rememberCupertinoDatePickerState
-import com.slapps.cupertino.rememberCupertinoDateTimePickerState
-import com.slapps.cupertino.rememberCupertinoPickerState
-import com.slapps.cupertino.rememberCupertinoSearchTextFieldState
-import com.slapps.cupertino.rememberCupertinoSheetState
-import com.slapps.cupertino.rememberCupertinoTimePickerState
-import com.slapps.cupertino.section.CupertinoLinkIcon
-import com.slapps.cupertino.section.CupertinoSection
-import com.slapps.cupertino.section.ProvideSectionStyle
-import com.slapps.cupertino.section.SectionItem
-import com.slapps.cupertino.section.SectionLink
-import com.slapps.cupertino.section.SectionScope
-import com.slapps.cupertino.section.SectionStyle
-import com.slapps.cupertino.section.link
-import com.slapps.cupertino.section.section
-import com.slapps.cupertino.section.sectionContainerBackground
-import com.slapps.cupertino.section.sectionTitle
-import com.slapps.cupertino.swipebox.CupertinoSwipeBoxItem
-import com.slapps.cupertino.swipebox.SwipeBoxStates
-import com.slapps.cupertino.swipebox.rememberCupertinoSwipeBoxState
-import com.slapps.cupertino.theme.CupertinoColors
-import com.slapps.cupertino.theme.CupertinoTheme
-import com.slapps.cupertino.theme.systemBlue
-import com.slapps.cupertino.theme.systemCyan
-import com.slapps.cupertino.theme.systemGray
-import com.slapps.cupertino.theme.systemGreen
-import com.slapps.cupertino.theme.systemIndigo
-import com.slapps.cupertino.theme.systemOrange
-import com.slapps.cupertino.theme.systemPurple
-import com.slapps.cupertino.theme.systemRed
-import com.slapps.cupertino.theme.systemYellow
+import zone.ien.hig.CupertinoActionSheet
+import zone.ien.hig.CupertinoActionSheetNative
+import zone.ien.hig.CupertinoActivityIndicator
+import zone.ien.hig.CupertinoAlertDialog
+import zone.ien.hig.CupertinoAlertDialogNative
+import zone.ien.hig.CupertinoBorderedTextField
+import zone.ien.hig.CupertinoBottomSheetContent
+import zone.ien.hig.CupertinoBottomSheetScaffold
+import zone.ien.hig.CupertinoBottomSheetScaffoldDefaults
+import zone.ien.hig.CupertinoBottomSheetScaffoldState
+import zone.ien.hig.CupertinoButton
+import zone.ien.hig.CupertinoButtonDefaults
+import zone.ien.hig.CupertinoCheckBox
+import zone.ien.hig.CupertinoDatePicker
+import zone.ien.hig.CupertinoDatePickerNative
+import zone.ien.hig.CupertinoDatePickerState
+import zone.ien.hig.CupertinoDateTimePicker
+import zone.ien.hig.CupertinoDateTimePickerNative
+import zone.ien.hig.CupertinoDateTimePickerState
+import zone.ien.hig.CupertinoDropdownMenu
+import zone.ien.hig.CupertinoIcon
+import zone.ien.hig.CupertinoIconButton
+import zone.ien.hig.CupertinoNavigationBar
+import zone.ien.hig.CupertinoNavigationBarItem
+import zone.ien.hig.CupertinoNavigationTitle
+import zone.ien.hig.CupertinoPickerState
+import zone.ien.hig.CupertinoSearchTextField
+import zone.ien.hig.CupertinoSearchTextFieldDefaults
+import zone.ien.hig.CupertinoSegmentedControl
+import zone.ien.hig.CupertinoSegmentedControlTab
+import zone.ien.hig.CupertinoSlider
+import zone.ien.hig.CupertinoSwipeBox
+import zone.ien.hig.CupertinoSwitch
+import zone.ien.hig.CupertinoText
+import zone.ien.hig.CupertinoTextField
+import zone.ien.hig.CupertinoTimePicker
+import zone.ien.hig.CupertinoTimePickerNative
+import zone.ien.hig.CupertinoTimePickerState
+import zone.ien.hig.CupertinoTopAppBar
+import zone.ien.hig.CupertinoTriStateCheckBox
+import zone.ien.hig.CupertinoWheelPicker
+import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.MenuAction
+import zone.ien.hig.MenuSection
+import zone.ien.hig.PresentationStyle
+import zone.ien.hig.adaptive.icons.AdaptiveIcons
+import zone.ien.hig.adaptive.icons.Add
+import zone.ien.hig.adaptive.icons.Settings
+import zone.ien.hig.adaptive.icons.Share
+import zone.ien.hig.cancel
+import zone.ien.hig.default
+import zone.ien.hig.destructive
+import zone.ien.hig.icons.CupertinoIcons
+import zone.ien.hig.icons.filled.Alarm
+import zone.ien.hig.icons.filled.Archivebox
+import zone.ien.hig.icons.filled.Banknote
+import zone.ien.hig.icons.filled.Gearshape
+import zone.ien.hig.icons.filled.Person
+import zone.ien.hig.icons.filled.Pin
+import zone.ien.hig.icons.filled.Trash
+import zone.ien.hig.icons.outlined.Bookmark
+import zone.ien.hig.icons.outlined.FaceSmiling
+import zone.ien.hig.icons.outlined.Heart
+import zone.ien.hig.icons.outlined.Iphone
+import zone.ien.hig.icons.outlined.MoonStars
+import zone.ien.hig.icons.outlined.Paintpalette
+import zone.ien.hig.icons.outlined.Paperclip
+import zone.ien.hig.icons.outlined.RectangleStack
+import zone.ien.hig.icons.outlined.SquareAndArrowUp
+import zone.ien.hig.icons.outlined.SquareSplit1x2
+import zone.ien.hig.icons.outlined.SunMax
+import zone.ien.hig.icons.outlined.Trash
+import zone.ien.hig.isNavigationBarTransparent
+import zone.ien.hig.isTopBarTransparent
+import zone.ien.hig.rememberCupertinoBottomSheetScaffoldState
+import zone.ien.hig.rememberCupertinoDatePickerState
+import zone.ien.hig.rememberCupertinoDateTimePickerState
+import zone.ien.hig.rememberCupertinoPickerState
+import zone.ien.hig.rememberCupertinoSearchTextFieldState
+import zone.ien.hig.rememberCupertinoSheetState
+import zone.ien.hig.rememberCupertinoTimePickerState
+import zone.ien.hig.section.CupertinoLinkIcon
+import zone.ien.hig.section.CupertinoSection
+import zone.ien.hig.section.ProvideSectionStyle
+import zone.ien.hig.section.SectionItem
+import zone.ien.hig.section.SectionLink
+import zone.ien.hig.section.SectionScope
+import zone.ien.hig.section.SectionStyle
+import zone.ien.hig.section.link
+import zone.ien.hig.section.section
+import zone.ien.hig.section.sectionContainerBackground
+import zone.ien.hig.section.sectionTitle
+import zone.ien.hig.swipebox.CupertinoSwipeBoxItem
+import zone.ien.hig.swipebox.SwipeBoxStates
+import zone.ien.hig.swipebox.rememberCupertinoSwipeBoxState
+import zone.ien.hig.theme.CupertinoColors
+import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.theme.systemBlue
+import zone.ien.hig.theme.systemCyan
+import zone.ien.hig.theme.systemGray
+import zone.ien.hig.theme.systemGreen
+import zone.ien.hig.theme.systemIndigo
+import zone.ien.hig.theme.systemOrange
+import zone.ien.hig.theme.systemPurple
+import zone.ien.hig.theme.systemRed
+import zone.ien.hig.theme.systemYellow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -1078,21 +1076,21 @@ private fun SectionScope.SwitchAndProgressBar() {
                 CupertinoText("Text field...")
             },
             contentAlignment = Alignment.Bottom,
-            colors = CupertinoBorderedTextFieldDefaults.colors(
+            colors = zone.ien.hig.CupertinoBorderedTextFieldDefaults.colors(
                 focusedContainerColor = CupertinoTheme.colorScheme.systemBackground
             ),
             shape = CupertinoTheme.shapes.large,
             leadingIcon = {
                 CupertinoIcon(
-                    modifier = Modifier.height(CupertinoIconDefaults.MediumSize),
-                    imageVector = CupertinoIcons.Outlined.FaceSmiling,
+                    modifier = Modifier.height(zone.ien.hig.CupertinoIconDefaults.MediumSize),
+                    imageVector = zone.ien.hig.icons.CupertinoIcons.Outlined.FaceSmiling,
                     contentDescription = null
                 )
             },
             trailingIcon = {
                 CupertinoIcon(
-                    modifier = Modifier.height(CupertinoIconDefaults.MediumSize),
-                    imageVector = CupertinoIcons.Outlined.Paperclip,
+                    modifier = Modifier.height(zone.ien.hig.CupertinoIconDefaults.MediumSize),
+                    imageVector = zone.ien.hig.icons.CupertinoIcons.Outlined.Paperclip,
                     contentDescription = null
                 )
             },
@@ -1224,7 +1222,7 @@ private fun SectionScope.ButtonsExample() {
             }
             CupertinoIconButton(
                 onClick = {},
-                colors = CupertinoButtonDefaults.tintedButtonColors()
+                colors = zone.ien.hig.CupertinoButtonDefaults.tintedButtonColors()
             ) {
                 CupertinoIcon(
                     imageVector = AdaptiveIcons.Outlined.Add,
@@ -1233,7 +1231,7 @@ private fun SectionScope.ButtonsExample() {
             }
             CupertinoIconButton(
                 onClick = {},
-                colors = CupertinoButtonDefaults.grayButtonColors()
+                colors = zone.ien.hig.CupertinoButtonDefaults.grayButtonColors()
             ) {
                 CupertinoIcon(
                     imageVector = AdaptiveIcons.Outlined.Settings,
@@ -1259,26 +1257,26 @@ private fun SectionScope.ButtonsExample() {
         ) {
 
             CupertinoButton(
-                colors = CupertinoButtonDefaults.grayButtonColors(),
+                colors = zone.ien.hig.CupertinoButtonDefaults.grayButtonColors(),
                 onClick = {},
-                size = CupertinoButtonSize.Small
+                size = zone.ien.hig.CupertinoButtonSize.Small
             ) {
                 CupertinoText("Gray S")
             }
 
             CupertinoButton(
-                colors = CupertinoButtonDefaults.tintedButtonColors(),
+                colors = zone.ien.hig.CupertinoButtonDefaults.tintedButtonColors(),
                 onClick = {},
-                size = CupertinoButtonSize.Regular
+                size = zone.ien.hig.CupertinoButtonSize.Regular
             ) {
                 CupertinoText("Tinted M")
             }
 
             CupertinoButton(
-                colors = CupertinoButtonDefaults.filledButtonColors(
+                colors = zone.ien.hig.CupertinoButtonDefaults.filledButtonColors(
                 ),
                 onClick = {},
-                size = CupertinoButtonSize.Large
+                size = zone.ien.hig.CupertinoButtonSize.Large
             ) {
                 CupertinoText("Filled L")
             }
@@ -1291,13 +1289,13 @@ private fun SectionScope.ButtonsExample() {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CupertinoButton(
-                colors = CupertinoButtonDefaults.plainButtonColors(),
+                colors = zone.ien.hig.CupertinoButtonDefaults.plainButtonColors(),
                 onClick = {}
             ) {
                 CupertinoText("Plain")
             }
             CupertinoButton(
-                colors = CupertinoButtonDefaults.plainButtonColors(),
+                colors = zone.ien.hig.CupertinoButtonDefaults.plainButtonColors(),
                 onClick = {},
                 enabled = false
             ) {
@@ -1305,7 +1303,7 @@ private fun SectionScope.ButtonsExample() {
             }
 
             CupertinoButton(
-                colors = CupertinoButtonDefaults.filledButtonColors(),
+                colors = zone.ien.hig.CupertinoButtonDefaults.filledButtonColors(),
                 onClick = {},
                 enabled = false
             ) {

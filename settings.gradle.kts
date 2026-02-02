@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
  * Copyright (c) 2025. Scott Lanoue.
+ * Copyright (c) 2026. IENGROUND of IENLAB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,12 +49,12 @@ rootProject.name = "compose-hig"
 //}
 
 include(
-    ":cupertino",
-    ":cupertino-core",
-    ":cupertino-native",
-    ":cupertino-adaptive",
-    ":cupertino-decompose",
-    ":cupertino-icons-extended",
+    ":hig",
+    ":hig-core",
+    ":hig-native",
+    ":hig-adaptive",
+    ":hig-decompose",
+    ":hig-icons-extended",
     ":example:composeApp",
     ":example:androidApp",
 )

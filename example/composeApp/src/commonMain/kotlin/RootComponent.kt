@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
  * Copyright (c) 2025. Scott Lanoue.
+ * Copyright (c) 2026. IENGROUND of IENLAB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +37,8 @@ import cupertino.CupertinoWidgetsComponent
 import cupertino.DefaultCupertinoWidgetsComponent
 import icons.DefaultIconsComponent
 import icons.IconsComponent
-import com.slapps.cupertino.theme.CupertinoColors
-import com.slapps.cupertino.theme.systemBlue
+import zone.ien.hig.theme.CupertinoColors
+import zone.ien.hig.theme.systemBlue
 import kotlinx.serialization.Serializable
 import sections.DefaultSectionsComponent
 import sections.SectionsComponent

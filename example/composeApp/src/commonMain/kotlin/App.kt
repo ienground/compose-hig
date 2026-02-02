@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
  * Copyright (c) 2025. Scott Lanoue.
+ * Copyright (c) 2026. IENGROUND of IENLAB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,17 +31,18 @@ import androidx.compose.ui.unit.LayoutDirection
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.materialkolor.dynamicColorScheme
-import com.slapps.cupertino.adaptive.AdaptiveTheme
-import com.slapps.cupertino.adaptive.CupertinoThemeSpec
-import com.slapps.cupertino.adaptive.ExperimentalAdaptiveApi
-import com.slapps.cupertino.adaptive.MaterialThemeSpec
-import com.slapps.cupertino.adaptive.Theme
-import com.slapps.cupertino.decompose.cupertinoPredictiveBackAnimation
-import com.slapps.cupertino.theme.darkColorScheme
-import com.slapps.cupertino.theme.lightColorScheme
+import zone.ien.hig.adaptive.AdaptiveTheme
+import zone.ien.hig.adaptive.CupertinoThemeSpec
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.MaterialThemeSpec
+import zone.ien.hig.adaptive.Theme
+import zone.ien.hig.decompose.cupertinoPredictiveBackAnimation
+import zone.ien.hig.theme.darkColorScheme
+import zone.ien.hig.theme.lightColorScheme
 import cupertino.CupertinoWidgetsScreen
 import icons.IconsScreen
 import sections.SectionsScreen
+import zone.ien.hig.theme.Shapes
 
 
 expect val IsIos: Boolean
@@ -114,7 +116,7 @@ fun GeneratedAdaptiveTheme(
     target: Theme,
     primaryColor: Color,
     useDarkTheme: Boolean = isSystemInDarkTheme(),
-    shapes: com.slapps.cupertino.adaptive.Shapes = com.slapps.cupertino.adaptive.Shapes(),
+    shapes: zone.ien.hig.adaptive.Shapes = zone.ien.hig.adaptive.Shapes(),
     content: @Composable () -> Unit
 ) {
     AdaptiveTheme(
@@ -136,7 +138,7 @@ fun GeneratedAdaptiveTheme(
             colorScheme = if (useDarkTheme)
                 darkColorScheme(accent = primaryColor)
             else lightColorScheme(accent = primaryColor),
-            shapes = com.slapps.cupertino.theme.Shapes(
+            shapes = Shapes(
                 extraSmall = shapes.extraSmall,
                 small = shapes.small,
                 medium = shapes.medium,
