@@ -804,7 +804,7 @@ private fun BottomBarSample(
         isTransparent = isTransparent,
     ) {
         CupertinoNavigationBarItem(
-            selected = tab == 0,
+//            selected = tab == 0,
             onClick = { tab = 0 },
             icon = {
                 CupertinoIcon(
@@ -817,7 +817,7 @@ private fun BottomBarSample(
             }
         )
         CupertinoNavigationBarItem(
-            selected = tab == 1,
+//            selected = tab == 1,
             onClick = { tab = 1 },
             icon = {
                 CupertinoIcon(
