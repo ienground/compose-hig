@@ -97,7 +97,7 @@ fun WasmApp() {
                 Text("Mobile")
             }
 
-            App(root)
+            App2(root)
         }
     }
 }

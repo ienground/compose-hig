@@ -40,6 +40,6 @@ fun main() {
     singleWindowApplication(windowState) {
         LifecycleController(lifecycle, windowState)
 
-        App(component)
+        App2(component)
     }
 }

@@ -40,6 +40,8 @@ package cupertino
 
 import IsIos
 import RootComponent
+import RootDetails
+import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
@@ -83,6 +85,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import zone.ien.hig.CupertinoActionSheet
 import zone.ien.hig.CupertinoActionSheetNative
 import zone.ien.hig.CupertinoActivityIndicator
@@ -192,6 +195,7 @@ import zone.ien.hig.theme.systemYellow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import navigation.RootRoute
 import kotlin.reflect.KClass
 import kotlin.time.Instant
 
@@ -202,7 +206,9 @@ private enum class PickerTab {
 @OptIn(ExperimentalCupertinoApi::class)
 @Composable
 fun CupertinoWidgetsScreen(
-    component: CupertinoWidgetsComponent
+    uiState: RootUiState,
+    onItemValueChanged: (RootDetails) -> Unit,
+    onNavigate: (NavKey) -> Unit
 ) {
 
     val scrollState = rememberScrollState()
@@ -244,9 +250,10 @@ fun CupertinoWidgetsScreen(
         scaffoldState = scaffoldState,
         topBar = {
             TopBarSample(
+                uiState = uiState,
+                onItemValueChanged = onItemValueChanged,
                 scrollState = scrollState,
                 nativePickers = nativePickers.value,
-                component = component
             )
         },
         bottomBar = {
@@ -257,22 +264,26 @@ fun CupertinoWidgetsScreen(
         }
     ) { pv ->
         Body(
+            uiState = uiState,
+            onItemValueChanged = onItemValueChanged,
             paddingValues = pv,
             scrollState = scrollState,
-            component = component,
             scaffoldState = scaffoldState,
-            nativePickers = nativePickers
+            nativePickers = nativePickers,
+            onNavigate = onNavigate
         )
     }
 }
 
 @Composable
 private fun Body(
+    uiState: RootUiState,
+    onItemValueChanged: (RootDetails) -> Unit,
     paddingValues: PaddingValues,
     scrollState: ScrollState,
-    component: CupertinoWidgetsComponent,
     scaffoldState: CupertinoBottomSheetScaffoldState,
-    nativePickers: MutableState<Boolean>
+    nativePickers: MutableState<Boolean>,
+    onNavigate: (NavKey) -> Unit
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -315,8 +326,8 @@ private fun Body(
                 SectionItem(
                     trailingContent = {
                         CupertinoSwitch(
-                            checked = component.isInvertLayoutDirection.value,
-                            onCheckedChange = component::onInvertLayoutDirection
+                            checked = uiState.item.invertLayoutDirection,
+                            onCheckedChange = { onItemValueChanged(uiState.item.copy(invertLayoutDirection = it)) },
                         )
                     }
                 ) {
@@ -324,7 +335,11 @@ private fun Body(
                 }
 
                 SectionItem {
-                    ColorButtons(onColorsChanged = component::onAccentColorChanged)
+                    ColorButtons(
+                        onColorsChanged = { light, dark ->
+                            onItemValueChanged(uiState.item.copy(accentColors = Pair(light, dark)))
+                        }
+                    )
                 }
             }
 
@@ -334,7 +349,7 @@ private fun Body(
                         scaffoldState.bottomSheetState.show()
                     }
                 },
-                onNavigate = component::onNavigate
+                onNavigate = onNavigate,
             )
 
             CupertinoSection {
@@ -725,9 +740,10 @@ private fun SwipeBoxExample(scrollableState: ScrollableState) {
 
 @Composable
 private fun TopBarSample(
+    uiState: RootUiState,
+    onItemValueChanged: (RootDetails) -> Unit,
     scrollState: ScrollState,
     nativePickers: Boolean,
-    component: CupertinoWidgetsComponent
 ) {
     val density = LocalDensity.current
 
@@ -749,9 +765,9 @@ private fun TopBarSample(
         isTransparent = isTransparent,
         actions = {
             CupertinoIconButton(
-                onClick = component::onThemeClicked
+                onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
             ) {
-                AnimatedContent(component.isDark.value) {
+                AnimatedContent(uiState.item.isDark) {
                     if (it) {
                         CupertinoIcon(
                             imageVector = CupertinoIcons.Default.SunMax,
@@ -1631,7 +1647,7 @@ private fun DropdownExample() {
 @Composable
 private fun LinksWithIcons(
     onSheetClicked: () -> Unit,
-    onNavigate: (KClass<out RootComponent.Child>) -> Unit,
+    onNavigate: (NavKey) -> Unit,
 ) {
     CupertinoSection {
         SectionLink(
@@ -1646,7 +1662,7 @@ private fun LinksWithIcons(
                 Text("One")
             },
             onClick = {
-                onNavigate(RootComponent.Child.Icons::class)
+                onNavigate(RootRoute.Icons)
             }
         ) {
             CupertinoText("SF Symbols")
@@ -1663,7 +1679,7 @@ private fun LinksWithIcons(
                 Text("Two")
             },
             onClick = {
-                onNavigate(RootComponent.Child.Sections::class)
+                onNavigate(RootRoute.Sections)
             }
         ) {
             CupertinoText("Sections")
@@ -1681,7 +1697,7 @@ private fun LinksWithIcons(
                 Text("Three")
             },
             onClick = {
-                onNavigate(RootComponent.Child.Adaptive::class)
+                onNavigate(RootRoute.Adaptive)
             }
         ) {
             CupertinoText("Adaptive Widgets")

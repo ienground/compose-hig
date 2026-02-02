@@ -37,5 +37,5 @@ fun MainViewController(component: RootComponent): UIViewController =
             onFocusBehavior = OnFocusBehavior.DoNothing
         },
     ) {
-        App(component)
+        App2(component)
     }

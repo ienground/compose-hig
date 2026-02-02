@@ -77,7 +77,7 @@ interface RootComponent : ComponentContext {
     }
 }
 
-class RootViewModel : InstanceKeeper.Instance {
+class RootViewModel2 : InstanceKeeper.Instance {
     val accentColors =
         mutableStateOf(
             CupertinoColors.systemBlue(false) to CupertinoColors.systemBlue(true),
@@ -98,7 +98,7 @@ class DefaultRootComponent(
 
     private val model =
         instanceKeeper.getOrCreate {
-            RootViewModel()
+            RootViewModel2()
         }
 
     override val accentColor: State<Pair<Color, Color>>

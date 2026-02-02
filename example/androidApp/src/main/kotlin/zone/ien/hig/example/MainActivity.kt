@@ -19,6 +19,7 @@
 package zone.ien.hig.example
 
 import App
+import App2
 import DefaultRootComponent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -32,10 +33,11 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
 
-        val context = defaultComponentContext()
-        val component = DefaultRootComponent(context)
+//        val context = defaultComponentContext()
+//        val component = DefaultRootComponent(context)
         setContent {
-            App(component)
+//            App2(component)
+            App()
         }
     }
 }
