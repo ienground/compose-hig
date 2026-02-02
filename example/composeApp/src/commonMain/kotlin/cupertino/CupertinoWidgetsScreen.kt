@@ -1044,6 +1044,34 @@ private fun SectionScope.SwitchAndProgressBar() {
             }
             CupertinoSlider(
                 modifier = Modifier.weight(1f),
+                enabled = false,
+                value = b,
+                onValueChange = {
+                    b = it
+                }
+            )
+
+            CupertinoActivityIndicator(
+                progress = b
+            )
+//            Text(
+//                text = b.toString().take(4),
+//                modifier = Modifier.width(40.dp),
+//                maxLines = 1
+//            )
+        }
+    }
+
+    SectionItem {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            var b by remember {
+                mutableStateOf(.5f)
+            }
+            CupertinoSlider(
+                modifier = Modifier.weight(1f),
                 value = b,
                 steps = 5,
                 onValueChange = {
