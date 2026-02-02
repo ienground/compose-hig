@@ -36,7 +36,7 @@ import zone.ien.hig.adaptive.CupertinoThemeSpec
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.MaterialThemeSpec
 import zone.ien.hig.adaptive.Theme
-import com.slapps.cupertino.decompose.cupertinoPredictiveBackAnimation
+import zone.ien.hig.decompose.cupertinoPredictiveBackAnimation
 import zone.ien.hig.theme.darkColorScheme
 import zone.ien.hig.theme.lightColorScheme
 import cupertino.CupertinoWidgetsScreen

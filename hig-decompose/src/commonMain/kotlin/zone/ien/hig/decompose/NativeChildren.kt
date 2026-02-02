@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 
-package com.slapps.cupertino.decompose
+
+
+package zone.ien.hig.decompose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,6 +27,7 @@ import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.StackAnimation
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
+
 
 /**
  * Native children will use UINavigationController on iOS and [Children] on other platforms
@@ -36,17 +39,10 @@ import com.arkivanov.decompose.value.Value
  * @param content child content
  * */
 @Composable
-actual fun <C : Any, T : Any> NativeChildren(
+expect fun <C : Any, T : Any> NativeChildren(
     stack: Value<ChildStack<C, T>>,
     onBack: () -> Unit,
-    modifier: Modifier,
-    animation: StackAnimation<C, T>?,
-    content: @Composable (child: Child.Created<C, T>) -> Unit
-) {
-    Children(
-        stack = stack,
-        modifier = modifier,
-        animation = animation,
-        content = content,
-    )
-}
+    modifier: Modifier = Modifier,
+    animation: StackAnimation<C, T>? = null,
+    content: @Composable (child: Child.Created<C, T>) -> Unit,
+)

@@ -20,7 +20,7 @@
 
 @file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 
-package com.slapps.cupertino.decompose
+package zone.ien.hig.decompose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext

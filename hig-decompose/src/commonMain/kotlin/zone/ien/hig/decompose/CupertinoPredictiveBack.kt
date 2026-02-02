@@ -18,7 +18,7 @@
 
 
 
-package com.slapps.cupertino.decompose
+package zone.ien.hig.decompose
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FiniteAnimationSpec

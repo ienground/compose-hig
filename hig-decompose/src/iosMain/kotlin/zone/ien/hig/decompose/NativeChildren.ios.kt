@@ -19,7 +19,7 @@
 
 
 
-package com.slapps.cupertino.decompose
+package zone.ien.hig.decompose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
