@@ -41,9 +41,9 @@ subprojects {
 
             pom {
                 name = project.name
-                description = "IENGROUND Kotlin & Compose Multiplatform Helper."
+                description = "Compose Multiplatform library for using Apple inspired components"
                 inceptionYear = "2026"
-                url = "https://github.com/ienground/ienlab-cmp-library"
+                url = "https://github.com/ienground/compose-hig"
                 licenses {
                     license {
                         name = "Apache-2.0"
@@ -58,9 +58,9 @@ subprojects {
                     }
                 }
                 scm {
-                    url = "https://github.com/ienground/ienlab-cmp-library.git"
-                    connection = "scm:git:https://github.com/ienground/ienlab-cmp-library.git"
-                    developerConnection = "scm:git:https://github.com/ienground/ienlab-cmp-library.git"
+                    url = "https://github.com/ienground/compose-hig.git"
+                    connection = "scm:git:https://github.com/ienground/compose-hig.git"
+                    developerConnection = "scm:git:https://github.com/ienground/compose-hig.git"
                 }
             }
         }
