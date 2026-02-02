@@ -9,9 +9,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.materialkolor.dynamicColorScheme
-import navigation.RootNavigationGraph
-import navigation.RootRoute
-import navigation.rootConfig
 import org.koin.compose.viewmodel.koinViewModel
 import zone.ien.hig.adaptive.AdaptiveTheme
 import zone.ien.hig.adaptive.CupertinoThemeSpec

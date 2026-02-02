@@ -36,6 +36,7 @@ kotlin {
             implementation(libs.datetime)
             implementation(libs.atomicfu)
             implementation(libs.serialization)
+            implementation(libs.backdrop)
         }
     }
 }

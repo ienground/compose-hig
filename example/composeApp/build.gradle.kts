@@ -45,7 +45,6 @@ kotlin {
     }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64(),
     ).forEach { iosTarget ->
@@ -65,12 +64,8 @@ kotlin {
                 outputFileName = "composeApp.js"
                 devServer =
                     (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                        static =
-                            (static ?: mutableListOf()).apply {
-                                // Serve sources to debug inside browser
-                                add(project.rootDir.path)
-                                add(project.projectDir.path)
-                            }
+                        static(project.rootDir.path)
+                        static(project.projectDir.path)
                     }
                 sourceMaps = true
             }
@@ -99,6 +94,7 @@ kotlin {
             implementation(libs.lifecycle.runtime)
 
             implementation(libs.bundles.koin)
+            implementation(libs.backdrop)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

@@ -40,6 +40,7 @@ package cupertino
 
 import IsIos
 import RootDetails
+import RootRoute
 import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -85,6 +86,9 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
+import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import zone.ien.hig.CupertinoActionSheet
 import zone.ien.hig.CupertinoActionSheetNative
 import zone.ien.hig.CupertinoActivityIndicator
@@ -191,11 +195,6 @@ import zone.ien.hig.theme.systemOrange
 import zone.ien.hig.theme.systemPurple
 import zone.ien.hig.theme.systemRed
 import zone.ien.hig.theme.systemYellow
-import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import navigation.RootRoute
-import kotlin.reflect.KClass
 import kotlin.time.Instant
 
 private enum class PickerTab {
@@ -994,12 +993,12 @@ private fun SectionScope.SwitchAndProgressBar() {
                 }
             )
             CupertinoSwitch(
-                checked = true,
+                checked = active1,
                 enabled = false,
                 onCheckedChange = {}
             )
             CupertinoSwitch(
-                checked = false,
+                checked = active2,
                 enabled = false,
                 onCheckedChange = {}
             )

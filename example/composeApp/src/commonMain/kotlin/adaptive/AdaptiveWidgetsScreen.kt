@@ -50,7 +50,9 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.CupertinoNavigateBackButton
+import zone.ien.hig.CupertinoSwitch
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveAlertDialog
@@ -130,11 +132,17 @@ fun AdaptiveWidgetsScreen(
                 },
                 actions = {
                     Text("Theme")
-                    AdaptiveSwitch(
+                    CupertinoSwitch(
                         modifier = Modifier.padding(horizontal = 6.dp),
                         checked = uiState.item.isMaterial,
                         onCheckedChange = { onItemValueChanged(uiState.item.copy(isMaterial = it)) },
+                        backdrop = rememberLayerBackdrop()
                     )
+//                    AdaptiveSwitch(
+//                        modifier = Modifier.padding(horizontal = 6.dp),
+//                        checked = uiState.item.isMaterial,
+//                        onCheckedChange = { onItemValueChanged(uiState.item.copy(isMaterial = it)) },
+//                    )
                 },
             )
         },
