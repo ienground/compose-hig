@@ -38,6 +38,7 @@
 
 package cupertino
 
+import GeneratedAdaptiveTheme
 import IsIos
 import RootDetails
 import RootRoute
@@ -45,6 +46,7 @@ import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
@@ -84,8 +86,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -111,6 +115,7 @@ import zone.ien.hig.CupertinoDateTimePickerState
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconButton
+import zone.ien.hig.CupertinoLiquidSlider
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarItem
 import zone.ien.hig.CupertinoNavigationTitle
@@ -134,6 +139,8 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
 import zone.ien.hig.MenuSection
 import zone.ien.hig.PresentationStyle
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.adaptive.icons.Add
 import zone.ien.hig.adaptive.icons.Settings
@@ -320,6 +327,7 @@ private fun Body(
                         PaddingValues(bottom = 12.dp)
             )
 
+            /*
             CupertinoSection {
                 SectionItem(
                     trailingContent = {
@@ -354,6 +362,8 @@ private fun Body(
                 SwipeBoxExample(scrollState)
             }
 
+
+             */
             CupertinoSection(
                 title = {
                     CupertinoText(
@@ -394,6 +404,27 @@ private fun Body(
 
             Spacer(Modifier.imePadding())
         }
+    }
+}
+
+@OptIn(ExperimentalAdaptiveApi::class)
+@Preview(showBackground = true)
+@Composable
+private fun ScreenPreview() {
+    GeneratedAdaptiveTheme(
+        target = Theme.Cupertino,
+        primaryColor = CupertinoColors.systemBlue
+    ) {
+
+        Body(
+            uiState = RootUiState(),
+            onItemValueChanged = {},
+            paddingValues = PaddingValues.Zero,
+            scrollState = rememberScrollState(),
+            scaffoldState = rememberCupertinoBottomSheetScaffoldState(),
+            nativePickers = remember { mutableStateOf(false) },
+            onNavigate = {}
+        )
     }
 }
 
@@ -969,6 +1000,8 @@ fun DateTimePicker(
 
 @Composable
 private fun SectionScope.SwitchAndProgressBar() {
+    val backdrop = rememberLayerBackdrop()
+
     SectionItem {
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -1015,13 +1048,21 @@ private fun SectionScope.SwitchAndProgressBar() {
             var b by remember {
                 mutableStateOf(.5f)
             }
-            CupertinoSlider(
+            var enabled by remember { mutableStateOf(true) }
+            CupertinoLiquidSlider(
                 modifier = Modifier.weight(1f),
                 value = b,
                 onValueChange = {
                     b = it
-                }
+                },
+                enabled = enabled,
+                backdrop = backdrop
             )
+            CupertinoSwitch(
+                checked = enabled,
+                onCheckedChange = { enabled = it }
+            )
+
 
             CupertinoActivityIndicator(
                 progress = b
@@ -1042,13 +1083,14 @@ private fun SectionScope.SwitchAndProgressBar() {
             var b by remember {
                 mutableStateOf(.5f)
             }
-            CupertinoSlider(
+            CupertinoLiquidSlider(
                 modifier = Modifier.weight(1f),
                 enabled = false,
                 value = b,
                 onValueChange = {
                     b = it
-                }
+                },
+                backdrop = backdrop
             )
 
             CupertinoActivityIndicator(
@@ -1070,13 +1112,14 @@ private fun SectionScope.SwitchAndProgressBar() {
             var b by remember {
                 mutableStateOf(.5f)
             }
-            CupertinoSlider(
+            CupertinoLiquidSlider(
                 modifier = Modifier.weight(1f),
                 value = b,
                 steps = 5,
                 onValueChange = {
                     b = it
-                }
+                },
+                backdrop = backdrop
             )
 
             Text(

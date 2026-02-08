@@ -85,6 +85,7 @@ kotlin {
             implementation(libs.material.kolor)
 
             implementation(libs.compose.material3)
+            implementation(libs.compose.preview)
             implementation(compose.materialIconsExtended)
             implementation(libs.datetime)
             implementation(libs.serialization)
@@ -95,6 +96,7 @@ kotlin {
 
             implementation(libs.bundles.koin)
             implementation(libs.backdrop)
+            implementation(libs.capsule)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -102,6 +104,10 @@ kotlin {
     }
 
     compilerOptions.freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
+}
+
+dependencies {
+    androidRuntimeClasspath(libs.compose.ui.tooling)
 }
 
 compose.desktop {

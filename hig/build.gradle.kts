@@ -37,6 +37,7 @@ kotlin {
             implementation(libs.atomicfu)
             implementation(libs.serialization)
             implementation(libs.backdrop)
+            implementation(libs.capsule)
         }
     }
 }
