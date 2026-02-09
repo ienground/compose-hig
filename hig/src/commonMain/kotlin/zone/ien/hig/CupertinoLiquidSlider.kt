@@ -41,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -165,8 +166,8 @@ private fun SliderImpl(
     thumb: @Composable (DampedDragAnimation, LayerBackdrop) -> Unit,
     track: @Composable (DampedDragAnimation, LayerBackdrop) -> Unit,
 ) {
-    val isLightTheme = !isSystemInDarkTheme()
     val updatedValue by rememberUpdatedState(value)
+    val updatedEnabled by rememberUpdatedState(enabled)
     val trackBackdrop = rememberLayerBackdrop()
 
     BoxWithConstraints(
@@ -188,18 +189,22 @@ private fun SliderImpl(
                 pressedScale = 1.5f,
                 onDragStarted = {},
                 onDragStopped = {
-                    if (didDrag) {
-                        onValueChange(targetValue)
+                    if (updatedEnabled) {
+                        if (didDrag) {
+                            onValueChange(targetValue)
+                        }
+                        onValueChangeFinished?.invoke()
                     }
-                    onValueChangeFinished?.invoke()
                 },
                 onDrag = { _, dragAmount ->
-                    if (!didDrag) {
-                        didDrag = dragAmount.x != 0f
+                    if (updatedEnabled) {
+                        if (!didDrag) {
+                            didDrag = dragAmount.x != 0f
+                        }
+                        val delta = (valueRange.endInclusive - valueRange.start) * (dragAmount.x / trackWidth) * if (isLtr) 1f else -1f
+                        val newValue = (targetValue + delta).coerceIn(valueRange)
+                        onValueChange(newValue)
                     }
-                    val delta = (valueRange.endInclusive - valueRange.start) * (dragAmount.x / trackWidth) * if (isLtr) 1f else -1f
-                    val newValue = (targetValue + delta).coerceIn(valueRange)
-                    onValueChange(newValue)
                 }
             )
         }
@@ -223,9 +228,11 @@ private fun SliderImpl(
                             val targetValue =
                                 (if (isLtr) valueRange.start + delta
                                 else valueRange.endInclusive - delta).coerceIn(valueRange)
-                            dampedDragAnimation.animateToValue(targetValue)
-                            onValueChange(targetValue)
-                            onValueChangeFinished?.invoke()
+                            if (updatedEnabled) {
+                                dampedDragAnimation.animateToValue(targetValue)
+                                onValueChange(targetValue)
+                                onValueChangeFinished?.invoke()
+                            }
                         }
                     }
                     .height(6.dp)
@@ -387,6 +394,8 @@ object CupertinoLiquidSliderDefaults {
         backdrop: Backdrop = rememberLayerBackdrop(),
         trackBackdrop: LayerBackdrop
     ) {
+        val thumbColor by colors.thumbColor(enabled)
+
         Box(
             modifier
                 .then(dampedDragAnimation.modifier)
@@ -394,7 +403,7 @@ object CupertinoLiquidSliderDefaults {
                     backdrop = rememberCombinedBackdrop(
                         backdrop,
                         rememberBackdrop(trackBackdrop) { drawBackdrop ->
-                            val progress = dampedDragAnimation.pressProgress
+                            val progress = if (enabled) dampedDragAnimation.pressProgress else 0f
                             val scaleX = lerp(2f / 3f, 1f, progress)
                             val scaleY = lerp(0f, 1f, progress)
                             scale(scaleX, scaleY) {
@@ -404,7 +413,7 @@ object CupertinoLiquidSliderDefaults {
                     ),
                     shape = { Capsule },
                     effects = {
-                        val progress = dampedDragAnimation.pressProgress
+                        val progress = if (enabled) dampedDragAnimation.pressProgress else 0f
                         blur(8.dp.toPx() * (1f - progress))
                         lens(
                             10.dp.toPx() * progress,
@@ -413,7 +422,7 @@ object CupertinoLiquidSliderDefaults {
                         )
                     },
                     highlight = {
-                        val progress = dampedDragAnimation.pressProgress
+                        val progress = if (enabled) dampedDragAnimation.pressProgress else 0f
                         Highlight.Ambient.copy(
                             width = Highlight.Ambient.width / 1.5f,
                             blurRadius = Highlight.Ambient.blurRadius / 1.5f,
@@ -422,27 +431,29 @@ object CupertinoLiquidSliderDefaults {
                     },
                     shadow = {
                         Shadow(
-                            radius = 4.dp,
-                            color = Color.Black.copy(alpha = 0.05f)
+                            radius = 6.dp,
+                            color = Color.Black.copy(alpha = if (enabled) 0.15f else 0.05f)
                         )
                     },
                     innerShadow = {
-                        val progress = dampedDragAnimation.pressProgress
+                        val progress = if (enabled) dampedDragAnimation.pressProgress else 0f
                         InnerShadow(
                             radius = 4.dp * progress,
                             alpha = progress
                         )
                     },
                     layerBlock = {
-                        scaleX = dampedDragAnimation.scaleX
-                        scaleY = dampedDragAnimation.scaleY
-                        val velocity = dampedDragAnimation.velocity / 10f
-                        scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
-                        scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
+                        if (enabled) {
+                            scaleX = dampedDragAnimation.scaleX
+                            scaleY = dampedDragAnimation.scaleY
+                            val velocity = dampedDragAnimation.velocity / 10f
+                            scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
+                            scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
+                        }
                     },
                     onDrawSurface = {
-                        val progress = dampedDragAnimation.pressProgress
-                        drawRect(Color.White.copy(alpha = 1f - progress))
+                        val progress = if (enabled) dampedDragAnimation.pressProgress else 0f
+                        drawRect(thumbColor.copy(alpha = 1f - progress))
                     }
                 )
                 .size(thumbSize)
@@ -538,14 +549,18 @@ object CupertinoLiquidSliderDefaults {
         dampedDragAnimation: DampedDragAnimation,
         trackBackdrop: LayerBackdrop
     ) {
-        val inactiveTrackColor by colors.trackColor(enabled, active = false)
-        val activeTrackColor by colors.trackColor(enabled, active = true)
+        val inactiveTrackColor by colors.trackColor(true, active = false)
+        val activeTrackColor by colors.trackColor(true, active = true)
         val inactiveTickColor by colors.tickColor(enabled, active = false)
         val activeTickColor by colors.tickColor(enabled, active = true)
         val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
 
 
-        Box(modifier.layerBackdrop(trackBackdrop)) {
+        Box(
+            modifier = modifier
+                .layerBackdrop(trackBackdrop)
+                .alpha(if (enabled) 1f else 0.5f)
+        ) {
             Box(
                 Modifier
                     .clip(Capsule)
