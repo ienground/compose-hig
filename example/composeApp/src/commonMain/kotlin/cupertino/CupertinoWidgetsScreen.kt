@@ -326,7 +326,6 @@ private fun Body(
                         PaddingValues(bottom = 12.dp)
             )
 
-            /*
             CupertinoSection {
                 SectionItem(
                     trailingContent = {
@@ -361,8 +360,6 @@ private fun Body(
                 SwipeBoxExample(scrollState)
             }
 
-
-             */
             CupertinoSection(
                 title = {
                     CupertinoText(

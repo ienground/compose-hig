@@ -132,17 +132,11 @@ fun AdaptiveWidgetsScreen(
                 },
                 actions = {
                     Text("Theme")
-                    CupertinoSwitch(
+                    AdaptiveSwitch(
                         modifier = Modifier.padding(horizontal = 6.dp),
                         checked = uiState.item.isMaterial,
                         onCheckedChange = { onItemValueChanged(uiState.item.copy(isMaterial = it)) },
-                        backdrop = rememberLayerBackdrop()
                     )
-//                    AdaptiveSwitch(
-//                        modifier = Modifier.padding(horizontal = 6.dp),
-//                        checked = uiState.item.isMaterial,
-//                        onCheckedChange = { onItemValueChanged(uiState.item.copy(isMaterial = it)) },
-//                    )
                 },
             )
         },
