@@ -46,7 +46,6 @@ import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
@@ -115,16 +114,16 @@ import zone.ien.hig.CupertinoDateTimePickerState
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconButton
-import zone.ien.hig.CupertinoLiquidSlider
+import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarItem
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
+import zone.ien.hig.CupertinoRangeSlider
 import zone.ien.hig.CupertinoSearchTextField
 import zone.ien.hig.CupertinoSearchTextFieldDefaults
 import zone.ien.hig.CupertinoSegmentedControl
 import zone.ien.hig.CupertinoSegmentedControlTab
-import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoSwipeBox
 import zone.ien.hig.CupertinoSwitch
 import zone.ien.hig.CupertinoText
@@ -1049,7 +1048,7 @@ private fun SectionScope.SwitchAndProgressBar() {
                 mutableStateOf(.5f)
             }
             var enabled by remember { mutableStateOf(true) }
-            CupertinoLiquidSlider(
+            CupertinoSlider(
                 modifier = Modifier.weight(1f),
                 value = b,
                 onValueChange = {
@@ -1078,7 +1077,7 @@ private fun SectionScope.SwitchAndProgressBar() {
             var b by remember {
                 mutableStateOf(.5f)
             }
-            CupertinoLiquidSlider(
+            CupertinoSlider(
                 modifier = Modifier.weight(1f),
                 enabled = false,
                 value = b,
@@ -1107,7 +1106,7 @@ private fun SectionScope.SwitchAndProgressBar() {
             var b by remember {
                 mutableStateOf(.5f)
             }
-            CupertinoLiquidSlider(
+            CupertinoSlider(
                 modifier = Modifier.weight(1f),
                 value = b,
                 steps = 2,
@@ -1130,24 +1129,23 @@ private fun SectionScope.SwitchAndProgressBar() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            var start by remember { mutableStateOf(0.25f) }
-            var end by remember { mutableStateOf(0.75f) }
+            var b by remember { mutableStateOf(0.25f..0.75f) }
 
-            CupertinoLiquidSlider(
+            CupertinoRangeSlider(
                 modifier = Modifier.weight(1f),
                 value = b,
-                steps = 2,
+                steps = 4,
                 onValueChange = {
                     b = it
                 },
                 backdrop = backdrop
             )
 
-            Text(
-                text = b.toString().take(4),
-                modifier = Modifier.width(40.dp),
-                maxLines = 1
-            )
+//            Text(
+//                text = b.toString().take(4),
+//                modifier = Modifier.width(40.dp),
+//                maxLines = 1
+//            )
         }
     }
 

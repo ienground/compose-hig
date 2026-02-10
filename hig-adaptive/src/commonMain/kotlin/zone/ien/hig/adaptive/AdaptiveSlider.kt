@@ -33,10 +33,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import zone.ien.hig.CupertinoRangeSlider
+import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.CupertinoSlider
+import zone.ien.hig.CupertinoLiquidSliderDefaults
+import zone.ien.hig.CupertinoRangeSlider
 import zone.ien.hig.CupertinoSliderColors
-import zone.ien.hig.CupertinoSliderDefaults
 
 /**
  * Sliders allow users to make selections from a range of values.
@@ -104,7 +106,10 @@ fun AdaptiveSlider(
                 enabled = enabled,
                 valueRange = valueRange,
                 steps = steps,
+                showStepIndicator = it.showStepIndicator,
+                backdrop = it.backdrop,
                 onValueChangeFinished = onValueChangeFinished,
+                visibilityThreshold = it.visibilityThreshold,
                 colors = it.colors,
                 interactionSource = interactionSource,
             )
@@ -158,6 +163,7 @@ fun AdaptiveRangeSlider(
                 modifier = modifier,
                 enabled = enabled,
                 valueRange = valueRange,
+                steps = steps,
                 onValueChangeFinished = onValueChangeFinished,
                 colors = it.colors,
             )
@@ -169,7 +175,11 @@ fun AdaptiveRangeSlider(
                 modifier = modifier,
                 enabled = enabled,
                 valueRange = valueRange,
+                steps = steps,
+                showStepIndicator = it.showStepIndicator,
+                backdrop = it.backdrop,
                 onValueChangeFinished = onValueChangeFinished,
+                visibilityThreshold = it.visibilityThreshold,
                 colors = it.colors,
             )
         },
@@ -179,8 +189,14 @@ fun AdaptiveRangeSlider(
 @Stable
 class CupertinoSliderAdaptation internal constructor(
     colors: CupertinoSliderColors,
+    showStepIndicator: Boolean,
+    backdrop: Backdrop,
+    visibilityThreshold: Float
 ) {
     var colors: CupertinoSliderColors by mutableStateOf(colors)
+    var showStepIndicator: Boolean by mutableStateOf(showStepIndicator)
+    var backdrop: Backdrop by mutableStateOf(backdrop)
+    var visibilityThreshold: Float by mutableStateOf(visibilityThreshold)
 }
 
 @Stable
@@ -197,11 +213,17 @@ private class SliderAdaptation(
 ) : Adaptation<CupertinoSliderAdaptation, MaterialSliderAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoSliderAdaptation {
-        val colors = CupertinoSliderDefaults.defaultColorsFor(steps)
+        val colors = CupertinoLiquidSliderDefaults.colors()
+        val backdrop = rememberLayerBackdrop()
+        val showStepIndicator = steps > 0
+        val visibilityThreshold = 0.01f
 
         return remember(colors) {
             CupertinoSliderAdaptation(
                 colors = colors,
+                backdrop = backdrop,
+                showStepIndicator = showStepIndicator,
+                visibilityThreshold = visibilityThreshold
             )
         }
     }
