@@ -23,7 +23,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -50,6 +49,9 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -75,8 +77,9 @@ import kotlinx.coroutines.flow.collectLatest
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.White
-import zone.ien.hig.theme.systemGray
 import zone.ien.hig.utils.DampedDragAnimation
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 /**
  * Sliders allow users to make selections from a range of values.
@@ -113,9 +116,11 @@ fun CupertinoLiquidSlider(
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     steps: Int = 0,
+    showStepIndicator: Boolean = steps != 0,
     backdrop: Backdrop,
     onValueChangeFinished: (() -> Unit)? = null,
-    colors: CupertinoSliderColors = CupertinoLiquidSliderDefaults.defaultColorsFor(steps),
+    visibilityThreshold: Float = 0.01f,
+    colors: CupertinoSliderColors = CupertinoLiquidSliderDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     require(steps >= 0) { "steps should be >= 0" }
@@ -123,13 +128,15 @@ fun CupertinoLiquidSlider(
     SliderImpl(
         modifier = modifier,
         enabled = enabled,
+        colors = colors,
         interactionSource = interactionSource,
         onValueChange = onValueChange,
         onValueChangeFinished = onValueChangeFinished,
         steps = steps,
+        showStepIndicator = showStepIndicator,
         value = value,
         valueRange = valueRange,
-        visibilityThreshold = 0.01f,
+        visibilityThreshold = visibilityThreshold,
         thumb = { dampedDragAnimation, trackBackdrop ->
             CupertinoLiquidSliderDefaults.Thumb(
                 interactionSource = interactionSource,
@@ -151,15 +158,103 @@ fun CupertinoLiquidSlider(
     )
 }
 
+/***
+ * Sliders allow users to make selections from a range of values.
+ *
+ * Sliders reflect a range of values along a bar, from which users may select a single value.
+ * They are ideal for adjusting settings such as volume, brightness, or applying image filters.
+ *
+ * @param value current value of the slider. If outside of [valueRange] provided, value will be
+ * coerced to this range.
+ * @param onValueChange callback in which value should be updated
+ * @param modifier the [Modifier] to be applied to this slider
+ * @param enabled controls the enabled state of this slider. When `false`, this component will not
+ * respond to user input, and it will appear visually disabled and disabled to accessibility
+ * services.
+ * @param valueRange range of values that this slider can take. The passed [value] will be coerced
+ * to this range.
+ * @param onValueChangeFinished called when value change has ended. This should not be used to
+ * update the slider value (use [onValueChange] instead), but rather to know when the user has
+ * completed selecting a new value by ending a drag or a click.
+ * @param colors [CupertinoSliderColors] that will be used to resolve the colors used for this slider in
+ * different states. See [CupertinoSliderDefaults.colors].
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this slider. You can create and pass in your own `remember`ed instance to observe
+ * [Interaction]s and customize the appearance / behavior of this slider in different states.
+ * @param thumb the thumb to be displayed on the slider, it is placed on top of the track. The lambda
+ * receives a [SliderPositions] which is used to obtain the current active track and the tick positions
+ * if the slider is discrete.
+ * @param track the track to be displayed on the slider, it is placed underneath the thumb. The lambda
+ * receives a [SliderPositions] which is used to obtain the current active track and the tick positions
+ * if the slider is discrete.
+ * @param steps if greater than 0, specifies the amount of discrete allowable values, evenly
+ * distributed across the whole value range. If 0, the slider will behave continuously and allow any
+ * value from the range specified. Must not be negative.
+ */
+@Composable
+fun CupertinoLiquidSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    steps: Int = 0,
+    showStepIndicator: Boolean = steps != 0,
+    backdrop: Backdrop,
+    onValueChangeFinished: (() -> Unit)? = null,
+    visibilityThreshold: Float = 0.01f,
+    colors: CupertinoSliderColors = CupertinoSliderDefaults.defaultColorsFor(steps),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    thumb: @Composable (DampedDragAnimation, LayerBackdrop) -> Unit = { dampedDragAnimation, trackBackdrop ->
+        CupertinoLiquidSliderDefaults.Thumb(
+            interactionSource = interactionSource,
+            colors = colors,
+            enabled = enabled,
+            dampedDragAnimation = dampedDragAnimation,
+            backdrop = backdrop,
+            trackBackdrop = trackBackdrop,
+        )
+    },
+    track: @Composable (DampedDragAnimation, LayerBackdrop) -> Unit = { dampedDragAnimation, trackBackdrop ->
+        CupertinoLiquidSliderDefaults.Track(
+            colors = colors,
+            enabled = enabled,
+            dampedDragAnimation = dampedDragAnimation,
+            trackBackdrop = trackBackdrop
+        )
+    },
+    // @IntRange(from = 0)
+) {
+    require(steps >= 0) { "steps should be >= 0" }
+
+    SliderImpl(
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+        interactionSource = interactionSource,
+        onValueChange = onValueChange,
+        onValueChangeFinished = onValueChangeFinished,
+        steps = steps,
+        showStepIndicator = showStepIndicator,
+        value = value,
+        valueRange = valueRange,
+        visibilityThreshold = visibilityThreshold,
+        thumb = thumb,
+        track = track,
+    )
+}
+
 @OptIn(InternalCupertinoApi::class)
 @Composable
 private fun SliderImpl(
     modifier: Modifier,
     enabled: Boolean,
+    colors: CupertinoSliderColors,
     interactionSource: MutableInteractionSource,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: (() -> Unit)?,
     steps: Int,
+    showStepIndicator: Boolean = steps != 0,
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
     visibilityThreshold: Float,
@@ -169,16 +264,38 @@ private fun SliderImpl(
     val updatedValue by rememberUpdatedState(value)
     val updatedEnabled by rememberUpdatedState(enabled)
     val trackBackdrop = rememberLayerBackdrop()
+    val inactiveTickColor by colors.tickColor(enabled, active = false)
+    val activeTickColor by colors.tickColor(enabled, active = true)
+
+    val density = LocalDensity.current
+    val haptic = LocalHapticFeedback.current
+
+    var thumbWidth by remember { mutableStateOf(0f) }
+    var trackWidth by remember { mutableStateOf(0) }
+    var trackHeight by remember { mutableStateOf(0) }
+
+    val getSnappedValue: (Float) -> Float = { currentVal ->
+        if (steps <= 0) currentVal
+        else {
+            val gap = (valueRange.endInclusive - valueRange.start) / (steps + 1)
+            val stepIndex = ((currentVal - valueRange.start) / gap).roundToInt()
+            (valueRange.start + stepIndex * gap).coerceIn(valueRange)
+        }
+    }
 
     BoxWithConstraints(
         contentAlignment = Alignment.CenterStart,
         modifier = modifier.fillMaxWidth()
     ) {
-        val trackWidth = constraints.maxWidth
+        trackWidth = constraints.maxWidth
 
         val isLtr by rememberUpdatedState(LocalLayoutDirection.current == LayoutDirection.Ltr)
         val animationScope = rememberCoroutineScope()
         var didDrag by remember { mutableStateOf(false) }
+
+        var currentVirtualValue by remember { mutableStateOf(0f) }
+        var prevValue by remember(value) { mutableStateOf(value) }
+
         val dampedDragAnimation = remember(animationScope) {
             DampedDragAnimation(
                 animationScope = animationScope,
@@ -187,27 +304,56 @@ private fun SliderImpl(
                 visibilityThreshold = visibilityThreshold,
                 initialScale = 1f,
                 pressedScale = 1.5f,
-                onDragStarted = {},
+                onDragStarted = {
+                    currentVirtualValue = targetValue
+                },
                 onDragStopped = {
                     if (updatedEnabled) {
                         if (didDrag) {
-                            onValueChange(targetValue)
+                            val snapped = getSnappedValue(targetValue)
+                            animateToValue(snapped)
+                            onValueChange(snapped)
+                            onValueChangeFinished?.invoke()
                         }
-                        onValueChangeFinished?.invoke()
                     }
+                    didDrag = false
                 },
                 onDrag = { _, dragAmount ->
                     if (updatedEnabled) {
                         if (!didDrag) {
                             didDrag = dragAmount.x != 0f
                         }
-                        val delta = (valueRange.endInclusive - valueRange.start) * (dragAmount.x / trackWidth) * if (isLtr) 1f else -1f
-                        val newValue = (targetValue + delta).coerceIn(valueRange)
-                        onValueChange(newValue)
+
+                        val rangeLength = valueRange.endInclusive - valueRange.start
+                        val delta = rangeLength * (dragAmount.x / trackWidth) * if (isLtr) 1f else -1f
+
+                        currentVirtualValue = (currentVirtualValue + delta).coerceIn(valueRange)
+
+                        // Snap point
+                        val snappedValue = getSnappedValue(currentVirtualValue)
+                        val stepGap = rangeLength / (steps + 1)
+                        val magneticThreshold = stepGap * 0.35f
+
+                        // Snapping
+                        val finalTargetValue = if (abs(currentVirtualValue - snappedValue) < magneticThreshold) {
+                            if (steps > 0) {
+                                if (prevValue != snappedValue) {
+                                    prevValue = snappedValue
+                                    haptic.performHapticFeedback(CupertinoHapticFeedback.SelectionChanged)
+                                }
+                            }
+                            snappedValue // Fix when on magnetic threshold
+                        } else {
+                            currentVirtualValue // set to current
+                        }
+
+                        updateValue(finalTargetValue)
+                        onValueChange(finalTargetValue)
                     }
                 }
             )
         }
+
         LaunchedEffect(dampedDragAnimation) {
             snapshotFlow { updatedValue }
                 .collectLatest { value ->
@@ -218,34 +364,90 @@ private fun SliderImpl(
         }
 
         Box(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .onGloballyPositioned { trackHeight = it.size.height }
+                .fillMaxWidth()
+
         ) {
             Box(
                 modifier = Modifier
                     .pointerInput(animationScope) {
                         detectTapGestures { position ->
-                            val delta = (valueRange.endInclusive - valueRange.start) * (position.x / trackWidth)
-                            val targetValue =
-                                (if (isLtr) valueRange.start + delta
-                                else valueRange.endInclusive - delta).coerceIn(valueRange)
                             if (updatedEnabled) {
-                                dampedDragAnimation.animateToValue(targetValue)
-                                onValueChange(targetValue)
+                                val rawDelta = position.x / trackWidth
+                                val rawValue = if (isLtr) {
+                                    valueRange.start + (valueRange.endInclusive - valueRange.start) * rawDelta
+                                } else {
+                                    valueRange.endInclusive - (valueRange.endInclusive - valueRange.start) * rawDelta
+                                }
+
+                                val snapped = getSnappedValue(rawValue.coerceIn(valueRange))
+                                dampedDragAnimation.animateToValue(snapped)
+                                onValueChange(snapped)
                                 onValueChangeFinished?.invoke()
                             }
                         }
                     }
-                    .height(6.dp)
+                    .height(with (density) { trackHeight.toDp() })
                     .fillMaxWidth()
             )
+
+            if (showStepIndicator) {
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Center)
+                ) {
+                    repeat(steps + 2) { index ->
+                        val dotHeight = 1.5.dp
+
+                        val progress = index.toFloat() / (steps + 1)
+                        val actualDotX = -thumbWidth / 2f + size.width * progress
+
+                        val finalDotX = when (actualDotX) {
+                            in -thumbWidth / 2 .. thumbWidth / 4 -> {
+                                (actualDotX + thumbWidth / 2) / 3
+                            }
+                            in size.width - thumbWidth * 5 / 4 .. size.width - thumbWidth / 2 -> {
+                                size.width - thumbWidth * 5 / 4 + (actualDotX - (size.width - thumbWidth * 5 / 4)) / 3
+                            }
+                            else -> {
+                                actualDotX
+                            }
+                        }
+
+                        drawCircle(
+                            color = inactiveTickColor,
+                            radius = dotHeight.toPx(),
+                            center = Offset(
+                                x = finalDotX + thumbWidth / 2f,
+                                y = trackHeight / 2f + (dotHeight + 2.dp).toPx()
+                            )
+                        )
+                    }
+                }
+            }
+
             track(dampedDragAnimation, trackBackdrop)
         }
 
         Box(
             modifier = Modifier.graphicsLayer {
-                translationX =
-                    (-size.width / 2f + trackWidth * dampedDragAnimation.progress)
-                        .fastCoerceIn(-size.width / 4f, trackWidth - size.width * 3f / 4f) * if (isLtr) 1f else -1f
+                thumbWidth = size.width
+
+                val actualTranslationX = -thumbWidth / 2f + trackWidth * dampedDragAnimation.progress
+
+                translationX = when (actualTranslationX) {
+                    in -thumbWidth / 2..thumbWidth / 4 -> {
+                        (actualTranslationX + thumbWidth / 2) / 3
+                    }
+                    in trackWidth - thumbWidth * 5 / 4 .. trackWidth - thumbWidth / 2 -> {
+                        trackWidth - thumbWidth * 5 / 4 + (actualTranslationX - (trackWidth - thumbWidth * 5 / 4)) / 3
+                    }
+                    else -> {
+                        actualTranslationX
+                    }
+                }
             }
         ) {
             thumb(dampedDragAnimation, trackBackdrop)
@@ -307,68 +509,6 @@ object CupertinoLiquidSliderDefaults {
             disabledInactiveTrackColor = disabledInactiveTrackColor,
             disabledInactiveTickColor = disabledInactiveTickColor,
         )
-
-    /**
-     * Creates a [CupertinoSliderColors] that represents the different colors used in parts of the
-     * [CupertinoSlider] in different states.
-     *
-     * For the name references below the words "active" and "inactive" are used. Active part of
-     * the slider is filled with progress, so if slider's progress is 30% out of 100%, left (or
-     * right in RTL) 30% of the track will be active, while the rest is inactive.
-     *
-     * @param thumbColor thumb color when enabled
-     * @param activeTrackColor color of the track in the part that is "active", meaning that the
-     * thumb is ahead of it
-     * @param activeTickColor colors to be used to draw tick marks on the active track, if `steps`
-     * is specified
-     * @param inactiveTrackColor color of the track in the part that is "inactive", meaning that the
-     * thumb is before it
-     * @param inactiveTickColor colors to be used to draw tick marks on the inactive track, if
-     * `steps` are specified on the Slider is specified
-     * @param disabledThumbColor thumb colors when disabled
-     * @param disabledActiveTrackColor color of the track in the "active" part when the Slider is
-     * disabled
-     * @param disabledActiveTickColor colors to be used to draw tick marks on the active track
-     * when Slider is disabled and when `steps` are specified on it
-     * @param disabledInactiveTrackColor color of the track in the "inactive" part when the
-     * Slider is disabled
-     * @param disabledInactiveTickColor colors to be used to draw tick marks on the inactive part
-     * of the track when Slider is disabled and when `steps` are specified on it
-     */
-    @Composable
-    @ReadOnlyComposable
-    fun colorsSteps(
-        thumbColor: Color = CupertinoColors.White,
-        activeTrackColor: Color = CupertinoColors.systemGray,
-        activeTickColor: Color = activeTrackColor,
-        inactiveTrackColor: Color = activeTrackColor,
-        inactiveTickColor: Color = activeTickColor,
-        disabledThumbColor: Color = thumbColor,
-        disabledActiveTrackColor: Color = activeTrackColor,
-        disabledActiveTickColor: Color = activeTickColor,
-        disabledInactiveTrackColor: Color = inactiveTrackColor,
-        disabledInactiveTickColor: Color = activeTickColor,
-    ): CupertinoSliderColors =
-        CupertinoSliderColors(
-            thumbColor = thumbColor,
-            activeTrackColor = activeTrackColor,
-            activeTickColor = activeTickColor,
-            inactiveTrackColor = inactiveTrackColor,
-            inactiveTickColor = inactiveTickColor,
-            disabledThumbColor = disabledThumbColor,
-            disabledActiveTrackColor = disabledActiveTrackColor,
-            disabledActiveTickColor = disabledActiveTickColor,
-            disabledInactiveTrackColor = disabledInactiveTrackColor,
-            disabledInactiveTickColor = disabledInactiveTickColor,
-        )
-
-    @Composable
-    fun defaultColorsFor(steps: Int) =
-        if (steps == 0) {
-            colors()
-        } else {
-            colorsSteps()
-        }
 
     /**
      * The Default thumb for [CupertinoSlider] and [CupertinoRangeSlider]
@@ -551,10 +691,6 @@ object CupertinoLiquidSliderDefaults {
     ) {
         val inactiveTrackColor by colors.trackColor(true, active = false)
         val activeTrackColor by colors.trackColor(true, active = true)
-        val inactiveTickColor by colors.tickColor(enabled, active = false)
-        val activeTickColor by colors.tickColor(enabled, active = true)
-        val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
-
 
         Box(
             modifier = modifier
@@ -584,6 +720,18 @@ object CupertinoLiquidSliderDefaults {
             )
         }
     }
+}
+
+private fun snapValue(
+    value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int
+): Float {
+    if (steps <= 0) return value
+
+    val gap = (valueRange.endInclusive - valueRange.start) / (steps + 1)
+    val stepIndex = ((value - valueRange.start) / gap).roundToInt()
+    return (valueRange.start + stepIndex * gap).coerceIn(valueRange)
 }
 
 // Internal to be referred to in tests

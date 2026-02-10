@@ -1058,11 +1058,6 @@ private fun SectionScope.SwitchAndProgressBar() {
                 enabled = enabled,
                 backdrop = backdrop
             )
-            CupertinoSwitch(
-                checked = enabled,
-                onCheckedChange = { enabled = it }
-            )
-
 
             CupertinoActivityIndicator(
                 progress = b
@@ -1115,7 +1110,33 @@ private fun SectionScope.SwitchAndProgressBar() {
             CupertinoLiquidSlider(
                 modifier = Modifier.weight(1f),
                 value = b,
-                steps = 5,
+                steps = 2,
+                onValueChange = {
+                    b = it
+                },
+                backdrop = backdrop
+            )
+
+            Text(
+                text = b.toString().take(4),
+                modifier = Modifier.width(40.dp),
+                maxLines = 1
+            )
+        }
+    }
+
+    SectionItem {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            var start by remember { mutableStateOf(0.25f) }
+            var end by remember { mutableStateOf(0.75f) }
+
+            CupertinoLiquidSlider(
+                modifier = Modifier.weight(1f),
+                value = b,
+                steps = 2,
                 onValueChange = {
                     b = it
                 },
