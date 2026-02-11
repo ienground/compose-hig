@@ -126,9 +126,7 @@ fun CupertinoSection(
                         shape = shape,
                         color = color,
                     ) {
-                        val showDivider =
-                            CupertinoTheme.colorScheme.separator
-                                .let { it.isSpecified && it != Color.Transparent }
+                        val showDivider = CupertinoTheme.colorScheme.separator.let { it.isSpecified && it != Color.Transparent }
 
                         SubcomposeLayout { constraints ->
                             val measurables = subcompose(null) { content(SectionScopeImpl) }

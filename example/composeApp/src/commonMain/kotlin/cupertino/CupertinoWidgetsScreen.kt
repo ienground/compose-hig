@@ -339,7 +339,6 @@ private fun Body(
                         PaddingValues(bottom = 12.dp)
             )
 
-            /*
             CupertinoSection {
                 SectionItem(
                     trailingContent = {
@@ -385,8 +384,6 @@ private fun Body(
                 ButtonsExample()
                 SwitchAndProgressBar()
             }
-
-              */
 
             CupertinoSection(
                 title = {

@@ -84,11 +84,9 @@ object CupertinoSectionDefaults {
         @ReadOnlyComposable
         get() = CupertinoTheme.colorScheme.secondarySystemGroupedBackground
 
-    val EnterTransition = slideInVertically { -it } +
-            expandVertically(expandFrom = Alignment.Bottom)
+    val EnterTransition = slideInVertically { -it } + expandVertically(expandFrom = Alignment.Bottom)
 
-    val ExitTransition = slideOutVertically { -it } +
-            shrinkVertically(shrinkTowards = Alignment.Top)
+    val ExitTransition = slideOutVertically { -it } + shrinkVertically(shrinkTowards = Alignment.Top)
 
     @Composable
     @ReadOnlyComposable
@@ -110,8 +108,7 @@ object CupertinoSectionDefaults {
     @Composable
     @ReadOnlyComposable
     fun shape(style: SectionStyle = LocalSectionStyle.current): UnevenRoundedRectangle =
-        if (style.grouped && style.inset)
-            CupertinoTheme.shapes.medium
+        if (style.grouped && style.inset) CupertinoTheme.shapes.extraLarge
         else 0.dp.let { RoundedRectangle(it, it, it, it) }
 
     @Composable
