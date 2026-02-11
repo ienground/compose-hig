@@ -32,6 +32,7 @@ kotlin {
             implementation(projects.hig)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
+            implementation(libs.capsule)
         }
     }
 }

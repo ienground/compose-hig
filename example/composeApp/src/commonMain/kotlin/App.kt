@@ -94,11 +94,11 @@ fun GeneratedAdaptiveTheme(
                 darkColorScheme(accent = primaryColor)
             else lightColorScheme(accent = primaryColor),
             shapes = Shapes(
-                extraSmall = shapes.extraSmall,
-                small = shapes.small,
-                medium = shapes.medium,
-                large = shapes.large,
-                extraLarge = shapes.extraLarge
+                extraSmall = shapes.higExtraSmall,
+                small = shapes.higSmall,
+                medium = shapes.higMedium,
+                large = shapes.higLarge,
+                extraLarge = shapes.higExtraLarge
             )
         ),
         content = content

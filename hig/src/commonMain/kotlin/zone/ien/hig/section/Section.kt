@@ -36,6 +36,8 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastSumBy
+import com.kyant.shapes.RoundedRectangle
+import com.kyant.shapes.UnevenRoundedRectangle
 import zone.ien.hig.CupertinoHorizontalDivider
 import zone.ien.hig.CupertinoSurface
 import zone.ien.hig.ExperimentalCupertinoApi
@@ -70,7 +72,7 @@ fun CupertinoSection(
     state: SectionState = rememberSectionState(canCollapse = true),
     enterTransition: EnterTransition = CupertinoSectionDefaults.EnterTransition,
     exitTransition: ExitTransition = CupertinoSectionDefaults.ExitTransition,
-    shape: CornerBasedShape = CupertinoSectionDefaults.shape(style),
+    shape: UnevenRoundedRectangle = CupertinoSectionDefaults.shape(style),
     color: Color =
         if (style.grouped) {
             CupertinoSectionDefaults.Color
