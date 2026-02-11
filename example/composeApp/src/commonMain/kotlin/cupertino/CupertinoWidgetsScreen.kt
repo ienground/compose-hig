@@ -38,8 +38,10 @@
 
 package cupertino
 
+import GeneratedAdaptiveTheme
 import IsIos
 import RootDetails
+import RootRoute
 import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -83,8 +85,16 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
+import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import zone.ien.hig.CupertinoActionSheet
 import zone.ien.hig.CupertinoActionSheetNative
 import zone.ien.hig.CupertinoActivityIndicator
@@ -97,6 +107,7 @@ import zone.ien.hig.CupertinoBottomSheetScaffoldDefaults
 import zone.ien.hig.CupertinoBottomSheetScaffoldState
 import zone.ien.hig.CupertinoButton
 import zone.ien.hig.CupertinoButtonDefaults
+import zone.ien.hig.CupertinoButtonSize
 import zone.ien.hig.CupertinoCheckBox
 import zone.ien.hig.CupertinoDatePicker
 import zone.ien.hig.CupertinoDatePickerNative
@@ -107,15 +118,20 @@ import zone.ien.hig.CupertinoDateTimePickerState
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconButton
+import zone.ien.hig.CupertinoLiquidAlertDialog
+import zone.ien.hig.CupertinoLiquidButton
+import zone.ien.hig.CupertinoLiquidButtonDefaults
+import zone.ien.hig.CupertinoLiquidIconButton
+import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarItem
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
+import zone.ien.hig.CupertinoRangeSlider
 import zone.ien.hig.CupertinoSearchTextField
 import zone.ien.hig.CupertinoSearchTextFieldDefaults
 import zone.ien.hig.CupertinoSegmentedControl
 import zone.ien.hig.CupertinoSegmentedControlTab
-import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoSwipeBox
 import zone.ien.hig.CupertinoSwitch
 import zone.ien.hig.CupertinoText
@@ -130,6 +146,8 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
 import zone.ien.hig.MenuSection
 import zone.ien.hig.PresentationStyle
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.adaptive.icons.Add
 import zone.ien.hig.adaptive.icons.Settings
@@ -191,11 +209,6 @@ import zone.ien.hig.theme.systemOrange
 import zone.ien.hig.theme.systemPurple
 import zone.ien.hig.theme.systemRed
 import zone.ien.hig.theme.systemYellow
-import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import navigation.RootRoute
-import kotlin.reflect.KClass
 import kotlin.time.Instant
 
 private enum class PickerTab {
@@ -212,6 +225,8 @@ fun CupertinoWidgetsScreen(
 
     val scrollState = rememberScrollState()
     val sheetListState = rememberLazyListState()
+
+    val backdrop = rememberLayerBackdrop()
 
     val scaffoldState = rememberCupertinoBottomSheetScaffoldState(
         rememberCupertinoSheetState(
@@ -260,7 +275,8 @@ fun CupertinoWidgetsScreen(
                 scrollState = scrollState,
                 nativePickers = nativePickers.value
             )
-        }
+        },
+        modifier = Modifier.layerBackdrop(backdrop)
     ) { pv ->
         Body(
             uiState = uiState,
@@ -269,7 +285,8 @@ fun CupertinoWidgetsScreen(
             scrollState = scrollState,
             scaffoldState = scaffoldState,
             nativePickers = nativePickers,
-            onNavigate = onNavigate
+            backdrop = backdrop,
+            onNavigate = onNavigate,
         )
     }
 }
@@ -282,6 +299,7 @@ private fun Body(
     scrollState: ScrollState,
     scaffoldState: CupertinoBottomSheetScaffoldState,
     nativePickers: MutableState<Boolean>,
+    backdrop: Backdrop,
     onNavigate: (NavKey) -> Unit
 ) {
 
@@ -321,6 +339,7 @@ private fun Body(
                         PaddingValues(bottom = 12.dp)
             )
 
+            /*
             CupertinoSection {
                 SectionItem(
                     trailingContent = {
@@ -355,6 +374,7 @@ private fun Body(
                 SwipeBoxExample(scrollState)
             }
 
+
             CupertinoSection(
                 title = {
                     CupertinoText(
@@ -366,6 +386,7 @@ private fun Body(
                 SwitchAndProgressBar()
             }
 
+              */
 
             CupertinoSection(
                 title = {
@@ -380,7 +401,9 @@ private fun Body(
                 }
             ) {
                 SectionItem {
-                    DialogsEsxample()
+                    DialogsExample(
+                        backdrop = backdrop
+                    )
                 }
                 SectionItem {
                     SheetsExamples()
@@ -395,6 +418,28 @@ private fun Body(
 
             Spacer(Modifier.imePadding())
         }
+    }
+}
+
+@OptIn(ExperimentalAdaptiveApi::class)
+@Preview(showBackground = true)
+@Composable
+private fun ScreenPreview() {
+    GeneratedAdaptiveTheme(
+        target = Theme.Cupertino,
+        primaryColor = CupertinoColors.systemBlue
+    ) {
+
+        Body(
+            uiState = RootUiState(),
+            onItemValueChanged = {},
+            paddingValues = PaddingValues.Zero,
+            scrollState = rememberScrollState(),
+            scaffoldState = rememberCupertinoBottomSheetScaffoldState(),
+            nativePickers = remember { mutableStateOf(false) },
+            onNavigate = {},
+            backdrop = rememberLayerBackdrop()
+        )
     }
 }
 
@@ -970,6 +1015,8 @@ fun DateTimePicker(
 
 @Composable
 private fun SectionScope.SwitchAndProgressBar() {
+    val backdrop = rememberLayerBackdrop()
+
     SectionItem {
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -994,12 +1041,12 @@ private fun SectionScope.SwitchAndProgressBar() {
                 }
             )
             CupertinoSwitch(
-                checked = true,
+                checked = active1,
                 enabled = false,
                 onCheckedChange = {}
             )
             CupertinoSwitch(
-                checked = false,
+                checked = active2,
                 enabled = false,
                 onCheckedChange = {}
             )
@@ -1016,12 +1063,44 @@ private fun SectionScope.SwitchAndProgressBar() {
             var b by remember {
                 mutableStateOf(.5f)
             }
+            var enabled by remember { mutableStateOf(true) }
             CupertinoSlider(
                 modifier = Modifier.weight(1f),
                 value = b,
                 onValueChange = {
                     b = it
-                }
+                },
+                enabled = enabled,
+                backdrop = backdrop
+            )
+
+            CupertinoActivityIndicator(
+                progress = b
+            )
+//            Text(
+//                text = b.toString().take(4),
+//                modifier = Modifier.width(40.dp),
+//                maxLines = 1
+//            )
+        }
+    }
+
+    SectionItem {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            var b by remember {
+                mutableStateOf(.5f)
+            }
+            CupertinoSlider(
+                modifier = Modifier.weight(1f),
+                enabled = false,
+                value = b,
+                onValueChange = {
+                    b = it
+                },
+                backdrop = backdrop
             )
 
             CupertinoActivityIndicator(
@@ -1046,10 +1125,11 @@ private fun SectionScope.SwitchAndProgressBar() {
             CupertinoSlider(
                 modifier = Modifier.weight(1f),
                 value = b,
-                steps = 5,
+                steps = 2,
                 onValueChange = {
                     b = it
-                }
+                },
+                backdrop = backdrop
             )
 
             Text(
@@ -1057,6 +1137,31 @@ private fun SectionScope.SwitchAndProgressBar() {
                 modifier = Modifier.width(40.dp),
                 maxLines = 1
             )
+        }
+    }
+
+    SectionItem {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            var b by remember { mutableStateOf(0.25f..0.75f) }
+
+            CupertinoRangeSlider(
+                modifier = Modifier.weight(1f),
+                value = b,
+                steps = 4,
+                onValueChange = {
+                    b = it
+                },
+                backdrop = backdrop
+            )
+
+//            Text(
+//                text = b.toString().take(4),
+//                modifier = Modifier.width(40.dp),
+//                maxLines = 1
+//            )
         }
     }
 
@@ -1207,13 +1312,12 @@ private fun ColorButtons(
 
 @Composable
 private fun SectionScope.ButtonsExample() {
-
+    val backdrop = rememberLayerBackdrop()
     SectionItem {
         Row(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             var a by remember { mutableStateOf(true) }
             var b by remember { mutableStateOf(false) }
             var c by remember { mutableStateOf(ToggleableState.Indeterminate) }
@@ -1237,7 +1341,7 @@ private fun SectionScope.ButtonsExample() {
             }
             CupertinoIconButton(
                 onClick = {},
-                colors = zone.ien.hig.CupertinoButtonDefaults.tintedButtonColors()
+                colors = CupertinoButtonDefaults.tintedButtonColors()
             ) {
                 CupertinoIcon(
                     imageVector = AdaptiveIcons.Outlined.Add,
@@ -1246,7 +1350,7 @@ private fun SectionScope.ButtonsExample() {
             }
             CupertinoIconButton(
                 onClick = {},
-                colors = zone.ien.hig.CupertinoButtonDefaults.grayButtonColors()
+                colors = CupertinoButtonDefaults.grayButtonColors()
             ) {
                 CupertinoIcon(
                     imageVector = AdaptiveIcons.Outlined.Settings,
@@ -1254,6 +1358,55 @@ private fun SectionScope.ButtonsExample() {
                 )
             }
             CupertinoIconButton(
+                onClick = {},
+                enabled = false,
+            ) {
+                CupertinoIcon(
+                    imageVector = AdaptiveIcons.Outlined.Add,
+                    contentDescription = null
+                )
+            }
+        }
+    }
+    SectionItem {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            var a by remember { mutableStateOf(true) }
+            var b by remember { mutableStateOf(false) }
+            var c by remember { mutableStateOf(ToggleableState.Indeterminate) }
+
+            CupertinoCheckBox(checked = a, onCheckedChange = { a = it })
+            CupertinoCheckBox(checked = b, onCheckedChange = { b = it })
+            CupertinoTriStateCheckBox(state = c, onClick = {
+                c = when (c) {
+                    ToggleableState.On -> ToggleableState.Off
+                    ToggleableState.Off -> ToggleableState.Indeterminate
+                    ToggleableState.Indeterminate -> ToggleableState.On
+                }
+            })
+            CupertinoLiquidIconButton(
+                backdrop = backdrop,
+                onClick = {},
+            ) {
+                CupertinoIcon(
+                    imageVector = AdaptiveIcons.Outlined.Share,
+                    contentDescription = null
+                )
+            }
+            CupertinoLiquidIconButton(
+                backdrop = backdrop,
+                onClick = {},
+                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+            ) {
+                CupertinoIcon(
+                    imageVector = AdaptiveIcons.Outlined.Settings,
+                    contentDescription = null
+                )
+            }
+            CupertinoLiquidIconButton(
+                backdrop = backdrop,
                 onClick = {},
                 enabled = false,
             ) {
@@ -1272,26 +1425,26 @@ private fun SectionScope.ButtonsExample() {
         ) {
 
             CupertinoButton(
-                colors = zone.ien.hig.CupertinoButtonDefaults.grayButtonColors(),
+                colors = CupertinoButtonDefaults.grayButtonColors(),
                 onClick = {},
-                size = zone.ien.hig.CupertinoButtonSize.Small
+                size = CupertinoButtonSize.Small
             ) {
                 CupertinoText("Gray S")
             }
 
             CupertinoButton(
-                colors = zone.ien.hig.CupertinoButtonDefaults.tintedButtonColors(),
+                colors = CupertinoButtonDefaults.tintedButtonColors(),
                 onClick = {},
-                size = zone.ien.hig.CupertinoButtonSize.Regular
+                size = CupertinoButtonSize.Regular
             ) {
                 CupertinoText("Tinted M")
             }
 
             CupertinoButton(
-                colors = zone.ien.hig.CupertinoButtonDefaults.filledButtonColors(
+                colors = CupertinoButtonDefaults.filledButtonColors(
                 ),
                 onClick = {},
-                size = zone.ien.hig.CupertinoButtonSize.Large
+                size = CupertinoButtonSize.Large
             ) {
                 CupertinoText("Filled L")
             }
@@ -1304,13 +1457,13 @@ private fun SectionScope.ButtonsExample() {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CupertinoButton(
-                colors = zone.ien.hig.CupertinoButtonDefaults.plainButtonColors(),
+                colors = CupertinoButtonDefaults.plainButtonColors(),
                 onClick = {}
             ) {
                 CupertinoText("Plain")
             }
             CupertinoButton(
-                colors = zone.ien.hig.CupertinoButtonDefaults.plainButtonColors(),
+                colors = CupertinoButtonDefaults.plainButtonColors(),
                 onClick = {},
                 enabled = false
             ) {
@@ -1318,9 +1471,55 @@ private fun SectionScope.ButtonsExample() {
             }
 
             CupertinoButton(
-                colors = zone.ien.hig.CupertinoButtonDefaults.filledButtonColors(),
+                colors = CupertinoButtonDefaults.filledButtonColors(),
                 onClick = {},
                 enabled = false
+            ) {
+                CupertinoText("Disabled")
+            }
+        }
+    }
+
+    SectionItem {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            CupertinoLiquidButton(
+                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                onClick = {},
+                enabled = true,
+                backdrop = backdrop
+            ) {
+                CupertinoText("Filled")
+            }
+            CupertinoLiquidButton(
+                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                onClick = {},
+                enabled = false,
+                backdrop = backdrop
+            ) {
+                CupertinoText("Disabled")
+            }
+        }
+    }
+
+    SectionItem {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            CupertinoLiquidButton(
+                colors = CupertinoLiquidButtonDefaults.glassButtonColors(),
+                onClick = {},
+                enabled = true,
+                backdrop = backdrop
+            ) {
+                CupertinoText("Glass")
+            }
+            CupertinoLiquidButton(
+                colors = CupertinoLiquidButtonDefaults.glassButtonColors(),
+                onClick = {},
+                enabled = false,
+                backdrop = backdrop
             ) {
                 CupertinoText("Disabled")
             }
@@ -1330,17 +1529,15 @@ private fun SectionScope.ButtonsExample() {
 
 @OptIn(ExperimentalCupertinoApi::class)
 @Composable
-private fun DialogsEsxample() {
+private fun DialogsExample(
+    backdrop: Backdrop
+) {
 
-    var alertVisible by remember {
-        mutableStateOf(false)
-    }
-    var nativeAlertVisible by remember {
-        mutableStateOf(false)
-    }
+    var alertVisible by remember { mutableStateOf(false) }
+    var nativeAlertVisible by remember { mutableStateOf(false) }
 
     if (alertVisible) {
-        CupertinoAlertDialog(
+        CupertinoLiquidAlertDialog(
             onDismissRequest = {
                 alertVisible = false
             },
@@ -1349,7 +1546,8 @@ private fun DialogsEsxample() {
             },
             message = {
                 CupertinoText("Alert dialog message")
-            }
+            },
+            backdrop = backdrop
         ) {
             destructive(
                 onClick = {

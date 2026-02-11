@@ -259,12 +259,13 @@ private fun LazyListScope.itemsAndCaption(
                         !resolvedStyle().inset || !resolvedStyle().grouped -> null
 
                         else ->
-                            RoundedCornerShape(
-                                topStart = if (index == 0) resolvedShape.topStart else CornerSizeZero,
-                                topEnd = if (index == 0) resolvedShape.topEnd else CornerSizeZero,
-                                bottomStart = if (index == items.lastIndex) resolvedShape.bottomStart else CornerSizeZero,
-                                bottomEnd = if (index == items.lastIndex) resolvedShape.bottomEnd else CornerSizeZero,
-                            )
+                            resolvedShape // todo
+//                            RoundedCornerShape(
+//                                topStart = if (index == 0) resolvedShape.topStart else CornerSizeZero,
+//                                topEnd = if (index == 0) resolvedShape.topEnd else CornerSizeZero,
+//                                bottomStart = if (index == items.lastIndex) resolvedShape.bottomStart else CornerSizeZero,
+//                                bottomEnd = if (index == items.lastIndex) resolvedShape.bottomEnd else CornerSizeZero,
+//                            )
                     }
 
                 val clipModifier = clipShape?.let { Modifier.clip(it) } ?: Modifier

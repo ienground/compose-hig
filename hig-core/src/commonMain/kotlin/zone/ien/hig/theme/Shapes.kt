@@ -26,22 +26,24 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.dp
+import com.kyant.shapes.RoundedRectangle
+import com.kyant.shapes.UnevenRoundedRectangle
 import zone.ien.hig.InternalCupertinoApi
 
 @Stable
 class Shapes(
-    val extraSmall: CornerBasedShape = ShapeDefaults.ExtraSmall,
-    val small: CornerBasedShape = ShapeDefaults.Small,
-    val medium: CornerBasedShape = ShapeDefaults.Medium,
-    val large: CornerBasedShape = ShapeDefaults.Large,
-    val extraLarge: CornerBasedShape = ShapeDefaults.ExtraLarge,
+    val extraSmall: UnevenRoundedRectangle = ShapeDefaults.ExtraSmall,
+    val small: UnevenRoundedRectangle = ShapeDefaults.Small,
+    val medium: UnevenRoundedRectangle = ShapeDefaults.Medium,
+    val large: UnevenRoundedRectangle = ShapeDefaults.Large,
+    val extraLarge: UnevenRoundedRectangle = ShapeDefaults.ExtraLarge,
 ) {
     fun copy(
-        extraSmall: CornerBasedShape = this.extraSmall,
-        small: CornerBasedShape = this.small,
-        medium: CornerBasedShape = this.medium,
-        large: CornerBasedShape = this.large,
-        extraLarge: CornerBasedShape = this.extraLarge,
+        extraSmall: UnevenRoundedRectangle = this.extraSmall,
+        small: UnevenRoundedRectangle = this.small,
+        medium: UnevenRoundedRectangle = this.medium,
+        large: UnevenRoundedRectangle = this.large,
+        extraLarge: UnevenRoundedRectangle = this.extraLarge,
     ) = Shapes(
         extraSmall = extraSmall,
         small = small,
@@ -57,17 +59,17 @@ val LocalShapes = staticCompositionLocalOf { Shapes() }
 @Immutable
 object ShapeDefaults {
     /** Extra small sized corner shape */
-    val ExtraSmall: CornerBasedShape = RoundedCornerShape(4.dp)
+    val ExtraSmall: UnevenRoundedRectangle = 4.dp.let { RoundedRectangle(it, it, it, it) }
 
     /** Small sized corner shape */
-    val Small: CornerBasedShape = RoundedCornerShape(8.dp)
+    val Small: UnevenRoundedRectangle = 8.dp.let { RoundedRectangle(it, it, it, it) }
 
     /** Medium sized corner shape */
-    val Medium: CornerBasedShape = RoundedCornerShape(12.dp)
+    val Medium: UnevenRoundedRectangle = 12.dp.let { RoundedRectangle(it, it, it, it) }
 
     /** Large sized corner shape */
-    val Large: CornerBasedShape = RoundedCornerShape(16.dp)
+    val Large: UnevenRoundedRectangle = 16.dp.let { RoundedRectangle(it, it, it, it) }
 
     /** Extra large sized corner shape */
-    val ExtraLarge: CornerBasedShape = RoundedCornerShape(24.dp)
+    val ExtraLarge: UnevenRoundedRectangle = 24.dp.let { RoundedRectangle(it, it, it, it) }
 }

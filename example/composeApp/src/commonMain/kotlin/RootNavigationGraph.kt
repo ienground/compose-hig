@@ -1,8 +1,3 @@
-package navigation
-
-import RootDetails
-import RootUiState
-import RootViewModel
 import adaptive.AdaptiveWidgetsScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
