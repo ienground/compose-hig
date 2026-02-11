@@ -88,6 +88,9 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
+import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
@@ -115,6 +118,7 @@ import zone.ien.hig.CupertinoDateTimePickerState
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconButton
+import zone.ien.hig.CupertinoLiquidAlertDialog
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
@@ -222,6 +226,8 @@ fun CupertinoWidgetsScreen(
     val scrollState = rememberScrollState()
     val sheetListState = rememberLazyListState()
 
+    val backdrop = rememberLayerBackdrop()
+
     val scaffoldState = rememberCupertinoBottomSheetScaffoldState(
         rememberCupertinoSheetState(
             presentationStyle = PresentationStyle.Modal()
@@ -269,7 +275,8 @@ fun CupertinoWidgetsScreen(
                 scrollState = scrollState,
                 nativePickers = nativePickers.value
             )
-        }
+        },
+        modifier = Modifier.layerBackdrop(backdrop)
     ) { pv ->
         Body(
             uiState = uiState,
@@ -278,7 +285,8 @@ fun CupertinoWidgetsScreen(
             scrollState = scrollState,
             scaffoldState = scaffoldState,
             nativePickers = nativePickers,
-            onNavigate = onNavigate
+            backdrop = backdrop,
+            onNavigate = onNavigate,
         )
     }
 }
@@ -291,6 +299,7 @@ private fun Body(
     scrollState: ScrollState,
     scaffoldState: CupertinoBottomSheetScaffoldState,
     nativePickers: MutableState<Boolean>,
+    backdrop: Backdrop,
     onNavigate: (NavKey) -> Unit
 ) {
 
@@ -365,7 +374,6 @@ private fun Body(
                 SwipeBoxExample(scrollState)
             }
 
-             */
 
             CupertinoSection(
                 title = {
@@ -378,6 +386,7 @@ private fun Body(
                 SwitchAndProgressBar()
             }
 
+              */
 
             CupertinoSection(
                 title = {
@@ -392,7 +401,9 @@ private fun Body(
                 }
             ) {
                 SectionItem {
-                    DialogsEsxample()
+                    DialogsExample(
+                        backdrop = backdrop
+                    )
                 }
                 SectionItem {
                     SheetsExamples()
@@ -426,7 +437,8 @@ private fun ScreenPreview() {
             scrollState = rememberScrollState(),
             scaffoldState = rememberCupertinoBottomSheetScaffoldState(),
             nativePickers = remember { mutableStateOf(false) },
-            onNavigate = {}
+            onNavigate = {},
+            backdrop = rememberLayerBackdrop()
         )
     }
 }
@@ -1517,17 +1529,15 @@ private fun SectionScope.ButtonsExample() {
 
 @OptIn(ExperimentalCupertinoApi::class)
 @Composable
-private fun DialogsEsxample() {
+private fun DialogsExample(
+    backdrop: Backdrop
+) {
 
-    var alertVisible by remember {
-        mutableStateOf(false)
-    }
-    var nativeAlertVisible by remember {
-        mutableStateOf(false)
-    }
+    var alertVisible by remember { mutableStateOf(false) }
+    var nativeAlertVisible by remember { mutableStateOf(false) }
 
     if (alertVisible) {
-        CupertinoAlertDialog(
+        CupertinoLiquidAlertDialog(
             onDismissRequest = {
                 alertVisible = false
             },
@@ -1536,7 +1546,8 @@ private fun DialogsEsxample() {
             },
             message = {
                 CupertinoText("Alert dialog message")
-            }
+            },
+            backdrop = backdrop
         ) {
             destructive(
                 onClick = {
