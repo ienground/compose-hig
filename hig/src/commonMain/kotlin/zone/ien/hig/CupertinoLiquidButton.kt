@@ -1,14 +1,19 @@
 package zone.ien.hig
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -33,6 +38,9 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
+import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
+import zone.ien.hig.CupertinoLiquidButtonDefaults.glassButtonColors
+import zone.ien.hig.CupertinoLiquidButtonDefaults.glassProminentButtonColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.InteractiveHighlight
 import kotlin.math.abs
@@ -48,12 +56,11 @@ fun CupertinoLiquidButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     size: CupertinoButtonSize = CupertinoButtonSize.Regular,
-    colors: CupertinoLiquidButtonColors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+    colors: CupertinoLiquidButtonColors = glassButtonColors(),
     shape: Shape = size.shape(CupertinoTheme.shapes),
     contentPadding: PaddingValues = size.contentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     backdrop: Backdrop,
-//    isInteractive: Boolean = true,
     content: @Composable RowScope.() -> Unit
 ) {
     val animationScope = rememberCoroutineScope()
@@ -140,6 +147,38 @@ fun CupertinoLiquidButton(
                 LocalContentColor provides contentColor,
             ) {
                content()
+            }
+        }
+    )
+}
+
+@ExperimentalCupertinoApi
+@Composable
+fun CupertinoLiquidIconButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: CupertinoLiquidButtonColors = glassButtonColors(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    backdrop: Backdrop,
+    content: @Composable () -> Unit
+) {
+    CupertinoLiquidButton(
+        onClick = onClick,
+        modifier = modifier.size(CupertinoButtonTokens.IconButtonSize),
+        enabled = enabled,
+        colors = colors,
+        size = CupertinoButtonSize.Regular,
+        shape = CircleShape,
+        interactionSource = interactionSource,
+        contentPadding = PaddingValues(8.dp),
+        backdrop = backdrop,
+        content = {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                content()
             }
         }
     )

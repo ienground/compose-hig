@@ -117,6 +117,7 @@ import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconButton
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
+import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarItem
@@ -1305,7 +1306,6 @@ private fun SectionScope.ButtonsExample() {
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             var a by remember { mutableStateOf(true) }
             var b by remember { mutableStateOf(false) }
             var c by remember { mutableStateOf(ToggleableState.Indeterminate) }
@@ -1346,6 +1346,55 @@ private fun SectionScope.ButtonsExample() {
                 )
             }
             CupertinoIconButton(
+                onClick = {},
+                enabled = false,
+            ) {
+                CupertinoIcon(
+                    imageVector = AdaptiveIcons.Outlined.Add,
+                    contentDescription = null
+                )
+            }
+        }
+    }
+    SectionItem {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            var a by remember { mutableStateOf(true) }
+            var b by remember { mutableStateOf(false) }
+            var c by remember { mutableStateOf(ToggleableState.Indeterminate) }
+
+            CupertinoCheckBox(checked = a, onCheckedChange = { a = it })
+            CupertinoCheckBox(checked = b, onCheckedChange = { b = it })
+            CupertinoTriStateCheckBox(state = c, onClick = {
+                c = when (c) {
+                    ToggleableState.On -> ToggleableState.Off
+                    ToggleableState.Off -> ToggleableState.Indeterminate
+                    ToggleableState.Indeterminate -> ToggleableState.On
+                }
+            })
+            CupertinoLiquidIconButton(
+                backdrop = backdrop,
+                onClick = {},
+            ) {
+                CupertinoIcon(
+                    imageVector = AdaptiveIcons.Outlined.Share,
+                    contentDescription = null
+                )
+            }
+            CupertinoLiquidIconButton(
+                backdrop = backdrop,
+                onClick = {},
+                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+            ) {
+                CupertinoIcon(
+                    imageVector = AdaptiveIcons.Outlined.Settings,
+                    contentDescription = null
+                )
+            }
+            CupertinoLiquidIconButton(
+                backdrop = backdrop,
                 onClick = {},
                 enabled = false,
             ) {
