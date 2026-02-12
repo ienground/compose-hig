@@ -46,6 +46,7 @@ import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
@@ -61,12 +62,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -90,7 +93,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
@@ -98,7 +100,6 @@ import kotlinx.datetime.toLocalDateTime
 import zone.ien.hig.CupertinoActionSheet
 import zone.ien.hig.CupertinoActionSheetNative
 import zone.ien.hig.CupertinoActivityIndicator
-import zone.ien.hig.CupertinoAlertDialog
 import zone.ien.hig.CupertinoAlertDialogNative
 import zone.ien.hig.CupertinoBorderedTextField
 import zone.ien.hig.CupertinoBottomSheetContent
@@ -122,6 +123,7 @@ import zone.ien.hig.CupertinoLiquidAlertDialog
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
+import zone.ien.hig.CupertinoLiquidTopAppBar
 import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarItem
@@ -267,16 +269,14 @@ fun CupertinoWidgetsScreen(
                 uiState = uiState,
                 onItemValueChanged = onItemValueChanged,
                 scrollState = scrollState,
-                nativePickers = nativePickers.value,
+                backdrop = backdrop
             )
         },
         bottomBar = {
             BottomBarSample(
-                scrollState = scrollState,
-                nativePickers = nativePickers.value
+                scrollState = scrollState
             )
         },
-        modifier = Modifier.layerBackdrop(backdrop)
     ) { pv ->
         Body(
             uiState = uiState,
@@ -287,12 +287,14 @@ fun CupertinoWidgetsScreen(
             nativePickers = nativePickers,
             backdrop = backdrop,
             onNavigate = onNavigate,
+            modifier = Modifier.layerBackdrop(backdrop)
         )
     }
 }
 
 @Composable
 private fun Body(
+    modifier: Modifier = Modifier,
     uiState: RootUiState,
     onItemValueChanged: (RootDetails) -> Unit,
     paddingValues: PaddingValues,
@@ -314,7 +316,7 @@ private fun Body(
         SectionStyle.Sidebar
     ) {
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .sectionContainerBackground()
                 .nestedScroll(searchState.nestedScrollConnection)
@@ -339,7 +341,6 @@ private fun Body(
                         PaddingValues(bottom = 12.dp)
             )
 
-            /*
             CupertinoSection {
                 SectionItem(
                     trailingContent = {
@@ -385,8 +386,6 @@ private fun Body(
                 ButtonsExample()
                 SwitchAndProgressBar()
             }
-
-              */
 
             CupertinoSection(
                 title = {
@@ -787,7 +786,7 @@ private fun TopBarSample(
     uiState: RootUiState,
     onItemValueChanged: (RootDetails) -> Unit,
     scrollState: ScrollState,
-    nativePickers: Boolean,
+    backdrop: Backdrop
 ) {
     val density = LocalDensity.current
 
@@ -803,25 +802,120 @@ private fun TopBarSample(
         }
     }
 
-    CupertinoTopAppBar(
-        // Currently UIKitView doesn't work inside a container with translucent app bars
-        isTranslucent = isTransparent || !(IsIos && nativePickers),
+    CupertinoLiquidTopAppBar(
+        isCenterAligned = false,
+        isTranslucent = isTransparent,
         isTransparent = isTransparent,
         actions = {
-            CupertinoIconButton(
-                onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
+            /*
+            CupertinoLiquidIconButton(
+                onClick = {},
+                backdrop = backdrop
             ) {
-                AnimatedContent(uiState.item.isDark) {
-                    if (it) {
-                        CupertinoIcon(
-                            imageVector = CupertinoIcons.Default.SunMax,
-                            contentDescription = null
+                Row {
+                    Box(
+                        modifier = Modifier.clickable(
+                            interactionSource = null,
+                            indication = null,
+                            onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
                         )
-                    } else {
-                        CupertinoIcon(
-                            imageVector = CupertinoIcons.Default.MoonStars,
-                            contentDescription = null
+                    ) {
+                        AnimatedContent(uiState.item.isDark) {
+                            if (it) {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.SunMax,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            } else {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.MoonStars,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+             */
+            CupertinoLiquidButton(
+                onClick = {},
+                backdrop = backdrop
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+//                    Box(
+//                        modifier = Modifier.clickable(
+//                            interactionSource = null,
+//                            indication = null,
+//                            onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
+//                        )
+//                    ) {
+//                        AnimatedContent(uiState.item.isDark) {
+//                            if (it) {
+//                                CupertinoIcon(
+//                                    imageVector = CupertinoIcons.Default.SunMax,
+//                                    contentDescription = null,
+//                                    modifier = Modifier.size(24.dp)
+//                                )
+//                            } else {
+//                                CupertinoIcon(
+//                                    imageVector = CupertinoIcons.Default.MoonStars,
+//                                    contentDescription = null,
+//                                    modifier = Modifier.size(24.dp)
+//                                )
+//                            }
+//                        }
+//                    }
+                    Box(
+                        modifier = Modifier.clickable(
+                            interactionSource = null,
+                            indication = null,
+                            onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
                         )
+                    ) {
+                        AnimatedContent(uiState.item.isDark) {
+                            if (it) {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.SunMax,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            } else {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.MoonStars,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                    }
+                    Box(
+                        modifier = Modifier.clickable(
+                            interactionSource = null,
+                            indication = null,
+                            onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
+                        )
+                    ) {
+                        AnimatedContent(uiState.item.isDark) {
+                            if (it) {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.SunMax,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            } else {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.MoonStars,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -834,8 +928,7 @@ private fun TopBarSample(
 
 @Composable
 private fun BottomBarSample(
-    scrollState: ScrollState,
-    nativePickers: Boolean
+    scrollState: ScrollState
 ) {
     var tab by remember {
         mutableStateOf(0)
@@ -844,8 +937,7 @@ private fun BottomBarSample(
     val isTransparent = scrollState.isNavigationBarTransparent
 
     CupertinoNavigationBar(
-        // Currently UIKitView doesn't work inside a container with translucent app bars
-        isTranslucent = isTransparent || !(IsIos && nativePickers),
+        isTranslucent = isTransparent,
         isTransparent = isTransparent,
     ) {
         CupertinoNavigationBarItem(
