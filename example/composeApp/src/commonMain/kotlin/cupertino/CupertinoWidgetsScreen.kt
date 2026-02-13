@@ -46,6 +46,7 @@ import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
@@ -123,6 +124,7 @@ import zone.ien.hig.CupertinoLiquidAlertDialog
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
+import zone.ien.hig.CupertinoLiquidNavigationTitle
 import zone.ien.hig.CupertinoLiquidTopAppBar
 import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoNavigationBar
@@ -325,7 +327,7 @@ private fun Body(
                 .padding(top = 10.dp)
         ) {
 
-            CupertinoNavigationTitle {
+            CupertinoLiquidNavigationTitle {
                 Text("Cupertino")
             }
             var searchValue by remember {
@@ -803,7 +805,7 @@ private fun TopBarSample(
     }
 
     CupertinoLiquidTopAppBar(
-        isCenterAligned = false,
+//        isCenterAligned = false,
         isTranslucent = isTransparent,
         isTransparent = isTransparent,
         actions = {
@@ -848,72 +850,28 @@ private fun TopBarSample(
                     horizontalArrangement = Arrangement.spacedBy(24.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-//                    Box(
-//                        modifier = Modifier.clickable(
-//                            interactionSource = null,
-//                            indication = null,
-//                            onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
-//                        )
-//                    ) {
-//                        AnimatedContent(uiState.item.isDark) {
-//                            if (it) {
-//                                CupertinoIcon(
-//                                    imageVector = CupertinoIcons.Default.SunMax,
-//                                    contentDescription = null,
-//                                    modifier = Modifier.size(24.dp)
-//                                )
-//                            } else {
-//                                CupertinoIcon(
-//                                    imageVector = CupertinoIcons.Default.MoonStars,
-//                                    contentDescription = null,
-//                                    modifier = Modifier.size(24.dp)
-//                                )
-//                            }
-//                        }
-//                    }
-                    Box(
-                        modifier = Modifier.clickable(
-                            interactionSource = null,
-                            indication = null,
-                            onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
-                        )
-                    ) {
-                        AnimatedContent(uiState.item.isDark) {
-                            if (it) {
-                                CupertinoIcon(
-                                    imageVector = CupertinoIcons.Default.SunMax,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            } else {
-                                CupertinoIcon(
-                                    imageVector = CupertinoIcons.Default.MoonStars,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                        }
-                    }
-                    Box(
-                        modifier = Modifier.clickable(
-                            interactionSource = null,
-                            indication = null,
-                            onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
-                        )
-                    ) {
-                        AnimatedContent(uiState.item.isDark) {
-                            if (it) {
-                                CupertinoIcon(
-                                    imageVector = CupertinoIcons.Default.SunMax,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            } else {
-                                CupertinoIcon(
-                                    imageVector = CupertinoIcons.Default.MoonStars,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp)
-                                )
+                    repeat(2) {
+                        Box(
+                            modifier = Modifier.clickable(
+                                interactionSource = null,
+                                indication = null,
+                                onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
+                            )
+                        ) {
+                            AnimatedContent(uiState.item.isDark) {
+                                if (it) {
+                                    CupertinoIcon(
+                                        imageVector = CupertinoIcons.Default.SunMax,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                } else {
+                                    CupertinoIcon(
+                                        imageVector = CupertinoIcons.Default.MoonStars,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -1956,6 +1914,13 @@ private fun LinksWithIcons(
         ) {
             CupertinoText("SF Symbols")
         }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .background(Color.Black)
+        )
 
         SectionLink(
             icon = {

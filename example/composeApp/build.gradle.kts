@@ -86,6 +86,7 @@ kotlin {
 
             implementation(libs.compose.material3)
             implementation(libs.compose.preview)
+            implementation(libs.compose.resources)
             implementation(compose.materialIconsExtended)
             implementation(libs.datetime)
             implementation(libs.serialization)

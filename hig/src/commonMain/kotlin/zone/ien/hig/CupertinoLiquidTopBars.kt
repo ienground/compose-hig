@@ -63,6 +63,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -281,7 +282,7 @@ fun CupertinoLiquidNavigationTitle(
 //        }
 //    }
 
-    val offsetDifference = remember { mutableStateOf(0f) }
+    var offsetDifference by remember { mutableStateOf(0f) }
 
 // TODO: nav title snap
 //
@@ -313,7 +314,7 @@ fun CupertinoLiquidNavigationTitle(
     val insets = LocalScaffoldInsets.current?.getTop(density) ?: 0
     val fontIncrease by remember(maxSizeIncreaseDistancePx, maxFontScale) {
         derivedStateOf {
-            val d = offsetDifference.value + topBarHeightPx - insets
+            val d = offsetDifference + topBarHeightPx - insets
             if (d >= 0) {
                 1f
             } else {
@@ -323,22 +324,28 @@ fun CupertinoLiquidNavigationTitle(
     }
 
     val font = CupertinoTheme.typography.largeTitle.copy(fontWeight = FontWeight.Bold)
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = spring(1.2f)
+    )
 
     Box(
         modifier
             .padding(paddingValues)
-            .let {
-                if (topAppBarExists) {
-                    it.clip(LiquidClipShape(offsetDifference.value))
-                } else {
-                    it
-                }
-            }.onGloballyPositioned {
+            .alpha(alpha)
+//            .let {
+//                if (topAppBarExists) {
+//                    it.clip(LiquidClipShape(offsetDifference))
+//                } else {
+//                    it
+//                }
+//            }
+            .onGloballyPositioned {
                 val scaffoldTop = (scaffoldCoordinates?.boundsInWindow()?.top ?: 0f)
 
-                offsetDifference.value = (topBarHeightPx - it.boundsInWindow().top) + scaffoldTop
+                offsetDifference = (topBarHeightPx - it.boundsInWindow().top) + scaffoldTop
 
-                visible = !topAppBarExists || offsetDifference.value < it.size.height
+                visible = !topAppBarExists || offsetDifference < it.size.height
             },
     ) {
         CompositionLocalProvider(
