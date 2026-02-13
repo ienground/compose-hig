@@ -76,9 +76,15 @@ fun CupertinoLiquidButton(
     contentPadding: PaddingValues = size.contentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     backdrop: Backdrop,
+    isBackgroundAdaptive: Boolean = true,
     content: @Composable RowScope.() -> Unit
 ) {
     val animationScope = rememberCoroutineScope()
+
+    val tintColor by colors.tintColor(enabled)
+    val surfaceColor by colors.surfaceColor(enabled)
+    val contentColor by colors.contentColor(enabled)
+
     val lightTintColor by colors.tintColor(enabled, isDark = false)
     val lightSurfaceColor by colors.surfaceColor(enabled, isDark = false)
     val lightContentColor by colors.contentColor(enabled, isDark = false)
@@ -99,22 +105,24 @@ fun CupertinoLiquidButton(
     val surfaceColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightSurfaceColor else darkSurfaceColor) }
     val contentColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightContentColor else darkContentColor) }
 
-    LaunchedEffect(graphicsLayer) {
-        while (isActive) {
-            val averageLuminance = graphicsLayer.toImageBitmap().averageLuminance(5, 5)
+    if (isBackgroundAdaptive) {
+        LaunchedEffect(graphicsLayer) {
+            while (isActive) {
+                val averageLuminance = graphicsLayer.toImageBitmap().averageLuminance(5, 5)
 
-            launch {
-                contentColorAnimation.animateTo(
-                    if (averageLuminance > 0.5f) lightContentColor else darkContentColor,
+                launch {
+                    contentColorAnimation.animateTo(
+                        if (averageLuminance > 0.5f) lightContentColor else darkContentColor,
+                        tween(1000)
+                    )
+                }
+                luminanceAnimation.animateTo(
+                    averageLuminance,
                     tween(1000)
                 )
-            }
-            luminanceAnimation.animateTo(
-                averageLuminance,
-                tween(1000)
-            )
 
-            delay(500)  // CPU 부하 완화
+                delay(500)  // CPU 부하 완화
+            }
         }
     }
 
@@ -126,11 +134,14 @@ fun CupertinoLiquidButton(
                 effects = {
                     val l = (luminanceAnimation.value * 2f - 1f).let { sign(it) * it * it }
                     vibrancy()
-                    blur(
-                        if (l > 0f) lerp(8f.dp.toPx(), 16f.dp.toPx(), l)
-                        else lerp(8f.dp.toPx(), 2f.dp.toPx(), -l)
-                    )
-                    lens(12.dp.toPx(), 24.dp.toPx())
+                    if (isBackgroundAdaptive) {
+                        blur(
+                            if (l > 0f) lerp(8f.dp.toPx(), 16f.dp.toPx(), l)
+                            else lerp(8f.dp.toPx(), 2f.dp.toPx(), -l)
+                        )
+                    } else {
+                        blur(2.dp.toPx())
+                    }
                 },
                 layerBlock = if (enabled) {
                     {
@@ -155,12 +166,22 @@ fun CupertinoLiquidButton(
                     null
                 },
                 onDrawSurface = {
-                    if (tintColorAnimation.value.isSpecified) {
-                        drawRect(tintColorAnimation.value, blendMode = BlendMode.Hue)
-                        drawRect(tintColorAnimation.value.copy(alpha = 0.75f))
-                    }
-                    if (surfaceColorAnimation.value.isSpecified) {
-                        drawRect(surfaceColorAnimation.value)
+                    if (isBackgroundAdaptive) {
+                        if (tintColorAnimation.value.isSpecified) {
+                            drawRect(tintColorAnimation.value, blendMode = BlendMode.Hue)
+                            drawRect(tintColorAnimation.value.copy(alpha = 0.75f))
+                        }
+                        if (surfaceColorAnimation.value.isSpecified) {
+                            drawRect(surfaceColorAnimation.value)
+                        }
+                    } else {
+                        if (tintColor.isSpecified) {
+                            drawRect(tintColor, blendMode = BlendMode.Hue)
+                            drawRect(tintColor.copy(alpha = 0.75f))
+                        }
+                        if (surfaceColor.isSpecified) {
+                            drawRect(surfaceColor)
+                        }
                     }
                 },
                 onDrawBackdrop = { drawBackdrop ->
@@ -190,7 +211,7 @@ fun CupertinoLiquidButton(
         verticalAlignment = Alignment.CenterVertically,
         content = {
             CompositionLocalProvider(
-                LocalContentColor provides contentColorAnimation.value,
+                LocalContentColor provides if (isBackgroundAdaptive) contentColorAnimation.value else contentColor,
             ) {
                content()
             }
@@ -207,6 +228,7 @@ fun CupertinoLiquidIconButton(
     colors: CupertinoLiquidButtonColors = glassButtonColors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     backdrop: Backdrop,
+    isBackgroundAdaptive: Boolean = true,
     content: @Composable () -> Unit
 ) {
     CupertinoLiquidButton(
@@ -219,6 +241,7 @@ fun CupertinoLiquidIconButton(
         interactionSource = interactionSource,
         contentPadding = PaddingValues(8.dp),
         backdrop = backdrop,
+        isBackgroundAdaptive = isBackgroundAdaptive,
         content = {
             Box(
                 modifier = Modifier.fillMaxSize(),
