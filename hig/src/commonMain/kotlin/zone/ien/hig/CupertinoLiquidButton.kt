@@ -1,9 +1,13 @@
 package zone.ien.hig
 
+import androidx.compose.animation.Animatable as ColorAnimatable
+import androidx.compose.animation.core.Animatable as FloatAnimatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -29,6 +34,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceAtMost
@@ -36,16 +42,25 @@ import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.colorControls
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults.glassButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults.glassProminentButtonColors
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.theme.darkColorScheme
+import zone.ien.hig.theme.lightColorScheme
 import zone.ien.hig.utils.InteractiveHighlight
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.sign
 import kotlin.math.sin
 import kotlin.math.tanh
 
@@ -61,17 +76,55 @@ fun CupertinoLiquidButton(
     contentPadding: PaddingValues = size.contentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     backdrop: Backdrop,
+    isBackgroundAdaptive: Boolean = true,
     content: @Composable RowScope.() -> Unit
 ) {
     val animationScope = rememberCoroutineScope()
+
     val tintColor by colors.tintColor(enabled)
     val surfaceColor by colors.surfaceColor(enabled)
     val contentColor by colors.contentColor(enabled)
+
+    val lightTintColor by colors.tintColor(enabled, isDark = false)
+    val lightSurfaceColor by colors.surfaceColor(enabled, isDark = false)
+    val lightContentColor by colors.contentColor(enabled, isDark = false)
+    val darkTintColor by colors.tintColor(enabled, isDark = true)
+    val darkSurfaceColor by colors.surfaceColor(enabled, isDark = true)
+    val darkContentColor by colors.contentColor(enabled, isDark = true)
 
     val interactiveHighlight = remember(animationScope) {
         InteractiveHighlight(
             animationScope = animationScope
         )
+    }
+
+    val isLightTheme = !isSystemInDarkTheme()
+    val graphicsLayer = rememberGraphicsLayer()
+
+    val luminanceAnimation = remember { FloatAnimatable(if (isLightTheme) 1f else 0f) }
+    val tintColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightTintColor else darkTintColor) }
+    val surfaceColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightSurfaceColor else darkSurfaceColor) }
+    val contentColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightContentColor else darkContentColor) }
+
+    if (isBackgroundAdaptive) {
+        LaunchedEffect(graphicsLayer) {
+            while (isActive) {
+                val averageLuminance = graphicsLayer.toImageBitmap().averageLuminance(sampleWidth = 5)
+
+                launch {
+                    contentColorAnimation.animateTo(
+                        if (averageLuminance > 0.5f) lightContentColor else darkContentColor,
+                        tween(300)
+                    )
+                }
+                luminanceAnimation.animateTo(
+                    averageLuminance,
+                    tween(300)
+                )
+
+                delay(300)  // CPU 부하 완화
+            }
+        }
     }
 
     Row(
@@ -80,9 +133,16 @@ fun CupertinoLiquidButton(
                 backdrop = backdrop,
                 shape = { shape },
                 effects = {
+                    val l = (luminanceAnimation.value * 2f - 1f).let { sign(it) * it * it }
                     vibrancy()
-                    blur(2.dp.toPx())
-                    lens(12.dp.toPx(), 24.dp.toPx())
+                    if (isBackgroundAdaptive) {
+                        blur(
+                            if (l > 0f) lerp(8f.dp.toPx(), 16f.dp.toPx(), l)
+                            else lerp(8f.dp.toPx(), 2f.dp.toPx(), -l)
+                        )
+                    } else {
+                        blur(2.dp.toPx())
+                    }
                 },
                 layerBlock = if (enabled) {
                     {
@@ -100,26 +160,34 @@ fun CupertinoLiquidButton(
 
                         val maxDragScale = 4.dp.toPx() / height
                         val offsetAngle = atan2(offset.y, offset.x)
-                        scaleX =
-                            scale +
-                                    maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension) *
-                                    (width / height).fastCoerceAtMost(1f)
-                        scaleY =
-                            scale +
-                                    maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension) *
-                                    (height / width).fastCoerceAtMost(1f)
+                        scaleX = scale + maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension) * (width / height).fastCoerceAtMost(1f)
+                        scaleY = scale + maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension) * (height / width).fastCoerceAtMost(1f)
                     }
                 } else {
                     null
                 },
                 onDrawSurface = {
-                    if (tintColor.isSpecified) {
-                        drawRect(tintColor, blendMode = BlendMode.Hue)
-                        drawRect(tintColor.copy(alpha = 0.75f))
+                    if (isBackgroundAdaptive) {
+                        if (tintColorAnimation.value.isSpecified) {
+                            drawRect(tintColorAnimation.value, blendMode = BlendMode.Hue)
+                            drawRect(tintColorAnimation.value.copy(alpha = 0.75f))
+                        }
+                        if (surfaceColorAnimation.value.isSpecified) {
+                            drawRect(surfaceColorAnimation.value)
+                        }
+                    } else {
+                        if (tintColor.isSpecified) {
+                            drawRect(tintColor, blendMode = BlendMode.Hue)
+                            drawRect(tintColor.copy(alpha = 0.75f))
+                        }
+                        if (surfaceColor.isSpecified) {
+                            drawRect(surfaceColor)
+                        }
                     }
-                    if (surfaceColor.isSpecified) {
-                        drawRect(surfaceColor)
-                    }
+                },
+                onDrawBackdrop = { drawBackdrop ->
+                    drawBackdrop()
+                    graphicsLayer.record { drawBackdrop() }
                 }
             )
             .clickable(
@@ -144,7 +212,7 @@ fun CupertinoLiquidButton(
         verticalAlignment = Alignment.CenterVertically,
         content = {
             CompositionLocalProvider(
-                LocalContentColor provides contentColor,
+                LocalContentColor provides if (isBackgroundAdaptive) contentColorAnimation.value else contentColor,
             ) {
                content()
             }
@@ -161,6 +229,7 @@ fun CupertinoLiquidIconButton(
     colors: CupertinoLiquidButtonColors = glassButtonColors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     backdrop: Backdrop,
+    isBackgroundAdaptive: Boolean = true,
     content: @Composable () -> Unit
 ) {
     CupertinoLiquidButton(
@@ -173,6 +242,7 @@ fun CupertinoLiquidIconButton(
         interactionSource = interactionSource,
         contentPadding = PaddingValues(8.dp),
         backdrop = backdrop,
+        isBackgroundAdaptive = isBackgroundAdaptive,
         content = {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -186,13 +256,20 @@ fun CupertinoLiquidIconButton(
 
 @Immutable
 class CupertinoLiquidButtonColors internal constructor(
-    private val tintColor: Color,
-    private val surfaceColor: Color,
-    private val contentColor: Color,
-    private val disabledTintColor: Color,
-    private val disabledSurfaceColor: Color,
-    private val disabledContentColor: Color,
-    internal val indicationColor: Color,
+    private val lightTintColor: Color,
+    private val lightSurfaceColor: Color,
+    private val lightContentColor: Color,
+    private val darkTintColor: Color,
+    private val darkSurfaceColor: Color,
+    private val darkContentColor: Color,
+    private val disabledLightTintColor: Color,
+    private val disabledLightSurfaceColor: Color,
+    private val disabledLightContentColor: Color,
+    private val disabledDarkTintColor: Color,
+    private val disabledDarkSurfaceColor: Color,
+    private val disabledDarkContentColor: Color,
+    internal val lightIndicationColor: Color,
+    internal val darkIndicationColor: Color
 ) {
     /**
      * Represents the tint color for this button, depending on [enabled].
@@ -200,8 +277,14 @@ class CupertinoLiquidButtonColors internal constructor(
      * @params enabled whether the button is enabled
      */
     @Composable
-    fun tintColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) tintColor else disabledTintColor)
+    fun tintColor(enabled: Boolean, isDark: Boolean = isSystemInDarkTheme()): State<Color> {
+        return rememberUpdatedState(
+            if (isDark) {
+                if (enabled) darkTintColor else disabledDarkTintColor
+            } else {
+                if (enabled) lightTintColor else disabledLightTintColor
+            }
+        )
     }
 
     /**
@@ -210,8 +293,14 @@ class CupertinoLiquidButtonColors internal constructor(
      * @params enabled whether the button is enabled
      */
     @Composable
-    fun surfaceColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) surfaceColor else disabledSurfaceColor)
+    fun surfaceColor(enabled: Boolean, isDark: Boolean = isSystemInDarkTheme()): State<Color> {
+        return rememberUpdatedState(
+            if (isDark) {
+                if (enabled) darkSurfaceColor else disabledDarkSurfaceColor
+            } else {
+                if (enabled) lightSurfaceColor else disabledLightSurfaceColor
+            }
+        )
     }
 
     /**
@@ -220,31 +309,49 @@ class CupertinoLiquidButtonColors internal constructor(
      * @params enabled whether the button is enabled
      */
     @Composable
-    fun contentColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) contentColor else disabledContentColor)
+    fun contentColor(enabled: Boolean, isDark: Boolean = isSystemInDarkTheme()): State<Color> {
+        return rememberUpdatedState(
+            if (isDark) {
+                if (enabled) darkContentColor else disabledDarkContentColor
+            } else {
+                if (enabled) lightContentColor else disabledLightContentColor
+            }
+        )
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is CupertinoLiquidButtonColors) return false
 
-        if (tintColor != other.tintColor) return false
-        if (surfaceColor != other.surfaceColor) return false
-        if (contentColor != other.contentColor) return false
-        if (disabledTintColor != other.disabledTintColor) return false
-        if (disabledSurfaceColor != other.disabledSurfaceColor) return false
-        if (disabledContentColor != other.disabledContentColor) return false
+        if (lightTintColor != other.lightTintColor) return false
+        if (lightSurfaceColor != other.lightSurfaceColor) return false
+        if (lightContentColor != other.lightContentColor) return false
+        if (darkTintColor != other.darkTintColor) return false
+        if (darkSurfaceColor != other.darkSurfaceColor) return false
+        if (darkContentColor != other.darkContentColor) return false
+        if (disabledLightTintColor != other.disabledLightTintColor) return false
+        if (disabledLightSurfaceColor != other.disabledLightSurfaceColor) return false
+        if (disabledLightContentColor != other.disabledLightContentColor) return false
+        if (disabledDarkTintColor != other.disabledDarkTintColor) return false
+        if (disabledDarkSurfaceColor != other.disabledDarkSurfaceColor) return false
+        if (disabledDarkContentColor != other.disabledDarkContentColor) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = tintColor.hashCode()
-        result = 31 * result + surfaceColor.hashCode()
-        result = 31 * result + contentColor.hashCode()
-        result = 31 * result + disabledTintColor.hashCode()
-        result = 31 * result + disabledSurfaceColor.hashCode()
-        result = 31 * result + disabledContentColor.hashCode()
+        var result = lightTintColor.hashCode()
+        result = 31 * result + lightSurfaceColor.hashCode()
+        result = 31 * result + lightContentColor.hashCode()
+        result = 31 * result + darkTintColor.hashCode()
+        result = 31 * result + darkSurfaceColor.hashCode()
+        result = 31 * result + darkContentColor.hashCode()
+        result = 31 * result + disabledLightTintColor.hashCode()
+        result = 31 * result + disabledLightSurfaceColor.hashCode()
+        result = 31 * result + disabledLightContentColor.hashCode()
+        result = 31 * result + disabledDarkTintColor.hashCode()
+        result = 31 * result + disabledDarkSurfaceColor.hashCode()
+        result = 31 * result + disabledDarkContentColor.hashCode()
         return result
     }
 }
@@ -257,21 +364,35 @@ object CupertinoLiquidButtonDefaults {
     @Composable
     @ReadOnlyComposable
     fun glassProminentButtonColors(
-        tintColor: Color = CupertinoTheme.colorScheme.accent,
-        surfaceColor: Color = Color.Unspecified,
-        contentColor: Color = Color.White,
-        disabledTintColor: Color = Color.Unspecified,
-        disabledSurfaceColor: Color = CupertinoTheme.colorScheme.systemFill,
-        disabledContentColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
-        indicationColor: Color = contentColor.copy(alpha = 0.2f)
+        lightTintColor: Color = lightColorScheme().accent,
+        lightSurfaceColor: Color = Color.Unspecified,
+        lightContentColor: Color = Color.White,
+        darkTintColor: Color = darkColorScheme().accent,
+        darkSurfaceColor: Color = Color.Unspecified,
+        darkContentColor: Color = Color.Black,
+        disabledLightTintColor: Color = Color.Unspecified,
+        disabledLightSurfaceColor: Color = lightColorScheme().systemFill,
+        disabledLightContentColor: Color = lightColorScheme().tertiaryLabel,
+        disabledDarkTintColor: Color = Color.Unspecified,
+        disabledDarkSurfaceColor: Color = darkColorScheme().systemFill,
+        disabledDarkContentColor: Color = darkColorScheme().tertiaryLabel,
+        lightIndicationColor: Color = lightContentColor.copy(alpha = 0.2f),
+        darkIndicationColor: Color = darkContentColor.copy(alpha = 0.2f)
     ): CupertinoLiquidButtonColors = CupertinoLiquidButtonColors(
-        tintColor = tintColor,
-        surfaceColor = surfaceColor,
-        contentColor = contentColor,
-        disabledTintColor = disabledTintColor,
-        disabledSurfaceColor = disabledSurfaceColor,
-        disabledContentColor = disabledContentColor,
-        indicationColor = indicationColor
+        lightTintColor = lightTintColor,
+        lightSurfaceColor = lightSurfaceColor,
+        lightContentColor = lightContentColor,
+        darkTintColor = darkTintColor,
+        darkSurfaceColor = darkSurfaceColor,
+        darkContentColor = darkContentColor,
+        disabledLightTintColor = disabledLightTintColor,
+        disabledLightSurfaceColor = disabledLightSurfaceColor,
+        disabledLightContentColor = disabledLightContentColor,
+        disabledDarkTintColor = disabledDarkTintColor,
+        disabledDarkSurfaceColor = disabledDarkSurfaceColor,
+        disabledDarkContentColor = disabledDarkContentColor,
+        lightIndicationColor = lightIndicationColor,
+        darkIndicationColor = darkIndicationColor
     )
 
     /**
@@ -280,21 +401,35 @@ object CupertinoLiquidButtonDefaults {
     @Composable
     @ReadOnlyComposable
     fun glassButtonColors(
-        tintColor: Color = Color.Unspecified,
-        surfaceColor: Color = Color.Unspecified,
-        contentColor: Color = CupertinoTheme.colorScheme.label,
-        disabledTintColor: Color = Color.Unspecified,
-        disabledSurfaceColor: Color = Color.Unspecified,
-        disabledContentColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
-        indicationColor: Color = contentColor.copy(alpha = 0.2f)
+        lightTintColor: Color = Color.Unspecified,
+        lightSurfaceColor: Color = Color.Unspecified,
+        lightContentColor: Color = lightColorScheme().label,
+        darkTintColor: Color = Color.Unspecified,
+        darkSurfaceColor: Color = Color.Unspecified,
+        darkContentColor: Color = darkColorScheme().label,
+        disabledLightTintColor: Color = Color.Unspecified,
+        disabledLightSurfaceColor: Color = Color.Unspecified,
+        disabledLightContentColor: Color = lightColorScheme().tertiaryLabel,
+        disabledDarkTintColor: Color = Color.Unspecified,
+        disabledDarkSurfaceColor: Color = Color.Unspecified,
+        disabledDarkContentColor: Color = darkColorScheme().tertiaryLabel,
+        lightIndicationColor: Color = lightContentColor.copy(alpha = 0.2f),
+        darkIndicationColor: Color = darkContentColor.copy(alpha = 0.2f)
     ): CupertinoLiquidButtonColors = CupertinoLiquidButtonColors(
-        tintColor = tintColor,
-        surfaceColor = surfaceColor,
-        contentColor = contentColor,
-        disabledTintColor = disabledTintColor,
-        disabledSurfaceColor = disabledSurfaceColor,
-        disabledContentColor = disabledContentColor,
-        indicationColor = indicationColor
+        lightTintColor = lightTintColor,
+        lightSurfaceColor = lightSurfaceColor,
+        lightContentColor = lightContentColor,
+        darkTintColor = darkTintColor,
+        darkSurfaceColor = darkSurfaceColor,
+        darkContentColor = darkContentColor,
+        disabledLightTintColor = disabledLightTintColor,
+        disabledLightSurfaceColor = disabledLightSurfaceColor,
+        disabledLightContentColor = disabledLightContentColor,
+        disabledDarkTintColor = disabledDarkTintColor,
+        disabledDarkSurfaceColor = disabledDarkSurfaceColor,
+        disabledDarkContentColor = disabledDarkContentColor,
+        lightIndicationColor = lightIndicationColor,
+        darkIndicationColor = darkIndicationColor
     )
 }
 
