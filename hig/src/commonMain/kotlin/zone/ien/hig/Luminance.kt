@@ -1,30 +1,52 @@
 package zone.ien.hig
 
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.layer.GraphicsLayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-suspend fun ImageBitmap.averageLuminance(sampleWidth: Int = 5, sampleHeight: Int = 5): Float =
+suspend fun ImageBitmap.averageLuminance(
+    cropWidth: Int = width,
+    cropHeight: Int = height,
+    sampleWidth: Int = 5,
+    sampleHeight: Int = sampleWidth
+): Float = innerAverageLuminance(
+    cropWidth.coerceIn(0..width),
+    cropHeight.coerceIn(0..height),
+    sampleWidth,
+    sampleHeight
+)
+
+private suspend fun ImageBitmap.innerAverageLuminance(
+    width: Int,
+    height: Int,
+    sampleWidth: Int = 5,
+    sampleHeight: Int = sampleWidth
+): Float =
     withContext(Dispatchers.Default.limitedParallelism(1)) {
         try {
-            val buffer = IntArray(sampleWidth * sampleHeight)
-            readPixels(
-                buffer = buffer,
-                startX = 0,
-                startY = 0,
-                width = sampleWidth.coerceAtMost(width),
-                height = sampleHeight.coerceAtMost(height)
-            )
+            val stepX = width / sampleWidth.toFloat()
+            val stepY = height / sampleHeight.toFloat()
 
-            buffer.map { color ->
-                val r = ((color shr 16) and 0xFF) / 255f
-                val g = ((color shr 8) and 0xFF) / 255f
-                val b = (color and 0xFF) / 255f
-                0.2126f * r + 0.7152f * g + 0.0722f * b
+            val luminance = (0..sampleHeight).flatMap { gy ->
+                (0..sampleWidth).map { gx ->
+                    val x = (stepX * gx + stepX * 0.5f).toInt().coerceIn(0, width - 1)
+                    val y = (stepY * gy + stepY * 0.5f).toInt().coerceIn(0, height - 1)
+
+                    val pixel = IntArray(1)
+                    readPixels(pixel, x, y, 1, 1)
+                    pixel[0].toLuminance()
+                }
             }.average().toFloat()
 
+            luminance
         } catch (e: Exception) {
             0.5f
         }
     }
+
+private fun Int.toLuminance(): Float {
+    val r = ((this shr 16) and 0xFF) / 255f
+    val g = ((this shr 8) and 0xFF) / 255f
+    val b = (this and 0xFF) / 255f
+    return 0.2126f * r + 0.7152f * g + 0.0722f * b
+}

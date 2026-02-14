@@ -37,11 +37,16 @@ import zone.ien.hig.composeapp.generated.resources.img_calib_test
 fun TestScreen(
     modifier: Modifier = Modifier
 ) {
+    val backdrop = rememberLayerBackdrop()
     CupertinoScaffold(
         topBar = {
             CupertinoLiquidTopAppBar(
                 title = {},
-                navigationIcon = {}
+                navigationIcon = {},
+                backdrop = backdrop,
+                isTranslucent = true,
+                isTransparent = true,
+
             )
         },
         modifier = modifier
@@ -49,7 +54,6 @@ fun TestScreen(
         Box(
             modifier = Modifier.padding(it)
         ) {
-            val backdrop = rememberLayerBackdrop()
             var offsetX by remember { mutableStateOf(0.dp) }
             var offsetY by remember { mutableStateOf(0.dp) }
             val density = LocalDensity.current

@@ -100,6 +100,7 @@ fun CupertinoLiquidButton(
 
     val isLightTheme = !isSystemInDarkTheme()
     val graphicsLayer = rememberGraphicsLayer()
+
     val luminanceAnimation = remember { FloatAnimatable(if (isLightTheme) 1f else 0f) }
     val tintColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightTintColor else darkTintColor) }
     val surfaceColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightSurfaceColor else darkSurfaceColor) }
@@ -108,20 +109,20 @@ fun CupertinoLiquidButton(
     if (isBackgroundAdaptive) {
         LaunchedEffect(graphicsLayer) {
             while (isActive) {
-                val averageLuminance = graphicsLayer.toImageBitmap().averageLuminance(5, 5)
+                val averageLuminance = graphicsLayer.toImageBitmap().averageLuminance(sampleWidth = 5)
 
                 launch {
                     contentColorAnimation.animateTo(
                         if (averageLuminance > 0.5f) lightContentColor else darkContentColor,
-                        tween(1000)
+                        tween(300)
                     )
                 }
                 luminanceAnimation.animateTo(
                     averageLuminance,
-                    tween(1000)
+                    tween(300)
                 )
 
-                delay(500)  // CPU 부하 완화
+                delay(300)  // CPU 부하 완화
             }
         }
     }

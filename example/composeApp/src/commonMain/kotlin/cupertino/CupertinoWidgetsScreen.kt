@@ -93,6 +93,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.launch
@@ -788,7 +789,7 @@ private fun TopBarSample(
     uiState: RootUiState,
     onItemValueChanged: (RootDetails) -> Unit,
     scrollState: ScrollState,
-    backdrop: Backdrop
+    backdrop: LayerBackdrop
 ) {
     val density = LocalDensity.current
 
@@ -808,6 +809,7 @@ private fun TopBarSample(
 //        isCenterAligned = false,
         isTranslucent = isTransparent,
         isTransparent = isTransparent,
+        backdrop = backdrop,
         actions = {
             /*
             CupertinoLiquidIconButton(
