@@ -32,18 +32,18 @@ import zone.ien.hig.InternalCupertinoApi
 
 @Stable
 class Shapes(
-    val extraSmall: UnevenRoundedRectangle = ShapeDefaults.ExtraSmall,
-    val small: UnevenRoundedRectangle = ShapeDefaults.Small,
-    val medium: UnevenRoundedRectangle = ShapeDefaults.Medium,
-    val large: UnevenRoundedRectangle = ShapeDefaults.Large,
-    val extraLarge: UnevenRoundedRectangle = ShapeDefaults.ExtraLarge,
+    val extraSmall: RoundedRectangle = ShapeDefaults.ExtraSmall,
+    val small: RoundedRectangle = ShapeDefaults.Small,
+    val medium: RoundedRectangle = ShapeDefaults.Medium,
+    val large: RoundedRectangle = ShapeDefaults.Large,
+    val extraLarge: RoundedRectangle = ShapeDefaults.ExtraLarge,
 ) {
     fun copy(
-        extraSmall: UnevenRoundedRectangle = this.extraSmall,
-        small: UnevenRoundedRectangle = this.small,
-        medium: UnevenRoundedRectangle = this.medium,
-        large: UnevenRoundedRectangle = this.large,
-        extraLarge: UnevenRoundedRectangle = this.extraLarge,
+        extraSmall: RoundedRectangle = this.extraSmall,
+        small: RoundedRectangle = this.small,
+        medium: RoundedRectangle = this.medium,
+        large: RoundedRectangle = this.large,
+        extraLarge: RoundedRectangle = this.extraLarge,
     ) = Shapes(
         extraSmall = extraSmall,
         small = small,
@@ -59,17 +59,17 @@ val LocalShapes = staticCompositionLocalOf { Shapes() }
 @Immutable
 object ShapeDefaults {
     /** Extra small sized corner shape */
-    val ExtraSmall: UnevenRoundedRectangle = 4.dp.let { RoundedRectangle(it, it, it, it) }
+    val ExtraSmall: RoundedRectangle = RoundedRectangle(4.dp)
 
     /** Small sized corner shape */
-    val Small: UnevenRoundedRectangle = 8.dp.let { RoundedRectangle(it, it, it, it) }
+    val Small: RoundedRectangle = RoundedRectangle(8.dp)
 
     /** Medium sized corner shape */
-    val Medium: UnevenRoundedRectangle = 12.dp.let { RoundedRectangle(it, it, it, it) }
+    val Medium: RoundedRectangle = RoundedRectangle(12.dp)
 
     /** Large sized corner shape */
-    val Large: UnevenRoundedRectangle = 16.dp.let { RoundedRectangle(it, it, it, it) }
+    val Large: RoundedRectangle = RoundedRectangle(16.dp)
 
     /** Extra large sized corner shape */
-    val ExtraLarge: UnevenRoundedRectangle = 24.dp.let { RoundedRectangle(it, it, it, it) }
+    val ExtraLarge: RoundedRectangle = RoundedRectangle(24.dp)
 }

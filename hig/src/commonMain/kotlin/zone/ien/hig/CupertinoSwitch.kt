@@ -190,7 +190,7 @@ fun CupertinoSwitch(
         Box(
             Modifier
                 .layerBackdrop(trackBackdrop)
-                .clip(Capsule)
+                .clip(Capsule())
                 .drawBehind {
                     val fraction = dampedDragAnimation.value
                     drawRect(lerp(uncheckedTrackColor, checkedTrackColor, fraction))
@@ -224,7 +224,7 @@ fun CupertinoSwitch(
                             }
                         }
                     ),
-                    shape = { Capsule },
+                    shape = { Capsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
                         blur(8f.dp.toPx() * (1f - progress))

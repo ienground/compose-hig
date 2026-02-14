@@ -107,9 +107,9 @@ object CupertinoSectionDefaults {
 
     @Composable
     @ReadOnlyComposable
-    fun shape(style: SectionStyle = LocalSectionStyle.current): UnevenRoundedRectangle =
+    fun shape(style: SectionStyle = LocalSectionStyle.current): RoundedRectangle =
         if (style.grouped && style.inset) CupertinoTheme.shapes.extraLarge
-        else 0.dp.let { RoundedRectangle(it, it, it, it) }
+        else RoundedRectangle(0.dp)
 
     @Composable
     @ReadOnlyComposable

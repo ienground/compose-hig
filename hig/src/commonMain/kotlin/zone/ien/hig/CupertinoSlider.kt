@@ -1252,7 +1252,7 @@ internal object SliderTokens {
     val ThumbInnerElevation = 4.dp
     val ThumbWidth = 40.0.dp
     val ThumbHeight = 24.0.dp
-    val ThumbShape = Capsule
+    val ThumbShape = Capsule()
     val InactiveTrackHeight = 6.0.dp
     val TickMarksContainerSize = 1.5.dp
 }

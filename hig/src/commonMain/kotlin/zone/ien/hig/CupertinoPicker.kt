@@ -510,7 +510,7 @@ internal object CupertinoPickerTokens {
             horizontal = 10.dp,
         )
 
-    val IndicatorShape: UnevenRoundedRectangle
+    val IndicatorShape: RoundedRectangle
         @Composable get() = CupertinoTheme.shapes.small
 }
 

@@ -72,7 +72,7 @@ fun CupertinoSection(
     state: SectionState = rememberSectionState(canCollapse = true),
     enterTransition: EnterTransition = CupertinoSectionDefaults.EnterTransition,
     exitTransition: ExitTransition = CupertinoSectionDefaults.ExitTransition,
-    shape: UnevenRoundedRectangle = CupertinoSectionDefaults.shape(style),
+    shape: RoundedRectangle = CupertinoSectionDefaults.shape(style),
     color: Color =
         if (style.grouped) {
             CupertinoSectionDefaults.Color
