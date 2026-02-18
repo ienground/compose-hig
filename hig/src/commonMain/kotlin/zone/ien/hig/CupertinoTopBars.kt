@@ -27,7 +27,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,7 +45,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
@@ -58,10 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -70,13 +65,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.isUnspecified
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -188,6 +180,7 @@ fun CupertinoTopAppBar(
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable (RowScope.() -> Unit) = {},
     windowInsets: WindowInsets = LocalTopAppBarInsets.current ?: CupertinoTopAppBarDefaults.windowInsets,
+    isCenterAligned: Boolean = true,
     isTransparent: Boolean = false,
     isTranslucent: Boolean = LocalAppBarsState.current != null,
     colors: CupertinoTopAppBarColors = CupertinoTopAppBarDefaults.topAppBarColors(),
@@ -201,6 +194,7 @@ fun CupertinoTopAppBar(
         navigationIcon = navigationIcon,
         actions = actions,
         windowInsets = windowInsets,
+        isCenterAligned = isCenterAligned,
         colors = colors,
         isTransparent = transparent,
         isTranslucent = isTranslucent,
@@ -557,6 +551,7 @@ private fun InlineTopAppBar(
     navigationIcon: @Composable () -> Unit,
     actions: @Composable RowScope.() -> Unit,
     windowInsets: WindowInsets,
+    isCenterAligned: Boolean,
     colors: CupertinoTopAppBarColors,
     isTransparent: Boolean,
     isTranslucent: Boolean,
@@ -616,7 +611,7 @@ private fun InlineTopAppBar(
             titleTextStyle = CupertinoTheme.typography.headline,
             titleAlpha = 1f,
             titleVerticalArrangement = Arrangement.Center,
-            titleHorizontalArrangement = Arrangement.Center,
+            titleHorizontalArrangement = if (isCenterAligned) Arrangement.Center else Arrangement.Start,
             titleBottomPadding = LocalDensity.current.run { 16.dp.roundToPx() },
             hideTitleSemantics = false,
             navigationIcon = navigationIcon,

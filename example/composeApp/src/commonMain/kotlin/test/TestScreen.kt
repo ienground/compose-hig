@@ -69,13 +69,12 @@ fun TestScreen(
     CupertinoScaffold(
         topBar = {
             CupertinoTopAppBar(
-//        isCenterAligned = false,
                 isTranslucent = isTransparent,
                 isTransparent = isTransparent,
-//        backdrop = backdrop,
                 title = {
                     CupertinoText("Cupertino")
-                }
+                },
+                isCenterAligned = false
             )
         },
         modifier = modifier
