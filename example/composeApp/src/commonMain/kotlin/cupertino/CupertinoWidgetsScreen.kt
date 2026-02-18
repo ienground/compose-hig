@@ -125,8 +125,6 @@ import zone.ien.hig.CupertinoLiquidAlertDialog
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
-import zone.ien.hig.CupertinoLiquidNavigationTitle
-import zone.ien.hig.CupertinoLiquidTopAppBar
 import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarItem
@@ -328,7 +326,7 @@ private fun Body(
                 .padding(top = 10.dp)
         ) {
 
-            CupertinoLiquidNavigationTitle {
+            CupertinoNavigationTitle {
                 Text("Cupertino")
             }
             var searchValue by remember {
@@ -805,11 +803,11 @@ private fun TopBarSample(
         }
     }
 
-    CupertinoLiquidTopAppBar(
+    CupertinoTopAppBar(
 //        isCenterAligned = false,
         isTranslucent = isTransparent,
         isTransparent = isTransparent,
-        backdrop = backdrop,
+//        backdrop = backdrop,
         actions = {
             /*
             CupertinoLiquidIconButton(
