@@ -1441,6 +1441,7 @@ private fun SectionScope.ButtonsExample() {
             CupertinoLiquidIconButton(
                 backdrop = backdrop,
                 onClick = {},
+                isBackgroundAdaptive = false,
             ) {
                 CupertinoIcon(
                     imageVector = AdaptiveIcons.Outlined.Share,
@@ -1450,6 +1451,7 @@ private fun SectionScope.ButtonsExample() {
             CupertinoLiquidIconButton(
                 backdrop = backdrop,
                 onClick = {},
+                isBackgroundAdaptive = false,
                 colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
             ) {
                 CupertinoIcon(
@@ -1460,6 +1462,7 @@ private fun SectionScope.ButtonsExample() {
             CupertinoLiquidIconButton(
                 backdrop = backdrop,
                 onClick = {},
+                isBackgroundAdaptive = false,
                 enabled = false,
             ) {
                 CupertinoIcon(
@@ -1540,6 +1543,7 @@ private fun SectionScope.ButtonsExample() {
                 colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
                 onClick = {},
                 enabled = true,
+                isBackgroundAdaptive = false,
                 backdrop = backdrop
             ) {
                 CupertinoText("Filled")
@@ -1548,6 +1552,7 @@ private fun SectionScope.ButtonsExample() {
                 colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
                 onClick = {},
                 enabled = false,
+                isBackgroundAdaptive = false,
                 backdrop = backdrop
             ) {
                 CupertinoText("Disabled")
@@ -1563,6 +1568,7 @@ private fun SectionScope.ButtonsExample() {
                 colors = CupertinoLiquidButtonDefaults.glassButtonColors(),
                 onClick = {},
                 enabled = true,
+                isBackgroundAdaptive = false,
                 backdrop = backdrop
             ) {
                 CupertinoText("Glass")
@@ -1571,6 +1577,7 @@ private fun SectionScope.ButtonsExample() {
                 colors = CupertinoLiquidButtonDefaults.glassButtonColors(),
                 onClick = {},
                 enabled = false,
+                isBackgroundAdaptive = false,
                 backdrop = backdrop
             ) {
                 CupertinoText("Disabled")
@@ -1917,12 +1924,12 @@ private fun LinksWithIcons(
             CupertinoText("SF Symbols")
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .background(Color.Black)
-        )
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(200.dp)
+//                .background(Color.Black)
+//        )
 
         SectionLink(
             icon = {

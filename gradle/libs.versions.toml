@@ -1,8 +1,8 @@
 [versions]
 agp = "9.0.0"
 #agp = "8.12.0"
-kotlin = "2.3.20-Beta2"
-lib-version-name = "0.1.0-alpha02"
+kotlin = "2.3.10"
+lib-version-name = "0.1.0-alpha03"
 
 # plugin
 compose-plugin = "1.10.1"
@@ -12,7 +12,7 @@ compose-navigation3 = "1.0.0-alpha06"
 # ui
 activity-compose = "1.12.4"
 lifecycle = "2.10.0-alpha08"
-backdrop = "2.0.0-alpha02"
+backdrop = "2.0.0-alpha03"
 capsule = "1.2.0"
 haze = "1.7.2"
 

@@ -88,6 +88,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
@@ -465,30 +466,31 @@ private fun InlineTopAppBar(
 
     if (isBackgroundAdaptive) {
         LaunchedEffect(backdrop.graphicsLayer) {
-            while (isActive) {
-                val averageLuminance = backdrop.graphicsLayer.toImageBitmap().averageLuminance(sampleWidth = 5, cropHeight = height.toInt())
+            if (backdrop.graphicsLayer.size != IntSize.Zero) {
+                while (isActive) {
+                    val averageLuminance = backdrop.graphicsLayer.toImageBitmap().averageLuminance(sampleWidth = 5, cropHeight = height.toInt())
 
-                launch {
-                    println("TopBar: lum $averageLuminance $height")
-                    containerColorAnimation.animateTo(
-                        if (averageLuminance > 0.5f) lightContainerColor else darkContainerColor,
-                        tween(300)
-                    )
-                    titleContentColorAnimation.animateTo(
-                        if (averageLuminance > 0.5f) lightTitleContentColor else darkTitleContentColor,
-                        tween(300)
-                    )
-                    navigationIconContentColorAnimation.animateTo(
-                        if (averageLuminance > 0.5f) lightNavigationIconContentColor else darkNavigationIconContentColor,
-                        tween(300)
-                    )
-                    actionIconContentColorAnimation.animateTo(
-                        if (averageLuminance > 0.5f) lightActionIconContentColor else darkActionIconContentColor,
-                        tween(300)
-                    )
+                    launch {
+                        containerColorAnimation.animateTo(
+                            if (averageLuminance > 0.5f) lightContainerColor else darkContainerColor,
+                            tween(300)
+                        )
+                        titleContentColorAnimation.animateTo(
+                            if (averageLuminance > 0.5f) lightTitleContentColor else darkTitleContentColor,
+                            tween(300)
+                        )
+                        navigationIconContentColorAnimation.animateTo(
+                            if (averageLuminance > 0.5f) lightNavigationIconContentColor else darkNavigationIconContentColor,
+                            tween(300)
+                        )
+                        actionIconContentColorAnimation.animateTo(
+                            if (averageLuminance > 0.5f) lightActionIconContentColor else darkActionIconContentColor,
+                            tween(300)
+                        )
+                    }
+
+                    delay(300)
                 }
-
-                delay(300)
             }
         }
     }
