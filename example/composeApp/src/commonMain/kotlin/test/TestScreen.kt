@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Accessibility
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,12 +31,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.CupertinoIcon
+import zone.ien.hig.CupertinoLargeFloatingActionButton
 import zone.ien.hig.CupertinoLiquidButton
+import zone.ien.hig.CupertinoMediumFloatingActionButton
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoScaffold
+import zone.ien.hig.CupertinoSmallFloatingActionButton
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.MoonStars
 import zone.ien.hig.icons.outlined.SunMax
@@ -76,6 +83,24 @@ fun TestScreen(
                 },
                 isCenterAligned = false
             )
+        },
+        floatingActionButton = {
+//            CupertinoSmallFloatingActionButton(
+//            CupertinoMediumFloatingActionButton(
+//            CupertinoLargeFloatingActionButton(
+            CupertinoLargeFloatingActionButton(
+                onClick = {},
+                backdrop = backdrop
+            ) {
+                Icon(
+                    painter = AdaptiveIcons.painter(
+                        material = { Icons.Rounded.Accessibility },
+                        cupertino = { "plus" }
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
         },
         modifier = modifier
         /*
