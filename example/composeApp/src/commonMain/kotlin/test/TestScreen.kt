@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoLargeFloatingActionButton
@@ -81,6 +82,33 @@ fun TestScreen(
                 title = {
                     CupertinoText("Cupertino")
                 },
+                actions = {
+                    CupertinoLiquidButton(
+                        onClick = {},
+                        backdrop = backdrop
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(24.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            repeat(2) {
+                                Box(
+                                    modifier = Modifier.clickable(
+                                        interactionSource = null,
+                                        indication = null,
+                                        onClick = {}
+                                    )
+                                ) {
+                                    CupertinoIcon(
+                                        imageVector = CupertinoIcons.Default.SunMax,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
                 isCenterAligned = false
             )
         },
@@ -88,19 +116,19 @@ fun TestScreen(
 //            CupertinoSmallFloatingActionButton(
 //            CupertinoMediumFloatingActionButton(
 //            CupertinoLargeFloatingActionButton(
-            CupertinoLargeFloatingActionButton(
-                onClick = {},
-                backdrop = backdrop
-            ) {
-                Icon(
-                    painter = AdaptiveIcons.painter(
-                        material = { Icons.Rounded.Accessibility },
-                        cupertino = { "plus" }
-                    ),
-                    contentDescription = null,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
+//            CupertinoLargeFloatingActionButton(
+//                onClick = {},
+//                backdrop = backdrop
+//            ) {
+//                Icon(
+//                    painter = AdaptiveIcons.painter(
+//                        material = { Icons.Rounded.Accessibility },
+//                        cupertino = { "plus" }
+//                    ),
+//                    contentDescription = null,
+//                    modifier = Modifier.size(28.dp)
+//                )
+//            }
         },
         modifier = modifier
         /*
@@ -120,10 +148,10 @@ fun TestScreen(
     ) {
         Column(
             modifier = Modifier
+                .layerBackdrop(backdrop)
                 .verticalScroll(scrollState)
                 .padding(it)
                 .background(Color.Red.copy(0.7f))
-//                .layerBackdrop(backdrop)
         ) {
             CupertinoNavigationTitle {
                 Text(

@@ -1,6 +1,8 @@
 package zone.ien.hig
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -8,19 +10,38 @@ suspend fun ImageBitmap.averageLuminance(
     cropWidth: Int = width,
     cropHeight: Int = height,
     sampleWidth: Int = 5,
-    sampleHeight: Int = sampleWidth
+    sampleHeight: Int = sampleWidth,
+    defaultColor: Color,
 ): Float = innerAverageLuminance(
     cropWidth.coerceIn(0..width),
     cropHeight.coerceIn(0..height),
     sampleWidth,
-    sampleHeight
+    sampleHeight,
+    defaultColor
 )
+
+private fun Int.toColorCode(): String {
+    val a = (this shr 24) and 0xFF
+    val r = (this shr 16) and 0xFF
+    val g = (this shr 8) and 0xFF
+    val b = this and 0xFF
+    return buildString {
+        append('#')
+        append(a.toHexTwoDigits())
+        append(r.toHexTwoDigits())
+        append(g.toHexTwoDigits())
+        append(b.toHexTwoDigits())
+    }
+}
+
+private fun Int.toHexTwoDigits(): String = toUInt().toString(16).padStart(2, '0').uppercase()
 
 private suspend fun ImageBitmap.innerAverageLuminance(
     width: Int,
     height: Int,
     sampleWidth: Int = 5,
-    sampleHeight: Int = sampleWidth
+    sampleHeight: Int = sampleWidth,
+    defaultColor: Color
 ): Float =
     withContext(Dispatchers.Default.limitedParallelism(1)) {
         try {
@@ -34,7 +55,8 @@ private suspend fun ImageBitmap.innerAverageLuminance(
 
                     val pixel = IntArray(1)
                     readPixels(pixel, x, y, 1, 1)
-                    pixel[0].toLuminance()
+
+                    (pixel[0].takeIf { it != Color.Transparent.toArgb() } ?: defaultColor.toArgb()).toLuminance()
                 }
             }.average().toFloat()
 

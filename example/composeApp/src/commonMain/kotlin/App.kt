@@ -33,7 +33,8 @@ fun App() {
         if (viewModel.uiState.item.isMaterial) Theme.Material3 else Theme.Cupertino
     }
     val (lightAccent, darkAccent) = viewModel.uiState.item.accentColors
-    val isDark = viewModel.uiState.item.isDark
+    val isDark = isSystemInDarkTheme()
+//    val isDark = viewModel.uiState.item.isDark
     val direction = LocalLayoutDirection.current
 
     val directionState by remember {

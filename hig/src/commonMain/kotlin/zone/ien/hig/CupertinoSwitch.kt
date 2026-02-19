@@ -126,7 +126,7 @@ fun CupertinoSwitch(
 
     val density = LocalDensity.current
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
-    val dragWidth = with(density) { 20f.dp.toPx() }
+    val dragWidth = with(density) { 20.dp.toPx() }
     val animationScope = rememberCoroutineScope()
     var didDrag by remember { mutableStateOf(false) }
     var fraction by remember { mutableFloatStateOf(if (updatedChecked) 1f else 0f) }
@@ -195,7 +195,7 @@ fun CupertinoSwitch(
                     val fraction = dampedDragAnimation.value
                     drawRect(lerp(uncheckedTrackColor, checkedTrackColor, fraction))
                 }
-                .size(64f.dp, 28f.dp)
+                .size(64.dp, 28.dp)
         )
 
         Box(
@@ -203,7 +203,7 @@ fun CupertinoSwitch(
             modifier = Modifier
                 .graphicsLayer {
                     val fraction = dampedDragAnimation.value
-                    val padding = 2f.dp.toPx()
+                    val padding = 2.dp.toPx()
                     translationX =
                         if (isLtr) lerp(padding, padding + dragWidth, fraction)
                         else lerp(-padding, -(padding + dragWidth), fraction)
@@ -227,10 +227,10 @@ fun CupertinoSwitch(
                     shape = { Capsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
-                        blur(8f.dp.toPx() * (1f - progress))
+                        blur(8.dp.toPx() * (1f - progress))
                         lens(
-                            5f.dp.toPx() * progress,
-                            10f.dp.toPx() * progress,
+                            5.dp.toPx() * progress,
+                            10.dp.toPx() * progress,
                             chromaticAberration = true
                         )
                     },
@@ -244,14 +244,14 @@ fun CupertinoSwitch(
                     },
                     shadow = {
                         Shadow(
-                            radius = 4f.dp,
+                            radius = 4.dp,
                             color = Color.Black.copy(alpha = 0.05f)
                         )
                     },
                     innerShadow = {
                         val progress = dampedDragAnimation.pressProgress
                         InnerShadow(
-                            radius = 4f.dp * progress,
+                            radius = 4.dp * progress,
                             alpha = progress
                         )
                     },
@@ -267,7 +267,7 @@ fun CupertinoSwitch(
                         drawRect(Color.White.copy(alpha = 1f - progress))
                     }
                 )
-                .size(40f.dp, 24f.dp)
+                .size(40.dp, 24.dp)
         ) {
             CompositionLocalProvider(
                 LocalContentColor provides colors.iconColor(enabled, checked).value,
