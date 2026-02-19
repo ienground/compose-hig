@@ -107,9 +107,10 @@ fun CupertinoLiquidButton(
     val contentColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightContentColor else darkContentColor) }
 
     if (isBackgroundAdaptive) {
+        val defaultColor = CupertinoTheme.colorScheme.systemBackground
         LaunchedEffect(graphicsLayer) {
             while (isActive) {
-                val averageLuminance = graphicsLayer.toImageBitmap().averageLuminance(sampleWidth = 5)
+                val averageLuminance = graphicsLayer.toImageBitmap().averageLuminance(sampleWidth = 5, defaultColor = defaultColor)
 
                 launch {
                     contentColorAnimation.animateTo(
@@ -122,7 +123,7 @@ fun CupertinoLiquidButton(
                     tween(300)
                 )
 
-                delay(300)  // CPU 부하 완화
+                delay(300)
             }
         }
     }
@@ -137,8 +138,8 @@ fun CupertinoLiquidButton(
                     vibrancy()
                     if (isBackgroundAdaptive) {
                         blur(
-                            if (l > 0f) lerp(8f.dp.toPx(), 16f.dp.toPx(), l)
-                            else lerp(8f.dp.toPx(), 2f.dp.toPx(), -l)
+                            if (l > 0f) lerp(8.dp.toPx(), 16.dp.toPx(), l)
+                            else lerp(8.dp.toPx(), 2.dp.toPx(), -l)
                         )
                     } else {
                         blur(2.dp.toPx())
