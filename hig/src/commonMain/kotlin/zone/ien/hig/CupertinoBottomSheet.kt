@@ -52,8 +52,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.kyant.shapes.CornerRadius
-import com.kyant.shapes.RoundedCornerStyle
+import com.kyant.shapes.copy
 import zone.ien.hig.theme.CupertinoTheme
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.KSerializer
@@ -128,10 +127,7 @@ object CupertinoBottomSheetDefaults {
         @Composable
         @ReadOnlyComposable
         get() =
-            CupertinoTheme.shapes.large.copy(
-                bottomStart = CornerRadius.Zero,
-                bottomEnd = CornerRadius.Zero,
-            )
+            CupertinoTheme.shapes.large.copy(bottomStart = 0.dp, bottomEnd = 0.dp)
 
     @Composable
     fun DragHandle(

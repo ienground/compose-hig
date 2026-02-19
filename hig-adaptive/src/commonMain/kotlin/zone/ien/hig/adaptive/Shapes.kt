@@ -35,11 +35,11 @@ class Shapes(
     val medium: CornerBasedShape = RoundedCornerShape(12.dp),
     val large: CornerBasedShape = RoundedCornerShape(16.dp),
     val extraLarge: CornerBasedShape = RoundedCornerShape(28.dp),
-    val higExtraSmall: UnevenRoundedRectangle = 4.dp.let { RoundedRectangle(it, it, it, it) },
-    val higSmall: UnevenRoundedRectangle = 8.dp.let { RoundedRectangle(it, it, it, it) },
-    val higMedium: UnevenRoundedRectangle = 12.dp.let { RoundedRectangle(it, it, it, it) },
-    val higLarge: UnevenRoundedRectangle = 16.dp.let { RoundedRectangle(it, it, it, it) },
-    val higExtraLarge: UnevenRoundedRectangle = 24.dp.let { RoundedRectangle(it, it, it, it) }
+    val higExtraSmall: RoundedRectangle = RoundedRectangle(4.dp),
+    val higSmall: RoundedRectangle = RoundedRectangle(8.dp),
+    val higMedium: RoundedRectangle = RoundedRectangle(12.dp),
+    val higLarge: RoundedRectangle = RoundedRectangle(16.dp),
+    val higExtraLarge: RoundedRectangle = RoundedRectangle(24.dp)
 ) {
     fun copy(
         extraSmall: CornerBasedShape = this.extraSmall,
@@ -47,11 +47,11 @@ class Shapes(
         medium: CornerBasedShape = this.medium,
         large: CornerBasedShape = this.large,
         extraLarge: CornerBasedShape = this.extraLarge,
-        higExtraSmall: UnevenRoundedRectangle = this.higExtraSmall,
-        higSmall: UnevenRoundedRectangle = this.higSmall,
-        higMedium: UnevenRoundedRectangle = this.higMedium,
-        higLarge: UnevenRoundedRectangle = this.higLarge,
-        higExtraLarge: UnevenRoundedRectangle = this.higExtraLarge
+        higExtraSmall: RoundedRectangle = this.higExtraSmall,
+        higSmall: RoundedRectangle = this.higSmall,
+        higMedium: RoundedRectangle = this.higMedium,
+        higLarge: RoundedRectangle = this.higLarge,
+        higExtraLarge: RoundedRectangle = this.higExtraLarge
     ) = Shapes(
         extraSmall = extraSmall,
         small = small,

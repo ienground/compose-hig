@@ -20,13 +20,10 @@
 
 package zone.ien.hig
 
-import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,12 +52,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
@@ -152,7 +146,7 @@ fun cupertinoTranslucentTopBarColor(
             appBarsState.isTopBarTransparent.value = true
         }
     }
-    return color.copy(alpha = 0.0f)
+    return Color.Transparent
 }
 
 /**
@@ -169,6 +163,7 @@ fun cupertinoTranslucentTopBarColor(
  * [ScrollableState.isTopBarTransparent] and [LazyListState.isTopBarTransparent] can be used to track it
  * @param isTranslucent works only inside [CupertinoScaffold]. Blurred content behind top bar will be
  * visible if top bar is translucent. Simulates iOS app bars material.
+ * @param divider bottom divider when [isTransparent] is false.
  * @param colors [CupertinoTopAppBarColors] that will be used to resolve the colors used for this top app
  * bar in different states. See [CupertinoTopAppBarDefaults.topAppBarColors].
  */
@@ -180,9 +175,13 @@ fun CupertinoTopAppBar(
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable (RowScope.() -> Unit) = {},
     windowInsets: WindowInsets = LocalTopAppBarInsets.current ?: CupertinoTopAppBarDefaults.windowInsets,
-    isCenterAligned: Boolean = true,
     isTransparent: Boolean = false,
     isTranslucent: Boolean = LocalAppBarsState.current != null,
+    divider: @Composable () -> Unit = {
+        if (!isTransparent) {
+            CupertinoTopAppBarDefaults.divider()
+        }
+    },
     colors: CupertinoTopAppBarColors = CupertinoTopAppBarDefaults.topAppBarColors(),
 ) {
     val navTitleVisible by LocalNavigationTitleVisible.current
@@ -194,10 +193,10 @@ fun CupertinoTopAppBar(
         navigationIcon = navigationIcon,
         actions = actions,
         windowInsets = windowInsets,
-        isCenterAligned = isCenterAligned,
         colors = colors,
         isTransparent = transparent,
         isTranslucent = isTranslucent,
+        divider = divider,
     )
 }
 
@@ -258,19 +257,60 @@ fun CupertinoNavigationTitle(
     var visible by LocalNavigationTitleVisible.current
 
     val density = LocalDensity.current
-    val scaffoldCoordinates by LocalScaffoldCoordinates.current
-    val topBarHeightPx = (LocalTopBarHeight.current.value ?: 0f)
-    val topAppBarExists = topBarHeightPx > Float.MIN_VALUE
 
-    var offsetDifference by remember { mutableStateOf(0f) }
-    var actualTopBarHeight by remember { mutableStateOf(0f) }
+    val scaffoldCoordinates by LocalScaffoldCoordinates.current
+
+//    val top = (LocalScaffoldInsets.current ?: WindowInsets.statusBars).getTop(density)
+
+    val topBarHeightPx = (LocalTopBarHeight.current.value ?: 0f)
+
+    val topAppBarExists = topBarHeightPx > Float.MIN_VALUE
+//    var size by remember {
+//        mutableStateOf(0f)
+//    }
+
+//    val topBarHeightPx = remember(density) {
+//        density.run {
+//            TopAppBarHeight.toPx() + top
+//        }
+//    }
+
+    val offsetDifference =
+        remember {
+            mutableStateOf(0f)
+        }
+
+// TODO: nav title snap
+//
+//    LaunchedEffect(scrollableState) {
+//        snapshotFlow {
+//            scrollableState?.isScrollInProgress == true
+//        }.distinctUntilChanged().collect {
+//            if (!it) {
+//                val diff = offsetDifference.value
+//
+//                println(diff)
+//
+//                if (diff > size)
+//                    return@collect
+//                val scroll = if (diff < size / 2) {
+//                   -diff
+//                } else size - diff
+//
+//                try {
+//                    scrollableState?.animateScrollBy(scroll)
+//                } finally {
+//                }
+//            }
+//        }
+//    }
 
     val maxSizeIncreaseDistancePx = density.run { maxFontScaleDistance.toPx() }
 
     val insets = LocalScaffoldInsets.current?.getTop(density) ?: 0
     val fontIncrease by remember(maxSizeIncreaseDistancePx, maxFontScale) {
         derivedStateOf {
-            val d = offsetDifference + topBarHeightPx - insets
+            val d = offsetDifference.value + topBarHeightPx - insets
             if (d >= 0) {
                 1f
             } else {
@@ -279,44 +319,25 @@ fun CupertinoNavigationTitle(
         }
     }
 
-    val font = CupertinoTheme.typography.largeTitle.copy(fontWeight = FontWeight.Bold)
-
-    val titleAlpha by remember {
-        derivedStateOf {
-            if (!topAppBarExists) {
-                1f // TopBar 없으면 항상 보임
-            } else {
-                val d = offsetDifference - actualTopBarHeight + 50
-                // d가 음수면 Large Title 영역 → alpha 1
-                // d가 양수면 TopBar로 들어감 → alpha 0
-                if (d <= 0) {
-                    1f
-                } else {
-                    // fadeDistance만큼 부드럽게 0으로
-                    val fadeDistance = 100f // 조절 가능 (dp → px 변환 권장)
-                    (1f - (d / fadeDistance)).coerceIn(0f, 1f)
-                }
-            }
-        }
-    }
-
-    val animatedAlpha by animateFloatAsState(
-        targetValue = titleAlpha,
-        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "NavigationTitleAlpha"
-    )
+    val font =
+        CupertinoTheme.typography.largeTitle
+            .copy(fontWeight = FontWeight.Bold)
 
     Box(
         modifier
             .padding(paddingValues)
-            .alpha(animatedAlpha)
-            .onGloballyPositioned {
-                actualTopBarHeight = it.size.height.toFloat()
+            .let {
+                if (topAppBarExists) {
+                    it.clip(ClipShape(offsetDifference.value))
+                } else {
+                    it
+                }
+            }.onGloballyPositioned {
                 val scaffoldTop = (scaffoldCoordinates?.boundsInWindow()?.top ?: 0f)
 
-                offsetDifference = (topBarHeightPx - it.boundsInWindow().top) + scaffoldTop
+                offsetDifference.value = (topBarHeightPx - it.boundsInWindow().top) + scaffoldTop
 
-                visible = !topAppBarExists || offsetDifference < it.size.height
+                visible = !topAppBarExists || offsetDifference.value < it.size.height
             },
     ) {
         CompositionLocalProvider(
@@ -551,24 +572,17 @@ private fun InlineTopAppBar(
     navigationIcon: @Composable () -> Unit,
     actions: @Composable RowScope.() -> Unit,
     windowInsets: WindowInsets,
-    isCenterAligned: Boolean,
     colors: CupertinoTopAppBarColors,
     isTransparent: Boolean,
     isTranslucent: Boolean,
+    divider: @Composable () -> Unit,
 ) {
-    val containerColorAnimation = colors.containerColor().let { remember(it) { Animatable(it) } }
     val containerColor =
         cupertinoTranslucentTopBarColor(
-            color = containerColorAnimation.value,
+            color = colors.containerColor(),
             isTranslucent = isTranslucent,
             isTransparent = isTransparent,
         )
-
-    val animatedAlpha by animateFloatAsState(
-        targetValue = if (isTransparent || containerColor.alpha == 0f) 0f else 1f,
-        label = "gradientAlpha",
-        animationSpec = tween(300)
-    )
 
     val navTitleVisible by LocalNavigationTitleVisible.current
 
@@ -576,24 +590,7 @@ private fun InlineTopAppBar(
         TopAppBarLayout(
             modifier =
                 modifier
-                    .graphicsLayer {
-                        clip = false
-                    }
-                    .drawBehind {
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                colorStops = arrayOf(
-                                    0.4f to containerColor.copy(0.8f),
-                                    1f to containerColor.copy(0f)
-                                ),
-                                startY = 0f,
-                                endY = size.height + 80f
-                            ),
-                            alpha = animatedAlpha,
-                            topLeft = Offset.Zero,
-                            size = Size(size.width, size.height + 120f)
-                        )
-                    }
+                    .background(if (isTransparent) Color.Transparent else containerColor)
                     .windowInsetsPadding(windowInsets),
             heightPx = LocalDensity.current.run { TopAppBarHeight.toPx() },
             navigationIconContentColor = colors.navigationIconContentColor,
@@ -611,7 +608,7 @@ private fun InlineTopAppBar(
             titleTextStyle = CupertinoTheme.typography.headline,
             titleAlpha = 1f,
             titleVerticalArrangement = Arrangement.Center,
-            titleHorizontalArrangement = if (isCenterAligned) Arrangement.Center else Arrangement.Start,
+            titleHorizontalArrangement = Arrangement.Center,
             titleBottomPadding = LocalDensity.current.run { 16.dp.roundToPx() },
             hideTitleSemantics = false,
             navigationIcon = navigationIcon,
@@ -623,6 +620,7 @@ private fun InlineTopAppBar(
                 )
             },
         )
+        divider()
     }
 }
 
@@ -784,6 +782,11 @@ object CupertinoTopAppBarDefaults {
         get() =
             WindowInsets.systemBars
                 .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+
+    @Composable
+    fun divider() {
+        CupertinoHorizontalDivider()
+    }
 
     /**
      * Creates a [CupertinoTopAppBarColors] . The default implementation

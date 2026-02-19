@@ -405,7 +405,7 @@ object CupertinoDialogsDefaults {
         @Composable
         get() = CupertinoColors.systemGray7
 
-    val Shape: UnevenRoundedRectangle
+    val Shape: RoundedRectangle
         @Composable
         @ReadOnlyComposable
         get() = CupertinoTheme.shapes.medium

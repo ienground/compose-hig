@@ -72,12 +72,12 @@ enum class CupertinoButtonSize(
         contentPadding = PaddingValues(12.dp, 6.dp)
     ),
     Regular(
-        shape = { Capsule },
+        shape = { Capsule() },
         textStyle = { it.body },
         contentPadding = PaddingValues(16.dp, 10.dp)
     ),
     Large(
-        shape = { Capsule },
+        shape = { Capsule() },
         textStyle = { it.body },
         contentPadding = PaddingValues(24.dp, 18.dp)
     ),

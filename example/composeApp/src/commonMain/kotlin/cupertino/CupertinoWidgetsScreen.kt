@@ -125,8 +125,6 @@ import zone.ien.hig.CupertinoLiquidAlertDialog
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
-import zone.ien.hig.CupertinoLiquidNavigationTitle
-import zone.ien.hig.CupertinoLiquidTopAppBar
 import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarItem
@@ -328,7 +326,7 @@ private fun Body(
                 .padding(top = 10.dp)
         ) {
 
-            CupertinoLiquidNavigationTitle {
+            CupertinoNavigationTitle {
                 Text("Cupertino")
             }
             var searchValue by remember {
@@ -805,11 +803,11 @@ private fun TopBarSample(
         }
     }
 
-    CupertinoLiquidTopAppBar(
+    CupertinoTopAppBar(
 //        isCenterAligned = false,
         isTranslucent = isTransparent,
         isTransparent = isTransparent,
-        backdrop = backdrop,
+//        backdrop = backdrop,
         actions = {
             /*
             CupertinoLiquidIconButton(
@@ -1441,6 +1439,7 @@ private fun SectionScope.ButtonsExample() {
             CupertinoLiquidIconButton(
                 backdrop = backdrop,
                 onClick = {},
+                isBackgroundAdaptive = false,
             ) {
                 CupertinoIcon(
                     imageVector = AdaptiveIcons.Outlined.Share,
@@ -1450,6 +1449,7 @@ private fun SectionScope.ButtonsExample() {
             CupertinoLiquidIconButton(
                 backdrop = backdrop,
                 onClick = {},
+                isBackgroundAdaptive = false,
                 colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
             ) {
                 CupertinoIcon(
@@ -1460,6 +1460,7 @@ private fun SectionScope.ButtonsExample() {
             CupertinoLiquidIconButton(
                 backdrop = backdrop,
                 onClick = {},
+                isBackgroundAdaptive = false,
                 enabled = false,
             ) {
                 CupertinoIcon(
@@ -1540,6 +1541,7 @@ private fun SectionScope.ButtonsExample() {
                 colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
                 onClick = {},
                 enabled = true,
+                isBackgroundAdaptive = false,
                 backdrop = backdrop
             ) {
                 CupertinoText("Filled")
@@ -1548,6 +1550,7 @@ private fun SectionScope.ButtonsExample() {
                 colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
                 onClick = {},
                 enabled = false,
+                isBackgroundAdaptive = false,
                 backdrop = backdrop
             ) {
                 CupertinoText("Disabled")
@@ -1563,6 +1566,7 @@ private fun SectionScope.ButtonsExample() {
                 colors = CupertinoLiquidButtonDefaults.glassButtonColors(),
                 onClick = {},
                 enabled = true,
+                isBackgroundAdaptive = false,
                 backdrop = backdrop
             ) {
                 CupertinoText("Glass")
@@ -1571,6 +1575,7 @@ private fun SectionScope.ButtonsExample() {
                 colors = CupertinoLiquidButtonDefaults.glassButtonColors(),
                 onClick = {},
                 enabled = false,
+                isBackgroundAdaptive = false,
                 backdrop = backdrop
             ) {
                 CupertinoText("Disabled")
@@ -1917,12 +1922,12 @@ private fun LinksWithIcons(
             CupertinoText("SF Symbols")
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .background(Color.Black)
-        )
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(200.dp)
+//                .background(Color.Black)
+//        )
 
         SectionLink(
             icon = {
