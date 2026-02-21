@@ -34,6 +34,7 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoLargeFloatingActionButton
 import zone.ien.hig.CupertinoLiquidButton
+import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoMediumFloatingActionButton
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoScaffold
@@ -43,6 +44,8 @@ import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.icons.CupertinoIcons
+import zone.ien.hig.icons.outlined.Airplayaudio
+import zone.ien.hig.icons.outlined.ChevronBackward
 import zone.ien.hig.icons.outlined.MoonStars
 import zone.ien.hig.icons.outlined.SunMax
 
@@ -82,6 +85,18 @@ fun TestScreen(
                 title = {
                     CupertinoText("Cupertino")
                 },
+                navigationIcon = {
+                    CupertinoLiquidIconButton(
+                        onClick = {},
+                        backdrop = backdrop
+                    ) {
+                        CupertinoIcon(
+                            imageVector = CupertinoIcons.Default.ChevronBackward,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                },
                 actions = {
                     CupertinoLiquidButton(
                         onClick = {},
@@ -91,7 +106,7 @@ fun TestScreen(
                             horizontalArrangement = Arrangement.spacedBy(24.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            repeat(2) {
+                            repeat(4) {
                                 Box(
                                     modifier = Modifier.clickable(
                                         interactionSource = null,
@@ -109,42 +124,10 @@ fun TestScreen(
                         }
                     }
                 },
-                isCenterAligned = false
+                isCenterAligned = true
             )
         },
-        floatingActionButton = {
-//            CupertinoSmallFloatingActionButton(
-//            CupertinoMediumFloatingActionButton(
-//            CupertinoLargeFloatingActionButton(
-//            CupertinoLargeFloatingActionButton(
-//                onClick = {},
-//                backdrop = backdrop
-//            ) {
-//                Icon(
-//                    painter = AdaptiveIcons.painter(
-//                        material = { Icons.Rounded.Accessibility },
-//                        cupertino = { "plus" }
-//                    ),
-//                    contentDescription = null,
-//                    modifier = Modifier.size(28.dp)
-//                )
-//            }
-        },
         modifier = modifier
-        /*
-        AdaptiveTopAppBarScaffold(
-            title = {
-                Text(
-                    text = "Title"
-                )
-            },
-            topBarAdaptation = {
-                cupertino {
-                    this.backdrop = backdrop
-                }
-            }
-
-         */
     ) {
         Column(
             modifier = Modifier
