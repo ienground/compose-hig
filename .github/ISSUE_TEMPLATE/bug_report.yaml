@@ -11,6 +11,13 @@ body:
         - label: "Android"
         - label: "iOS"
         - label: "Common (Shared)"
+  - type: checkboxes
+    id: theme
+    attributes:
+      label: "🎨 발생 테마"
+      options:
+        - label: "Material3"
+        - label: "Cupertino"
   - type: textarea
     id: description
     attributes:
