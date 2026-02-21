@@ -72,6 +72,8 @@ subprojects {
                     developerConnection = "scm:git:https://github.com/ienground/compose-hig.git"
                 }
             }
+
+            signAllPublications()
         }
     }
 }
