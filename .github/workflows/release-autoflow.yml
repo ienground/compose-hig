@@ -40,9 +40,15 @@ jobs:
           draft: true  # 검토 후 Publish
           prerelease: false
 
-      # 3. CHANGELOG.md 업데이트
-      - run: |
-          echo "${{ steps.changelog.outputs.changelog }}" > CHANGELOG.md
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "docs: update CHANGELOG"
+          #      # 3. CHANGELOG.md 업데이트
+          #      - run: |
+          #          echo "${{ steps.changelog.outputs.changelog }}" > CHANGELOG.md
+          #      - uses: stefanzweifel/git-auto-commit-action@v5
+          #        with:
+          #          commit_message: "docs: update CHANGELOG"
+
+      - name: Update CHANGELOG.md
+        shell: bash
+        run: |
+          changelog="${{ steps.changelog.outputs.changelog }}"
+          printf '%s\n' "$changelog" > CHANGELOG.md
