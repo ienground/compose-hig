@@ -72,10 +72,6 @@ fun TestScreen(
     }
 //    val isTransparent = true
 
-    LaunchedEffect(isTransparent) {
-        println("TopBar isTransparent $isTransparent")
-    }
-
 //    /*
     CupertinoScaffold(
         topBar = {
@@ -106,7 +102,7 @@ fun TestScreen(
                             horizontalArrangement = Arrangement.spacedBy(24.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            repeat(4) {
+                            repeat(5) {
                                 Box(
                                     modifier = Modifier.clickable(
                                         interactionSource = null,
@@ -136,12 +132,12 @@ fun TestScreen(
                 .padding(it)
                 .background(Color.Red.copy(0.7f))
         ) {
-            CupertinoNavigationTitle {
-                Text(
-                    text = "Cupertino",
-                    modifier = Modifier.background(Color.Green)
-                )
-            }
+//            CupertinoNavigationTitle {
+//                Text(
+//                    text = "Cupertino",
+//                    modifier = Modifier.background(Color.Green)
+//                )
+//            }
 
             Text(
                 text = "Hello World",
