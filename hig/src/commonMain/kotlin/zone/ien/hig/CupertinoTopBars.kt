@@ -489,10 +489,8 @@ private fun InlineTopAppBar(
                             "content"
                         ) {
                             setFloatUniform("size", size.width, size.height)
-                            if (isBackgroundGradient) {
-                                setColorUniform("tint", gradientColorAnimation.value)
-                                setFloatUniform("tintIntensity", 0.8f)
-                            }
+                            setColorUniform("tint", gradientColorAnimation.value)
+                            setFloatUniform("tintIntensity", if (isBackgroundGradient) 0.8f else 0f)
                         }
                     },
                     layerBlock = {
