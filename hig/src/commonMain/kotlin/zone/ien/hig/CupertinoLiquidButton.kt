@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -46,6 +48,8 @@ import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.colorControls
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
+import com.kyant.shapes.RoundedRectangularShape
+import com.kyant.shapes.UnevenRoundedRectangle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -147,6 +151,9 @@ fun CupertinoLiquidButton(
                     } else {
                         blur(2.dp.toPx())
                     }
+                    if (shape is RoundedRectangularShape || shape is CornerBasedShape) {
+                        lens(12.dp.toPx(), 24.dp.toPx())
+                    }
                 },
                 layerBlock = if (enabled) {
                     {
@@ -196,7 +203,7 @@ fun CupertinoLiquidButton(
             )
             .clickable(
                 interactionSource = interactionSource,
-                indication = if (enabled) null else LocalIndication.current,
+                indication = if (enabled) LocalIndication.current else null,
                 enabled = enabled,
                 role = Role.Button,
                 onClick = onClick
