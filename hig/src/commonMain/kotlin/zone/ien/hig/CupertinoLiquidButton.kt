@@ -115,7 +115,7 @@ fun CupertinoLiquidButton(
         val defaultColor = CupertinoTheme.colorScheme.systemBackground
         LaunchedEffect(graphicsLayer) {
             while (isActive) {
-                if (graphicsLayer.size == IntSize.Zero) {
+                if (graphicsLayer.size != IntSize.Zero) {
                     val averageLuminance = graphicsLayer.toImageBitmap().averageLuminance(sampleWidth = 5, defaultColor = defaultColor)
 
                     launch {
