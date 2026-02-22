@@ -30,6 +30,7 @@ kotlin {
         commonMain.dependencies {
             api(projects.higCore)
 
+            implementation(libs.compose.material3)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui.util)
