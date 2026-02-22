@@ -1,7 +1,5 @@
 package zone.ien.hig.utils
 
-import kotlin.time.Clock
-
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.MutatorMutex
@@ -12,12 +10,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.math.abs
-import kotlin.time.ExperimentalTime
+import kotlin.time.Clock
 
 class DampedDragAnimation(
     private val animationScope: CoroutineScope,
@@ -95,7 +92,7 @@ class DampedDragAnimation(
 
     fun release() {
         animationScope.launch {
-            delay(16L)
+            awaitFrame()
             if (value != targetValue) {
                 val threshold = (valueRange.endInclusive - valueRange.start) * 0.025f
                 snapshotFlow { valueAnimation.value }
@@ -129,7 +126,6 @@ class DampedDragAnimation(
         }
     }
 
-    @OptIn(ExperimentalTime::class)
     private fun updateVelocity() {
         velocityTracker.addPosition(
             Clock.System.now().toEpochMilliseconds(),
