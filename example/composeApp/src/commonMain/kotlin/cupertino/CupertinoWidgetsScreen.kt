@@ -789,25 +789,8 @@ private fun TopBarSample(
     scrollState: ScrollState,
     backdrop: LayerBackdrop
 ) {
-    val density = LocalDensity.current
-
-    val isTransparent by remember(scrollState, density) {
-        derivedStateOf {
-            // top bar is collapsing only on mobile
-            if (IsIos) {
-                scrollState.value < density.run { 20.dp.toPx() }
-            } else {
-                !scrollState.canScrollBackward
-            }
-
-        }
-    }
-
     CupertinoTopAppBar(
-//        isCenterAligned = false,
-//        isTranslucent = isTransparent,
-//        isTransparent = isTransparent,
-//        backdrop = backdrop,
+        backdrop = backdrop,
         actions = {
             /*
             CupertinoLiquidIconButton(

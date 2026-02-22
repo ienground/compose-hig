@@ -441,7 +441,7 @@ private fun InlineTopAppBar(
         LaunchedEffect(layer) {
             while (isActive) {
                 if (layer.size != IntSize.Zero) {
-                    val averageLuminance = layer.toImageBitmap().averageLuminance(cropX = titleX, cropY = titleHeight - topAppBarHeightPx.roundToInt(), cropWidth = titleWidth, cropHeight = topAppBarHeightPx.roundToInt(), sampleWidth = 5, defaultColor = defaultColor)
+                    val averageLuminance = layer.toImageBitmap().averageLuminance(cropX = titleX, cropY = titleHeight - topAppBarHeightPx.roundToInt(), cropWidth = titleWidth.takeIf { it != 0 } ?: layer.size.width, cropHeight = topAppBarHeightPx.roundToInt(), sampleWidth = 5, defaultColor = defaultColor)
 
                     launch {
                         gradientColorAnimation.animateTo(
