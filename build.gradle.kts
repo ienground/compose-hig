@@ -73,7 +73,12 @@ subprojects {
                 }
             }
 
-            signAllPublications()
+            val isSnapshot = version.toString().endsWith("SNAPSHOT")
+            val hasSigningKey = !(project.findProperty("signingInMemoryKeyId") as String?).isNullOrBlank()
+
+            if (!isSnapshot && hasSigningKey) {
+                signAllPublications()
+            }
         }
     }
 }
