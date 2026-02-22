@@ -27,6 +27,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
@@ -62,7 +65,10 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.AlignmentLine
@@ -80,6 +86,14 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.drawPlainBackdrop
+import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.effect
+import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.effects.runtimeShaderEffect
 import zone.ien.hig.section.CupertinoSectionDefaults
 import zone.ien.hig.theme.CupertinoTheme
 import kotlin.math.max
@@ -183,6 +197,7 @@ fun CupertinoTopAppBar(
     isCenterAligned: Boolean = true,
     isTransparent: Boolean = false,
     isTranslucent: Boolean = LocalAppBarsState.current != null,
+    backdrop: Backdrop = rememberLayerBackdrop(),
     colors: CupertinoTopAppBarColors = CupertinoTopAppBarDefaults.topAppBarColors(),
 ) {
     val navTitleVisible by LocalNavigationTitleVisible.current
@@ -198,6 +213,7 @@ fun CupertinoTopAppBar(
         colors = colors,
         isTransparent = transparent,
         isTranslucent = isTranslucent,
+        backdrop = backdrop
     )
 }
 
@@ -377,47 +393,57 @@ private fun InlineTopAppBar(
     windowInsets: WindowInsets,
     isCenterAligned: Boolean,
     colors: CupertinoTopAppBarColors,
+
     isTransparent: Boolean,
     isTranslucent: Boolean,
+    backdrop: Backdrop
 ) {
     val containerColorAnimation = colors.containerColor().let { remember(it) { Animatable(it) } }
-    val containerColor =
-        cupertinoTranslucentTopBarColor(
-            color = containerColorAnimation.value,
-            isTranslucent = isTranslucent,
-            isTransparent = isTransparent,
-        )
-
-    val animatedAlpha by animateFloatAsState(
-        targetValue = if (isTransparent || containerColor.alpha == 0f) 0f else 1f,
-        label = "gradientAlpha",
-        animationSpec = tween(300)
-    )
+    val tintColor = Color.White
 
     val navTitleVisible by LocalNavigationTitleVisible.current
 
-    Column {
+    Box {
+        Box(
+            modifier = Modifier
+                .drawPlainBackdrop(
+                    backdrop = backdrop,
+                    shape = { RectangleShape },
+                    effects = {
+                        blur(8.dp.toPx())
+                        runtimeShaderEffect(
+                            "AlphaMask",
+                            """
+    uniform shader content;
+
+    uniform float2 size;
+    layout(color) uniform half4 tint;
+    uniform float tintIntensity;
+
+    half4 main(float2 coord) {
+        float blurAlpha = smoothstep(size.y, size.y * 0.5, coord.y);
+        float tintAlpha = smoothstep(size.y, size.y * 0.5, coord.y);
+        return mix(content.eval(coord) * blurAlpha, tint * tintAlpha, tintIntensity);
+    }""",
+                            "content"
+                        ) {
+                            setFloatUniform("size", size.width, size.height)
+//                            setColorUniform("tint", tintColor)
+//                            setFloatUniform("tintIntensity", 0.8f)
+                        }
+                    },
+                    layerBlock = {
+                        clip = false
+                        compositingStrategy = CompositingStrategy.Offscreen
+                    }
+                )
+                .fillMaxWidth()
+                .windowInsetsPadding(windowInsets)
+                .height(TopAppBarHeight)
+        )
         TopAppBarLayout(
             modifier =
                 modifier
-                    .graphicsLayer {
-                        clip = false
-                    }
-                    .drawBehind {
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                colorStops = arrayOf(
-                                    0.4f to containerColor.copy(0.8f),
-                                    1f to containerColor.copy(0f)
-                                ),
-                                startY = 0f,
-                                endY = size.height + 80f
-                            ),
-                            alpha = animatedAlpha,
-                            topLeft = Offset.Zero,
-                            size = Size(size.width, size.height + 120f)
-                        )
-                    }
                     .windowInsetsPadding(windowInsets),
             heightPx = LocalDensity.current.run { TopAppBarHeight.toPx() },
             navigationIconContentColor = colors.navigationIconContentColor,

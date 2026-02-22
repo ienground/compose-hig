@@ -6,13 +6,19 @@ import androidx.compose.ui.graphics.toArgb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-suspend fun ImageBitmap.averageLuminance(
+expect fun ImageBitmap.scale(width: Int, height: Int): ImageBitmap
+expect fun ImageBitmap.crop(x: Int, y: Int, width: Int, height: Int): ImageBitmap
+
+fun ImageBitmap.averageLuminance(
+    cropX: Int = 0,
+    cropY: Int = 0,
     cropWidth: Int = width,
     cropHeight: Int = height,
     sampleWidth: Int = 5,
     sampleHeight: Int = sampleWidth,
-    defaultColor: Color,
-): Float = innerAverageLuminance(
+    defaultColor: Color
+): Double = innerAverageLuminance(
+    cropX, cropY,
     cropWidth.coerceIn(0..width),
     cropHeight.coerceIn(0..height),
     sampleWidth,
@@ -20,55 +26,28 @@ suspend fun ImageBitmap.averageLuminance(
     defaultColor
 )
 
-private fun Int.toColorCode(): String {
-    val a = (this shr 24) and 0xFF
-    val r = (this shr 16) and 0xFF
-    val g = (this shr 8) and 0xFF
-    val b = this and 0xFF
-    return buildString {
-        append('#')
-        append(a.toHexTwoDigits())
-        append(r.toHexTwoDigits())
-        append(g.toHexTwoDigits())
-        append(b.toHexTwoDigits())
-    }
-}
-
-private fun Int.toHexTwoDigits(): String = toUInt().toString(16).padStart(2, '0').uppercase()
-
-private suspend fun ImageBitmap.innerAverageLuminance(
-    width: Int,
-    height: Int,
+private fun ImageBitmap.innerAverageLuminance(
+    cropX: Int,
+    cropY: Int,
+    cropWidth: Int,
+    cropHeight: Int,
     sampleWidth: Int = 5,
     sampleHeight: Int = sampleWidth,
     defaultColor: Color
-): Float =
-    withContext(Dispatchers.Default.limitedParallelism(1)) {
-        try {
-            val stepX = width / sampleWidth.toFloat()
-            val stepY = height / sampleHeight.toFloat()
+): Double {
+    val buffer = IntArray(sampleWidth * sampleHeight)
+    val cropped = crop(cropX, cropY, cropWidth, cropHeight)
+    val thumbnail = cropped.scale(sampleWidth, sampleHeight)
+    thumbnail.readPixels(buffer)
 
-            val luminance = (0..sampleHeight).flatMap { gy ->
-                (0..sampleWidth).map { gx ->
-                    val x = (stepX * gx + stepX * 0.5f).toInt().coerceIn(0, width - 1)
-                    val y = (stepY * gy + stepY * 0.5f).toInt().coerceIn(0, height - 1)
+    return buffer.sumOf { it.toLuminance(defaultColor) } / buffer.size
+}
 
-                    val pixel = IntArray(1)
-                    readPixels(pixel, x, y, 1, 1)
+private fun Int.toLuminance(defaultColor: Color): Double {
+    val color = this.takeIf { it != Color.Transparent.toArgb() } ?: defaultColor.toArgb()
 
-                    (pixel[0].takeIf { it != Color.Transparent.toArgb() } ?: defaultColor.toArgb()).toLuminance()
-                }
-            }.average().toFloat()
-
-            luminance
-        } catch (e: Exception) {
-            0.5f
-        }
-    }
-
-private fun Int.toLuminance(): Float {
-    val r = ((this shr 16) and 0xFF) / 255f
-    val g = ((this shr 8) and 0xFF) / 255f
-    val b = (this and 0xFF) / 255f
-    return 0.2126f * r + 0.7152f * g + 0.0722f * b
+    val r = ((color shr 16) and 0xFF) / 255f
+    val g = ((color shr 8) and 0xFF) / 255f
+    val b = (color and 0xFF) / 255f
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
 }

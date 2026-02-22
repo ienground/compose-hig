@@ -2,6 +2,7 @@ package test
 
 import IsIos
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,11 +27,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import org.jetbrains.compose.resources.painterResource
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoLargeFloatingActionButton
 import zone.ien.hig.CupertinoLiquidButton
@@ -43,6 +46,8 @@ import zone.ien.hig.CupertinoText
 import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
+import zone.ien.hig.composeapp.generated.resources.Res
+import zone.ien.hig.composeapp.generated.resources.img_calib_test2
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.Airplayaudio
 import zone.ien.hig.icons.outlined.ChevronBackward
@@ -120,6 +125,7 @@ fun TestScreen(
                         }
                     }
                 },
+                backdrop = backdrop,
                 isCenterAligned = true
             )
         },
@@ -139,6 +145,12 @@ fun TestScreen(
 //                )
 //            }
 
+            Image(
+                painter = painterResource(Res.drawable.img_calib_test2),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxWidth()
+            )
             Text(
                 text = "Hello World",
                 modifier = Modifier
