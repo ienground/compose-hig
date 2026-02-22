@@ -805,8 +805,8 @@ private fun TopBarSample(
 
     CupertinoTopAppBar(
 //        isCenterAligned = false,
-        isTranslucent = isTransparent,
-        isTransparent = isTransparent,
+//        isTranslucent = isTransparent,
+//        isTransparent = isTransparent,
 //        backdrop = backdrop,
         actions = {
             /*
@@ -954,7 +954,7 @@ private fun SheetSample(
                         CupertinoText("Done")
                     }
                 },
-                isTransparent = sheetListState.isTopBarTransparent
+//                isTransparent = sheetListState.isTopBarTransparent
             )
         }
     ) { pv ->

@@ -119,7 +119,7 @@ fun CupertinoLiquidButton(
                     )
                 }
                 luminanceAnimation.animateTo(
-                    averageLuminance,
+                    averageLuminance.toFloat(),
                     tween(300)
                 )
 

@@ -1,8 +1,8 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.schott12521/cupertino/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.schott12521/cupertino)
+[![Maven Central](https://maven-badges.sml.io/sonatype-central/zone.ien.hig/hig/badge.svg?style=flat&subject=Sonatype%20Central&color=blue)](https://maven-badges.sml.io/sonatype-central/zone.ien.hig/hig)
 
-[![Main Workflow](https://github.com/schott12521/compose-cupertino/actions/workflows/buildAndPush.yml/badge.svg)](https://github.com/schott12521/schott12521/compose-cupertino/actions/workflows/buildAndPush.yml)
+[![Main Workflow](https://github.com/ienground/compose-hig/actions/workflows/publish.yml/badge.svg)](https://github.com/ienground/compose-hig/actions/workflows/publish.yml)
 
-# compose-cupertino
+# compose-hig
 
 This is a fork of [alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino) except its been updated to work with CMP 1.7+
 
