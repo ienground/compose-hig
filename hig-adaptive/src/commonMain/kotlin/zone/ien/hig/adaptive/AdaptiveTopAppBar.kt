@@ -65,8 +65,8 @@ fun AdaptiveTopAppBar(
                 actions = actions,
                 windowInsets = windowInsets,
                 colors = it.colors,
-                isTransparent = it.isTransparent,
-                isTranslucent = it.isTranslucent,
+//                isTransparent = it.isTransparent,
+//                isTranslucent = it.isTranslucent,
             )
         },
         material = {

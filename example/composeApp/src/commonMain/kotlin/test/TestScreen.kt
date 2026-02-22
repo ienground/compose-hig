@@ -81,8 +81,7 @@ fun TestScreen(
     CupertinoScaffold(
         topBar = {
             CupertinoTopAppBar(
-                isTranslucent = isTransparent,
-                isTransparent = isTransparent,
+                isBackgroundGradient = true,
                 title = {
                     CupertinoText("Cupertino")
                 },
