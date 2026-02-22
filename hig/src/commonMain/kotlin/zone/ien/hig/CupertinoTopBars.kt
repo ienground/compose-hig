@@ -92,6 +92,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
@@ -439,22 +440,24 @@ private fun InlineTopAppBar(
 
         LaunchedEffect(layer) {
             while (isActive) {
-                val averageLuminance = layer.toImageBitmap().averageLuminance(cropX = titleX, cropY = titleHeight - topAppBarHeightPx.roundToInt(), cropWidth = titleWidth, cropHeight = topAppBarHeightPx.roundToInt(), sampleWidth = 5, defaultColor = defaultColor)
+                if (layer.size != IntSize.Zero) {
+                    val averageLuminance = layer.toImageBitmap().averageLuminance(cropX = titleX, cropY = titleHeight - topAppBarHeightPx.roundToInt(), cropWidth = titleWidth, cropHeight = topAppBarHeightPx.roundToInt(), sampleWidth = 5, defaultColor = defaultColor)
 
-                launch {
-                    gradientColorAnimation.animateTo(
-                        if (averageLuminance > 0.5f) lightGradientColor else darkGradientColor,
-                        tween(300)
-                    )
-                    titleColorAnimation.animateTo(
-                        if (averageLuminance > 0.5f) lightTitleColor else darkTitleColor,
+                    launch {
+                        gradientColorAnimation.animateTo(
+                            if (averageLuminance > 0.5f) lightGradientColor else darkGradientColor,
+                            tween(300)
+                        )
+                        titleColorAnimation.animateTo(
+                            if (averageLuminance > 0.5f) lightTitleColor else darkTitleColor,
+                            tween(300)
+                        )
+                    }
+                    luminanceAnimation.animateTo(
+                        averageLuminance.toFloat(),
                         tween(300)
                     )
                 }
-                luminanceAnimation.animateTo(
-                    averageLuminance.toFloat(),
-                    tween(300)
-                )
 
                 delay(300)
             }
