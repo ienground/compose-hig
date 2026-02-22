@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceAtMost
 import androidx.compose.ui.util.lerp
@@ -110,18 +111,20 @@ fun CupertinoLiquidButton(
         val defaultColor = CupertinoTheme.colorScheme.systemBackground
         LaunchedEffect(graphicsLayer) {
             while (isActive) {
-                val averageLuminance = graphicsLayer.toImageBitmap().averageLuminance(sampleWidth = 5, defaultColor = defaultColor)
+                if (graphicsLayer.size == IntSize.Zero) {
+                    val averageLuminance = graphicsLayer.toImageBitmap().averageLuminance(sampleWidth = 5, defaultColor = defaultColor)
 
-                launch {
-                    contentColorAnimation.animateTo(
-                        if (averageLuminance > 0.5f) lightContentColor else darkContentColor,
+                    launch {
+                        contentColorAnimation.animateTo(
+                            if (averageLuminance > 0.5f) lightContentColor else darkContentColor,
+                            tween(300)
+                        )
+                    }
+                    luminanceAnimation.animateTo(
+                        averageLuminance.toFloat(),
                         tween(300)
                     )
                 }
-                luminanceAnimation.animateTo(
-                    averageLuminance.toFloat(),
-                    tween(300)
-                )
 
                 delay(300)
             }
