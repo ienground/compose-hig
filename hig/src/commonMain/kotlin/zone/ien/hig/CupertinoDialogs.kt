@@ -85,6 +85,8 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.kyant.shapes.RoundedRectangle
+import com.kyant.shapes.UnevenRoundedRectangle
 import zone.ien.hig.theme.isDark
 import zone.ien.hig.CupertinoDialogsTokens.AlertDialogTitleMessageSpacing
 import zone.ien.hig.section.CupertinoSectionTokens
@@ -403,7 +405,7 @@ object CupertinoDialogsDefaults {
         @Composable
         get() = CupertinoColors.systemGray7
 
-    val Shape: CornerBasedShape
+    val Shape: RoundedRectangle
         @Composable
         @ReadOnlyComposable
         get() = CupertinoTheme.shapes.medium

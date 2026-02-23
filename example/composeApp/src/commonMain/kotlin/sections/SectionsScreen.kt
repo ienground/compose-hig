@@ -75,7 +75,9 @@ import zone.ien.hig.theme.CupertinoTheme
 
 @OptIn(ExperimentalCupertinoApi::class)
 @Composable
-fun SectionsScreen(component: SectionsComponent) {
+fun SectionsScreen(
+    navigateBack: () -> Unit
+) {
     var isLazy by remember {
         mutableStateOf(true)
     }
@@ -142,10 +144,10 @@ fun SectionsScreen(component: SectionsComponent) {
     CupertinoScaffold(
         topBar = {
             CupertinoTopAppBar(
-                isTransparent = currentState.isTopBarTransparent,
+//                isTransparent = currentState.isTopBarTransparent,
                 navigationIcon = {
                     CupertinoNavigateBackButton(
-                        onClick = component::onNavigateBack,
+                        onClick = navigateBack,
                     ) {
                         CupertinoText("Back")
                     }

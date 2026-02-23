@@ -27,6 +27,15 @@ plugins {
     alias(libs.plugins.compose.multiplatform) apply false
 }
 
+allprojects {
+    configurations.all {
+        resolutionStrategy {
+            force("org.jetbrains.kotlin:kotlin-stdlib-wasm32:${libs.plugins.kotlin.multiplatform.get().version}")
+            force("org.jetbrains.kotlin:kotlin-stdlib-js:${libs.plugins.kotlin.multiplatform.get().version}")
+        }
+    }
+}
+
 subprojects {
     plugins.withId("com.vanniktech.maven.publish") {
         configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
@@ -62,6 +71,13 @@ subprojects {
                     connection = "scm:git:https://github.com/ienground/compose-hig.git"
                     developerConnection = "scm:git:https://github.com/ienground/compose-hig.git"
                 }
+            }
+
+            val isSnapshot = version.toString().endsWith("SNAPSHOT")
+            val hasSigningKey = !(project.findProperty("signingInMemoryKeyId") as String?).isNullOrBlank()
+
+            if (!isSnapshot && hasSigningKey) {
+                signAllPublications()
             }
         }
     }

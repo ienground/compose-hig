@@ -181,62 +181,71 @@ private val isDark: Boolean
     @ReadOnlyComposable
     get() = CupertinoTheme.colorScheme.isDark
 
-private fun CupertinoColors.default(
-    dark: Boolean,
-    light: Color,
-) = if (dark) {
-    Color(light.red, light.green + 10 / 255f, light.blue + 10 / 255f, light.alpha)
-} else {
-    light
-}
-
 fun CupertinoColors.systemRed(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    default(dark, Color(255, 59, 48))
-} else if (dark) {
-    Color(255, 105, 97)
+    if (!dark) {
+        Color(255, 56, 60)
+    } else {
+        Color(255, 66, 69)
+    }
 } else {
-    Color(215, 0, 21)
+    if (!dark) {
+        Color(233, 21, 45)
+    } else {
+        Color(255, 97, 101)
+    }
 }
 
 fun CupertinoColors.systemOrange(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    default(dark, Color(255, 149, 0))
-} else if (dark) {
-    Color(255, 179, 64)
+    if (!dark) {
+        Color(255, 141, 40)
+    } else {
+        Color(255, 146, 48)
+    }
 } else {
-    Color(201, 52, 0)
+    if (!dark) {
+        Color(197, 83, 0)
+    } else {
+        Color(255, 160, 86)
+    }
 }
 
 fun CupertinoColors.systemYellow(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    default(dark, Color(255, 204, 0))
-} else if (dark) {
-    Color(255, 212, 38)
+    if (!dark) {
+        Color(255, 204, 0)
+    } else {
+        Color(255, 214, 0)
+    }
 } else {
-    Color(178, 80, 0)
+    if (!dark) {
+        Color(161, 106, 0)
+    } else {
+        Color(254, 223, 67)
+    }
 }
 
 fun CupertinoColors.systemGreen(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(48, 209, 88)
-    } else {
+    if (!dark) {
         Color(52, 199, 89)
+    } else {
+        Color(48, 209, 88)
     }
 } else {
-    if (dark) {
-        Color(48, 219, 91)
+    if (!dark) {
+        Color(0, 137, 50)
     } else {
-        Color(36, 138, 61)
+        Color(74, 217, 104)
     }
 }
 
@@ -244,16 +253,16 @@ fun CupertinoColors.systemMint(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(102, 212, 207)
+    if (!dark) {
+        Color(0, 200, 179)
     } else {
-        Color(0, 199, 190)
+        Color(0, 218, 195)
     }
 } else {
-    if (dark) {
-        Color(102, 212, 207)
+    if (!dark) {
+        Color(0, 133, 117)
     } else {
-        Color(12, 129, 123)
+        Color(84, 223, 203)
     }
 }
 
@@ -261,16 +270,16 @@ fun CupertinoColors.systemTeal(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(64, 200, 244)
+    if (!dark) {
+        Color(0, 195, 208)
     } else {
-        Color(48, 176, 199)
+        Color(0, 210, 224)
     }
 } else {
-    if (dark) {
-        Color(93, 230, 255)
+    if (!dark) {
+        Color(0, 129, 152)
     } else {
-        Color(0, 130, 153)
+        Color(59, 221, 236)
     }
 }
 
@@ -278,16 +287,16 @@ fun CupertinoColors.systemCyan(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(100, 210, 255)
+    if (!dark) {
+        Color(0, 192, 232)
     } else {
-        Color(50, 173, 230)
+        Color(60, 211, 254)
     }
 } else {
-    if (dark) {
-        Color(112, 215, 255)
+    if (!dark) {
+        Color(0, 126, 174)
     } else {
-        Color(0, 113, 164)
+        Color(109, 217, 255)
     }
 }
 
@@ -295,16 +304,16 @@ fun CupertinoColors.systemBlue(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(10, 132, 255)
+    if (!dark) {
+        Color(0, 136, 255)
     } else {
-        Color(0, 122, 255)
+        Color(0, 145, 255)
     }
 } else {
-    if (dark) {
-        Color(64, 156, 255)
+    if (!dark) {
+        Color(30, 110, 244)
     } else {
-        Color(0, 64, 221)
+        Color(92, 184, 255)
     }
 }
 
@@ -312,16 +321,16 @@ fun CupertinoColors.systemIndigo(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(94, 92, 230)
+    if (!dark) {
+        Color(97, 85, 245)
     } else {
-        Color(88, 86, 214)
+        Color(109, 124, 255)
     }
 } else {
-    if (dark) {
-        Color(125, 122, 255)
+    if (!dark) {
+        Color(86, 74, 222)
     } else {
-        Color(54, 52, 163)
+        Color(167, 170, 255)
     }
 }
 
@@ -329,16 +338,16 @@ fun CupertinoColors.systemPurple(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(191, 90, 242)
+    if (!dark) {
+        Color(203, 48, 224)
     } else {
-        Color(185, 82, 222)
+        Color(219, 52, 242)
     }
 } else {
-    if (dark) {
-        Color(218, 143, 255)
+    if (!dark) {
+        Color(176, 47, 194)
     } else {
-        Color(137, 68, 171)
+        Color(234, 141, 255)
     }
 }
 
@@ -346,12 +355,16 @@ fun CupertinoColors.systemPink(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    default(dark, Color(255, 45, 85))
-} else {
-    if (dark) {
-        Color(255, 100, 130)
+    if (!dark) {
+        Color(255, 45, 85)
     } else {
-        Color(211, 15, 69)
+        Color(255, 55, 95)
+    }
+} else {
+    if (!dark) {
+        Color(231, 18, 77)
+    } else {
+        Color(255, 138, 196)
     }
 }
 
@@ -359,16 +372,16 @@ fun CupertinoColors.systemBrown(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(172, 142, 104)
+    if (!dark) {
+        Color(172, 127, 94)
     } else {
-        Color(162, 132, 94)
+        Color(183, 138, 102)
     }
 } else {
-    if (dark) {
-        Color(181, 148, 105)
+    if (!dark) {
+        Color(149, 109, 81)
     } else {
-        Color(127, 101, 69)
+        Color(219, 166, 121)
     }
 }
 
@@ -376,12 +389,16 @@ fun CupertinoColors.systemGray(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    Color(142, 142, 147)
-} else {
-    if (dark) {
-        Color(174, 174, 179)
+    if (!dark) {
+        Color(142, 142, 147)
     } else {
+        Color(142, 142, 147)
+    }
+} else {
+    if (!dark) {
         Color(108, 108, 112)
+    } else {
+        Color(174, 174, 178)
     }
 }
 
@@ -389,16 +406,16 @@ fun CupertinoColors.systemGray2(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(99, 99, 102)
-    } else {
+    if (!dark) {
         Color(174, 174, 178)
+    } else {
+        Color(99, 99, 102)
     }
 } else {
-    if (dark) {
-        Color(124, 124, 128)
-    } else {
+    if (!dark) {
         Color(142, 142, 147)
+    } else {
+        Color(124, 124, 128)
     }
 }
 
@@ -406,16 +423,16 @@ fun CupertinoColors.systemGray3(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(72, 72, 74)
-    } else {
+    if (!dark) {
         Color(199, 199, 204)
+    } else {
+        Color(72, 72, 74)
     }
 } else {
-    if (dark) {
-        Color(84, 84, 86)
-    } else {
+    if (!dark) {
         Color(174, 174, 178)
+    } else {
+        Color(84, 84, 86)
     }
 }
 
@@ -423,16 +440,16 @@ fun CupertinoColors.systemGray4(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(58, 58, 60)
-    } else {
+    if (!dark) {
         Color(209, 209, 214)
+    } else {
+        Color(58, 58, 60)
     }
 } else {
-    if (dark) {
-        Color(68, 68, 70)
-    } else {
+    if (!dark) {
         Color(188, 188, 192)
+    } else {
+        Color(68, 68, 70)
     }
 }
 
@@ -440,16 +457,16 @@ fun CupertinoColors.systemGray5(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(44, 44, 46)
-    } else {
+    if (!dark) {
         Color(229, 229, 234)
+    } else {
+        Color(44, 44, 46)
     }
 } else {
-    if (dark) {
-        Color(54, 54, 56)
-    } else {
+    if (!dark) {
         Color(216, 216, 220)
+    } else {
+        Color(54, 54, 56)
     }
 }
 
@@ -457,20 +474,20 @@ fun CupertinoColors.systemGray6(
     dark: Boolean,
     highContrast: Boolean = Accessibility.isHighContrastEnabled,
 ) = if (!highContrast) {
-    if (dark) {
-        Color(28, 28, 30)
-    } else {
+    if (!dark) {
         Color(242, 242, 247)
+    } else {
+        Color(28, 28, 30)
     }
 } else {
-    if (dark) {
-        Color(36, 36, 38)
+    if (!dark) {
+        Color(235, 235, 240)
     } else {
-        Color(235, 235, 250)
+        Color(36, 36, 38)
     }
 }
 
-fun CupertinoColors.systemGray7(dark: Boolean) =
+fun CupertinoColors.systemGray7(dark: Boolean) = // remove todo
     if (dark) {
         Color(35, 35, 35)
     } else {

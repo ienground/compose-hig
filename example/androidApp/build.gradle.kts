@@ -37,6 +37,9 @@ kotlin {
     target {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.addAll(
+                "-opt-in=kotlin.RequiresOptIn"
+            )
         }
     }
 
@@ -44,5 +47,7 @@ kotlin {
         implementation(project(":example:composeApp"))
         implementation(libs.activity.compose)
         debugImplementation(libs.compose.ui.tooling)
+
+        implementation(libs.koin.android)
     }
 }

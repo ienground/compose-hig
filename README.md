@@ -26,7 +26,6 @@ cupertino = "$latestVersion"
 
 cupertino = { group = "io.github.schott12521", name = "cupertino", version.ref = "cupertino" }
 cupertino-adaptive = { group = "io.github.schott12521", name = "cupertino-adaptive", version.ref = "cupertino" }
-cupertino-decompose = { group = "io.github.schott12521", name = "cupertino-decompose", version.ref = "cupertino" }
 cupertino-native = { group = "io.github.schott12521", name = "cupertino-native", version.ref = "cupertino" }
 cupertino-icons-extended = { group = "io.github.schott12521", name = "cupertino-icons-extended", version.ref = "cupertino" }
 ```

@@ -38,6 +38,8 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(compose.materialIconsExtended)
             implementation(libs.compose.ui.util)
+            implementation(libs.backdrop)
+            implementation(libs.capsule)
         }
     }
 }

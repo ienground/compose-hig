@@ -22,6 +22,7 @@ pluginManagement {
         google()
         gradlePluginPortal()
         mavenCentral()
+        mavenLocal()
     }
 }
 
@@ -30,6 +31,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        mavenLocal()
     }
 }
 
@@ -53,7 +55,6 @@ include(
     ":hig-core",
     ":hig-native",
     ":hig-adaptive",
-    ":hig-decompose",
     ":hig-icons-extended",
     ":example:composeApp",
     ":example:androidApp",

@@ -37,6 +37,9 @@ kotlin {
 
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.addAll(
+                "-opt-in=kotlin.RequiresOptIn"
+            )
         }
 
         androidResources {
@@ -45,17 +48,12 @@ kotlin {
     }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64(),
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "shared"
             isStatic = true
-
-            export(libs.decompose.core)
-            export(libs.essenty)
-            export("com.arkivanov.essenty:lifecycle:${libs.versions.essenty}")
         }
     }
 
@@ -69,12 +67,8 @@ kotlin {
                 outputFileName = "composeApp.js"
                 devServer =
                     (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                        static =
-                            (static ?: mutableListOf()).apply {
-                                // Serve sources to debug inside browser
-                                add(project.rootDir.path)
-                                add(project.projectDir.path)
-                            }
+                        static(project.rootDir.path)
+                        static(project.projectDir.path)
                     }
                 sourceMaps = true
             }
@@ -90,17 +84,23 @@ kotlin {
             implementation(projects.hig)
             implementation(projects.higAdaptive)
             implementation(projects.higNative)
-            implementation(projects.higDecompose)
             implementation(projects.higIconsExtended)
             implementation(libs.material.kolor)
 
-            api(libs.decompose.core)
-            api(libs.essenty)
-            implementation(libs.decompose.compose)
             implementation(libs.compose.material3)
+            implementation(libs.compose.preview)
+            implementation(libs.compose.resources)
             implementation(compose.materialIconsExtended)
             implementation(libs.datetime)
             implementation(libs.serialization)
+
+            implementation(libs.compose.navigation3)
+            implementation(libs.lifecycle.viewmodel)
+            implementation(libs.lifecycle.runtime)
+
+            implementation(libs.bundles.koin)
+            implementation(libs.backdrop)
+            implementation(libs.capsule)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -108,6 +108,10 @@ kotlin {
     }
 
     compilerOptions.freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
+}
+
+dependencies {
+    androidRuntimeClasspath(libs.compose.ui.tooling)
 }
 
 compose.desktop {

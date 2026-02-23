@@ -20,17 +20,9 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
-import com.arkivanov.decompose.DefaultComponentContext
-import com.arkivanov.decompose.extensions.compose.lifecycle.LifecycleController
-import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 
 fun main() {
-    val lifecycle = LifecycleRegistry()
-
-    val component =
-        DefaultRootComponent(
-            DefaultComponentContext(lifecycle = lifecycle),
-        )
+    koinInitialize()
 
     val windowState =
         WindowState(
@@ -38,8 +30,6 @@ fun main() {
         )
 
     singleWindowApplication(windowState) {
-        LifecycleController(lifecycle, windowState)
-
-        App(component)
+        App()
     }
 }
