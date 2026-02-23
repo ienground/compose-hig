@@ -40,8 +40,6 @@ private fun ImageBitmap.innerAverageLuminance(
     val thumbnail = cropped.scale(sampleWidth, sampleHeight)
     thumbnail.readPixels(buffer)
 
-    println("LiquidGlass: ${buffer.first().toHexString()}")
-
     return buffer.sumOf { it.toLuminance(defaultColor) } / buffer.size
 }
 
