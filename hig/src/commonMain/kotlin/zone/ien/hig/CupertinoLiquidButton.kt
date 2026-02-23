@@ -116,18 +116,23 @@ fun CupertinoLiquidButton(
         LaunchedEffect(graphicsLayer) {
             while (isActive) {
                 if (graphicsLayer.size != IntSize.Zero) {
-                    val averageLuminance = graphicsLayer.toImageBitmap().averageLuminance(sampleWidth = 5, defaultColor = defaultColor)
+                    try {
+                        val averageLuminance = graphicsLayer.toImageBitmap().averageLuminance(sampleWidth = 5, defaultColor = defaultColor)
 
-                    launch {
-                        contentColorAnimation.animateTo(
-                            if (averageLuminance > 0.5f) lightContentColor else darkContentColor,
+                        launch {
+                            contentColorAnimation.animateTo(
+                                if (averageLuminance > 0.5f) lightContentColor else darkContentColor,
+                                tween(300)
+                            )
+                        }
+                        luminanceAnimation.animateTo(
+                            averageLuminance.toFloat(),
                             tween(300)
                         )
+                    } catch (e: RuntimeException) {
+                        // layer가 dispose된 경우 → 루프 종료
+                        break
                     }
-                    luminanceAnimation.animateTo(
-                        averageLuminance.toFloat(),
-                        tween(300)
-                    )
                 }
 
                 delay(300)
