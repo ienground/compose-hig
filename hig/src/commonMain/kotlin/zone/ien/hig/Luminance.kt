@@ -40,6 +40,8 @@ private fun ImageBitmap.innerAverageLuminance(
     val thumbnail = cropped.scale(sampleWidth, sampleHeight)
     thumbnail.readPixels(buffer)
 
+    println("LiquidGlass: ${buffer.first().toHexString()}")
+
     return buffer.sumOf { it.toLuminance(defaultColor) } / buffer.size
 }
 
@@ -50,4 +52,12 @@ private fun Int.toLuminance(defaultColor: Color): Double {
     val g = ((color shr 8) and 0xFF) / 255f
     val b = (color and 0xFF) / 255f
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+fun Int.toHexString(includeAlpha: Boolean = true): String {
+    return if (includeAlpha) {
+        "#${this.toUInt().toString(16).padStart(8, '0').uppercase()}"
+    } else {
+        "#${(this and 0xFFFFFF).toString(16).padStart(6, '0').uppercase()}"
+    }
 }

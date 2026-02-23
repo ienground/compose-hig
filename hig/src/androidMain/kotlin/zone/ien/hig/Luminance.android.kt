@@ -12,13 +12,18 @@ actual fun ImageBitmap.scale(width: Int, height: Int): ImageBitmap {
 }
 
 actual fun ImageBitmap.crop(x: Int, y: Int, width: Int, height: Int): ImageBitmap {
-    require(x >= 0 && y >= 0 && x + width <= this.width && y + height <= this.height) {
-        "Crop bounds out of image: ($x, $y $width x $height)"
+    val endX = (x + width).coerceAtMost(this.width)
+    val endY = (y + height).coerceAtMost(this.height)
+    val cropWidth = (endX - x).coerceAtLeast(0)
+    val cropHeight = (endY - y).coerceAtLeast(0)
+
+    require(x >= 0 && y >= 0) {
+        "x($x), y($y) should not be less than 0)"
     }
 
     val cropped = Bitmap.createBitmap(
         this.asAndroidBitmap(),
-        x, y, width, height
+        x, y, cropWidth, cropHeight
     )
 
     return cropped.asImageBitmap()
