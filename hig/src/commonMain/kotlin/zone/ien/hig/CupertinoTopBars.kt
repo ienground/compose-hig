@@ -442,23 +442,27 @@ private fun InlineTopAppBar(
         LaunchedEffect(layer) {
             while (isActive) {
                 if (layer.size != IntSize.Zero) {
-                    val averageLuminance = layer.toImageBitmap().averageLuminance(cropX = titleX, cropWidth = titleWidth.takeIf { it != 0 } ?: layer.size.width, sampleWidth = 5, defaultColor = defaultColor)
+                    try {
+                        val averageLuminance = layer.toImageBitmap().averageLuminance(cropX = titleX, cropWidth = titleWidth.takeIf { it != 0 } ?: layer.size.width, sampleWidth = 5, defaultColor = defaultColor)
 
-
-                    launch {
-                        gradientColorAnimation.animateTo(
-                            if (averageLuminance > 0.5f) lightGradientColor else darkGradientColor,
+                        launch {
+                            gradientColorAnimation.animateTo(
+                                if (averageLuminance > 0.5f) lightGradientColor else darkGradientColor,
+                                tween(300)
+                            )
+                            titleColorAnimation.animateTo(
+                                if (averageLuminance > 0.5f) lightTitleColor else darkTitleColor,
+                                tween(300)
+                            )
+                        }
+                        luminanceAnimation.animateTo(
+                            averageLuminance.toFloat(),
                             tween(300)
                         )
-                        titleColorAnimation.animateTo(
-                            if (averageLuminance > 0.5f) lightTitleColor else darkTitleColor,
-                            tween(300)
-                        )
+                    } catch (e: RuntimeException) {
+                        // layer가 dispose된 경우 → 루프 종료
+                        break
                     }
-                    luminanceAnimation.animateTo(
-                        averageLuminance.toFloat(),
-                        tween(300)
-                    )
                 }
 
                 delay(300)

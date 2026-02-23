@@ -11,11 +11,15 @@ import org.jetbrains.skia.SamplingMode
 import org.jetbrains.skia.impl.use
 
 actual fun ImageBitmap.scale(width: Int, height: Int): ImageBitmap {
-    val bitmap = Bitmap()
-    bitmap.allocN32Pixels(width, height)
-    val image = Image.makeFromBitmap(this.asSkiaBitmap())
-    image.scalePixels(bitmap.peekPixels()!!, SamplingMode.LINEAR, false)
-    return bitmap.asComposeImageBitmap()
+    val srcBitmap = this.asSkiaBitmap()
+    val dstBitmap = Bitmap()
+    dstBitmap.allocN32Pixels(width, height)
+
+    val image = Image.makeFromBitmap(srcBitmap)
+    image.scalePixels(dstBitmap.peekPixels()!!, SamplingMode.LINEAR, false)
+
+    val result = dstBitmap.asComposeImageBitmap()
+    return result
 }
 
 actual fun ImageBitmap.crop(x: Int, y: Int, width: Int, height: Int): ImageBitmap {
