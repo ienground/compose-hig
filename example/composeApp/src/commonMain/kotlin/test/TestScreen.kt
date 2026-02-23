@@ -61,23 +61,7 @@ fun TestScreen(
 ) {
     val backdrop = rememberLayerBackdrop()
     val scrollState = rememberScrollState()
-    val density = LocalDensity.current
 
-
-    val isTransparent by remember(scrollState, density) {
-        derivedStateOf {
-            // top bar is collapsing only on mobile
-            if (IsIos) {
-                scrollState.value < density.run { 20.dp.toPx() }
-            } else {
-                !scrollState.canScrollBackward
-            }
-
-        }
-    }
-//    val isTransparent = true
-
-//    /*
     CupertinoScaffold(
         topBar = {
             CupertinoTopAppBar(
@@ -86,43 +70,43 @@ fun TestScreen(
                     CupertinoText("Cupertino")
                 },
                 navigationIcon = {
-                    CupertinoLiquidIconButton(
-                        onClick = {},
-                        backdrop = backdrop
-                    ) {
-                        CupertinoIcon(
-                            imageVector = CupertinoIcons.Default.ChevronBackward,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
+//                    CupertinoLiquidIconButton(
+//                        onClick = {},
+//                        backdrop = backdrop
+//                    ) {
+//                        CupertinoIcon(
+//                            imageVector = CupertinoIcons.Default.ChevronBackward,
+//                            contentDescription = null,
+//                            modifier = Modifier.size(24.dp)
+//                        )
+//                    }
                 },
                 actions = {
-                    CupertinoLiquidButton(
-                        onClick = {},
-                        backdrop = backdrop
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(24.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            repeat(5) {
-                                Box(
-                                    modifier = Modifier.clickable(
-                                        interactionSource = null,
-                                        indication = null,
-                                        onClick = {}
-                                    )
-                                ) {
-                                    CupertinoIcon(
-                                        imageVector = CupertinoIcons.Default.SunMax,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
+//                    CupertinoLiquidButton(
+//                        onClick = {},
+//                        backdrop = backdrop
+//                    ) {
+//                        Row(
+//                            horizontalArrangement = Arrangement.spacedBy(24.dp),
+//                            verticalAlignment = Alignment.CenterVertically
+//                        ) {
+//                            repeat(5) {
+//                                Box(
+//                                    modifier = Modifier.clickable(
+//                                        interactionSource = null,
+//                                        indication = null,
+//                                        onClick = {}
+//                                    )
+//                                ) {
+//                                    CupertinoIcon(
+//                                        imageVector = CupertinoIcons.Default.SunMax,
+//                                        contentDescription = null,
+//                                        modifier = Modifier.size(24.dp)
+//                                    )
+//                                }
+//                            }
+//                        }
+//                    }
                 },
                 backdrop = backdrop,
                 isCenterAligned = true
@@ -156,6 +140,13 @@ fun TestScreen(
                     .background(Color.Blue)
                     .fillMaxWidth()
                     .height(200.dp)
+            )
+            Box(
+                modifier = Modifier
+                    .background(Color.White)
+                    .fillMaxWidth()
+                    .height(1000.dp)
+
             )
             Box(
                 modifier = Modifier

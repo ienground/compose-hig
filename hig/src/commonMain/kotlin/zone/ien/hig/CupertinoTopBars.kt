@@ -77,6 +77,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
@@ -420,10 +421,10 @@ private fun InlineTopAppBar(
 ) {
     val navTitleVisible by LocalNavigationTitleVisible.current
     val isLightTheme = !isSystemInDarkTheme()
-    val layer = backdrop.graphicsLayer
+//    val layer = backdrop.graphicsLayer
+    val layer = rememberGraphicsLayer()
     var titleX by remember { mutableStateOf(0) }
     var titleWidth by remember { mutableStateOf(0) }
-    var titleHeight by remember { mutableStateOf(0) }
     val topAppBarHeightPx = LocalDensity.current.run { TopAppBarHeight.toPx() }
 
     val lightGradientColor by colors.gradientColor(isDark = false)
@@ -441,7 +442,8 @@ private fun InlineTopAppBar(
         LaunchedEffect(layer) {
             while (isActive) {
                 if (layer.size != IntSize.Zero) {
-                    val averageLuminance = layer.toImageBitmap().averageLuminance(cropX = titleX, cropY = titleHeight - topAppBarHeightPx.roundToInt(), cropWidth = titleWidth.takeIf { it != 0 } ?: layer.size.width, cropHeight = topAppBarHeightPx.roundToInt(), sampleWidth = 5, defaultColor = defaultColor)
+                    val averageLuminance = layer.toImageBitmap().averageLuminance(cropX = titleX, cropWidth = titleWidth.takeIf { it != 0 } ?: layer.size.width, sampleWidth = 5, defaultColor = defaultColor)
+
 
                     launch {
                         gradientColorAnimation.animateTo(
@@ -493,9 +495,9 @@ private fun InlineTopAppBar(
                             setFloatUniform("tintIntensity", if (isBackgroundGradient) 0.8f else 0f)
                         }
                     },
-                    layerBlock = {
-                        clip = false
-                        compositingStrategy = CompositingStrategy.Offscreen
+                    onDrawBackdrop = { drawBackdrop ->
+                        drawBackdrop()
+                        layer.record { drawBackdrop() }
                     }
                 )
                 .fillMaxWidth()
@@ -503,13 +505,7 @@ private fun InlineTopAppBar(
                 .height(TopAppBarHeight)
         )
         TopAppBarLayout(
-            modifier =
-                modifier
-                    .onGloballyPositioned {
-                        titleHeight = it.size.height
-                    }
-                    .windowInsetsPadding(windowInsets)
-            ,
+            modifier = modifier.windowInsetsPadding(windowInsets),
             heightPx = topAppBarHeightPx,
             navigationIconContentColor = colors.navigationIconContentColor,
             titleContentColor = titleColorAnimation.value,
