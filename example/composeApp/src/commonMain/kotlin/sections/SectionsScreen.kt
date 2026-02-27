@@ -144,7 +144,7 @@ fun SectionsScreen(
     CupertinoScaffold(
         topBar = {
             CupertinoTopAppBar(
-                isTransparent = currentState.isTopBarTransparent,
+//                isTransparent = currentState.isTopBarTransparent,
                 navigationIcon = {
                     CupertinoNavigateBackButton(
                         onClick = navigateBack,

@@ -37,6 +37,9 @@ kotlin {
 
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
+            freeCompilerArgs.addAll(
+                "-opt-in=kotlin.RequiresOptIn"
+            )
         }
 
         androidResources {
@@ -85,6 +88,8 @@ kotlin {
             implementation(libs.material.kolor)
 
             implementation(libs.compose.material3)
+            implementation(libs.compose.preview)
+            implementation(libs.compose.resources)
             implementation(compose.materialIconsExtended)
             implementation(libs.datetime)
             implementation(libs.serialization)
@@ -95,6 +100,7 @@ kotlin {
 
             implementation(libs.bundles.koin)
             implementation(libs.backdrop)
+            implementation(libs.capsule)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -102,6 +108,10 @@ kotlin {
     }
 
     compilerOptions.freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
+}
+
+dependencies {
+    androidRuntimeClasspath(libs.compose.ui.tooling)
 }
 
 compose.desktop {

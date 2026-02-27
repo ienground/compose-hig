@@ -43,7 +43,11 @@ import java.util.Locale
 
 @Composable
 @ReadOnlyComposable
-internal actual fun defaultLocale(): CalendarLocale = LocalConfiguration.current.locale
+internal actual fun defaultLocale(): CalendarLocale =
+    LocalConfiguration.current.run {
+        val locales = locales
+        if (locales.isEmpty) Locale.getDefault() else locales[0]
+    }
 
 internal actual fun currentLocale(): CalendarLocale = Locale.getDefault()
 

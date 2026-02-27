@@ -9,10 +9,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.materialkolor.dynamicColorScheme
-import navigation.RootNavigationGraph
-import navigation.RootRoute
-import navigation.rootConfig
 import org.koin.compose.viewmodel.koinViewModel
+import test.TestScreen
 import zone.ien.hig.adaptive.AdaptiveTheme
 import zone.ien.hig.adaptive.CupertinoThemeSpec
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
@@ -35,7 +33,8 @@ fun App() {
         if (viewModel.uiState.item.isMaterial) Theme.Material3 else Theme.Cupertino
     }
     val (lightAccent, darkAccent) = viewModel.uiState.item.accentColors
-    val isDark = viewModel.uiState.item.isDark
+    val isDark = isSystemInDarkTheme()
+//    val isDark = viewModel.uiState.item.isDark
     val direction = LocalLayoutDirection.current
 
     val directionState by remember {
@@ -60,10 +59,11 @@ fun App() {
                 lightAccent else darkAccent,
             useDarkTheme = isDark
         ) {
-            RootNavigationGraph(
-                backStack = backStack,
-                viewModel = viewModel
-            )
+            TestScreen()
+//            RootNavigationGraph(
+//                backStack = backStack,
+//                viewModel = viewModel
+//            )
         }
     }
 }
@@ -97,11 +97,11 @@ fun GeneratedAdaptiveTheme(
                 darkColorScheme(accent = primaryColor)
             else lightColorScheme(accent = primaryColor),
             shapes = Shapes(
-                extraSmall = shapes.extraSmall,
-                small = shapes.small,
-                medium = shapes.medium,
-                large = shapes.large,
-                extraLarge = shapes.extraLarge
+                extraSmall = shapes.higExtraSmall,
+                small = shapes.higSmall,
+                medium = shapes.higMedium,
+                large = shapes.higLarge,
+                extraLarge = shapes.higExtraLarge
             )
         ),
         content = content

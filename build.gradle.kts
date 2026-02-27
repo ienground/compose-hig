@@ -72,6 +72,13 @@ subprojects {
                     developerConnection = "scm:git:https://github.com/ienground/compose-hig.git"
                 }
             }
+
+            val isSnapshot = version.toString().endsWith("SNAPSHOT")
+            val hasSigningKey = !(project.findProperty("signingInMemoryKeyId") as String?).isNullOrBlank()
+
+            if (!isSnapshot && hasSigningKey) {
+                signAllPublications()
+            }
         }
     }
 }

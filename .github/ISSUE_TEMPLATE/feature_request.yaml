@@ -30,3 +30,10 @@ body:
         - label: "Android"
         - label: "iOS"
         - label: "Common (Shared)"
+  - type: checkboxes
+    id: theme
+    attributes:
+      label: "🎨 적용 테마"
+      options:
+        - label: "Material3"
+        - label: "Cupertino"

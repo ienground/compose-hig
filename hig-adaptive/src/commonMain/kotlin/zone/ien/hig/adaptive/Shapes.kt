@@ -24,6 +24,8 @@ import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.dp
+import com.kyant.shapes.RoundedRectangle
+import com.kyant.shapes.UnevenRoundedRectangle
 import zone.ien.hig.theme.Shapes as CupertinoShapes
 import androidx.compose.material3.Shapes as MaterialShapes
 @Immutable
@@ -33,6 +35,11 @@ class Shapes(
     val medium: CornerBasedShape = RoundedCornerShape(12.dp),
     val large: CornerBasedShape = RoundedCornerShape(16.dp),
     val extraLarge: CornerBasedShape = RoundedCornerShape(28.dp),
+    val higExtraSmall: RoundedRectangle = RoundedRectangle(4.dp),
+    val higSmall: RoundedRectangle = RoundedRectangle(8.dp),
+    val higMedium: RoundedRectangle = RoundedRectangle(12.dp),
+    val higLarge: RoundedRectangle = RoundedRectangle(16.dp),
+    val higExtraLarge: RoundedRectangle = RoundedRectangle(24.dp)
 ) {
     fun copy(
         extraSmall: CornerBasedShape = this.extraSmall,
@@ -40,62 +47,24 @@ class Shapes(
         medium: CornerBasedShape = this.medium,
         large: CornerBasedShape = this.large,
         extraLarge: CornerBasedShape = this.extraLarge,
+        higExtraSmall: RoundedRectangle = this.higExtraSmall,
+        higSmall: RoundedRectangle = this.higSmall,
+        higMedium: RoundedRectangle = this.higMedium,
+        higLarge: RoundedRectangle = this.higLarge,
+        higExtraLarge: RoundedRectangle = this.higExtraLarge
     ) = Shapes(
         extraSmall = extraSmall,
         small = small,
         medium = medium,
         large = large,
-        extraLarge = extraLarge
+        extraLarge = extraLarge,
+        higExtraSmall = higExtraSmall,
+        higSmall = higSmall,
+        higMedium = higMedium,
+        higLarge = higLarge,
+        higExtraLarge = higExtraLarge
     )
 }
-
-fun Shapes.toMaterial() : MaterialShapes = MaterialShapes(
-    extraSmall = extraSmall,
-    small = small,
-    medium = medium,
-    large = large,
-    extraLarge = extraLarge
-)
-
-fun Shapes.toCupertino() : CupertinoShapes = CupertinoShapes(
-    extraSmall = extraSmall,
-    small = small,
-    medium = medium,
-    large = large,
-    extraLarge = extraLarge
-)
-
-fun CupertinoShapes.toMaterial() : MaterialShapes = MaterialShapes(
-    extraSmall = extraSmall,
-    small = small,
-    medium = medium,
-    large = large,
-    extraLarge = extraLarge
-)
-
-fun CupertinoShapes.toAdaptive() : Shapes = Shapes(
-    extraSmall = extraSmall,
-    small = small,
-    medium = medium,
-    large = large,
-    extraLarge = extraLarge
-)
-
-fun MaterialShapes.toCupertino() : CupertinoShapes = CupertinoShapes(
-    extraSmall = extraSmall,
-    small = small,
-    medium = medium,
-    large = large,
-    extraLarge = extraLarge
-)
-
-fun MaterialShapes.toAdaptive() : Shapes = Shapes(
-    extraSmall = extraSmall,
-    small = small,
-    medium = medium,
-    large = large,
-    extraLarge = extraLarge
-)
 
 
 

@@ -35,7 +35,10 @@ kotlin {
                 compilerOptions {
                     progressiveMode.set(true)
                     // Disable warnings about expect/actual classes
-                    freeCompilerArgs.addAll("-Xexpect-actual-classes")
+                    freeCompilerArgs.addAll(
+                        "-Xexpect-actual-classes",
+                        "-opt-in=kotlin.RequiresOptIn"
+                    )
                 }
             }
         }
@@ -53,6 +56,9 @@ kotlin {
             compileTaskProvider.configure {
                 compilerOptions {
                     jvmTarget.set(JvmTarget.JVM_17)
+                    freeCompilerArgs.addAll(
+                        "-opt-in=kotlin.RequiresOptIn"
+                    )
                 }
             }
         }
@@ -67,6 +73,9 @@ kotlin {
             compileTaskProvider.configure {
                 compilerOptions {
                     jvmTarget.set(JvmTarget.JVM_17)
+                    freeCompilerArgs.addAll(
+                        "-opt-in=kotlin.RequiresOptIn"
+                    )
                 }
             }
         }
