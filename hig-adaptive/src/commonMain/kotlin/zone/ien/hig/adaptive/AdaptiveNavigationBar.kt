@@ -102,14 +102,14 @@ fun RowScope.AdaptiveNavigationBarItem(
         adaptationScope = adaptation,
         cupertino = {
             CupertinoNavigationBarItem(
-//                selected = selected,
+                selected = selected,
                 onClick = onClick,
                 icon = icon,
                 modifier = modifier,
-//                enabled = enabled,
+                enabled = enabled,
                 label = label,
-//                alwaysShowLabel = alwaysShowLabel,
-//                colors = it.colors,
+                alwaysShowLabel = alwaysShowLabel,
+                colors = it.colors,
                 interactionSource = interactionSource,
             )
         },
