@@ -90,7 +90,7 @@ fun TestScreen(
                             horizontalArrangement = Arrangement.spacedBy(24.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            repeat(5) {
+                            repeat(2) {
                                 Box(
                                     modifier = Modifier.clickable(
                                         interactionSource = null,
