@@ -26,9 +26,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -65,6 +68,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -515,10 +519,21 @@ private fun InlineTopAppBar(
             titleContentColor = titleColorAnimation.value,
             actionIconContentColor = colors.actionIconContentColor,
             title = {
+                val blurRadius by animateFloatAsState(
+                    targetValue = if (!navTitleVisible) 0f else 4f,
+                    animationSpec = tween(700)
+                )
                 AnimatedVisibility(
                     visible = !navTitleVisible,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
+                    enter =
+                        fadeIn(tween(700))
+                                + slideInVertically(tween(700)) { it / 2 },
+                    exit =
+                        fadeOut(tween(700))
+                                + slideOutVertically(tween(700)) { it / 2 },
+                    modifier = Modifier
+                        .blur(radius = blurRadius.dp)
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
                     Box(
                         modifier = Modifier.onGloballyPositioned {

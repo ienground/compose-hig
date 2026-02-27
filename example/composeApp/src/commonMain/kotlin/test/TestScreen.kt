@@ -65,48 +65,48 @@ fun TestScreen(
     CupertinoScaffold(
         topBar = {
             CupertinoTopAppBar(
-                isBackgroundGradient = true,
+//                isBackgroundGradient = true,
                 title = {
                     CupertinoText("Cupertino")
                 },
                 navigationIcon = {
-//                    CupertinoLiquidIconButton(
-//                        onClick = {},
-//                        backdrop = backdrop
-//                    ) {
-//                        CupertinoIcon(
-//                            imageVector = CupertinoIcons.Default.ChevronBackward,
-//                            contentDescription = null,
-//                            modifier = Modifier.size(24.dp)
-//                        )
-//                    }
+                    CupertinoLiquidIconButton(
+                        onClick = {},
+                        backdrop = backdrop
+                    ) {
+                        CupertinoIcon(
+                            imageVector = CupertinoIcons.Default.ChevronBackward,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 },
                 actions = {
-//                    CupertinoLiquidButton(
-//                        onClick = {},
-//                        backdrop = backdrop
-//                    ) {
-//                        Row(
-//                            horizontalArrangement = Arrangement.spacedBy(24.dp),
-//                            verticalAlignment = Alignment.CenterVertically
-//                        ) {
-//                            repeat(5) {
-//                                Box(
-//                                    modifier = Modifier.clickable(
-//                                        interactionSource = null,
-//                                        indication = null,
-//                                        onClick = {}
-//                                    )
-//                                ) {
-//                                    CupertinoIcon(
-//                                        imageVector = CupertinoIcons.Default.SunMax,
-//                                        contentDescription = null,
-//                                        modifier = Modifier.size(24.dp)
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    }
+                    CupertinoLiquidButton(
+                        onClick = {},
+                        backdrop = backdrop
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(24.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            repeat(2) {
+                                Box(
+                                    modifier = Modifier.clickable(
+                                        interactionSource = null,
+                                        indication = null,
+                                        onClick = {}
+                                    )
+                                ) {
+                                    CupertinoIcon(
+                                        imageVector = CupertinoIcons.Default.SunMax,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 },
                 backdrop = backdrop,
                 isCenterAligned = true
@@ -121,12 +121,12 @@ fun TestScreen(
                 .padding(it)
                 .background(Color.Red.copy(0.7f))
         ) {
-//            CupertinoNavigationTitle {
-//                Text(
-//                    text = "Cupertino",
-//                    modifier = Modifier.background(Color.Green)
-//                )
-//            }
+            CupertinoNavigationTitle {
+                Text(
+                    text = "Cupertino",
+                    modifier = Modifier.background(Color.Green)
+                )
+            }
 
             Image(
                 painter = painterResource(Res.drawable.img_calib_test2),
