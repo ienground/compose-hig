@@ -56,7 +56,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.CupertinoButtonDefaults
 import zone.ien.hig.CupertinoIcon
+import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoNavigateBackButton
 import zone.ien.hig.CupertinoNavigationBar
@@ -274,20 +276,31 @@ fun AdaptiveWidgetsScreen(
                         onClick = {
                             alertVisible = true
                         },
+                        adaptation = {
+                            cupertino {
+                                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+                            }
+                        }
                     ) {
                         Text("Alert")
                     }
-                    AdaptiveTextButton(onClick = {}) {
+                    AdaptiveTextButton(
+                        onClick = {},
+                    ) {
                         Text("Text Button")
                     }
 
-                    AdaptiveIconButton(onClick = {}) {
+                    AdaptiveIconButton(
+                        onClick = {},
+                    ) {
                         Icon(
                             imageVector = AdaptiveIcons.Outlined.Delete,
                             contentDescription = null,
                         )
                     }
-                    AdaptiveFilledIconButton(onClick = {}) {
+                    AdaptiveFilledIconButton(
+                        onClick = {}
+                    ) {
                         Icon(
                             imageVector = AdaptiveIcons.Outlined.Delete,
                             contentDescription = null,

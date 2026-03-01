@@ -120,7 +120,7 @@ private class SwitchAdaptation: Adaptation<CupertinoSwitchAdaptation, MaterialSw
         val colors = CupertinoSwitchDefaults.colors()
         val backdrop = rememberLayerBackdrop()
 
-        return remember(colors) {
+        return remember(colors, backdrop) {
             CupertinoSwitchAdaptation(
                 colors = colors,
                 backdrop = backdrop
