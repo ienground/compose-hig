@@ -745,7 +745,6 @@ object CupertinoTopAppBarDefaults {
      *
      * Note: top app bar itself does not produce cupertino thin material glass effect.
      * This effect works only inside [CupertinoScaffold], [CupertinoBottomSheetScaffold], [CupertinoBottomSheetContent].
-     * To achieve this effect with custom top app bar use [cupertinoTranslucentTopBarColor]
      * function that will communicate with scaffold and return either
      * [Color.Transparent] if color was successfully applied to scaffold (and top bar itself
      * should be transparent) or passed color if scaffold wasn't found.

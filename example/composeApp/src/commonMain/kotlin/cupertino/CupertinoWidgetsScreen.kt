@@ -39,14 +39,12 @@
 package cupertino
 
 import GeneratedAdaptiveTheme
-import IsIos
 import RootDetails
 import RootRoute
 import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
@@ -62,6 +60,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -70,7 +69,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -85,7 +83,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
@@ -125,9 +122,8 @@ import zone.ien.hig.CupertinoLiquidAlertDialog
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
-import zone.ien.hig.CupertinoSlider
-import zone.ien.hig.CupertinoNavigationBar
-import zone.ien.hig.CupertinoNavigationBarItem
+import zone.ien.hig.CupertinoLiquidNavigationBarItem
+import zone.ien.hig.CupertinoNavigationBar2
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
 import zone.ien.hig.CupertinoRangeSlider
@@ -135,6 +131,7 @@ import zone.ien.hig.CupertinoSearchTextField
 import zone.ien.hig.CupertinoSearchTextFieldDefaults
 import zone.ien.hig.CupertinoSegmentedControl
 import zone.ien.hig.CupertinoSegmentedControlTab
+import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoSwipeBox
 import zone.ien.hig.CupertinoSwitch
 import zone.ien.hig.CupertinoText
@@ -179,7 +176,6 @@ import zone.ien.hig.icons.outlined.SquareSplit1x2
 import zone.ien.hig.icons.outlined.SunMax
 import zone.ien.hig.icons.outlined.Trash
 import zone.ien.hig.isNavigationBarTransparent
-import zone.ien.hig.isTopBarTransparent
 import zone.ien.hig.rememberCupertinoBottomSheetScaffoldState
 import zone.ien.hig.rememberCupertinoDatePickerState
 import zone.ien.hig.rememberCupertinoDateTimePickerState
@@ -275,7 +271,8 @@ fun CupertinoWidgetsScreen(
         },
         bottomBar = {
             BottomBarSample(
-                scrollState = scrollState
+                scrollState = scrollState,
+                backdrop = backdrop
             )
         },
     ) { pv ->
@@ -869,7 +866,8 @@ private fun TopBarSample(
 
 @Composable
 private fun BottomBarSample(
-    scrollState: ScrollState
+    scrollState: ScrollState,
+    backdrop: LayerBackdrop
 ) {
     var tab by remember {
         mutableStateOf(0)
@@ -877,12 +875,17 @@ private fun BottomBarSample(
 
     val isTransparent = scrollState.isNavigationBarTransparent
 
-    CupertinoNavigationBar(
-        isTranslucent = isTransparent,
-        isTransparent = isTransparent,
+    CupertinoNavigationBar2(
+        selectedTabIndex = { tab },
+        onTabSelected = { tab = it },
+        backdrop = backdrop,
+        tabsCount = 3,
+        modifier = Modifier.navigationBarsPadding()
+//        isTranslucent = isTransparent,
+//        isTransparent = isTransparent,
     ) {
-        CupertinoNavigationBarItem(
-            selected = tab == 0,
+        CupertinoLiquidNavigationBarItem(
+//            selected = tab == 0,
             onClick = { tab = 0 },
             icon = {
                 CupertinoIcon(
@@ -894,8 +897,8 @@ private fun BottomBarSample(
                 CupertinoText("Profile")
             }
         )
-        CupertinoNavigationBarItem(
-            selected = tab == 1,
+        CupertinoLiquidNavigationBarItem(
+//            selected = tab == 1,
             onClick = { tab = 1 },
             icon = {
                 CupertinoIcon(
@@ -905,6 +908,19 @@ private fun BottomBarSample(
             },
             label = {
                 CupertinoText("Settings")
+            }
+        )
+        CupertinoLiquidNavigationBarItem(
+//            selected = tab == 1,
+            onClick = { tab = 2 },
+            icon = {
+                CupertinoIcon(
+                    imageVector = CupertinoIcons.Filled.Alarm,
+                    contentDescription = null
+                )
+            },
+            label = {
+                CupertinoText("Alarm")
             }
         )
     }
