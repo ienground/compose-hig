@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.CupertinoIcon
+import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoNavigateBackButton
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarItem
@@ -95,6 +96,7 @@ import zone.ien.hig.cancel
 import zone.ien.hig.default
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.filled.Person
+import zone.ien.hig.icons.outlined.ChevronBackward
 import zone.ien.hig.rememberCupertinoDatePickerState
 
 @OptIn(
@@ -116,10 +118,15 @@ fun AdaptiveWidgetsScreen(
                 navigationIcon = {
                     AdaptiveWidget(
                         cupertino = {
-                            CupertinoNavigateBackButton(
+                            CupertinoLiquidIconButton(
                                 onClick = navigateBack,
+                                backdrop = backdrop,
+                                modifier = Modifier.padding(start = 16.dp)
                             ) {
-                                CupertinoText("Back")
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.ChevronBackward,
+                                    contentDescription = null
+                                )
                             }
                         },
                         material = {
@@ -150,6 +157,9 @@ fun AdaptiveWidgetsScreen(
                         onCheckedChange = { onItemValueChanged(uiState.item.copy(isMaterial = it)) },
                     )
                 },
+                adaptation = {
+                    cupertino { this.backdrop = backdrop }
+                }
             )
         },
         bottomBar = {
