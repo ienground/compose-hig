@@ -115,23 +115,23 @@ fun AdaptiveFilledIconButton(
 
 @Stable
 class CupertinoIconButtonAdaptation internal constructor(
-    colors : CupertinoButtonColors,
+    colors: CupertinoButtonColors,
 ) {
-    var colors : CupertinoButtonColors by mutableStateOf(colors)
+    var colors: CupertinoButtonColors by mutableStateOf(colors)
 }
 
 @Stable
 class MaterialIconButtonAdaptation internal constructor(
-    colors : IconButtonColors
+    colors: IconButtonColors
 ){
-    var colors : IconButtonColors by mutableStateOf(colors)
+    var colors: IconButtonColors by mutableStateOf(colors)
 
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
 private class IconButtonAdaptation(
-    private val isFilled : Boolean
-) : Adaptation<CupertinoIconButtonAdaptation, MaterialIconButtonAdaptation>() {
+    private val isFilled: Boolean
+): Adaptation<CupertinoIconButtonAdaptation, MaterialIconButtonAdaptation>() {
 
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoIconButtonAdaptation {

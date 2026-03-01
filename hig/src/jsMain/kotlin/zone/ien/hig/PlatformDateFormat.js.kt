@@ -470,12 +470,12 @@ internal fun getIs24HourFormat(localeTag: String): Int =
             var locale = new Intl.Locale(localeTag);
             // Check for the hourCycles property first
             if (locale.hourCycles) {
-                return locale.hourCycles.includes('h23') || locale.hourCycles.includes('h24') ? 1 : 0;
+                return locale.hourCycles.includes('h23') || locale.hourCycles.includes('h24') ? 1: 0;
             }
         
             // Fallback to hourCycle property
             if (locale.hourCycle) {
-                return locale.hourCycle === 'h23' || locale.hourCycle === 'h24' ? 1 : 0;
+                return locale.hourCycle === 'h23' || locale.hourCycle === 'h24' ? 1: 0;
             }
             return -1;
         }""",

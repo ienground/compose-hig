@@ -37,7 +37,7 @@ actual typealias CalendarLocale = Locale
 /**
  * A [CalendarModel] implementation for API < 26.
  */
-internal class LegacyCalendarModelImpl : CalendarModel {
+internal class LegacyCalendarModelImpl: CalendarModel {
     override val today
         get(): CalendarDate {
             val systemCalendar = Calendar.getInstance()

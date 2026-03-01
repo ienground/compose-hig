@@ -51,7 +51,7 @@ fun AdaptiveScaffold(
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     contentWindowInsets: WindowInsets = CupertinoScaffoldDefaults.contentWindowInsets,
-    adaptation : AdaptationScope<ScaffoldAdaptation, ScaffoldAdaptation>.() -> Unit = {},
+    adaptation: AdaptationScope<ScaffoldAdaptation, ScaffoldAdaptation>.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
     AdaptiveWidget(

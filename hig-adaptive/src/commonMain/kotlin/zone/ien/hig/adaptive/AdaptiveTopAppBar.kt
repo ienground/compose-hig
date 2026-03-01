@@ -144,7 +144,7 @@ class CupertinoTopAppBarAdaptation internal constructor(
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-private class TopAppBarAdaptation : Adaptation<CupertinoTopAppBarAdaptation, MaterialTopAppBarAdaptation>() {
+private class TopAppBarAdaptation: Adaptation<CupertinoTopAppBarAdaptation, MaterialTopAppBarAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoTopAppBarAdaptation {
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()

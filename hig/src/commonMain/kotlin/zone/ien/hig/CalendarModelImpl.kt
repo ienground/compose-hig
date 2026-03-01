@@ -35,7 +35,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-internal class CalendarModelImpl : CalendarModel {
+internal class CalendarModelImpl: CalendarModel {
 
     override val today: CalendarDate
         get() {

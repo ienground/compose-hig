@@ -169,7 +169,7 @@ private val DatePickerHeadlinePadding = PaddingValues(start = 24.dp, end = 12.dp
 @OptIn(ExperimentalMaterial3Api::class)
 private class DatePickerAdaptation(
     private val state: DatePickerState,
-) : Adaptation<CupertinoDatePickerAdaptation, MaterialDatePickerAdaptation>() {
+): Adaptation<CupertinoDatePickerAdaptation, MaterialDatePickerAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoDatePickerAdaptation {
         val style = DatePickerStyle.Pager()

@@ -143,7 +143,7 @@ internal class CupertinoAlertDialogButtonNative(
 internal fun AlertDialogActionsScope.fromNative(native: NativeAlertDialogActionsScope.() -> Unit) {
     val buttons = mutableListOf<CupertinoAlertDialogButtonNative>()
 
-    object : NativeAlertDialogActionsScope {
+    object: NativeAlertDialogActionsScope {
         override fun action(
             onClick: () -> Unit,
             style: AlertActionStyle,

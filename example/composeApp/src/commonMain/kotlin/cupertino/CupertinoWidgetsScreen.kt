@@ -60,7 +60,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -122,7 +121,7 @@ import zone.ien.hig.CupertinoLiquidAlertDialog
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
-import zone.ien.hig.CupertinoLiquidNavigationBarItem
+import zone.ien.hig.CupertinoNavigationBarItem
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
@@ -146,10 +145,14 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
 import zone.ien.hig.MenuSection
 import zone.ien.hig.PresentationStyle
+import zone.ien.hig.adaptive.AdaptiveNavigationBar
+import zone.ien.hig.adaptive.AdaptiveNavigationBarItem
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.adaptive.icons.Add
+import zone.ien.hig.adaptive.icons.Menu
+import zone.ien.hig.adaptive.icons.Person
 import zone.ien.hig.adaptive.icons.Settings
 import zone.ien.hig.adaptive.icons.Share
 import zone.ien.hig.cancel
@@ -175,7 +178,6 @@ import zone.ien.hig.icons.outlined.SquareAndArrowUp
 import zone.ien.hig.icons.outlined.SquareSplit1x2
 import zone.ien.hig.icons.outlined.SunMax
 import zone.ien.hig.icons.outlined.Trash
-import zone.ien.hig.isNavigationBarTransparent
 import zone.ien.hig.rememberCupertinoBottomSheetScaffoldState
 import zone.ien.hig.rememberCupertinoDatePickerState
 import zone.ien.hig.rememberCupertinoDateTimePickerState
@@ -271,7 +273,6 @@ fun CupertinoWidgetsScreen(
         },
         bottomBar = {
             BottomBarSample(
-                scrollState = scrollState,
                 backdrop = backdrop
             )
         },
@@ -480,7 +481,7 @@ private fun PickersSection(
                             )]
                         }"
 
-                    PickerTab.Time -> "${timePickerState.hour} : ${timePickerState.minute}"
+                    PickerTab.Time -> "${timePickerState.hour}: ${timePickerState.minute}"
                     PickerTab.Date -> remember {
                         derivedStateOf {
                             Instant
@@ -864,65 +865,41 @@ private fun TopBarSample(
     )
 }
 
+@OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 private fun BottomBarSample(
-    scrollState: ScrollState,
     backdrop: LayerBackdrop
 ) {
-    var tab by remember {
-        mutableStateOf(0)
-    }
+    var tab by remember { mutableStateOf(0) }
+    val content = listOf(
+        "Profile" to AdaptiveIcons.Outlined.Person,
+        "Menu" to AdaptiveIcons.Outlined.Menu,
+        "Settings" to AdaptiveIcons.Outlined.Settings,
+    )
 
-    val isTransparent = scrollState.isNavigationBarTransparent
-
-    CupertinoNavigationBar(
+    AdaptiveNavigationBar(
         selectedTabIndex = { tab },
         onTabSelected = { tab = it },
-        backdrop = backdrop,
         tabsCount = 3,
-        modifier = Modifier.navigationBarsPadding()
-//        isTranslucent = isTransparent,
-//        isTransparent = isTransparent,
+        adaptation = {
+            cupertino { this.backdrop = backdrop }
+        },
     ) {
-        CupertinoLiquidNavigationBarItem(
-//            selected = tab == 0,
-            onClick = { tab = 0 },
-            icon = {
-                CupertinoIcon(
-                    imageVector = CupertinoIcons.Filled.Person,
-                    contentDescription = null
-                )
-            },
-            label = {
-                CupertinoText("Profile")
-            }
-        )
-        CupertinoLiquidNavigationBarItem(
-//            selected = tab == 1,
-            onClick = { tab = 1 },
-            icon = {
-                CupertinoIcon(
-                    imageVector = CupertinoIcons.Filled.Gearshape,
-                    contentDescription = null
-                )
-            },
-            label = {
-                CupertinoText("Settings")
-            }
-        )
-        CupertinoLiquidNavigationBarItem(
-//            selected = tab == 1,
-            onClick = { tab = 2 },
-            icon = {
-                CupertinoIcon(
-                    imageVector = CupertinoIcons.Filled.Alarm,
-                    contentDescription = null
-                )
-            },
-            label = {
-                CupertinoText("Alarm")
-            }
-        )
+        content.forEachIndexed { index, pair ->
+            AdaptiveNavigationBarItem(
+                index = index,
+                onClick = { tab = index },
+                icon = {
+                    CupertinoIcon(
+                        imageVector = pair.second,
+                        contentDescription = pair.first,
+                    )
+                },
+                label = {
+                    Text(pair.first)
+                },
+            )
+        }
     }
 }
 

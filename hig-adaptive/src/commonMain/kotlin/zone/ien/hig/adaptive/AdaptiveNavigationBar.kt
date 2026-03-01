@@ -30,7 +30,9 @@ import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,88 +40,111 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.CupertinoNavigationBar
+import zone.ien.hig.CupertinoNavigationBarColors
 import zone.ien.hig.CupertinoNavigationBarDefaults
+import zone.ien.hig.CupertinoNavigationBarItem
 import zone.ien.hig.ExperimentalCupertinoApi
+
+internal data class NavigationBarState(
+    val selectedTabIndex: () -> Int,
+    val onTabSelected: (Int) -> Unit,
+)
+internal val LocalNavigationBarState = compositionLocalOf<NavigationBarState?> { null }
 
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
 fun AdaptiveNavigationBar(
     modifier: Modifier = Modifier,
-    windowInsets: WindowInsets = NavigationBarDefaults.windowInsets,
+    selectedTabIndex: () -> Int,
+    onTabSelected: (index: Int) -> Unit,
+    tabsCount: Int,
     adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, MaterialNavigationBarAdaptation>.() -> Unit = {},
     content: @Composable RowScope.() -> Unit
 ) {
-    AdaptiveWidget(
-        adaptation = remember {
-            NavigationBarAdaptation()
-        },
-        adaptationScope = adaptation,
-        cupertino = {
-//            CupertinoNavigationBar(
-//                modifier = modifier,
-//                windowInsets = windowInsets,
-//                containerColor = it.containerColor,
-//                isTransparent = it.isTransparent,
-//                isTranslucent = it.isTranslucent,
-//                divider = it.divider,
-//                content = content
-//            )
-        },
-        material = {
-            NavigationBar(
-                modifier = modifier,
-                containerColor = it.containerColor,
-                contentColor = it.contentColor,
-                tonalElevation = it.tonalElevation,
-                windowInsets = windowInsets,
-                content = content
-            )
-        }
-    )
+    CompositionLocalProvider(
+        LocalNavigationBarState provides NavigationBarState(
+            selectedTabIndex = selectedTabIndex,
+            onTabSelected = onTabSelected,
+        )
+    ) {
+        AdaptiveWidget(
+            adaptation = remember {
+                NavigationBarAdaptation()
+            },
+            adaptationScope = adaptation,
+            cupertino = {
+                CupertinoNavigationBar(
+                    modifier = modifier,
+                    colors = it.colors,
+                    windowInsets = it.windowInsets,
+                    backdrop = it.backdrop,
+                    selectedTabIndex = selectedTabIndex,
+                    onTabSelected = onTabSelected,
+                    tabsCount = tabsCount,
+                    content = content
+                )
+            },
+            material = {
+                NavigationBar(
+                    modifier = modifier,
+                    containerColor = it.containerColor,
+                    contentColor = it.contentColor,
+                    tonalElevation = it.tonalElevation,
+                    windowInsets = it.windowInsets,
+                    content = content
+                )
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun RowScope.AdaptiveNavigationBarItem(
-    selected: Boolean,
+    index: Int,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
-    alwaysShowLabel: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     adaptation: AdaptationScope<CupertinoNavigationBarItemAdaptation, MaterialNavigationBarItemAdaptation>.() -> Unit = {},
 ) {
+    val navState = LocalNavigationBarState.current
+    val selected = navState?.let { it.selectedTabIndex() == index } ?: false
+    val resolvedOnClick: () -> Unit = {
+        navState?.onTabSelected(index)
+        onClick()
+    }
+
     AdaptiveWidget(
         adaptation = remember {
             NavigationBarItemAdaptation()
         },
         adaptationScope = adaptation,
         cupertino = {
-//            CupertinoNavigationBarItem(
-//                selected = selected,
-//                onClick = onClick,
-//                icon = icon,
-//                modifier = modifier,
-//                enabled = enabled,
-//                label = label,
-//                alwaysShowLabel = alwaysShowLabel,
-//                colors = it.colors,
-//                interactionSource = interactionSource,
-//            )
-        },
-        material = {
-            NavigationBarItem(
-                selected = selected,
-                onClick = onClick,
+            CupertinoNavigationBarItem(
+                onClick = resolvedOnClick,
                 icon = icon,
                 modifier = modifier,
                 enabled = enabled,
                 label = label,
-                alwaysShowLabel = alwaysShowLabel,
+                interactionSource = interactionSource,
+            )
+        },
+        material = {
+            NavigationBarItem(
+                selected = selected,
+                onClick = resolvedOnClick,
+                icon = icon,
+                modifier = modifier,
+                enabled = enabled,
+                label = label,
+                alwaysShowLabel = it.alwaysShowLabel,
                 colors = it.colors,
                 interactionSource = interactionSource
             )
@@ -128,55 +153,56 @@ fun RowScope.AdaptiveNavigationBarItem(
 }
 
 class MaterialNavigationBarAdaptation internal constructor(
-    containerColor : Color,
-    contentColor : Color,
+    containerColor: Color,
+    contentColor: Color,
     tonalElevation: Dp = NavigationBarDefaults.Elevation,
+    windowInsets: WindowInsets,
 ) {
-    var containerColor : Color by mutableStateOf(containerColor)
-    var contentColor : Color by mutableStateOf(contentColor)
+    var containerColor: Color by mutableStateOf(containerColor)
+    var contentColor: Color by mutableStateOf(contentColor)
     var tonalElevation: Dp by mutableStateOf(tonalElevation)
+    var windowInsets: WindowInsets by mutableStateOf(windowInsets)
 }
 
 @OptIn(ExperimentalCupertinoApi::class)
 class CupertinoNavigationBarAdaptation internal constructor(
-    containerColor : Color,
-    isTransparent: Boolean = false,
-    isTranslucent: Boolean = true,
+    colors: CupertinoNavigationBarColors,
+    windowInsets: WindowInsets,
+    backdrop: LayerBackdrop
 ) {
-    var containerColor : Color by mutableStateOf(containerColor)
-    var isTransparent: Boolean by mutableStateOf(isTransparent)
-    var isTranslucent: Boolean by mutableStateOf(isTranslucent)
+    var colors: CupertinoNavigationBarColors by mutableStateOf(colors)
+    var windowInsets: WindowInsets by mutableStateOf(windowInsets)
+    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
 }
 
 @Stable
 class MaterialNavigationBarItemAdaptation internal constructor(
-    colors : NavigationBarItemColors,
+    colors: NavigationBarItemColors,
+    alwaysShowLabel: Boolean
 ) {
-    var colors : NavigationBarItemColors by mutableStateOf(colors)
+    var colors: NavigationBarItemColors by mutableStateOf(colors)
+    var alwaysShowLabel by mutableStateOf(alwaysShowLabel)
 }
 
 @Stable
 @OptIn(ExperimentalCupertinoApi::class)
-class CupertinoNavigationBarItemAdaptation internal constructor(
-//    colors : CupertinoNavigationBarItemColors,
-){
-//    var colors : CupertinoNavigationBarItemColors by mutableStateOf(colors)
-}
+class CupertinoNavigationBarItemAdaptation internal constructor()
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-private class NavigationBarAdaptation :
-    Adaptation<CupertinoNavigationBarAdaptation, MaterialNavigationBarAdaptation>() {
-
+private class NavigationBarAdaptation: Adaptation<CupertinoNavigationBarAdaptation, MaterialNavigationBarAdaptation>() {
     @OptIn(ExperimentalCupertinoApi::class)
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoNavigationBarAdaptation {
+        val colors = CupertinoNavigationBarDefaults.colors()
+        val windowInsets = CupertinoNavigationBarDefaults.windowInsets
+        val backdrop = rememberLayerBackdrop()
 
-        val containerColor = CupertinoNavigationBarDefaults.containerColor
-
-        return remember(containerColor) {
+        return remember(colors, windowInsets, backdrop) {
             CupertinoNavigationBarAdaptation(
-                containerColor = containerColor
+                colors = colors,
+                windowInsets = windowInsets,
+                backdrop = backdrop
             )
         }
     }
@@ -185,43 +211,39 @@ private class NavigationBarAdaptation :
     override fun rememberMaterialAdaptation(): MaterialNavigationBarAdaptation {
         val containerColor = NavigationBarDefaults.containerColor
         val contentColor = contentColorFor(containerColor)
+        val tonalElevation = NavigationBarDefaults.Elevation
+        val windowInsets = NavigationBarDefaults.windowInsets
 
-        return remember(containerColor) {
+        return remember(containerColor, contentColor, tonalElevation, windowInsets) {
             MaterialNavigationBarAdaptation(
                 containerColor = containerColor,
-                contentColor = contentColor
+                contentColor = contentColor,
+                tonalElevation = tonalElevation,
+                windowInsets = windowInsets
             )
         }
     }
 }
 
+@OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-private class NavigationBarItemAdaptation :
-    Adaptation<CupertinoNavigationBarItemAdaptation, MaterialNavigationBarItemAdaptation>() {
+private class NavigationBarItemAdaptation: Adaptation<CupertinoNavigationBarItemAdaptation, MaterialNavigationBarItemAdaptation>() {
 
     @OptIn(ExperimentalCupertinoApi::class)
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoNavigationBarItemAdaptation {
-
-//        val colors = CupertinoNavigationBarDefaults.itemColors()
-
-        return remember(
-//            colors
-        ) {
-            CupertinoNavigationBarItemAdaptation(
-//                colors = colors
-            )
-        }
+        return remember { CupertinoNavigationBarItemAdaptation() }
     }
 
     @Composable
     override fun rememberMaterialAdaptation(): MaterialNavigationBarItemAdaptation {
-
         val colors = NavigationBarItemDefaults.colors()
+        val alwaysShowLabel = true
 
-        return remember(colors) {
+        return remember(colors, alwaysShowLabel) {
             MaterialNavigationBarItemAdaptation(
-                colors = colors
+                colors = colors,
+                alwaysShowLabel = alwaysShowLabel
             )
         }
     }

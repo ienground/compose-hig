@@ -597,7 +597,7 @@ private fun AnimatedSheet(
 
 private class CupertinoAlertDialogButtonsScopeImpl(
     private val orientation: Orientation,
-) : AlertDialogActionsScope {
+): AlertDialogActionsScope {
     private val buttons = mutableListOf<@Composable () -> Unit>()
 
     override fun action(
@@ -684,7 +684,7 @@ private class CupertinoActionSheetImpl(
     private val hasTitle: Boolean,
     private val primaryContainerColor: Color,
     private val secondaryContainerColor: Color,
-) : AlertDialogActionsScope {
+): AlertDialogActionsScope {
     private val buttons = mutableListOf<Pair<AlertActionStyle, @Composable () -> Unit>>()
 
     override fun action(

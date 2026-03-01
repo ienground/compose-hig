@@ -50,7 +50,7 @@ fun CupertinoSurface(
     modifier: Modifier = Modifier,
     shape: Shape = RectangleShape,
     color: Color = CupertinoTheme.colorScheme.systemBackground,
-    shadowElevation : Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
     contentColor: Color = LocalContentColor.current,
     content: @Composable () -> Unit
 ) {
@@ -129,7 +129,7 @@ fun Surface(
     modifier: Modifier = Modifier,
     shape: Shape = RectangleShape,
     color: Color = CupertinoTheme.colorScheme.systemBackground,
-    shadowElevation : Dp = 0.dp,
+    shadowElevation: Dp = 0.dp,
     contentColor: Color = LocalContentColor.current,
     content: @Composable () -> Unit
 ) = CupertinoSurface(

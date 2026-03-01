@@ -562,7 +562,7 @@ private class CupertinoSearchTextFieldNestedScroll(
     private val state: CupertinoSearchTextFieldState,
     private val blockScrollWhenSearchIsFocusedAndEmpty: Boolean,
     private val scrollableState: ScrollableState?,
-) : NestedScrollConnection {
+): NestedScrollConnection {
     override fun onPreScroll(
         available: Offset,
         source: NestedScrollSource,

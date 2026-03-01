@@ -241,7 +241,7 @@ internal val LocalNavigationTitleVisible =
 
 private class ClipShape(
     private val offsetDifference: Float,
-) : Shape {
+): Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,

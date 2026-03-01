@@ -18,5 +18,5 @@
 
 package zone.ien.hig.adaptive
 
-internal actual val DefaultTheme : Theme
+internal actual val DefaultTheme: Theme
     get() = Theme.Material3

@@ -114,7 +114,7 @@ class MaterialSwitchAdaptation internal constructor(
 }
 
 @Stable
-private class SwitchAdaptation : Adaptation<CupertinoSwitchAdaptation, MaterialSwitchAdaptation>() {
+private class SwitchAdaptation: Adaptation<CupertinoSwitchAdaptation, MaterialSwitchAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoSwitchAdaptation {
         val colors = CupertinoSwitchDefaults.colors()

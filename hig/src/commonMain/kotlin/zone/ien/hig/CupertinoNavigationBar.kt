@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -133,11 +134,13 @@ fun CupertinoNavigationBar(
     val isLightTheme = !isSystemInDarkTheme()
     val tabsBackdrop = rememberLayerBackdrop()
     val accentColor = colors.accentColor
-    val containerColor = colors.containerColor.copy(0.4f)
+    val containerColor = colors.containerColor.copy(0.6f)
 
     BoxWithConstraints(
         contentAlignment = Alignment.CenterStart,
-        modifier = modifier.windowInsetsPadding(windowInsets)
+        modifier = modifier
+            .navigationBarsPadding()
+            .windowInsetsPadding(windowInsets)
     ) {
         val density = LocalDensity.current
         val tabWidth = with(density) {
@@ -237,7 +240,9 @@ fun CupertinoNavigationBar(
                         scaleX = scale
                         scaleY = scale
                     },
-                    onDrawSurface = { drawRect(containerColor) }
+                    onDrawSurface = {
+                        drawRect(containerColor)
+                    }
                 )
                 .then(interactiveHighlight.modifier)
                 .height(64.dp)
@@ -278,7 +283,10 @@ fun CupertinoNavigationBar(
                             val progress = dampedDragAnimation.pressProgress
                             Highlight.Default.copy(alpha = progress)
                         },
-                        onDrawSurface = { drawRect(containerColor) }
+                        onDrawSurface = {
+                            drawRect(if (isLightTheme) Color.White else Color.Black)
+                            drawRect(containerColor)
+                        }
                     )
                     .then(interactiveHighlight.modifier)
                     .height(56.dp)
@@ -426,7 +434,7 @@ fun RowScope.CupertinoNavigationBarItem2(
  */
 
 @Composable
-fun RowScope.CupertinoLiquidNavigationBarItem(
+fun RowScope.CupertinoNavigationBarItem(
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -582,10 +590,6 @@ object CupertinoNavigationBarDefaults {
     )
 
     val windowInsets = WindowInsets(left = 36.dp, right = 36.dp)
-}
-
-internal object CupertinoNavigationBarTokens {
-    val Height = 49.dp
 }
 
 internal val LocalLiquidBottomTabScale = staticCompositionLocalOf { { 1f } }

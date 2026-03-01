@@ -42,7 +42,7 @@ actual fun rememberCupertinoHapticFeedback(): HapticFeedback {
 
 internal class UIKitHapticFeedback(
     private val delegate: HapticFeedback,
-) : HapticFeedback {
+): HapticFeedback {
     private val notificationFeedbackGenerator by lazy {
         UINotificationFeedbackGenerator()
     }

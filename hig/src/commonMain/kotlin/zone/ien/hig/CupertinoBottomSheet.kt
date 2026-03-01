@@ -193,7 +193,7 @@ sealed interface PresentationDetent {
      * */
     @Immutable
     @Serializable
-    data object Large : PresentationDetent {
+    data object Large: PresentationDetent {
         override fun calculate(
             density: Density,
             height: Float,
@@ -207,7 +207,7 @@ sealed interface PresentationDetent {
      * */
     @Immutable
     @Serializable
-    data object Medium : PresentationDetent by Fraction(.5f)
+    data object Medium: PresentationDetent by Fraction(.5f)
 
     /**
      * Detent with fixed sheet [height]
@@ -216,7 +216,7 @@ sealed interface PresentationDetent {
     @Serializable(with = HeightSerializer::class)
     class Height(
         internal val height: Dp,
-    ) : PresentationDetent {
+    ): PresentationDetent {
         override fun hashCode(): Int = height.hashCode()
 
         override fun equals(other: Any?): Boolean = height == (other as? Height)?.height
@@ -236,7 +236,7 @@ sealed interface PresentationDetent {
     @Serializable
     class Fraction(
         private val fraction: Float,
-    ) : PresentationDetent {
+    ): PresentationDetent {
         init {
             require(fraction in 0f..1f) {
                 "fraction must be between 0 and 1"
@@ -264,7 +264,7 @@ sealed interface CupertinoSheetValue {
      * */
     @Serializable
     @Immutable
-    data object Hidden : CupertinoSheetValue
+    data object Hidden: CupertinoSheetValue
 
     /**
      * Sheet is partially expanded with [detent]
@@ -273,7 +273,7 @@ sealed interface CupertinoSheetValue {
     @Immutable
     class PartiallyExpanded(
         val detent: PresentationDetent,
-    ) : CupertinoSheetValue {
+    ): CupertinoSheetValue {
         override fun equals(other: Any?): Boolean = detent == (other as? PartiallyExpanded)?.detent
 
         override fun hashCode(): Int = detent.hashCode()
@@ -286,7 +286,7 @@ sealed interface CupertinoSheetValue {
      * */
     @Serializable
     @Immutable
-    data object Expanded : CupertinoSheetValue
+    data object Expanded: CupertinoSheetValue
 }
 
 /**
@@ -298,7 +298,7 @@ sealed interface PresentationStyle {
      * Fullscreen presentation. This sheet cannot be swiped
      * */
     @Immutable
-    data object Fullscreen : PresentationStyle
+    data object Fullscreen: PresentationStyle
 
     /**
      * Modal presentation
@@ -315,7 +315,7 @@ sealed interface PresentationStyle {
         val contentInteraction: PresentationContentInteraction = PresentationContentInteraction.Resize,
         val isBackgroundInteractive: (PresentationDetent) -> Boolean = { false },
         val dismissOnClickOutside: Boolean = true,
-    ) : PresentationStyle {
+    ): PresentationStyle {
         init {
             require(detents.isNotEmpty()) {
                 "Modal predentation style must have at least one detent"
@@ -589,7 +589,7 @@ fun rememberCupertinoSheetState(
     }
 }
 
-private class HeightSerializer : KSerializer<PresentationDetent.Height> {
+private class HeightSerializer: KSerializer<PresentationDetent.Height> {
     override val descriptor: SerialDescriptor
         get() = Float.serializer().descriptor
 
@@ -609,7 +609,7 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     orientation: Orientation,
     onFling: (velocity: Float) -> Unit,
 ): NestedScrollConnection =
-    object : NestedScrollConnection {
+    object: NestedScrollConnection {
         private val enabled: Boolean
             get() =
                 sheetState.presentationStyle.let {

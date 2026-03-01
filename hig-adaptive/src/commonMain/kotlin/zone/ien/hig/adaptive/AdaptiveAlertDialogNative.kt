@@ -161,7 +161,7 @@ class CupertinoAlertAdaptationNative internal constructor(
 
 @ExperimentalAdaptiveApi
 @Stable
-private class AlertDialogAdaptationNative : Adaptation<CupertinoAlertAdaptationNative, MaterialAlertAdaptationNative>() {
+private class AlertDialogAdaptationNative: Adaptation<CupertinoAlertAdaptationNative, MaterialAlertAdaptationNative>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoAlertAdaptationNative {
         val containerColor = CupertinoDialogsDefaults.ContainerColor
@@ -196,7 +196,7 @@ private class AdaptiveAlertDialogButtonDataNative(
     val title: String,
 )
 
-private class AdaptiveAlertDialogButtonScopeNative : NativeAlertDialogActionsScope {
+private class AdaptiveAlertDialogButtonScopeNative: NativeAlertDialogActionsScope {
     val buttons = mutableListOf<AdaptiveAlertDialogButtonDataNative>()
 
     override fun action(

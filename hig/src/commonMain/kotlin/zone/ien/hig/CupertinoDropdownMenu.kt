@@ -658,7 +658,7 @@ internal data class DropdownMenuPositionProvider(
     val contentOffset: DpOffset,
     val density: Density,
     val onPositionCalculated: (IntRect, IntRect) -> Unit = { _, _ -> },
-) : PopupPositionProvider {
+): PopupPositionProvider {
     override fun calculatePosition(
         anchorBounds: IntRect,
         windowSize: IntSize,
@@ -724,7 +724,7 @@ internal data class DropdownMenuPositionProvider(
     }
 }
 
-internal class CupertinoMenuScopeImpl : CupertinoMenuScope {
+internal class CupertinoMenuScopeImpl: CupertinoMenuScope {
     var hasPicker: Boolean by mutableStateOf(false)
 }
 

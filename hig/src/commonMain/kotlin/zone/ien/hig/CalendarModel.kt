@@ -142,7 +142,7 @@ internal interface CalendarModel {
      * @param year the month's year
      * @param month an integer representing a month (e.g. JANUARY as 1, December as 12)
      */
-    fun getDate(year: Int, month: Int, day : Int): CalendarDate
+    fun getDate(year: Int, month: Int, day: Int): CalendarDate
 
 
     /**
@@ -229,7 +229,7 @@ internal data class CalendarDate(
     val month: Int,
     val dayOfMonth: Int,
     val utcTimeMillis: Long
-) : Comparable<CalendarDate> {
+): Comparable<CalendarDate> {
     override operator fun compareTo(other: CalendarDate): Int =
         this.utcTimeMillis.compareTo(other.utcTimeMillis)
 

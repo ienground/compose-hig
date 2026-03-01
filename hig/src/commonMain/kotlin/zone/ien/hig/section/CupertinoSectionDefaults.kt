@@ -193,8 +193,8 @@ object CupertinoSectionDefaults {
 
     @Composable
     fun TextFieldClearButton(
-        visible : Boolean,
-        onClick : () -> Unit
+        visible: Boolean,
+        onClick: () -> Unit
     ) {
         AnimatedVisibility(
             visible = visible,

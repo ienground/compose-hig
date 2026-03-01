@@ -94,12 +94,12 @@ class MaterialCircularProgressIndicatorAdaptation internal constructor(
 
 @Stable
 class CupertinoCircularProgressIndicatorAdaptation internal constructor(
-    color : Color,
-    progress : Float = 1f,
-    size : Dp = CupertinoActivityIndicatorDefaults.MinSize,
+    color: Color,
+    progress: Float = 1f,
+    size: Dp = CupertinoActivityIndicatorDefaults.MinSize,
     count: Int = CupertinoActivityIndicatorDefaults.PathCount,
-    innerRadius : Float = 1/3f,
-    strokeWidth : Dp = Dp.Unspecified,
+    innerRadius: Float = 1/3f,
+    strokeWidth: Dp = Dp.Unspecified,
     animationSpec: InfiniteRepeatableSpec<Float> = infiniteRepeatable(
         animation = tween(
             durationMillis = CupertinoActivityIndicatorDefaults.DurationMillis,
