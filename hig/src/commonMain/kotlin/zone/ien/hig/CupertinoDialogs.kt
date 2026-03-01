@@ -523,9 +523,7 @@ private fun AnimatedSheet(
     onDismissRequest: () -> Unit,
     properties: DialogProperties = DialogProperties(),
     scrimColor: Color = CupertinoDialogsDefaults.ScrimColor,
-    content:
-        @Composable()
-        (BoxScope.() -> Unit),
+    content: @Composable (BoxScope.() -> Unit),
 ) {
     val expandedStates = remember { MutableTransitionState(false) }
 

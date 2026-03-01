@@ -177,9 +177,7 @@ fun CupertinoSearchTextField(
     placeholder: @Composable () -> Unit = {
         CupertinoText("Search")
     },
-    cancelButton:
-        @Composable()
-        (() -> Unit)? = {
+    cancelButton: @Composable (() -> Unit)? = {
         CupertinoSearchTextFieldDefaults.cancelButton(
             onValueChange = onValueChange,
             interactionSource = interactionSource,

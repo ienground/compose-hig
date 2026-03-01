@@ -390,9 +390,7 @@ fun LazySectionScope.timePicker(
     onExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    icon:
-        @Composable()
-        (() -> Unit)? = null,
+    icon: @Composable (() -> Unit)? = null,
     dividerPadding: Dp =
         if (icon != null) {
             CupertinoSectionDefaults.DividerPaddingWithIcon
@@ -568,9 +566,7 @@ private fun LazySectionScope.labelWithCustomChevron(
     onClick: () -> Unit,
     key: Any? = null,
     enabled: Boolean = true,
-    icon:
-        @Composable()
-        (() -> Unit)? = null,
+    icon: @Composable (() -> Unit)? = null,
     dividerPadding: Dp =
         if (icon != null) {
             CupertinoSectionDefaults.DividerPaddingWithIcon
