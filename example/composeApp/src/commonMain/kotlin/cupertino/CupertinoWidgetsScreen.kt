@@ -123,7 +123,7 @@ import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoLiquidNavigationBarItem
-import zone.ien.hig.CupertinoNavigationBar2
+import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
 import zone.ien.hig.CupertinoRangeSlider
@@ -875,7 +875,7 @@ private fun BottomBarSample(
 
     val isTransparent = scrollState.isNavigationBarTransparent
 
-    CupertinoNavigationBar2(
+    CupertinoNavigationBar(
         selectedTabIndex = { tab },
         onTabSelected = { tab = it },
         backdrop = backdrop,
