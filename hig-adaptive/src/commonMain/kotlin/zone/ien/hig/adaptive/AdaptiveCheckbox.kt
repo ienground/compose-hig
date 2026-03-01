@@ -44,7 +44,7 @@ fun AdaptiveCheckbox(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    adaptation : AdaptationScope<CupertinoCheckBoxAdaptation, MaterialCheckBoxAdaptation>.() -> Unit = {}
+    adaptation: AdaptationScope<CupertinoCheckBoxAdaptation, MaterialCheckBoxAdaptation>.() -> Unit = {}
 ) {
     AdaptiveWidget(
         adaptation = remember { CheckBoxAdaptation() },
@@ -80,7 +80,7 @@ fun AdaptiveTriStateCheckbox(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    adaptation : AdaptationScope<CupertinoCheckBoxAdaptation, MaterialCheckBoxAdaptation>.() -> Unit = {}
+    adaptation: AdaptationScope<CupertinoCheckBoxAdaptation, MaterialCheckBoxAdaptation>.() -> Unit = {}
 ) {
     AdaptiveWidget(
         adaptation = remember { CheckBoxAdaptation() },
@@ -117,14 +117,14 @@ class MaterialCheckBoxAdaptation(
 
 @Stable
 class CupertinoCheckBoxAdaptation(
-    colors : CupertinoCheckboxColors
+    colors: CupertinoCheckboxColors
 ){
-    var colors : CupertinoCheckboxColors by mutableStateOf(colors)
+    var colors: CupertinoCheckboxColors by mutableStateOf(colors)
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-private class CheckBoxAdaptation : Adaptation<CupertinoCheckBoxAdaptation, MaterialCheckBoxAdaptation>(){
+private class CheckBoxAdaptation: Adaptation<CupertinoCheckBoxAdaptation, MaterialCheckBoxAdaptation>(){
 
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoCheckBoxAdaptation {

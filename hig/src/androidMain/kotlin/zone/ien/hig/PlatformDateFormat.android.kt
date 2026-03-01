@@ -106,7 +106,7 @@ internal actual object PlatformDateFormat {
 }
 
 @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O, lambda = 2)
-private fun <T> apiCheck(old : () -> T, new : () -> T) : T {
+private fun <T> apiCheck(old: () -> T, new: () -> T): T {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         new() else old()
 }

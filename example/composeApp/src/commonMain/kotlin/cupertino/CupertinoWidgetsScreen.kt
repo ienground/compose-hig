@@ -39,14 +39,12 @@
 package cupertino
 
 import GeneratedAdaptiveTheme
-import IsIos
 import RootDetails
 import RootRoute
 import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
@@ -70,7 +68,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -85,7 +82,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
@@ -125,9 +121,8 @@ import zone.ien.hig.CupertinoLiquidAlertDialog
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
-import zone.ien.hig.CupertinoSlider
-import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarItem
+import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
 import zone.ien.hig.CupertinoRangeSlider
@@ -135,6 +130,7 @@ import zone.ien.hig.CupertinoSearchTextField
 import zone.ien.hig.CupertinoSearchTextFieldDefaults
 import zone.ien.hig.CupertinoSegmentedControl
 import zone.ien.hig.CupertinoSegmentedControlTab
+import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoSwipeBox
 import zone.ien.hig.CupertinoSwitch
 import zone.ien.hig.CupertinoText
@@ -149,10 +145,14 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
 import zone.ien.hig.MenuSection
 import zone.ien.hig.PresentationStyle
+import zone.ien.hig.adaptive.AdaptiveNavigationBar
+import zone.ien.hig.adaptive.AdaptiveNavigationBarItem
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.adaptive.icons.Add
+import zone.ien.hig.adaptive.icons.Menu
+import zone.ien.hig.adaptive.icons.Person
 import zone.ien.hig.adaptive.icons.Settings
 import zone.ien.hig.adaptive.icons.Share
 import zone.ien.hig.cancel
@@ -178,8 +178,6 @@ import zone.ien.hig.icons.outlined.SquareAndArrowUp
 import zone.ien.hig.icons.outlined.SquareSplit1x2
 import zone.ien.hig.icons.outlined.SunMax
 import zone.ien.hig.icons.outlined.Trash
-import zone.ien.hig.isNavigationBarTransparent
-import zone.ien.hig.isTopBarTransparent
 import zone.ien.hig.rememberCupertinoBottomSheetScaffoldState
 import zone.ien.hig.rememberCupertinoDatePickerState
 import zone.ien.hig.rememberCupertinoDateTimePickerState
@@ -275,7 +273,7 @@ fun CupertinoWidgetsScreen(
         },
         bottomBar = {
             BottomBarSample(
-                scrollState = scrollState
+                backdrop = backdrop
             )
         },
     ) { pv ->
@@ -483,7 +481,7 @@ private fun PickersSection(
                             )]
                         }"
 
-                    PickerTab.Time -> "${timePickerState.hour} : ${timePickerState.minute}"
+                    PickerTab.Time -> "${timePickerState.hour}: ${timePickerState.minute}"
                     PickerTab.Date -> remember {
                         derivedStateOf {
                             Instant
@@ -867,46 +865,41 @@ private fun TopBarSample(
     )
 }
 
+@OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 private fun BottomBarSample(
-    scrollState: ScrollState
+    backdrop: LayerBackdrop
 ) {
-    var tab by remember {
-        mutableStateOf(0)
-    }
+    var tab by remember { mutableStateOf(0) }
+    val content = listOf(
+        "Profile" to AdaptiveIcons.Outlined.Person,
+        "Menu" to AdaptiveIcons.Outlined.Menu,
+        "Settings" to AdaptiveIcons.Outlined.Settings,
+    )
 
-    val isTransparent = scrollState.isNavigationBarTransparent
-
-    CupertinoNavigationBar(
-        isTranslucent = isTransparent,
-        isTransparent = isTransparent,
+    AdaptiveNavigationBar(
+        selectedTabIndex = { tab },
+        onTabSelected = { tab = it },
+        tabsCount = 3,
+        adaptation = {
+            cupertino { this.backdrop = backdrop }
+        },
     ) {
-        CupertinoNavigationBarItem(
-            selected = tab == 0,
-            onClick = { tab = 0 },
-            icon = {
-                CupertinoIcon(
-                    imageVector = CupertinoIcons.Filled.Person,
-                    contentDescription = null
-                )
-            },
-            label = {
-                CupertinoText("Profile")
-            }
-        )
-        CupertinoNavigationBarItem(
-            selected = tab == 1,
-            onClick = { tab = 1 },
-            icon = {
-                CupertinoIcon(
-                    imageVector = CupertinoIcons.Filled.Gearshape,
-                    contentDescription = null
-                )
-            },
-            label = {
-                CupertinoText("Settings")
-            }
-        )
+        content.forEachIndexed { index, pair ->
+            AdaptiveNavigationBarItem(
+                index = index,
+                onClick = { tab = index },
+                icon = {
+                    CupertinoIcon(
+                        imageVector = pair.second,
+                        contentDescription = pair.first,
+                    )
+                },
+                label = {
+                    Text(pair.first)
+                },
+            )
+        }
     }
 }
 

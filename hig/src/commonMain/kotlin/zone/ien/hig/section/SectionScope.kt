@@ -86,7 +86,7 @@ import zone.ien.hig.defaultLocale
 interface SectionScope
 
 @Stable
-internal object SectionScopeImpl : SectionScope
+internal object SectionScopeImpl: SectionScope
 
 @Composable
 @ExperimentalCupertinoApi

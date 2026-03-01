@@ -210,7 +210,7 @@ class MaterialSliderAdaptation internal constructor(
 @Stable
 private class SliderAdaptation(
     private val steps: Int,
-) : Adaptation<CupertinoSliderAdaptation, MaterialSliderAdaptation>() {
+): Adaptation<CupertinoSliderAdaptation, MaterialSliderAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoSliderAdaptation {
         val colors = CupertinoLiquidSliderDefaults.colors()

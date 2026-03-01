@@ -22,13 +22,16 @@ package adaptive
 
 import RootDetails
 import RootUiState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -46,12 +49,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.CupertinoIcon
+import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoNavigateBackButton
+import zone.ien.hig.CupertinoNavigationBar
+import zone.ien.hig.CupertinoNavigationBarItem
 import zone.ien.hig.CupertinoSwitch
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.ExperimentalCupertinoApi
@@ -85,6 +94,9 @@ import zone.ien.hig.adaptive.icons.Share
 import zone.ien.hig.adaptive.icons.ThumbUp
 import zone.ien.hig.cancel
 import zone.ien.hig.default
+import zone.ien.hig.icons.CupertinoIcons
+import zone.ien.hig.icons.filled.Person
+import zone.ien.hig.icons.outlined.ChevronBackward
 import zone.ien.hig.rememberCupertinoDatePickerState
 
 @OptIn(
@@ -98,16 +110,23 @@ fun AdaptiveWidgetsScreen(
     onItemValueChanged: (RootDetails) -> Unit,
     navigateBack: () -> Unit,
 ) {
+    val backdrop = rememberLayerBackdrop()
+
     AdaptiveScaffold(
         topBar = {
             AdaptiveTopAppBar(
                 navigationIcon = {
                     AdaptiveWidget(
                         cupertino = {
-                            CupertinoNavigateBackButton(
+                            CupertinoLiquidIconButton(
                                 onClick = navigateBack,
+                                backdrop = backdrop,
+                                modifier = Modifier.padding(start = 16.dp)
                             ) {
-                                CupertinoText("Back")
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.ChevronBackward,
+                                    contentDescription = null
+                                )
                             }
                         },
                         material = {
@@ -138,29 +157,33 @@ fun AdaptiveWidgetsScreen(
                         onCheckedChange = { onItemValueChanged(uiState.item.copy(isMaterial = it)) },
                     )
                 },
+                adaptation = {
+                    cupertino { this.backdrop = backdrop }
+                }
             )
         },
         bottomBar = {
-            AdaptiveNavigationBar {
-                var selected by rememberSaveable {
-                    mutableStateOf(0)
+            var selected by rememberSaveable { mutableStateOf(0) }
+            val content = listOf(
+                "Profile" to AdaptiveIcons.Outlined.Person,
+                "Menu" to AdaptiveIcons.Outlined.Menu,
+                "Settings" to AdaptiveIcons.Outlined.Settings,
+            )
+
+            AdaptiveNavigationBar(
+                selectedTabIndex = { selected },
+                onTabSelected = { selected = it },
+                tabsCount = content.size,
+                adaptation = {
+                    cupertino { this.backdrop = backdrop }
                 }
-
-                val content =
-                    listOf(
-                        "Profile" to AdaptiveIcons.Outlined.Person,
-                        "Menu" to AdaptiveIcons.Outlined.Menu,
-                        "Settings" to AdaptiveIcons.Outlined.Settings,
-                    )
-
+            ) {
                 content.forEachIndexed { index, pair ->
                     AdaptiveNavigationBarItem(
-                        selected = selected == index,
-                        onClick = {
-                            selected = index
-                        },
+                        index = index,
+                        onClick = { selected = index },
                         icon = {
-                            Icon(
+                            CupertinoIcon(
                                 imageVector = pair.second,
                                 contentDescription = pair.first,
                             )
@@ -174,7 +197,6 @@ fun AdaptiveWidgetsScreen(
         },
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
             contentPadding =
                 PaddingValues(
                     start = 12.dp,
@@ -183,6 +205,9 @@ fun AdaptiveWidgetsScreen(
                     bottom = it.calculateBottomPadding(),
                 ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .layerBackdrop(backdrop)
+                .fillMaxSize()
         ) {
             item {
                 FlowRow(
@@ -330,6 +355,15 @@ fun AdaptiveWidgetsScreen(
                     },
                 )
             }
+
+//            item {
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(1000.dp)
+//                        .background(Color.Blue)
+//                )
+//            }
         }
     }
 }

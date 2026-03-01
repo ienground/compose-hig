@@ -146,7 +146,7 @@ private class DatePicker(
     mode: UIDatePickerMode,
     style: DatePickerStyle,
     private val onChange: (Long) -> Unit,
-) : UIDatePicker(CGRectMake(0.0, 0.0, 0.0, 0.0)) {
+): UIDatePicker(CGRectMake(0.0, 0.0, 0.0, 0.0)) {
     init {
         timeZone = NSTimeZone.timeZoneWithName("UTC")
         locale = NSLocale.currentLocale

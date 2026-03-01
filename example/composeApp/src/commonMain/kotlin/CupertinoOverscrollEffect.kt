@@ -88,7 +88,7 @@ class CupertinoOverscrollEffect(
     private val density: Float,
     layoutDirection: LayoutDirection,
     val applyClip: Boolean,
-) : OverscrollEffect {
+): OverscrollEffect {
     /*
      * Direction of scrolling for this overscroll effect, derived from arguments during
      * [applyToScroll] calls. Technically this effect supports both dimensions, but current API requires

@@ -177,9 +177,7 @@ fun CupertinoSearchTextField(
     placeholder: @Composable () -> Unit = {
         CupertinoText("Search")
     },
-    cancelButton:
-        @Composable()
-        (() -> Unit)? = {
+    cancelButton: @Composable (() -> Unit)? = {
         CupertinoSearchTextFieldDefaults.cancelButton(
             onValueChange = onValueChange,
             interactionSource = interactionSource,
@@ -562,7 +560,7 @@ private class CupertinoSearchTextFieldNestedScroll(
     private val state: CupertinoSearchTextFieldState,
     private val blockScrollWhenSearchIsFocusedAndEmpty: Boolean,
     private val scrollableState: ScrollableState?,
-) : NestedScrollConnection {
+): NestedScrollConnection {
     override fun onPreScroll(
         available: Offset,
         source: NestedScrollSource,

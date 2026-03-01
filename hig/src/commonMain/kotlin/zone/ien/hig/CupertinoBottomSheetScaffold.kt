@@ -453,12 +453,8 @@ private fun StandardBottomSheet(
 private fun BottomSheetScaffoldLayout(
     modifier: Modifier,
     sheetState: CupertinoSheetState,
-    topBar:
-        @Composable()
-        (() -> Unit)?,
-    bottomBar:
-        @Composable()
-        (() -> Unit)?,
+    topBar: @Composable (() -> Unit)?,
+    bottomBar: @Composable (() -> Unit)?,
     body: @Composable (innerPadding: PaddingValues) -> Unit,
     bottomSheet: @Composable (layoutHeight: Int) -> Unit,
     sheetOffset: () -> Float,

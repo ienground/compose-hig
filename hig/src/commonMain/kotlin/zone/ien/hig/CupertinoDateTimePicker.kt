@@ -126,7 +126,7 @@ sealed interface DatePickerStyle {
         val rowSpacing: Dp = 0.dp,
         val rowMaxHeight: Dp = CupertinoButtonTokens.IconButtonSize - 8.dp,
         val userScrollEnabled: Boolean = true,
-    ) : DatePickerStyle {
+    ): DatePickerStyle {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
@@ -163,7 +163,7 @@ sealed interface DatePickerStyle {
     class Wheel(
         val height: Dp = CupertinoPickerDefaults.Height,
         val indicator: CupertinoPickerIndicator? = null,
-    ) : DatePickerStyle {
+    ): DatePickerStyle {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
@@ -332,9 +332,9 @@ private fun CupertinoDateTimePickerWheel(
 // @Composable
 // fun CupertinoDateTimePickerWheel12(
 //    state: CupertinoDateTimePickerState,
-//    height : Dp = CupertinoPickerDefaults.Height,
+//    height: Dp = CupertinoPickerDefaults.Height,
 //    indicator: CupertinoPickerIndicator = CupertinoPickerDefaults.indicator(),
-//    containerColor : Color = CupertinoTheme.colorScheme.secondarySystemGroupedBackground,
+//    containerColor: Color = CupertinoTheme.colorScheme.secondarySystemGroupedBackground,
 //    modifier: Modifier = Modifier
 // ) {
 //    Row(
@@ -682,7 +682,7 @@ class CupertinoDateTimePickerState private constructor(
         initialHour: Int,
         initialMinute: Int,
         is24Hour: Boolean,
-    ) : this(
+    ): this(
         DateTimePickerStateData(
             initialSelectedStartDateMillis = initialSelectedDateMillis,
             initialSelectedEndDateMillis = null,

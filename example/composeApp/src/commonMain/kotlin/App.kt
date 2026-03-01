@@ -59,11 +59,11 @@ fun App() {
                 lightAccent else darkAccent,
             useDarkTheme = isDark
         ) {
-            TestScreen()
-//            RootNavigationGraph(
-//                backStack = backStack,
-//                viewModel = viewModel
-//            )
+//            TestScreen()
+            RootNavigationGraph(
+                backStack = backStack,
+                viewModel = viewModel
+            )
         }
     }
 }

@@ -60,7 +60,7 @@ fun AdaptiveButton(
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     adaptation: AdaptationScope<CupertinoButtonAdaptation, MaterialButtonAdaptation>.() -> Unit = {},
-    content: @Composable() (RowScope.() -> Unit)
+    content: @Composable (RowScope.() -> Unit)
 ) {
     AdaptiveWidget(
         adaptation = remember {
@@ -111,7 +111,7 @@ fun AdaptiveTextButton(
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     adaptation: AdaptationScope<CupertinoButtonAdaptation, MaterialButtonAdaptation>.() -> Unit = {},
-    content: @Composable() (RowScope.() -> Unit)
+    content: @Composable (RowScope.() -> Unit)
 ) {
     AdaptiveWidget(
         adaptation = remember {
@@ -162,7 +162,7 @@ fun AdaptiveTonalButton(
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     adaptation: AdaptationScope<CupertinoButtonAdaptation, MaterialButtonAdaptation>.() -> Unit = {},
-    content: @Composable() (RowScope.() -> Unit)
+    content: @Composable (RowScope.() -> Unit)
 ) {
     AdaptiveWidget(
         adaptation = remember {
@@ -203,9 +203,9 @@ fun AdaptiveTonalButton(
 
 @Stable
 class CupertinoButtonAdaptation internal constructor(
-    colors : CupertinoButtonColors,
+    colors: CupertinoButtonColors,
 ) {
-    var colors : CupertinoButtonColors by mutableStateOf(colors)
+    var colors: CupertinoButtonColors by mutableStateOf(colors)
     var size: CupertinoButtonSize by mutableStateOf(CupertinoButtonSize.Regular)
     var shape: Shape? by mutableStateOf(null)
     var contentPadding: PaddingValues? by mutableStateOf(null)
@@ -213,7 +213,7 @@ class CupertinoButtonAdaptation internal constructor(
 
 @Stable
 class MaterialButtonAdaptation internal constructor(
-    colors : ButtonColors,
+    colors: ButtonColors,
     elevation: ButtonElevation?,
     shape: Shape,
     contentPadding: PaddingValues
@@ -231,7 +231,7 @@ private enum class ButtonType {
 @ExperimentalAdaptiveApi
 private class ButtonAdaptation(
     private val type: ButtonType
-) : Adaptation<CupertinoButtonAdaptation, MaterialButtonAdaptation>() {
+): Adaptation<CupertinoButtonAdaptation, MaterialButtonAdaptation>() {
 
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoButtonAdaptation {

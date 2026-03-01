@@ -180,9 +180,9 @@ internal class SwipeableV2State<T>(
     private val swipeMutex = InternalMutatorMutex()
 
     internal val swipeDraggableState =
-        object : DraggableState {
+        object: DraggableState {
             private val dragScope =
-                object : DragScope {
+                object: DragScope {
                     override fun dragBy(pixels: Float) {
                         this@SwipeableV2State.dispatchRawDelta(pixels)
                     }
@@ -510,7 +510,7 @@ internal class SwipeableV2State<T>(
          * The default [Saver] implementation for [SwipeableV2State].
          */
 
-        fun <T : Any> Saver(
+        fun <T: Any> Saver(
             animationSpec: AnimationSpec<Float>,
             confirmValueChange: (T) -> Boolean,
             positionalThreshold: Density.(distance: Float) -> Float,
@@ -538,7 +538,7 @@ internal class SwipeableV2State<T>(
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending value change.
  */
 @Composable
-internal fun <T : Any> rememberSwipeableV2State(
+internal fun <T: Any> rememberSwipeableV2State(
     initialValue: T,
     animationSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
     confirmValueChange: (newValue: T) -> Boolean = { true },
@@ -672,7 +672,7 @@ private class SwipeAnchorsModifier(
     private val onDensityChanged: (density: Density) -> Unit,
     private val onSizeChanged: (layoutSize: IntSize) -> Unit,
     inspectorInfo: InspectorInfo.() -> Unit,
-) : InspectorValueInfo(inspectorInfo),
+): InspectorValueInfo(inspectorInfo),
     LayoutModifier,
     OnRemeasuredModifier {
     private var lastDensity: Float = -1f

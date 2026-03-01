@@ -51,15 +51,15 @@ internal val LocalSeparatorColor = compositionLocalOf {
     message = "Use CupertinoHorizontalDivider instead")
 fun CupertinoDivider(
     modifier: Modifier = Modifier,
-    thickness : Dp = CupertinoDividerDefaults.Thickness,
-    color : Color = CupertinoDividerDefaults.color
+    thickness: Dp = CupertinoDividerDefaults.Thickness,
+    color: Color = CupertinoDividerDefaults.color
 ) = CupertinoHorizontalDivider(modifier, thickness, color)
 
 @Composable
 fun CupertinoHorizontalDivider(
     modifier: Modifier = Modifier,
-    thickness : Dp = CupertinoDividerDefaults.Thickness,
-    color : Color = CupertinoDividerDefaults.color
+    thickness: Dp = CupertinoDividerDefaults.Thickness,
+    color: Color = CupertinoDividerDefaults.color
 ) {
 
     val targetThickness = if (thickness == Dp.Hairline) {
@@ -78,8 +78,8 @@ fun CupertinoHorizontalDivider(
 @Composable
 fun CupertinoVerticalDivider(
     modifier: Modifier = Modifier,
-    thickness : Dp = CupertinoDividerDefaults.Thickness,
-    color : Color = CupertinoDividerDefaults.color
+    thickness: Dp = CupertinoDividerDefaults.Thickness,
+    color: Color = CupertinoDividerDefaults.color
 ) {
     val targetThickness = if (thickness == Dp.Hairline) {
         (1f / LocalDensity.current.density).dp
@@ -98,7 +98,7 @@ fun CupertinoVerticalDivider(
 @Stable
 object CupertinoDividerDefaults {
     val Thickness = Dp.Hairline
-    val color : Color
+    val color: Color
         @Composable
         @ReadOnlyComposable
         get() = LocalSeparatorColor.current.takeOrElse {

@@ -55,7 +55,7 @@ sealed interface AdaptationScope<C, M> {
 
 @Stable
 @ExperimentalAdaptiveApi
-abstract class Adaptation<C, M> : AdaptationScope<C, M> {
+abstract class Adaptation<C, M>: AdaptationScope<C, M> {
     private var cupertino: @Composable C.() -> Unit by mutableStateOf({})
 
     private var material: @Composable M.() -> Unit by mutableStateOf({})

@@ -35,6 +35,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.CupertinoTopAppBarColors
 import zone.ien.hig.CupertinoTopAppBarDefaults
@@ -65,8 +67,7 @@ fun AdaptiveTopAppBar(
                 actions = actions,
                 windowInsets = windowInsets,
                 colors = it.colors,
-//                isTransparent = it.isTransparent,
-//                isTranslucent = it.isTranslucent,
+                backdrop = it.backdrop
             )
         },
         material = {
@@ -134,24 +135,24 @@ class MaterialTopAppBarAdaptation internal constructor(
 @Stable
 class CupertinoTopAppBarAdaptation internal constructor(
     colors: CupertinoTopAppBarColors,
-    isTransparent: Boolean = false,
-    isTranslucent: Boolean = true,
+    backdrop: LayerBackdrop
 ) {
     var colors: CupertinoTopAppBarColors by mutableStateOf(colors)
-    var isTransparent: Boolean by mutableStateOf(isTransparent)
-    var isTranslucent: Boolean by mutableStateOf(isTranslucent)
+    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-private class TopAppBarAdaptation : Adaptation<CupertinoTopAppBarAdaptation, MaterialTopAppBarAdaptation>() {
+private class TopAppBarAdaptation: Adaptation<CupertinoTopAppBarAdaptation, MaterialTopAppBarAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoTopAppBarAdaptation {
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
+        val backdrop = rememberLayerBackdrop()
 
-        return remember(colors) {
+        return remember(colors, backdrop) {
             CupertinoTopAppBarAdaptation(
                 colors = colors,
+                backdrop = backdrop
             )
         }
     }
