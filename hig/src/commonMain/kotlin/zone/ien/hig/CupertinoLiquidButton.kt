@@ -1,5 +1,6 @@
 package zone.ien.hig
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.Animatable as ColorAnimatable
 import androidx.compose.animation.core.Animatable as FloatAnimatable
 import androidx.compose.animation.core.tween
@@ -106,10 +107,11 @@ fun CupertinoLiquidButton(
     val isLightTheme = !isSystemInDarkTheme()
     val graphicsLayer = rememberGraphicsLayer()
 
-    val luminanceAnimation = remember { FloatAnimatable(if (isLightTheme) 1f else 0f) }
-    val tintColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightTintColor else darkTintColor) }
-    val surfaceColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightSurfaceColor else darkSurfaceColor) }
-    val contentColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightContentColor else darkContentColor) }
+    val luminanceAnimation = remember(enabled) { FloatAnimatable(if (isLightTheme) 1f else 0f) }
+
+    val tintColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightTintColor else darkTintColor) }
+    val surfaceColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightSurfaceColor else darkSurfaceColor) }
+    val contentColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightContentColor else darkContentColor) }
 
     if (isBackgroundAdaptive) {
         val defaultColor = CupertinoTheme.colorScheme.systemBackground
