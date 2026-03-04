@@ -382,10 +382,10 @@ object CupertinoLiquidButtonDefaults {
     fun glassProminentButtonColors(
         lightTintColor: Color = lightColorScheme().accent,
         lightSurfaceColor: Color = Color.Unspecified,
-        lightContentColor: Color = Color.White,
+        lightContentColor: Color = Color.White.copy(0.8f),
         darkTintColor: Color = darkColorScheme().accent,
         darkSurfaceColor: Color = Color.Unspecified,
-        darkContentColor: Color = Color.Black,
+        darkContentColor: Color = Color.White.copy(0.8f),
         disabledLightTintColor: Color = Color.Unspecified,
         disabledLightSurfaceColor: Color = lightColorScheme().systemFill,
         disabledLightContentColor: Color = lightColorScheme().tertiaryLabel,
