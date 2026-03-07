@@ -98,11 +98,7 @@ fun CupertinoLiquidButton(
     val darkSurfaceColor by colors.surfaceColor(enabled, isDark = true)
     val darkContentColor by colors.contentColor(enabled, isDark = true)
 
-    val interactiveHighlight = remember(animationScope) {
-        InteractiveHighlight(
-            animationScope = animationScope
-        )
-    }
+    val interactiveHighlight = remember(animationScope) { InteractiveHighlight(animationScope = animationScope) }
 
     val isLightTheme = !isSystemInDarkTheme()
     val graphicsLayer = rememberGraphicsLayer()

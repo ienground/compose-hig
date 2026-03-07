@@ -407,7 +407,14 @@ private fun Body(
                     SheetsExamples()
                 }
                 SectionItem {
-                    DropdownExample()
+                    DropdownExample(
+                        backdrop = backdrop
+                    )
+                }
+                SectionItem {
+                    DropdownExample2(
+                        backdrop = backdrop
+                    )
                 }
             }
 
@@ -1741,16 +1748,12 @@ private fun SheetsExamples() {
 
 
 @Composable
-private fun DropdownExample() {
+private fun DropdownExample(
+    backdrop: Backdrop
+) {
+    var dropdownVisible by remember { mutableStateOf(false) }
+    var pickerSheetVisible by remember { mutableStateOf(false) }
 
-
-    var dropdownVisible by remember {
-        mutableStateOf(false)
-    }
-
-    var pickerSheetVisible by remember {
-        mutableStateOf(false)
-    }
     CupertinoActionSheet(
         visible = pickerSheetVisible,
         onDismissRequest = {
@@ -1786,7 +1789,6 @@ private fun DropdownExample() {
         }
     )
 
-
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -1804,21 +1806,95 @@ private fun DropdownExample() {
         //Menu bar should be in the box with anchor to align correctly
         Box {
             CupertinoButton(
-                onClick = {
-                    dropdownVisible = !dropdownVisible
-                }
+                onClick = { dropdownVisible = !dropdownVisible }
             ) {
                 CupertinoText("Menu")
             }
-
 
             val red = CupertinoColors.systemRed
 
             CupertinoDropdownMenu(
                 expanded = dropdownVisible,
-                onDismissRequest = {
-                    dropdownVisible = false
+                onDismissRequest = { dropdownVisible = false },
+                backdrop = backdrop
+            ) {
+                MenuSection(
+                    title = {
+                        Text("Menu")
+                    }
+                ) {
+                    MenuAction(
+                        onClick = {
+                            dropdownVisible = false
+                        },
+                        icon = {
+                            CupertinoIcon(
+                                imageVector = CupertinoIcons.Default.SquareAndArrowUp,
+                                contentDescription = null
+                            )
+                        }
+                    ) {
+                        CupertinoText("Share")
+                    }
+                    MenuAction(
+                        enabled = false,
+                        onClick = {
+                            dropdownVisible = false
+                        },
+                        icon = {
+                            CupertinoIcon(
+                                imageVector = CupertinoIcons.Default.Bookmark,
+                                contentDescription = null
+                            )
+                        }
+                    ) {
+                        CupertinoText("Add to Favorites")
+                    }
                 }
+
+                MenuAction(
+                    onClick = {
+                        dropdownVisible = false
+
+                    },
+                    contentColor = red,
+                    icon = {
+                        CupertinoIcon(
+                            imageVector = CupertinoIcons.Default.Trash,
+                            contentDescription = null
+                        )
+                    }
+                ) {
+                    CupertinoText("Delete")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DropdownExample2(
+    backdrop: Backdrop
+) {
+    var dropdownVisible by remember { mutableStateOf(false) }
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        //Menu bar should be in the box with anchor to align correctly
+        Box {
+            CupertinoButton(
+                onClick = { dropdownVisible = !dropdownVisible }
+            ) {
+                CupertinoText("Menu")
+            }
+
+            val red = CupertinoColors.systemRed
+
+            CupertinoDropdownMenu(
+                expanded = dropdownVisible,
+                onDismissRequest = { dropdownVisible = false },
+                backdrop = backdrop
             ) {
                 MenuSection(
                     title = {
