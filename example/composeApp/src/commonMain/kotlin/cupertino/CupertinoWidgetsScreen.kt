@@ -228,6 +228,7 @@ fun CupertinoWidgetsScreen(
     val sheetListState = rememberLazyListState()
 
     val backdrop = rememberLayerBackdrop()
+    val globalBackdrop = rememberLayerBackdrop()
 
     val scaffoldState = rememberCupertinoBottomSheetScaffoldState(
         rememberCupertinoSheetState(
@@ -339,6 +340,7 @@ private fun Body(
                 paddingValues = CupertinoSearchTextFieldDefaults.PaddingValues +
                         PaddingValues(bottom = 12.dp)
             )
+//            /*
 
             CupertinoSection {
                 SectionItem(
@@ -385,6 +387,8 @@ private fun Body(
                 ButtonsExample()
                 SwitchAndProgressBar()
             }
+
+//             */
 
             CupertinoSection(
                 title = {
@@ -1753,6 +1757,7 @@ private fun DropdownExample(
 ) {
     var dropdownVisible by remember { mutableStateOf(false) }
     var pickerSheetVisible by remember { mutableStateOf(false) }
+    val layerBackdrop = rememberLayerBackdrop()
 
     CupertinoActionSheet(
         visible = pickerSheetVisible,
@@ -1793,8 +1798,9 @@ private fun DropdownExample(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        CupertinoButton(
-            colors = CupertinoButtonDefaults.tintedButtonColors(),
+        CupertinoLiquidButton(
+            colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+            backdrop = layerBackdrop,
             onClick = {
                 pickerSheetVisible = true
             }
@@ -1805,7 +1811,9 @@ private fun DropdownExample(
         Spacer(Modifier.weight(1f))
         //Menu bar should be in the box with anchor to align correctly
         Box {
-            CupertinoButton(
+            CupertinoLiquidButton(
+                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                backdrop = layerBackdrop,
                 onClick = { dropdownVisible = !dropdownVisible }
             ) {
                 CupertinoText("Menu")
@@ -1877,13 +1885,16 @@ private fun DropdownExample2(
     backdrop: Backdrop
 ) {
     var dropdownVisible by remember { mutableStateOf(false) }
+    val layerBackdrop = rememberLayerBackdrop()
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         //Menu bar should be in the box with anchor to align correctly
         Box {
-            CupertinoButton(
+            CupertinoLiquidButton(
+                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                backdrop = layerBackdrop,
                 onClick = { dropdownVisible = !dropdownVisible }
             ) {
                 CupertinoText("Menu")
