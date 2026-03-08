@@ -30,6 +30,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -57,6 +58,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -93,6 +95,8 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
+import com.kyant.shapes.Capsule
+import com.kyant.shapes.RoundedRectangle
 import com.kyant.shapes.RoundedRectangularShape
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.Checkmark
@@ -102,6 +106,7 @@ import zone.ien.hig.section.SectionStyle
 import zone.ien.hig.theme.BrightSeparatorColor
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.theme.systemGray5
 import zone.ien.hig.theme.systemGray7
 import zone.ien.hig.theme.systemRed
 import zone.ien.hig.utils.InteractiveHighlight
@@ -214,7 +219,7 @@ fun CupertinoMenuScope.MenuItem(
         contentAlignment = Alignment.CenterStart,
     ) {
         content(
-            CupertinoSectionDefaults.PaddingValues.let {
+            MenuPaddingValues.let {
                 if (!hasPicker) {
                     it
                 } else {
@@ -404,6 +409,7 @@ fun CupertinoMenuScope.MenuDivider(
     )
 }
 
+@OptIn(ExperimentalCupertinoApi::class)
 @Composable
 private fun CupertinoMenuScope.ActionWithoutPadding(
     onClick: () -> Unit,
@@ -420,10 +426,12 @@ private fun CupertinoMenuScope.ActionWithoutPadding(
     ProvideTextStyle(CupertinoTheme.typography.callout) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(SplitPadding),
             modifier = modifier
                 .heightIn(min = CupertinoSectionTokens.MinHeight)
                 .fillMaxWidth()
+                .padding(8.dp)
+                .clip(RoundedRectangle(24.dp))
                 .clickable(
                     enabled = enabled,
                     onClick = onClick,
@@ -441,7 +449,7 @@ private fun CupertinoMenuScope.ActionWithoutPadding(
 
                     Box(
                         contentAlignment = Alignment.Center,
-                        modifier = Modifier.size(MinItemHeight / 2),
+                        modifier = Modifier.size(MinItemHeight / 3),
                     ) {
                         icon.invoke()
                     }
@@ -482,7 +490,7 @@ object CupertinoDropdownMenuDefaults {
     val DividerColor: Color
         @Composable
         @ReadOnlyComposable
-        get() = CupertinoColors.systemGray7
+        get() = CupertinoColors.systemGray5
 
     @Composable
     fun PickerLeadingIcon() {
@@ -610,7 +618,7 @@ private fun DropdownMenuContent(
                                     )
                             },
                             onDrawSurface = {
-                                drawRect(containerColor.copy(alpha = 0.85f))
+                                drawRect(containerColor.copy(alpha = 0.95f))
                             },
                             onDrawBackdrop = { drawBackdrop ->
                                 this.center
@@ -793,6 +801,8 @@ private val MenuVerticalMargin = 24.dp
 private val MinItemHeight = 48.dp
 private val DividerHeight = 1.dp
 private val MinTitleHeight = 32.dp
+private val SplitPadding = 16.dp
+private val MenuPaddingValues = PaddingValues(16.dp, 8.dp)
 
 private val MenuEnterTransition =
     spring<Float>(
