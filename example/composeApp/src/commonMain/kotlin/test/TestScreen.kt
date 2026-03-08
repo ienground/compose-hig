@@ -195,7 +195,7 @@ fun TestScreen(
                 CupertinoDropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
-                    backdrop = backdrop
+                    backdrop = rememberLayerBackdrop()
                 ) {
                     MenuSection(
 //                        title = {

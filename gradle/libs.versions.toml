@@ -1,10 +1,10 @@
 [versions]
 agp = "9.0.0"
 kotlin = "2.3.10"
-lib-version-name = "0.1.1-alpha03"
+lib-version-name = "0.1.1-alpha04"
 
 # plugin
-compose-plugin = "1.10.1"
+compose-plugin = "1.10.2"
 compose-plugin-experimental = "1.10.0-alpha05"
 compose-navigation3 = "1.0.0-alpha06"
 

@@ -30,7 +30,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -95,7 +94,6 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
-import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedRectangle
 import com.kyant.shapes.RoundedRectangularShape
 import zone.ien.hig.icons.CupertinoIcons
@@ -107,7 +105,6 @@ import zone.ien.hig.theme.BrightSeparatorColor
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.systemGray5
-import zone.ien.hig.theme.systemGray7
 import zone.ien.hig.theme.systemRed
 import zone.ien.hig.utils.InteractiveHighlight
 import kotlin.math.abs
@@ -139,7 +136,6 @@ fun CupertinoDropdownMenu(
     paddingValues: PaddingValues = CupertinoDropdownMenuDefaults.PaddingValues,
     containerColor: Color = CupertinoDropdownMenuDefaults.ContainerColor,
     width: Dp = CupertinoDropdownMenuDefaults.DefaultWidth,
-    elevation: Dp = CupertinoDropdownMenuDefaults.Elevation,
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(focusable = true, clippingEnabled = false),
     backdrop: Backdrop,
