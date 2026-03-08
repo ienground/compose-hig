@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Accessibility
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -40,6 +41,7 @@ import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoLargeFloatingActionButton
 import zone.ien.hig.CupertinoLiquidButton
@@ -52,6 +54,9 @@ import zone.ien.hig.CupertinoSmallFloatingActionButton
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.MenuAction
+import zone.ien.hig.MenuDivider
+import zone.ien.hig.MenuSection
 import zone.ien.hig.adaptive.AdaptiveSwitch
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
@@ -59,8 +64,13 @@ import zone.ien.hig.composeapp.generated.resources.Res
 import zone.ien.hig.composeapp.generated.resources.img_calib_test2
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.Airplayaudio
+import zone.ien.hig.icons.outlined.Bookmark
+import zone.ien.hig.icons.outlined.CheckmarkCircle
 import zone.ien.hig.icons.outlined.ChevronBackward
 import zone.ien.hig.icons.outlined.MoonStars
+import zone.ien.hig.icons.outlined.PersonCropCircle
+import zone.ien.hig.icons.outlined.Pin
+import zone.ien.hig.icons.outlined.SquareAndArrowUp
 import zone.ien.hig.icons.outlined.SunMax
 
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
@@ -167,6 +177,99 @@ fun TestScreen(
                     enabled = !enabled
                 ) {
                     Text(text = "button")
+                }
+            }
+
+            var expanded by remember { mutableStateOf(false) }
+
+            Box {
+                CupertinoLiquidButton(
+                    onClick = { expanded = true },
+                    backdrop = rememberLayerBackdrop(),
+                    colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                ) {
+                    Text(text = "Open Menu")
+                }
+
+                // drawBackdrop is used inside Popup internally
+                CupertinoDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    backdrop = rememberLayerBackdrop()
+                ) {
+                    MenuSection(
+//                        title = {
+//                            Text("Menu")
+//                        }
+                    ) {
+                        MenuAction(
+                            onClick = { expanded = false },
+                            icon = {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.CheckmarkCircle,
+                                    contentDescription = null
+                                )
+                            }
+                        ) {
+                            CupertinoText("메시지 선택")
+                        }
+                        MenuAction(
+                            onClick = { expanded = false },
+                            icon = {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.Pin,
+                                    contentDescription = null
+                                )
+                            }
+                        ) {
+                            CupertinoText("고정 편집")
+                        }
+                        MenuAction(
+                            onClick = { expanded = false },
+                            icon = {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.PersonCropCircle,
+                                    contentDescription = null
+                                )
+                            }
+                        ) {
+                            CupertinoText("이름 및 사진 설정")
+                        }
+                    }
+//                    MenuDivider()
+//                    MenuSection(
+////                        title = {
+////                            Text("Menu")
+////                        }
+//                    ) {
+//                        MenuAction(
+//                            onClick = {
+//                                expanded = false
+//                            },
+//                            icon = {
+//                                CupertinoIcon(
+//                                    imageVector = CupertinoIcons.Default.SquareAndArrowUp,
+//                                    contentDescription = null
+//                                )
+//                            }
+//                        ) {
+//                            CupertinoText("Share")
+//                        }
+//                        MenuAction(
+//                            enabled = false,
+//                            onClick = {
+//                                expanded = false
+//                            },
+//                            icon = {
+//                                CupertinoIcon(
+//                                    imageVector = CupertinoIcons.Default.Bookmark,
+//                                    contentDescription = null
+//                                )
+//                            }
+//                        ) {
+//                            CupertinoText("Add to Favorites")
+//                        }
+//                    }
                 }
             }
 

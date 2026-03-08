@@ -228,6 +228,7 @@ fun CupertinoWidgetsScreen(
     val sheetListState = rememberLazyListState()
 
     val backdrop = rememberLayerBackdrop()
+    val globalBackdrop = rememberLayerBackdrop()
 
     val scaffoldState = rememberCupertinoBottomSheetScaffoldState(
         rememberCupertinoSheetState(
@@ -339,6 +340,7 @@ private fun Body(
                 paddingValues = CupertinoSearchTextFieldDefaults.PaddingValues +
                         PaddingValues(bottom = 12.dp)
             )
+//            /*
 
             CupertinoSection {
                 SectionItem(
@@ -386,6 +388,8 @@ private fun Body(
                 SwitchAndProgressBar()
             }
 
+//             */
+
             CupertinoSection(
                 title = {
                     CupertinoText(
@@ -407,7 +411,14 @@ private fun Body(
                     SheetsExamples()
                 }
                 SectionItem {
-                    DropdownExample()
+                    DropdownExample(
+                        backdrop = backdrop
+                    )
+                }
+                SectionItem {
+                    DropdownExample2(
+                        backdrop = backdrop
+                    )
                 }
             }
 
@@ -1741,16 +1752,13 @@ private fun SheetsExamples() {
 
 
 @Composable
-private fun DropdownExample() {
+private fun DropdownExample(
+    backdrop: Backdrop
+) {
+    var dropdownVisible by remember { mutableStateOf(false) }
+    var pickerSheetVisible by remember { mutableStateOf(false) }
+    val layerBackdrop = rememberLayerBackdrop()
 
-
-    var dropdownVisible by remember {
-        mutableStateOf(false)
-    }
-
-    var pickerSheetVisible by remember {
-        mutableStateOf(false)
-    }
     CupertinoActionSheet(
         visible = pickerSheetVisible,
         onDismissRequest = {
@@ -1786,13 +1794,13 @@ private fun DropdownExample() {
         }
     )
 
-
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        CupertinoButton(
-            colors = CupertinoButtonDefaults.tintedButtonColors(),
+        CupertinoLiquidButton(
+            colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+            backdrop = layerBackdrop,
             onClick = {
                 pickerSheetVisible = true
             }
@@ -1803,22 +1811,101 @@ private fun DropdownExample() {
         Spacer(Modifier.weight(1f))
         //Menu bar should be in the box with anchor to align correctly
         Box {
-            CupertinoButton(
-                onClick = {
-                    dropdownVisible = !dropdownVisible
-                }
+            CupertinoLiquidButton(
+                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                backdrop = layerBackdrop,
+                onClick = { dropdownVisible = !dropdownVisible }
             ) {
                 CupertinoText("Menu")
             }
-
 
             val red = CupertinoColors.systemRed
 
             CupertinoDropdownMenu(
                 expanded = dropdownVisible,
-                onDismissRequest = {
-                    dropdownVisible = false
+                onDismissRequest = { dropdownVisible = false },
+                backdrop = backdrop
+            ) {
+                MenuSection(
+                    title = {
+                        Text("Menu")
+                    }
+                ) {
+                    MenuAction(
+                        onClick = {
+                            dropdownVisible = false
+                        },
+                        icon = {
+                            CupertinoIcon(
+                                imageVector = CupertinoIcons.Default.SquareAndArrowUp,
+                                contentDescription = null
+                            )
+                        }
+                    ) {
+                        CupertinoText("Share")
+                    }
+                    MenuAction(
+                        enabled = false,
+                        onClick = {
+                            dropdownVisible = false
+                        },
+                        icon = {
+                            CupertinoIcon(
+                                imageVector = CupertinoIcons.Default.Bookmark,
+                                contentDescription = null
+                            )
+                        }
+                    ) {
+                        CupertinoText("Add to Favorites")
+                    }
                 }
+
+                MenuAction(
+                    onClick = {
+                        dropdownVisible = false
+
+                    },
+                    contentColor = red,
+                    icon = {
+                        CupertinoIcon(
+                            imageVector = CupertinoIcons.Default.Trash,
+                            contentDescription = null
+                        )
+                    }
+                ) {
+                    CupertinoText("Delete")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DropdownExample2(
+    backdrop: Backdrop
+) {
+    var dropdownVisible by remember { mutableStateOf(false) }
+    val layerBackdrop = rememberLayerBackdrop()
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        //Menu bar should be in the box with anchor to align correctly
+        Box {
+            CupertinoLiquidButton(
+                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                backdrop = layerBackdrop,
+                onClick = { dropdownVisible = !dropdownVisible }
+            ) {
+                CupertinoText("Menu")
+            }
+
+            val red = CupertinoColors.systemRed
+
+            CupertinoDropdownMenu(
+                expanded = dropdownVisible,
+                onDismissRequest = { dropdownVisible = false },
+                backdrop = backdrop
             ) {
                 MenuSection(
                     title = {
