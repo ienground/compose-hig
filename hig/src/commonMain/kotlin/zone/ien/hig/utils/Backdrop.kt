@@ -7,7 +7,7 @@ import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 
 @Composable
-fun rememberDefaultLayerBackdrop(): LayerBackdrop {
+fun rememberDefaultBackdrop(): LayerBackdrop {
     val isDark = isSystemInDarkTheme()
     val background = if (isDark) Color.Black else Color.White
     return rememberLayerBackdrop {

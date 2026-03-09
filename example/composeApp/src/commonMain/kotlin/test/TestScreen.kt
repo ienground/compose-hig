@@ -1,7 +1,5 @@
 package test
 
-import IsIos
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,16 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Accessibility
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,43 +26,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
-import zone.ien.hig.utils.rememberDefaultLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoIcon
-import zone.ien.hig.CupertinoLargeFloatingActionButton
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
-import zone.ien.hig.CupertinoMediumFloatingActionButton
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoScaffold
-import zone.ien.hig.CupertinoSmallFloatingActionButton
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
-import zone.ien.hig.MenuDivider
 import zone.ien.hig.MenuSection
 import zone.ien.hig.adaptive.AdaptiveSwitch
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
-import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.composeapp.generated.resources.Res
 import zone.ien.hig.composeapp.generated.resources.img_calib_test2
 import zone.ien.hig.icons.CupertinoIcons
-import zone.ien.hig.icons.outlined.Airplayaudio
-import zone.ien.hig.icons.outlined.Bookmark
 import zone.ien.hig.icons.outlined.CheckmarkCircle
 import zone.ien.hig.icons.outlined.ChevronBackward
-import zone.ien.hig.icons.outlined.MoonStars
 import zone.ien.hig.icons.outlined.PersonCropCircle
 import zone.ien.hig.icons.outlined.Pin
-import zone.ien.hig.icons.outlined.SquareAndArrowUp
 import zone.ien.hig.icons.outlined.SunMax
 
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
@@ -78,7 +60,7 @@ import zone.ien.hig.icons.outlined.SunMax
 fun TestScreen(
     modifier: Modifier = Modifier
 ) {
-    val backdrop = rememberDefaultLayerBackdrop()
+    val backdrop = rememberDefaultBackdrop()
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val snackbarState = remember { SnackbarHostState() }
@@ -163,7 +145,7 @@ fun TestScreen(
                 )
                 CupertinoLiquidButton(
                     onClick = { coroutineScope.launch { snackbarState.showSnackbar("clicked") } },
-                    backdrop = rememberDefaultLayerBackdrop(),
+                    backdrop = rememberDefaultBackdrop(),
                     colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
                     enabled = enabled
                 ) {
@@ -171,7 +153,7 @@ fun TestScreen(
                 }
                 CupertinoLiquidButton(
                     onClick = { coroutineScope.launch { snackbarState.showSnackbar("clicked") } },
-                    backdrop = rememberDefaultLayerBackdrop(),
+                    backdrop = rememberDefaultBackdrop(),
                     colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
                     enabled = !enabled
                 ) {
@@ -184,7 +166,7 @@ fun TestScreen(
             Box {
                 CupertinoLiquidButton(
                     onClick = { expanded = true },
-                    backdrop = rememberDefaultLayerBackdrop(),
+                    backdrop = rememberDefaultBackdrop(),
                     colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
                 ) {
                     Text(text = "Open Menu")
@@ -194,7 +176,7 @@ fun TestScreen(
                 CupertinoDropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
-                    backdrop = rememberDefaultLayerBackdrop()
+                    backdrop = rememberDefaultBackdrop()
                 ) {
                     MenuSection(
 //                        title = {

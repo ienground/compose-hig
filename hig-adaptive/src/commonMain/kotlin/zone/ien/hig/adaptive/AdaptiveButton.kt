@@ -39,12 +39,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import com.kyant.backdrop.backdrops.LayerBackdrop
-import zone.ien.hig.utils.rememberDefaultLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoButton
-import zone.ien.hig.CupertinoButtonColors
-import zone.ien.hig.CupertinoButtonDefaults.filledButtonColors
-import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
-import zone.ien.hig.CupertinoButtonDefaults.tintedButtonColors
 import zone.ien.hig.CupertinoButtonSize
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonColors
@@ -251,7 +247,7 @@ private class ButtonAdaptation(
             ButtonType.Text -> CupertinoLiquidButtonDefaults.glassButtonColors()
             ButtonType.Tonal -> CupertinoLiquidButtonDefaults.glassProminentButtonColors()
         }
-        val backdrop = rememberDefaultLayerBackdrop()
+        val backdrop = rememberDefaultBackdrop()
         val isBackgroundAdaptive = true
 
         return remember(colors, backdrop, isBackgroundAdaptive) {

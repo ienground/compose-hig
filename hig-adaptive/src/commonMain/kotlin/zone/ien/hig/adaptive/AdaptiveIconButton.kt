@@ -33,11 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.kyant.backdrop.backdrops.LayerBackdrop
-import zone.ien.hig.utils.rememberDefaultLayerBackdrop
-import zone.ien.hig.CupertinoButtonColors
-import zone.ien.hig.CupertinoButtonDefaults.filledButtonColors
-import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
-import zone.ien.hig.CupertinoIconButton
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoLiquidButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
@@ -155,7 +151,7 @@ private class IconButtonAdaptation(
             CupertinoLiquidButtonDefaults.glassProminentButtonColors()
         else
             CupertinoLiquidButtonDefaults.glassButtonColors()
-        val backdrop = rememberDefaultLayerBackdrop()
+        val backdrop = rememberDefaultBackdrop()
         val isBackgroundAdaptive = true
 
         return remember(colors, backdrop, isBackgroundAdaptive) {

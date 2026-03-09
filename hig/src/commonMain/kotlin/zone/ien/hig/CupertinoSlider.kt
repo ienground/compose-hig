@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,7 +66,7 @@ import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
-import zone.ien.hig.utils.rememberDefaultLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -372,7 +371,7 @@ private fun SliderImpl(
 ) {
     val updatedValue by rememberUpdatedState(value)
     val updatedEnabled by rememberUpdatedState(enabled)
-    val trackBackdrop = rememberDefaultLayerBackdrop()
+    val trackBackdrop = rememberDefaultBackdrop()
     val inactiveTickColor by colors.tickColor(enabled, active = false)
     val activeTickColor by colors.tickColor(enabled, active = true)
 
@@ -587,7 +586,7 @@ private fun RangeSliderImpl(
     val updatedEndValue by rememberUpdatedState(value.endInclusive.absoluteValue)
 
     val updatedEnabled by rememberUpdatedState(enabled)
-    val trackBackdrop = rememberDefaultLayerBackdrop()
+    val trackBackdrop = rememberDefaultBackdrop()
     val inactiveTickColor by colors.tickColor(enabled, active = false)
     val activeTickColor by colors.tickColor(enabled, active = true)
 
@@ -972,7 +971,7 @@ object CupertinoLiquidSliderDefaults {
         enabled: Boolean = true,
         thumbSize: DpSize = LiquidThumbSize,
         dampedDragAnimation: DampedDragAnimation,
-        backdrop: Backdrop = rememberDefaultLayerBackdrop(),
+        backdrop: Backdrop = rememberDefaultBackdrop(),
         trackBackdrop: LayerBackdrop
     ) {
         val thumbColor by colors.thumbColor(enabled)

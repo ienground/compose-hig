@@ -22,16 +22,13 @@ package adaptive
 
 import RootDetails
 import RootUiState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,22 +46,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
-import zone.ien.hig.utils.rememberDefaultLayerBackdrop
-import zone.ien.hig.CupertinoButtonDefaults
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
-import zone.ien.hig.CupertinoNavigateBackButton
-import zone.ien.hig.CupertinoNavigationBar
-import zone.ien.hig.CupertinoNavigationBarItem
-import zone.ien.hig.CupertinoSwitch
-import zone.ien.hig.CupertinoText
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveAlertDialog
 import zone.ien.hig.adaptive.AdaptiveButton
@@ -97,7 +87,6 @@ import zone.ien.hig.adaptive.icons.ThumbUp
 import zone.ien.hig.cancel
 import zone.ien.hig.default
 import zone.ien.hig.icons.CupertinoIcons
-import zone.ien.hig.icons.filled.Person
 import zone.ien.hig.icons.outlined.ChevronBackward
 import zone.ien.hig.rememberCupertinoDatePickerState
 
@@ -112,7 +101,7 @@ fun AdaptiveWidgetsScreen(
     onItemValueChanged: (RootDetails) -> Unit,
     navigateBack: () -> Unit,
 ) {
-    val backdrop = rememberDefaultLayerBackdrop()
+    val backdrop = rememberDefaultBackdrop()
 
     AdaptiveScaffold(
         topBar = {
