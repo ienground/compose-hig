@@ -83,8 +83,6 @@ import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.toStringWithLeadingZero
 import zone.ien.hig.defaultLocale
 
-interface SectionScope
-
 @Stable
 internal object SectionScopeImpl: SectionScope
 
