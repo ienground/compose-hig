@@ -182,7 +182,6 @@ fun CupertinoDropdownMenu(
                 content = { scope.run { content() } },
                 width = width,
                 paddingValue = paddingValues,
-                menuOffset = menuOffset,
                 backdrop = backdrop,
             )
         }
@@ -508,7 +507,6 @@ private fun DropdownMenuContent(
     paddingValue: PaddingValues,
     modifier: Modifier = Modifier,
     backdrop: Backdrop,
-    menuOffset: Offset,
     content: @Composable () -> Unit,
 ) {
     // Menu open/close animation.
@@ -553,9 +551,7 @@ private fun DropdownMenuContent(
         }
     }
     val shape = CupertinoDropdownMenuDefaults.Shape
-
-    val interactiveHighlight =
-        remember(animationScope) { InteractiveHighlight(animationScope = animationScope) }
+    val interactiveHighlight = remember(animationScope) { InteractiveHighlight(animationScope = animationScope) }
 
     CupertinoSurface(
         color = Color.Transparent,
@@ -604,57 +600,21 @@ private fun DropdownMenuContent(
 
                                 val maxDragScale = 4.dp.toPx() / height
                                 val offsetAngle = atan2(offset.y, offset.x)
-                                scaleX =
-                                    scale + maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension) * (width / height).fastCoerceAtMost(
-                                        1f
-                                    )
-                                scaleY =
-                                    scale + maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension) * (height / width).fastCoerceAtMost(
-                                        1f
-                                    )
+
+                                scaleX = scale + maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension) * (width / height).fastCoerceAtMost(1f)
+                                scaleY = scale + maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension) * (height / width).fastCoerceAtMost(1f)
                             },
                             onDrawSurface = {
                                 drawRect(containerColor.copy(alpha = 0.95f))
                             },
-                            onDrawBackdrop = { drawBackdrop ->
-                                this.center
-                                this.size
-                                translate(
-//                                        left = -menuOffset.x,
-//                                        top = -menuOffset.y
-                                ) {
-                                    drawBackdrop()
-                                }
-                            }
                         )
                         .fillMaxWidth()
                         .heightIn(max = MenuMaxHeight)
                         .verticalScroll(scrollState),
                 ) { constraints ->
                     val layoutWidth = constraints.maxWidth
-                    val itemPlaceables =
-                        subcompose(CupertinoDropdownMenuSlots.Item, content).fastMap {
-                            it.measure(constraints)
-                        }
-
-                    val dividerHeightPx = DividerHeight.toPx()
-
-//                    fun dividerPlaceable(idx: Int) =
-//                        subcompose(idx) { CupertinoHorizontalDivider() }.first()
-//                            .measure(constraints)
-
-                    val allPlacements = buildList(itemPlaceables.size * 2) {
-                        itemPlaceables.fastForEachIndexed { index, placeable ->
-                            add(placeable)
-                            if (index != itemPlaceables.lastIndex &&
-                                placeable.height > dividerHeightPx &&
-                                itemPlaceables[index + 1].height > dividerHeightPx
-                            ) {
-//                                add(dividerPlaceable(index))
-                            }
-                        }
-                    }
-
+                    val itemPlaceables = subcompose(CupertinoDropdownMenuSlots.Item, content).fastMap { it.measure(constraints) }
+                    val allPlacements = buildList(itemPlaceables.size * 2) { itemPlaceables.fastForEach { placeable -> add(placeable) } }
                     val height = allPlacements.fastSumBy { it.height }
 
                     layout(layoutWidth, height) {

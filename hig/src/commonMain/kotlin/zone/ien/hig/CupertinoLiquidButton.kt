@@ -1,10 +1,6 @@
 package zone.ien.hig
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.Animatable as ColorAnimatable
-import androidx.compose.animation.core.Animatable as FloatAnimatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -34,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -46,19 +41,13 @@ import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
-import com.kyant.backdrop.effects.colorControls
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
 import com.kyant.shapes.RoundedRectangularShape
-import com.kyant.shapes.UnevenRoundedRectangle
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults.glassButtonColors
-import zone.ien.hig.CupertinoLiquidButtonDefaults.glassProminentButtonColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.darkColorScheme
 import zone.ien.hig.theme.lightColorScheme
@@ -69,6 +58,8 @@ import kotlin.math.cos
 import kotlin.math.sign
 import kotlin.math.sin
 import kotlin.math.tanh
+import androidx.compose.animation.Animatable as ColorAnimatable
+import androidx.compose.animation.core.Animatable as FloatAnimatable
 
 @Composable
 @ExperimentalCupertinoApi
@@ -83,6 +74,7 @@ fun CupertinoLiquidButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     backdrop: Backdrop,
     isBackgroundAdaptive: Boolean = true,
+    isInteractive: Boolean = true,
     content: @Composable RowScope.() -> Unit
 ) {
     val animationScope = rememberCoroutineScope()
@@ -104,7 +96,6 @@ fun CupertinoLiquidButton(
     val graphicsLayer = rememberGraphicsLayer()
 
     val luminanceAnimation = remember(enabled) { FloatAnimatable(if (isLightTheme) 1f else 0f) }
-
     val tintColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightTintColor else darkTintColor) }
     val surfaceColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightSurfaceColor else darkSurfaceColor) }
     val contentColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightContentColor else darkContentColor) }
@@ -158,7 +149,7 @@ fun CupertinoLiquidButton(
                         lens(12.dp.toPx(), 24.dp.toPx())
                     }
                 },
-                layerBlock = if (enabled) {
+                layerBlock = if (enabled && isInteractive) {
                     {
                         val width = this.size.width
                         val height = this.size.height
@@ -169,13 +160,16 @@ fun CupertinoLiquidButton(
                         val maxOffset = this.size.minDimension
                         val initialDerivative = 0.05f
                         val offset = interactiveHighlight.offset
+
                         translationX = maxOffset * tanh(initialDerivative * offset.x / maxOffset)
                         translationY = maxOffset * tanh(initialDerivative * offset.y / maxOffset)
 
                         val maxDragScale = 4.dp.toPx() / height
                         val offsetAngle = atan2(offset.y, offset.x)
+
                         scaleX = scale + maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension) * (width / height).fastCoerceAtMost(1f)
                         scaleY = scale + maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension) * (height / width).fastCoerceAtMost(1f)
+
                     }
                 } else {
                     null
@@ -244,6 +238,7 @@ fun CupertinoLiquidIconButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     backdrop: Backdrop,
     isBackgroundAdaptive: Boolean = true,
+    isInteractive: Boolean = true,
     content: @Composable () -> Unit
 ) {
     CupertinoLiquidButton(
@@ -257,6 +252,7 @@ fun CupertinoLiquidIconButton(
         contentPadding = PaddingValues(8.dp),
         backdrop = backdrop,
         isBackgroundAdaptive = isBackgroundAdaptive,
+        isInteractive = isInteractive,
         content = {
             Box(
                 modifier = Modifier.fillMaxSize(),
