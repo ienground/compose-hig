@@ -41,7 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultLayerBackdrop
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarColors
 import zone.ien.hig.CupertinoNavigationBarDefaults
@@ -196,7 +196,7 @@ private class NavigationBarAdaptation: Adaptation<CupertinoNavigationBarAdaptati
     override fun rememberCupertinoAdaptation(): CupertinoNavigationBarAdaptation {
         val colors = CupertinoNavigationBarDefaults.colors()
         val windowInsets = CupertinoNavigationBarDefaults.windowInsets
-        val backdrop = rememberLayerBackdrop()
+        val backdrop = rememberDefaultLayerBackdrop()
 
         return remember(colors, windowInsets, backdrop) {
             CupertinoNavigationBarAdaptation(

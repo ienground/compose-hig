@@ -55,7 +55,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultLayerBackdrop
 import zone.ien.hig.CupertinoButtonDefaults
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoLiquidButtonDefaults
@@ -112,7 +112,7 @@ fun AdaptiveWidgetsScreen(
     onItemValueChanged: (RootDetails) -> Unit,
     navigateBack: () -> Unit,
 ) {
-    val backdrop = rememberLayerBackdrop()
+    val backdrop = rememberDefaultLayerBackdrop()
 
     AdaptiveScaffold(
         topBar = {

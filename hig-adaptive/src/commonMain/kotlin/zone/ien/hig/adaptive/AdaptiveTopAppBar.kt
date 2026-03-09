@@ -36,7 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.kyant.backdrop.backdrops.LayerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultLayerBackdrop
 import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.CupertinoTopAppBarColors
 import zone.ien.hig.CupertinoTopAppBarDefaults
@@ -147,7 +147,7 @@ private class TopAppBarAdaptation: Adaptation<CupertinoTopAppBarAdaptation, Mate
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoTopAppBarAdaptation {
         val colors = CupertinoTopAppBarDefaults.topAppBarColors()
-        val backdrop = rememberLayerBackdrop()
+        val backdrop = rememberDefaultLayerBackdrop()
 
         return remember(colors, backdrop) {
             CupertinoTopAppBarAdaptation(

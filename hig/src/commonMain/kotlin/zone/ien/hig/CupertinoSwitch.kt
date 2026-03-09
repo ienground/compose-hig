@@ -66,7 +66,7 @@ import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -110,7 +110,7 @@ fun CupertinoSwitch(
     thumbContent: @Composable (() -> Unit)? = null,
     colors: CupertinoSwitchColors = CupertinoSwitchDefaults.colors(),
     enabled: Boolean = true,
-    backdrop: Backdrop = rememberLayerBackdrop(),
+    backdrop: Backdrop = rememberDefaultLayerBackdrop(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val updatedChecked by rememberUpdatedState(checked)
@@ -177,7 +177,7 @@ fun CupertinoSwitch(
             }
     }
 
-    val trackBackdrop = rememberLayerBackdrop()
+    val trackBackdrop = rememberDefaultLayerBackdrop()
 
     Box(
         modifier
