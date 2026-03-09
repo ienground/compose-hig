@@ -167,6 +167,7 @@ fun TestScreen(
                 CupertinoLiquidButton(
                     onClick = { expanded = true },
                     backdrop = rememberDefaultBackdrop(),
+                    isInteractive = false,
                     colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
                 ) {
                     Text(text = "Open Menu")
