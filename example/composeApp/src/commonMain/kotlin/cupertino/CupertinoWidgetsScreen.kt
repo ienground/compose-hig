@@ -91,7 +91,7 @@ import androidx.navigation3.runtime.NavKey
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultLayerBackdrop
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -227,8 +227,8 @@ fun CupertinoWidgetsScreen(
     val scrollState = rememberScrollState()
     val sheetListState = rememberLazyListState()
 
-    val backdrop = rememberLayerBackdrop()
-    val globalBackdrop = rememberLayerBackdrop()
+    val backdrop = rememberDefaultLayerBackdrop()
+    val globalBackdrop = rememberDefaultLayerBackdrop()
 
     val scaffoldState = rememberCupertinoBottomSheetScaffoldState(
         rememberCupertinoSheetState(
@@ -447,7 +447,7 @@ private fun ScreenPreview() {
             scaffoldState = rememberCupertinoBottomSheetScaffoldState(),
             nativePickers = remember { mutableStateOf(false) },
             onNavigate = {},
-            backdrop = rememberLayerBackdrop()
+            backdrop = rememberDefaultLayerBackdrop()
         )
     }
 }
@@ -1052,7 +1052,7 @@ fun DateTimePicker(
 
 @Composable
 private fun SectionScope.SwitchAndProgressBar() {
-    val backdrop = rememberLayerBackdrop()
+    val backdrop = rememberDefaultLayerBackdrop()
 
     SectionItem {
         Row(
@@ -1349,7 +1349,7 @@ private fun ColorButtons(
 
 @Composable
 private fun SectionScope.ButtonsExample() {
-    val backdrop = rememberLayerBackdrop()
+    val backdrop = rememberDefaultLayerBackdrop()
     SectionItem {
         Row(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -1757,7 +1757,7 @@ private fun DropdownExample(
 ) {
     var dropdownVisible by remember { mutableStateOf(false) }
     var pickerSheetVisible by remember { mutableStateOf(false) }
-    val layerBackdrop = rememberLayerBackdrop()
+    val layerBackdrop = rememberDefaultLayerBackdrop()
 
     CupertinoActionSheet(
         visible = pickerSheetVisible,
@@ -1885,7 +1885,7 @@ private fun DropdownExample2(
     backdrop: Backdrop
 ) {
     var dropdownVisible by remember { mutableStateOf(false) }
-    val layerBackdrop = rememberLayerBackdrop()
+    val layerBackdrop = rememberDefaultLayerBackdrop()
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp)

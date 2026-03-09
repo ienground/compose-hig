@@ -59,7 +59,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultLayerBackdrop
 import zone.ien.hig.LocalContentColor
 import zone.ien.hig.CupertinoButtonTokens
 import zone.ien.hig.CupertinoDatePicker
@@ -219,7 +219,7 @@ fun LazySectionScope.dropdownMenu(
                     ),
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
-                backdrop = rememberLayerBackdrop(),
+                backdrop = rememberDefaultLayerBackdrop(),
                 content = content,
             )
             CupertinoIcon(

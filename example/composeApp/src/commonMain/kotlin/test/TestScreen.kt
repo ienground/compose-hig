@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultLayerBackdrop
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import zone.ien.hig.CupertinoDropdownMenu
@@ -78,7 +78,7 @@ import zone.ien.hig.icons.outlined.SunMax
 fun TestScreen(
     modifier: Modifier = Modifier
 ) {
-    val backdrop = rememberLayerBackdrop()
+    val backdrop = rememberDefaultLayerBackdrop()
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val snackbarState = remember { SnackbarHostState() }
@@ -146,7 +146,6 @@ fun TestScreen(
             CupertinoNavigationTitle {
                 Text(
                     text = "Cupertino",
-                    modifier = Modifier.background(Color.Green)
                 )
             }
 
@@ -164,7 +163,7 @@ fun TestScreen(
                 )
                 CupertinoLiquidButton(
                     onClick = { coroutineScope.launch { snackbarState.showSnackbar("clicked") } },
-                    backdrop = rememberLayerBackdrop(),
+                    backdrop = rememberDefaultLayerBackdrop(),
                     colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
                     enabled = enabled
                 ) {
@@ -172,7 +171,7 @@ fun TestScreen(
                 }
                 CupertinoLiquidButton(
                     onClick = { coroutineScope.launch { snackbarState.showSnackbar("clicked") } },
-                    backdrop = rememberLayerBackdrop(),
+                    backdrop = rememberDefaultLayerBackdrop(),
                     colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
                     enabled = !enabled
                 ) {
@@ -185,7 +184,7 @@ fun TestScreen(
             Box {
                 CupertinoLiquidButton(
                     onClick = { expanded = true },
-                    backdrop = rememberLayerBackdrop(),
+                    backdrop = rememberDefaultLayerBackdrop(),
                     colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
                 ) {
                     Text(text = "Open Menu")
@@ -195,7 +194,7 @@ fun TestScreen(
                 CupertinoDropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
-                    backdrop = rememberLayerBackdrop()
+                    backdrop = rememberDefaultLayerBackdrop()
                 ) {
                     MenuSection(
 //                        title = {

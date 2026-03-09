@@ -77,7 +77,7 @@ import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -132,7 +132,7 @@ fun CupertinoNavigationBar(
     content: @Composable RowScope.() -> Unit,
 ) {
     val isLightTheme = !isSystemInDarkTheme()
-    val tabsBackdrop = rememberLayerBackdrop()
+    val tabsBackdrop = rememberDefaultLayerBackdrop()
     val accentColor = colors.accentColor
     val containerColor = colors.containerColor.copy(0.6f)
 

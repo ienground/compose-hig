@@ -67,7 +67,7 @@ import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -372,7 +372,7 @@ private fun SliderImpl(
 ) {
     val updatedValue by rememberUpdatedState(value)
     val updatedEnabled by rememberUpdatedState(enabled)
-    val trackBackdrop = rememberLayerBackdrop()
+    val trackBackdrop = rememberDefaultLayerBackdrop()
     val inactiveTickColor by colors.tickColor(enabled, active = false)
     val activeTickColor by colors.tickColor(enabled, active = true)
 
@@ -587,7 +587,7 @@ private fun RangeSliderImpl(
     val updatedEndValue by rememberUpdatedState(value.endInclusive.absoluteValue)
 
     val updatedEnabled by rememberUpdatedState(enabled)
-    val trackBackdrop = rememberLayerBackdrop()
+    val trackBackdrop = rememberDefaultLayerBackdrop()
     val inactiveTickColor by colors.tickColor(enabled, active = false)
     val activeTickColor by colors.tickColor(enabled, active = true)
 
@@ -972,7 +972,7 @@ object CupertinoLiquidSliderDefaults {
         enabled: Boolean = true,
         thumbSize: DpSize = LiquidThumbSize,
         dampedDragAnimation: DampedDragAnimation,
-        backdrop: Backdrop = rememberLayerBackdrop(),
+        backdrop: Backdrop = rememberDefaultLayerBackdrop(),
         trackBackdrop: LayerBackdrop
     ) {
         val thumbColor by colors.thumbColor(enabled)
