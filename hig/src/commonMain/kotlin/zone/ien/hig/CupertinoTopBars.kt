@@ -91,6 +91,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import com.kyant.backdrop.drawPlainBackdrop
 import com.kyant.backdrop.effects.blur
@@ -203,7 +204,7 @@ fun CupertinoTopAppBar(
     isCenterAligned: Boolean = true,
     isBackgroundAdaptive: Boolean = true,
     isBackgroundGradient: Boolean = false,
-    backdrop: LayerBackdrop = rememberDefaultBackdrop(),
+    backdrop: LayerBackdrop = rememberLayerBackdrop(),
     colors: CupertinoTopAppBarColors = CupertinoTopAppBarDefaults.topAppBarColors(),
 ) {
     InlineTopAppBar(
