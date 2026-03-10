@@ -43,6 +43,7 @@ import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.TextField
@@ -312,6 +313,8 @@ fun CupertinoSecureTextField(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentAlignment: Alignment.Vertical = Alignment.CenterVertically,
     colors: CupertinoTextFieldColors = CupertinoTextFieldDefaults.colors(),
+    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
+    textObfuscationCharacter: Char = '\u2022',
 ) {
     // If color is not provided via the text style, use content color as a default
     val textColor = textStyle.color.takeOrElse { colors.textColor(enabled, isError, interactionSource).value }
@@ -360,7 +363,9 @@ fun CupertinoSecureTextField(
                         trailingIcon = trailingIcon,
                     )
                 }
-            }
+            },
+            textObfuscationMode = textObfuscationMode,
+            textObfuscationCharacter = textObfuscationCharacter,
         )
     }
 }
@@ -554,6 +559,8 @@ fun CupertinoBorderedSecureTextField(
     paddingValues: PaddingValues = CupertinoBorderedTextFieldDefaults.PaddingValues,
     contentAlignment: Alignment.Vertical = Alignment.CenterVertically,
     colors: CupertinoTextFieldColors = CupertinoBorderedTextFieldDefaults.colors(),
+    textObfuscationMode: TextObfuscationMode = TextObfuscationMode.RevealLastTyped,
+    textObfuscationCharacter: Char = '\u2022',
 ) {
     Border(
         modifier = modifier,
@@ -580,6 +587,8 @@ fun CupertinoBorderedSecureTextField(
             interactionSource = interactionSource,
             contentAlignment = contentAlignment,
             colors = colors,
+            textObfuscationMode = textObfuscationMode,
+            textObfuscationCharacter = textObfuscationCharacter,
         )
     }
 }
