@@ -88,8 +88,8 @@ object AdaptiveIcons {
      * */
     @Composable
     fun vector(
-        material: () -> ImageVector,
-        cupertino: () -> ImageVector,
+        material: @Composable () -> ImageVector,
+        cupertino: @Composable () -> ImageVector,
     ): ImageVector =
         when (LocalTheme.current) {
             Theme.Cupertino -> cupertino()
@@ -104,8 +104,8 @@ object AdaptiveIcons {
      * */
     @Composable
     fun painter(
-        material: () -> ImageVector,
-        cupertino: () -> String,
+        material: @Composable () -> ImageVector,
+        cupertino: @Composable () -> String,
     ): Painter =
         when (LocalTheme.current) {
             Theme.Cupertino -> systemImage(cupertino()) ?: rememberVectorPainter(material())
