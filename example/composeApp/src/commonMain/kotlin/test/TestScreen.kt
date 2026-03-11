@@ -74,6 +74,9 @@ fun TestScreen(
                 title = {
                     CupertinoText("Cupertino")
                 },
+                subtitle = {
+                    CupertinoText("sub title")
+                },
                 navigationIcon = {
                     CupertinoLiquidIconButton(
                         onClick = {},
@@ -126,9 +129,15 @@ fun TestScreen(
                 .verticalScroll(scrollState)
                 .padding(it)
         ) {
-            CupertinoNavigationTitle {
+            CupertinoNavigationTitle(
+                subtitle = {
+                    Text(
+                        text = "87개의 메모"
+                    )
+                }
+            ) {
                 Text(
-                    text = "Cupertino",
+                    text = "메모",
                 )
             }
 
