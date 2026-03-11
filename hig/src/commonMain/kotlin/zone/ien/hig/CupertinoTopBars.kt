@@ -34,6 +34,7 @@ import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -71,7 +72,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LastBaseline
@@ -82,7 +82,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -92,7 +91,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import zone.ien.hig.utils.rememberDefaultBackdrop
 import com.kyant.backdrop.drawPlainBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.runtimeShaderEffect
@@ -197,6 +195,7 @@ fun cupertinoTranslucentTopBarColor(
 @ExperimentalCupertinoApi
 fun CupertinoTopAppBar(
     title: @Composable () -> Unit,
+    subtitle: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable (RowScope.() -> Unit) = {},
@@ -209,6 +208,7 @@ fun CupertinoTopAppBar(
 ) {
     InlineTopAppBar(
         title = title,
+        subtitle = subtitle,
         modifier = modifier,
         navigationIcon = navigationIcon,
         actions = actions,
@@ -259,7 +259,7 @@ private val NavTitleMaxFontScaleDistance = 150.dp
  * @param maxFontScale maximum font scale. Must be >= 1
  * @param maxFontScaleDistance distance of the scroll overflow at which [maxFontScale] is reached
  * @param paddingValues title padding values
- * @param content title content
+ * @param title title content
  * */
 @Composable
 fun CupertinoNavigationTitle(
@@ -267,7 +267,8 @@ fun CupertinoNavigationTitle(
     maxFontScale: Float = NavTitleMaxFontScale,
     maxFontScaleDistance: Dp = NavTitleMaxFontScaleDistance,
     paddingValues: PaddingValues = CupertinoSectionDefaults.PaddingValues,
-    content: @Composable () -> Unit,
+    subtitle: @Composable (() -> Unit)? = null,
+    title: @Composable () -> Unit,
 ) {
     require(maxFontScale >= 1) {
         "maxFontScale must be >= 1."
@@ -297,6 +298,7 @@ fun CupertinoNavigationTitle(
     }
 
     val font = CupertinoTheme.typography.largeTitle.copy(fontWeight = FontWeight.Bold)
+    val subtitleFont = CupertinoTheme.typography.subhead
 
     val titleAlpha by remember {
         derivedStateOf {
@@ -323,7 +325,7 @@ fun CupertinoNavigationTitle(
         label = "NavigationTitleAlpha"
     )
 
-    Box(
+    Column(
         modifier
             .padding(paddingValues)
             .alpha(animatedAlpha)
@@ -336,10 +338,15 @@ fun CupertinoNavigationTitle(
                 visible = !topAppBarExists || offsetDifference < it.size.height
             },
     ) {
-        CompositionLocalProvider(
-            LocalTextStyle provides font.copy(fontSize = font.fontSize * fontIncrease),
-        ) {
-            content()
+        ProvideTextStyle(value = font.copy(fontSize = font.fontSize * fontIncrease)) {
+            title()
+        }
+        ProvideTextStyle(value = subtitleFont.copy(fontSize = subtitleFont.fontSize * fontIncrease)) {
+            CompositionLocalProvider(
+                LocalContentColor provides CupertinoTheme.colorScheme.secondaryLabel,
+            ) {
+                subtitle?.invoke()
+            }
         }
     }
 }
@@ -351,6 +358,8 @@ class CupertinoTopAppBarColors internal constructor(
     internal val navigationIconContentColor: Color,
     internal val lightTitleContentColor: Color,
     internal val darkTitleContentColor: Color,
+    internal val lightSubtitleContentColor: Color,
+    internal val darkSubtitleContentColor: Color,
     internal val actionIconContentColor: Color,
 ) {
     @Composable
@@ -362,6 +371,11 @@ class CupertinoTopAppBarColors internal constructor(
         return rememberUpdatedState(if (isDark) darkTitleContentColor else lightTitleContentColor)
     }
 
+    @Composable
+    fun subtitleContentColor(isDark: Boolean = isSystemInDarkTheme()): State<Color> {
+        return rememberUpdatedState(if (isDark) darkSubtitleContentColor else lightSubtitleContentColor)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is CupertinoTopAppBarColors) return false
@@ -371,6 +385,8 @@ class CupertinoTopAppBarColors internal constructor(
         if (navigationIconContentColor != other.navigationIconContentColor) return false
         if (lightTitleContentColor != other.lightTitleContentColor) return false
         if (darkTitleContentColor != other.darkTitleContentColor) return false
+        if (lightSubtitleContentColor != other.lightSubtitleContentColor) return false
+        if (darkSubtitleContentColor != other.darkSubtitleContentColor) return false
         if (actionIconContentColor != other.actionIconContentColor) return false
 
         return true
@@ -382,6 +398,8 @@ class CupertinoTopAppBarColors internal constructor(
         result = 31 * result + navigationIconContentColor.hashCode()
         result = 31 * result + lightTitleContentColor.hashCode()
         result = 31 * result + darkTitleContentColor.hashCode()
+        result = 31 * result + darkSubtitleContentColor.hashCode()
+        result = 31 * result + darkSubtitleContentColor.hashCode()
         result = 31 * result + actionIconContentColor.hashCode()
 
         return result
@@ -394,6 +412,7 @@ internal val LocalTopAppBarInsets = compositionLocalOf<WindowInsets?> { null }
 @Composable
 private fun InlineTopAppBar(
     title: @Composable () -> Unit,
+    subtitle: @Composable (() -> Unit)? = null,
     modifier: Modifier,
     navigationIcon: @Composable () -> Unit,
     actions: @Composable RowScope.() -> Unit,
@@ -416,10 +435,13 @@ private fun InlineTopAppBar(
     val darkGradientColor by colors.gradientColor(isDark = true)
     val lightTitleColor by colors.titleContentColor(isDark = false)
     val darkTitleColor by colors.titleContentColor(isDark = true)
+    val lightSubtitleColor by colors.subtitleContentColor(isDark = false)
+    val darkSubtitleColor by colors.subtitleContentColor(isDark = true)
 
     val luminanceAnimation = remember { FloatAnimatable(if (isLightTheme) 1f else 0f) }
     val gradientColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightGradientColor else darkGradientColor) }
     val titleColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightTitleColor else darkTitleColor) }
+    val subtitleColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightSubtitleColor else darkSubtitleColor) }
 
     if (isBackgroundAdaptive) {
         val defaultColor = CupertinoTheme.colorScheme.systemBackground
@@ -437,6 +459,10 @@ private fun InlineTopAppBar(
                             )
                             titleColorAnimation.animateTo(
                                 if (averageLuminance > 0.5f) lightTitleColor else darkTitleColor,
+                                tween(300)
+                            )
+                            subtitleColorAnimation.animateTo(
+                                if (averageLuminance > 0.5f) lightSubtitleColor else darkSubtitleColor,
                                 tween(300)
                             )
                         }
@@ -497,7 +523,6 @@ private fun InlineTopAppBar(
             modifier = modifier.windowInsetsPadding(windowInsets),
             heightPx = topAppBarHeightPx,
             navigationIconContentColor = colors.navigationIconContentColor,
-            titleContentColor = titleColorAnimation.value,
             actionIconContentColor = colors.actionIconContentColor,
             title = {
                 val blurRadius by animateFloatAsState(
@@ -511,7 +536,8 @@ private fun InlineTopAppBar(
                     exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
-                    Box(
+                    Column(
+                        horizontalAlignment = if (isCenterAligned) Alignment.CenterHorizontally else Alignment.Start,
                         modifier = Modifier
                             .blur(radius = blurRadius.dp)
                             .onGloballyPositioned {
@@ -522,12 +548,26 @@ private fun InlineTopAppBar(
                                 titleWidth = size.width
                             }
                     ) {
-                        title()
+                        ProvideTextStyle(value =
+                            if (subtitle == null) CupertinoTheme.typography.headline
+                            else CupertinoTheme.typography.subhead.copy(fontWeight = FontWeight.Bold)
+                        ) {
+                            CompositionLocalProvider(
+                                LocalContentColor provides titleColorAnimation.value,
+                            ) {
+                                title()
+                            }
+                        }
+                        ProvideTextStyle(value = CupertinoTheme.typography.subhead) {
+                            CompositionLocalProvider(
+                                LocalContentColor provides subtitleColorAnimation.value,
+                            ) {
+                                subtitle?.invoke()
+                            }
+                        }
                     }
                 }
             },
-            titleTextStyle = CupertinoTheme.typography.headline,
-            titleAlpha = 1f,
             titleVerticalArrangement = Arrangement.Center,
             titleHorizontalArrangement = if (isCenterAligned) Arrangement.Center else Arrangement.Start,
             titleBottomPadding = LocalDensity.current.run { 16.dp.roundToPx() },
@@ -549,11 +589,8 @@ private fun TopAppBarLayout(
     modifier: Modifier,
     heightPx: Float,
     navigationIconContentColor: Color,
-    titleContentColor: Color,
     actionIconContentColor: Color,
     title: @Composable () -> Unit,
-    titleTextStyle: TextStyle,
-    titleAlpha: Float,
     titleVerticalArrangement: Arrangement.Vertical,
     titleHorizontalArrangement: Arrangement.Horizontal,
     titleBottomPadding: Int,
@@ -576,15 +613,9 @@ private fun TopAppBarLayout(
                     Modifier
                         .layoutId("title")
                         .padding(horizontal = TopAppBarHorizontalPadding)
-                        .graphicsLayer { alpha = titleAlpha }
                         .then(if (hideTitleSemantics) Modifier.clearAndSetSemantics { } else Modifier),
             ) {
-                ProvideTextStyle(value = titleTextStyle) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides titleContentColor,
-                        content = title,
-                    )
-                }
+                title()
             }
             Box(
                 modifier =
@@ -725,6 +756,8 @@ object CupertinoTopAppBarDefaults {
         navigationIconContentColor: Color = CupertinoTheme.colorScheme.accent,
         lightTitleContentColor: Color = lightColorScheme().label,
         darkTitleContentColor: Color = darkColorScheme().label,
+        lightSubtitleContentColor: Color = lightColorScheme().secondaryLabel,
+        darkSubtitleContentColor: Color = darkColorScheme().secondaryLabel,
         actionIconContentColor: Color = CupertinoTheme.colorScheme.accent,
     ): CupertinoTopAppBarColors =
         CupertinoTopAppBarColors(
@@ -733,6 +766,8 @@ object CupertinoTopAppBarDefaults {
             navigationIconContentColor,
             lightTitleContentColor,
             darkTitleContentColor,
+            lightSubtitleContentColor,
+            darkSubtitleContentColor,
             actionIconContentColor,
         )
 }
