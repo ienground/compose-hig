@@ -117,6 +117,7 @@ fun TestScreen(
                 isCenterAligned = true
             )
         },
+        hasNavigationTitle = true,
         modifier = modifier
     ) {
         Column(

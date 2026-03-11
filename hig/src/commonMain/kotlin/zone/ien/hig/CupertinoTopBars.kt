@@ -334,8 +334,6 @@ fun CupertinoNavigationTitle(
                 offsetDifference = (topBarHeightPx - it.boundsInWindow().top) + scaffoldTop
 
                 visible = !topAppBarExists || offsetDifference < it.size.height
-
-                println("LiquidGlass: ${visible} ${topAppBarExists} ${offsetDifference} ${it.size.height}")
             },
     ) {
         CompositionLocalProvider(
@@ -506,10 +504,6 @@ private fun InlineTopAppBar(
                     targetValue = if (!navTitleVisible) 0f else 4f,
                     animationSpec = tween(700)
                 )
-
-                LaunchedEffect(navTitleVisible) {
-                    println("LiquidGlass: navTitleVisible $navTitleVisible")
-                }
 
                 AnimatedVisibility(
                     visible = !navTitleVisible,
@@ -703,12 +697,7 @@ object CupertinoTopAppBarDefaults {
     /**
      * Default insets to be used and consumed by the top app bars
      */
-    val windowInsets: WindowInsets
-        //        @ReadOnlyComposable
-        @Composable
-        get() =
-            WindowInsets.systemBars
-                .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+    val windowInsets: WindowInsets @Composable get() = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
 
     /**
      * Creates a [CupertinoTopAppBarColors] . The default implementation
