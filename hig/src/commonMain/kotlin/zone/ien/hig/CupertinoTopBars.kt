@@ -221,10 +221,7 @@ fun CupertinoTopAppBar(
     )
 }
 
-internal val LocalNavigationTitleVisible =
-    compositionLocalOf {
-        mutableStateOf(false)
-    }
+internal val LocalNavigationTitleVisible = compositionLocalOf { mutableStateOf(false) }
 
 private class ClipShape(
     private val offsetDifference: Float,
@@ -280,7 +277,7 @@ fun CupertinoNavigationTitle(
     val density = LocalDensity.current
     val scaffoldCoordinates by LocalScaffoldCoordinates.current
     val topBarHeightPx = (LocalTopBarHeight.current.value ?: 0f)
-    val topAppBarExists = topBarHeightPx > Float.MIN_VALUE
+    val topAppBarExists = topBarHeightPx > 0//Float.MIN_VALUE
 
     var offsetDifference by remember { mutableStateOf(0f) }
     var actualTopBarHeight by remember { mutableStateOf(0f) }
@@ -337,6 +334,8 @@ fun CupertinoNavigationTitle(
                 offsetDifference = (topBarHeightPx - it.boundsInWindow().top) + scaffoldTop
 
                 visible = !topAppBarExists || offsetDifference < it.size.height
+
+                println("LiquidGlass: ${visible} ${topAppBarExists} ${offsetDifference} ${it.size.height}")
             },
     ) {
         CompositionLocalProvider(
@@ -391,10 +390,7 @@ class CupertinoTopAppBarColors internal constructor(
     }
 }
 
-internal val LocalTopAppBarInsets =
-    compositionLocalOf<WindowInsets?> {
-        null
-    }
+internal val LocalTopAppBarInsets = compositionLocalOf<WindowInsets?> { null }
 
 @ExperimentalCupertinoApi
 @Composable
@@ -510,26 +506,27 @@ private fun InlineTopAppBar(
                     targetValue = if (!navTitleVisible) 0f else 4f,
                     animationSpec = tween(700)
                 )
+
+                LaunchedEffect(navTitleVisible) {
+                    println("LiquidGlass: navTitleVisible $navTitleVisible")
+                }
+
                 AnimatedVisibility(
                     visible = !navTitleVisible,
-                    enter =
-                        fadeIn(tween(700))
-                                + slideInVertically(tween(700)) { it / 2 },
-                    exit =
-                        fadeOut(tween(700))
-                                + slideOutVertically(tween(700)) { it / 2 },
-                    modifier = Modifier
-                        .blur(radius = blurRadius.dp)
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                    enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
+                    exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
                     Box(
-                        modifier = Modifier.onGloballyPositioned {
-                            val position = it.positionInRoot()
-                            val size = it.size
+                        modifier = Modifier
+                            .blur(radius = blurRadius.dp)
+                            .onGloballyPositioned {
+                                val position = it.positionInRoot()
+                                val size = it.size
 
-                            titleX = position.x.roundToInt()
-                            titleWidth = size.width
-                        }
+                                titleX = position.x.roundToInt()
+                                titleWidth = size.width
+                            }
                     ) {
                         title()
                     }
@@ -573,9 +570,7 @@ private fun TopAppBarLayout(
     Layout(
         {
             Box(
-                Modifier
-                    .layoutId("navigationIcon"),
-//                    .padding(start = TopAppBarHorizontalPadding)
+                Modifier.layoutId("navigationIcon"),
             ) {
                 CompositionLocalProvider(
                     LocalContentColor provides navigationIconContentColor,
@@ -611,22 +606,12 @@ private fun TopAppBarLayout(
         },
         modifier = modifier,
     ) { measurables, constraints ->
-        val navigationIconPlaceable =
-            measurables
-                .first { it.layoutId == "navigationIcon" }
-                .measure(constraints.copy(minWidth = 0))
-        val actionIconsPlaceable =
-            measurables
-                .first { it.layoutId == "actionIcons" }
-                .measure(constraints.copy(minWidth = 0))
-
-//        val maxTitleWidth =
-//            if (constraints.maxWidth == Constraints.Infinity) {
-//                constraints.maxWidth
-//            } else {
-//                (constraints.maxWidth - navigationIconPlaceable.width - actionIconsPlaceable.width)
-//                    .coerceAtLeast(0)
-//            }
+        val navigationIconPlaceable = measurables
+            .first { it.layoutId == "navigationIcon" }
+            .measure(constraints.copy(minWidth = 0))
+        val actionIconsPlaceable = measurables
+            .first { it.layoutId == "actionIcons" }
+            .measure(constraints.copy(minWidth = 0))
 
         val maxTitleWidth =
             if (constraints.maxWidth == Constraints.Infinity) {
@@ -639,10 +624,9 @@ private fun TopAppBarLayout(
 
         val layoutHeight = heightPx.roundToInt()
 
-        val titlePlaceable =
-            measurables
-                .first { it.layoutId == "title" }
-                .measure(constraints.copy(minWidth = 0, maxWidth = maxTitleWidth))
+        val titlePlaceable = measurables
+            .first { it.layoutId == "title" }
+            .measure(constraints.copy(minWidth = 0, maxWidth = maxTitleWidth))
 
         // Locate the title's baseline.
         val titleBaseline =
