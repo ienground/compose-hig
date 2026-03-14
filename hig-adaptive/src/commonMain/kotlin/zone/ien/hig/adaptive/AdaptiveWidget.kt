@@ -45,9 +45,7 @@ fun <C, M> AdaptiveWidget(
     adaptation.adaptationScope()
 
     when (LocalTheme.current) {
-        Theme.Cupertino ->
-            cupertino(adaptation.rememberUpdatedCupertinoAdaptation())
-
+        Theme.Cupertino -> cupertino(adaptation.rememberUpdatedCupertinoAdaptation())
         else -> material(adaptation.rememberUpdatedMaterialAdaptation())
     }
 }
