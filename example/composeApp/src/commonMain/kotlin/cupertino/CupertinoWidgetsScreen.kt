@@ -797,42 +797,10 @@ private fun TopBarSample(
     CupertinoTopAppBar(
         backdrop = backdrop,
         actions = {
-            /*
-            CupertinoLiquidIconButton(
-                onClick = {},
-                backdrop = backdrop
-            ) {
-                Row {
-                    Box(
-                        modifier = Modifier.clickable(
-                            interactionSource = null,
-                            indication = null,
-                            onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
-                        )
-                    ) {
-                        AnimatedContent(uiState.item.isDark) {
-                            if (it) {
-                                CupertinoIcon(
-                                    imageVector = CupertinoIcons.Default.SunMax,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            } else {
-                                CupertinoIcon(
-                                    imageVector = CupertinoIcons.Default.MoonStars,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-             */
             CupertinoLiquidButton(
                 onClick = {},
-                backdrop = backdrop
+                backdrop = backdrop,
+                modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(24.dp),

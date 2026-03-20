@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.Backdrop
 import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.ChevronBackward
@@ -86,5 +87,42 @@ fun CupertinoNavigateBackButton(
             )
             title()
         }
+    }
+}
+
+@Composable
+@ExperimentalCupertinoApi
+fun CupertinoNavigateBackLiquidButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: CupertinoLiquidButtonColors = CupertinoLiquidButtonDefaults.glassButtonColors(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    icon: ImageVector =
+        if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
+            CupertinoIcons.Default.ChevronBackward
+        } else {
+            CupertinoIcons.Default.ChevronForward
+        },
+    backdrop: Backdrop,
+    isBackgroundAdaptive: Boolean = true,
+) {
+    CupertinoLiquidIconButton(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+        interactionSource = interactionSource,
+        backdrop = backdrop,
+        isBackgroundAdaptive = isBackgroundAdaptive
+    ) {
+        CupertinoIcon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier =
+                Modifier
+                    .height(CupertinoIconDefaults.MediumSize)
+                    .padding(end = 6.dp),
+        )
     }
 }

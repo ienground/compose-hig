@@ -41,8 +41,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.backdrops.layerBackdrop
 import zone.ien.hig.CupertinoDatePickerState
 import zone.ien.hig.CupertinoNavigateBackButton
+import zone.ien.hig.CupertinoNavigateBackLiquidButton
 import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoSegmentedControl
 import zone.ien.hig.CupertinoSegmentedControlTab
@@ -72,63 +74,32 @@ import zone.ien.hig.section.switch
 import zone.ien.hig.section.textField
 import zone.ien.hig.section.timePicker
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.utils.rememberDefaultBackdrop
 
 @OptIn(ExperimentalCupertinoApi::class)
 @Composable
 fun SectionsScreen(
     navigateBack: () -> Unit
 ) {
-    var isLazy by remember {
-        mutableStateOf(true)
-    }
-
-    val pagerState =
-        rememberPagerState(
-            pageCount = { 2 },
-        )
-
-    val toggleState =
-        remember {
-            mutableStateOf(false)
-        }
+    val backdrop = rememberDefaultBackdrop()
+    var isLazy by remember { mutableStateOf(true) }
+    val pagerState = rememberPagerState { 2 }
+    val toggleState = remember { mutableStateOf(false) }
 
     val datePickerState = rememberCupertinoDatePickerState()
     val timePickerState = rememberCupertinoTimePickerState()
 
-    var datePickerExpanded by remember {
-        mutableStateOf<SectionStyle?>(null)
-    }
-    var timePickerExpanded by remember {
-        mutableStateOf<SectionStyle?>(null)
-    }
+    var datePickerExpanded by remember { mutableStateOf<SectionStyle?>(null) }
+    var timePickerExpanded by remember { mutableStateOf<SectionStyle?>(null) }
+    var pickerExpanded by remember { mutableStateOf<SectionStyle?>(null) }
 
-    var pickerExpanded by remember {
-        mutableStateOf<SectionStyle?>(null)
-    }
-
-    val pickedIndex =
-        remember {
-            mutableStateOf(0)
-        }
-
-    val textFieldValue =
-        remember {
-            mutableStateOf("")
-        }
-
+    val pickedIndex = remember { mutableStateOf(0) }
+    val textFieldValue = remember { mutableStateOf("") }
     val lazyState = rememberLazyListState()
-
     val defaultState = rememberScrollState()
 
-    val currentState =
-        if (isLazy) {
-            lazyState
-        } else {
-            defaultState
-        }
-
+    val currentState = if (isLazy) lazyState else defaultState
     val sectionState = rememberSectionState()
-
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(currentState.isScrollInProgress) {
@@ -144,20 +115,19 @@ fun SectionsScreen(
     CupertinoScaffold(
         topBar = {
             CupertinoTopAppBar(
-//                isTransparent = currentState.isTopBarTransparent,
                 navigationIcon = {
-                    CupertinoNavigateBackButton(
+                    CupertinoNavigateBackLiquidButton(
                         onClick = navigateBack,
-                    ) {
-                        CupertinoText("Back")
-                    }
+                        backdrop = backdrop,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
                 },
                 title = {
                     CupertinoSegmentedControl(
+                        selectedTabIndex = if (isLazy) 0 else 1,
                         modifier =
                             Modifier
                                 .width(200.dp),
-                        selectedTabIndex = if (isLazy) 0 else 1,
                     ) {
                         CupertinoSegmentedControlTab(
                             isSelected = isLazy,
@@ -177,19 +147,21 @@ fun SectionsScreen(
                         }
                     }
                 },
+                backdrop = backdrop
             )
         },
     ) { pv ->
         if (isLazy) {
             LazyColumn(
                 state = lazyState,
+                contentPadding = pv,
                 modifier =
                     Modifier
+                        .layerBackdrop(backdrop)
                         .fillMaxSize()
                         .background(CupertinoTheme.colorScheme.systemGroupedBackground),
-                contentPadding = pv,
             ) {
-                SectionStyle.values().forEach { style ->
+                SectionStyle.entries.forEach { style ->
                     section(
                         state = sectionState,
                         style = style,
@@ -224,12 +196,13 @@ fun SectionsScreen(
             Column(
                 modifier =
                     Modifier
+                        .layerBackdrop(backdrop)
                         .verticalScroll(defaultState)
                         .background(CupertinoTheme.colorScheme.systemGroupedBackground)
                         .fillMaxSize()
                         .padding(pv),
             ) {
-                SectionStyle.values().forEach { style ->
+                SectionStyle.entries.forEach { style ->
                     CupertinoSection(
                         state = sectionState,
                         style = style,
