@@ -84,7 +84,7 @@ internal actual class HazeNode actual constructor(
     private var tint: Color,
     private var blurRadius: Dp,
     private val density: Density,
-) : Modifier.Node(),
+): Modifier.Node(),
     LayoutModifierNode,
     CompositionLocalConsumerModifierNode {
     private var blurFilter: ImageFilter? = null

@@ -105,7 +105,7 @@ fun AdaptiveVerticalDivider(
 }
 
 @ExperimentalAdaptiveApi
-private class DividerAdaptationScope : Adaptation<DividerAdaptation, DividerAdaptation>() {
+private class DividerAdaptationScope: Adaptation<DividerAdaptation, DividerAdaptation>() {
 
     @Composable
     override fun rememberCupertinoAdaptation(): DividerAdaptation {

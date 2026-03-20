@@ -24,11 +24,11 @@ import androidx.compose.runtime.Composable
 
 @Composable
 @ExperimentalAdaptiveApi
-fun AdaptiveWidget(
-    material: @Composable () -> Unit,
-    cupertino: @Composable () -> Unit,
-) {
-    when (LocalTheme.current) {
+fun <T> adaptiveComponent(
+    material: @Composable () -> T,
+    cupertino: @Composable () -> T,
+): T {
+    return when (LocalTheme.current) {
         Theme.Cupertino -> cupertino()
         else -> material()
     }
@@ -36,15 +36,15 @@ fun AdaptiveWidget(
 
 @Composable
 @ExperimentalAdaptiveApi
-fun <C, M> AdaptiveWidget(
+fun <C, M, T> adaptiveComponent(
     adaptation: Adaptation<C, M>,
-    material: @Composable (M) -> Unit,
-    cupertino: @Composable (C) -> Unit,
+    material: @Composable (M) -> T,
+    cupertino: @Composable (C) -> T,
     adaptationScope: AdaptationScope<C, M>.() -> Unit,
-) {
+): T {
     adaptation.adaptationScope()
 
-    when (LocalTheme.current) {
+    return when (LocalTheme.current) {
         Theme.Cupertino -> cupertino(adaptation.rememberUpdatedCupertinoAdaptation())
         else -> material(adaptation.rememberUpdatedMaterialAdaptation())
     }

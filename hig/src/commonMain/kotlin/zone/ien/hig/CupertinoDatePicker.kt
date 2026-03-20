@@ -194,7 +194,7 @@ class CupertinoDatePickerState private constructor(
     constructor(
         @Suppress("AutoBoxing") initialSelectedDateMillis: Long,
         yearRange: IntRange,
-    ) : this(
+    ): this(
         DatePickerStateData(
             initialSelectedStartDateMillis = initialSelectedDateMillis,
             initialSelectedEndDateMillis = null,
@@ -1482,7 +1482,7 @@ fun calculatePagerHeight(
     maxDaySize: Dp,
 ) = (maxDaySize + verticalSpacing) * MaxCalendarRows
 
-// private val VerticalPadding : Dp = 6.dp
+// private val VerticalPadding: Dp = 6.dp
 // private val PagerRowSize= CupertinoButtonTokens.IconButtonSize
 // private val PagerHeight = (PagerRowSize + VerticalPadding) * MaxCalendarRows
 // private val PagerRowsHeight = (PagerRowSize) * MaxCalendarRows

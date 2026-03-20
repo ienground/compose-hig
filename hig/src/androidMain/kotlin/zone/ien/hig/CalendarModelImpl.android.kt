@@ -55,7 +55,7 @@ internal actual fun currentLocale(): CalendarLocale = Locale.getDefault()
  * A [CalendarModel] implementation for API >= 26.
  */
 @RequiresApi(Build.VERSION_CODES.O)
-internal class AndroidCalendarModelImpl : CalendarModel {
+internal class AndroidCalendarModelImpl: CalendarModel {
     override val today
         get(): CalendarDate {
             val systemLocalDate = LocalDate.now()

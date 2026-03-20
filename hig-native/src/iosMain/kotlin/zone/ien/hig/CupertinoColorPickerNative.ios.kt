@@ -70,7 +70,7 @@ fun CupertinoColorPickerNative(
 private class ColorPickerDelegate(
     private val onColorChanged: (Color) -> Unit,
     private val onDismissRequest: () -> Unit,
-) : NSObject(),
+): NSObject(),
     UIColorPickerViewControllerDelegateProtocol {
     override fun colorPickerViewControllerDidSelectColor(viewController: UIColorPickerViewController) {
         onColorChanged(viewController.selectedColor.toComposeColor())

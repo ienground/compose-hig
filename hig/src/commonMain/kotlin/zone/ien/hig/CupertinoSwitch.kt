@@ -25,10 +25,8 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -67,6 +65,7 @@ import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -110,7 +109,7 @@ fun CupertinoSwitch(
     thumbContent: @Composable (() -> Unit)? = null,
     colors: CupertinoSwitchColors = CupertinoSwitchDefaults.colors(),
     enabled: Boolean = true,
-    backdrop: Backdrop = rememberLayerBackdrop(),
+    backdrop: Backdrop = rememberDefaultBackdrop(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val updatedChecked by rememberUpdatedState(checked)

@@ -414,7 +414,7 @@ internal open class SwipeableState<T>(
         /**
          * The default [Saver] implementation for [SwipeableState].
          */
-        fun <T : Any> Saver(
+        fun <T: Any> Saver(
             animationSpec: AnimationSpec<Float>,
             confirmStateChange: (T) -> Boolean,
         ) = Saver<SwipeableState<T>, T>(
@@ -470,7 +470,7 @@ internal class SwipeProgress<T>(
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
 @Composable
-internal fun <T : Any> rememberSwipeableState(
+internal fun <T: Any> rememberSwipeableState(
     initialValue: T,
     animationSpec: AnimationSpec<Float> = AnimationSpec,
     confirmStateChange: (newValue: T) -> Boolean = { true },
@@ -498,7 +498,7 @@ internal fun <T : Any> rememberSwipeableState(
 // *  some reason, then the [SwipeableState] will perform a rollback to the previous, correct value.
 // */
 // @Composable
-// internal fun <T : Any> rememberSwipeableStateFor(
+// internal fun <T: Any> rememberSwipeableStateFor(
 //    value: T,
 //    onValueChange: (T) -> Unit,
 //    animationSpec: AnimationSpec<Float> = AnimationSpec
@@ -646,7 +646,7 @@ internal interface ThresholdConfig {
 @Immutable
 internal data class FixedThreshold(
     private val offset: Dp,
-) : ThresholdConfig {
+): ThresholdConfig {
     override fun Density.computeThreshold(
         fromValue: Float,
         toValue: Float,
@@ -662,7 +662,7 @@ internal data class FixedThreshold(
 internal data class FractionalThreshold(
     // @FloatRange(from = 0.0, to = 1.0)
     private val fraction: Float,
-) : ThresholdConfig {
+): ThresholdConfig {
     override fun Density.computeThreshold(
         fromValue: Float,
         toValue: Float,
@@ -848,7 +848,7 @@ internal object SwipeableDefaults {
 // temp default nested scroll connection for swipeables which desire as an opt in
 // revisit in b/174756744 as all types will have their own specific connection probably
 // internal val <T> SwipeableState<T>.PreUpPostDownNestedScrollConnection: NestedScrollConnection
-//    get() = object : NestedScrollConnection {
+//    get() = object: NestedScrollConnection {
 //        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
 //            val delta = available.toFloat()
 //            return if (delta < 0 && source == NestedScrollSource.Drag) {

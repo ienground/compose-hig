@@ -92,7 +92,7 @@ internal data class HazeNodeElement(
     val tint: Color,
     val blurRadius: Dp,
     val density: Density,
-) : ModifierNodeElement<HazeNode>() {
+): ModifierNodeElement<HazeNode>() {
     override fun create(): HazeNode =
         HazeNode(
             areas = areas,
@@ -126,7 +126,7 @@ internal expect class HazeNode(
     tint: Color,
     blurRadius: Dp,
     density: Density,
-) : Modifier.Node {
+): Modifier.Node {
     fun update(
         areas: List<Rect>,
         backgroundColor: Color,

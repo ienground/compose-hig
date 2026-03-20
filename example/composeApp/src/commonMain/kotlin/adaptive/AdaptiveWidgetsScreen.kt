@@ -50,10 +50,11 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import zone.ien.hig.CupertinoNavigateBackButton
-import zone.ien.hig.CupertinoSwitch
-import zone.ien.hig.CupertinoText
+import com.kyant.backdrop.backdrops.layerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.hig.CupertinoIcon
+import zone.ien.hig.CupertinoLiquidButtonDefaults
+import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveAlertDialog
 import zone.ien.hig.adaptive.AdaptiveButton
@@ -85,6 +86,8 @@ import zone.ien.hig.adaptive.icons.Share
 import zone.ien.hig.adaptive.icons.ThumbUp
 import zone.ien.hig.cancel
 import zone.ien.hig.default
+import zone.ien.hig.icons.CupertinoIcons
+import zone.ien.hig.icons.outlined.ChevronBackward
 import zone.ien.hig.rememberCupertinoDatePickerState
 
 @OptIn(
@@ -98,16 +101,23 @@ fun AdaptiveWidgetsScreen(
     onItemValueChanged: (RootDetails) -> Unit,
     navigateBack: () -> Unit,
 ) {
+    val backdrop = rememberDefaultBackdrop()
+
     AdaptiveScaffold(
         topBar = {
             AdaptiveTopAppBar(
                 navigationIcon = {
                     AdaptiveWidget(
                         cupertino = {
-                            CupertinoNavigateBackButton(
+                            CupertinoLiquidIconButton(
                                 onClick = navigateBack,
+                                backdrop = backdrop,
+                                modifier = Modifier.padding(start = 16.dp)
                             ) {
-                                CupertinoText("Back")
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.ChevronBackward,
+                                    contentDescription = null
+                                )
                             }
                         },
                         material = {
@@ -138,29 +148,33 @@ fun AdaptiveWidgetsScreen(
                         onCheckedChange = { onItemValueChanged(uiState.item.copy(isMaterial = it)) },
                     )
                 },
+                adaptation = {
+                    cupertino { this.backdrop = backdrop }
+                }
             )
         },
         bottomBar = {
-            AdaptiveNavigationBar {
-                var selected by rememberSaveable {
-                    mutableStateOf(0)
+            var selected by rememberSaveable { mutableStateOf(0) }
+            val content = listOf(
+                "Profile" to AdaptiveIcons.Outlined.Person,
+                "Menu" to AdaptiveIcons.Outlined.Menu,
+                "Settings" to AdaptiveIcons.Outlined.Settings,
+            )
+
+            AdaptiveNavigationBar(
+                selectedTabIndex = { selected },
+                onTabSelected = { selected = it },
+                tabsCount = content.size,
+                adaptation = {
+                    cupertino { this.backdrop = backdrop }
                 }
-
-                val content =
-                    listOf(
-                        "Profile" to AdaptiveIcons.Outlined.Person,
-                        "Menu" to AdaptiveIcons.Outlined.Menu,
-                        "Settings" to AdaptiveIcons.Outlined.Settings,
-                    )
-
+            ) {
                 content.forEachIndexed { index, pair ->
                     AdaptiveNavigationBarItem(
-                        selected = selected == index,
-                        onClick = {
-                            selected = index
-                        },
+                        index = index,
+                        onClick = { selected = index },
                         icon = {
-                            Icon(
+                            CupertinoIcon(
                                 imageVector = pair.second,
                                 contentDescription = pair.first,
                             )
@@ -174,7 +188,6 @@ fun AdaptiveWidgetsScreen(
         },
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
             contentPadding =
                 PaddingValues(
                     start = 12.dp,
@@ -183,6 +196,9 @@ fun AdaptiveWidgetsScreen(
                     bottom = it.calculateBottomPadding(),
                 ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .layerBackdrop(backdrop)
+                .fillMaxSize()
         ) {
             item {
                 FlowRow(
@@ -249,20 +265,31 @@ fun AdaptiveWidgetsScreen(
                         onClick = {
                             alertVisible = true
                         },
+                        adaptation = {
+                            cupertino {
+                                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+                            }
+                        }
                     ) {
                         Text("Alert")
                     }
-                    AdaptiveTextButton(onClick = {}) {
+                    AdaptiveTextButton(
+                        onClick = {},
+                    ) {
                         Text("Text Button")
                     }
 
-                    AdaptiveIconButton(onClick = {}) {
+                    AdaptiveIconButton(
+                        onClick = {},
+                    ) {
                         Icon(
                             imageVector = AdaptiveIcons.Outlined.Delete,
                             contentDescription = null,
                         )
                     }
-                    AdaptiveFilledIconButton(onClick = {}) {
+                    AdaptiveFilledIconButton(
+                        onClick = {}
+                    ) {
                         Icon(
                             imageVector = AdaptiveIcons.Outlined.Delete,
                             contentDescription = null,
@@ -330,6 +357,15 @@ fun AdaptiveWidgetsScreen(
                     },
                 )
             }
+
+//            item {
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(1000.dp)
+//                        .background(Color.Blue)
+//                )
+//            }
         }
     }
 }

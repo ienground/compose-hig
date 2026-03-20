@@ -38,12 +38,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoButton
-import zone.ien.hig.CupertinoButtonColors
-import zone.ien.hig.CupertinoButtonDefaults.filledButtonColors
-import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
-import zone.ien.hig.CupertinoButtonDefaults.tintedButtonColors
 import zone.ien.hig.CupertinoButtonSize
+import zone.ien.hig.CupertinoLiquidButton
+import zone.ien.hig.CupertinoLiquidButtonColors
+import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.theme.CupertinoTheme
 
@@ -57,10 +59,9 @@ fun AdaptiveButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    border: BorderStroke? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     adaptation: AdaptationScope<CupertinoButtonAdaptation, MaterialButtonAdaptation>.() -> Unit = {},
-    content: @Composable() (RowScope.() -> Unit)
+    content: @Composable (RowScope.() -> Unit)
 ) {
     AdaptiveWidget(
         adaptation = remember {
@@ -72,7 +73,7 @@ fun AdaptiveButton(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
-                border = border,
+                border = it.border,
                 interactionSource = interactionSource,
                 content = content,
                 contentPadding = it.contentPadding,
@@ -82,17 +83,18 @@ fun AdaptiveButton(
             )
         },
         cupertino = {
-            CupertinoButton(
+            CupertinoLiquidButton(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
-                border = border,
                 interactionSource = interactionSource,
                 content = content,
                 size = it.size,
                 contentPadding = it.contentPadding ?: it.size.contentPadding,
                 shape =  it.shape ?: it.size.shape(CupertinoTheme.shapes),
-                colors = it.colors
+                colors = it.colors,
+                backdrop = it.backdrop,
+                isBackgroundAdaptive = it.isBackgroundAdaptive
             )
         }
     )
@@ -108,10 +110,9 @@ fun AdaptiveTextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    border: BorderStroke? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     adaptation: AdaptationScope<CupertinoButtonAdaptation, MaterialButtonAdaptation>.() -> Unit = {},
-    content: @Composable() (RowScope.() -> Unit)
+    content: @Composable (RowScope.() -> Unit)
 ) {
     AdaptiveWidget(
         adaptation = remember {
@@ -123,7 +124,7 @@ fun AdaptiveTextButton(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
-                border = border,
+                border = it.border,
                 interactionSource = interactionSource,
                 content = content,
                 contentPadding = it.contentPadding,
@@ -133,17 +134,18 @@ fun AdaptiveTextButton(
             )
         },
         cupertino = {
-            CupertinoButton(
+            CupertinoLiquidButton(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
-                border = border,
                 interactionSource = interactionSource,
                 content = content,
                 size = it.size,
                 contentPadding = it.contentPadding ?: it.size.contentPadding,
                 shape =  it.shape ?: it.size.shape(CupertinoTheme.shapes),
-                colors = it.colors
+                colors = it.colors,
+                backdrop = it.backdrop,
+                isBackgroundAdaptive = it.isBackgroundAdaptive
             )
         }
     )
@@ -159,10 +161,9 @@ fun AdaptiveTonalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    border: BorderStroke? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     adaptation: AdaptationScope<CupertinoButtonAdaptation, MaterialButtonAdaptation>.() -> Unit = {},
-    content: @Composable() (RowScope.() -> Unit)
+    content: @Composable (RowScope.() -> Unit)
 ) {
     AdaptiveWidget(
         adaptation = remember {
@@ -174,7 +175,7 @@ fun AdaptiveTonalButton(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
-                border = border,
+                border = it.border,
                 interactionSource = interactionSource,
                 content = content,
                 contentPadding = it.contentPadding,
@@ -184,17 +185,18 @@ fun AdaptiveTonalButton(
             )
         },
         cupertino = {
-            CupertinoButton(
+            CupertinoLiquidButton(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
-                border = border,
                 interactionSource = interactionSource,
                 content = content,
                 size = it.size,
                 contentPadding = it.contentPadding ?: it.size.contentPadding,
                 shape =  it.shape ?: it.size.shape(CupertinoTheme.shapes),
-                colors = it.colors
+                colors = it.colors,
+                backdrop = it.backdrop,
+                isBackgroundAdaptive = it.isBackgroundAdaptive
             )
         }
     )
@@ -203,9 +205,13 @@ fun AdaptiveTonalButton(
 
 @Stable
 class CupertinoButtonAdaptation internal constructor(
-    colors : CupertinoButtonColors,
+    colors: CupertinoLiquidButtonColors,
+    backdrop: LayerBackdrop,
+    isBackgroundAdaptive: Boolean,
 ) {
-    var colors : CupertinoButtonColors by mutableStateOf(colors)
+    var colors: CupertinoLiquidButtonColors by mutableStateOf(colors)
+    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
+    var isBackgroundAdaptive: Boolean by mutableStateOf(isBackgroundAdaptive)
     var size: CupertinoButtonSize by mutableStateOf(CupertinoButtonSize.Regular)
     var shape: Shape? by mutableStateOf(null)
     var contentPadding: PaddingValues? by mutableStateOf(null)
@@ -213,15 +219,17 @@ class CupertinoButtonAdaptation internal constructor(
 
 @Stable
 class MaterialButtonAdaptation internal constructor(
-    colors : ButtonColors,
+    colors: ButtonColors,
     elevation: ButtonElevation?,
     shape: Shape,
-    contentPadding: PaddingValues
+    contentPadding: PaddingValues,
+    border: BorderStroke?,
 ) {
     var colors: ButtonColors by mutableStateOf(colors)
     var elevation: ButtonElevation? by mutableStateOf(elevation)
     var shape: Shape by mutableStateOf(shape)
     var contentPadding: PaddingValues by mutableStateOf(contentPadding)
+    var border: BorderStroke? by mutableStateOf(border)
 }
 
 private enum class ButtonType {
@@ -230,25 +238,24 @@ private enum class ButtonType {
 
 @ExperimentalAdaptiveApi
 private class ButtonAdaptation(
-    private val type: ButtonType
-) : Adaptation<CupertinoButtonAdaptation, MaterialButtonAdaptation>() {
+    private val type: ButtonType,
+): Adaptation<CupertinoButtonAdaptation, MaterialButtonAdaptation>() {
 
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoButtonAdaptation {
-
         val colors = when (type) {
-            ButtonType.Filled -> filledButtonColors(
-            )
-
-            ButtonType.Text -> plainButtonColors(
-            )
-
-            ButtonType.Tonal -> tintedButtonColors()
+            ButtonType.Filled -> CupertinoLiquidButtonDefaults.glassButtonColors()
+            ButtonType.Text -> CupertinoLiquidButtonDefaults.glassButtonColors()
+            ButtonType.Tonal -> CupertinoLiquidButtonDefaults.glassProminentButtonColors()
         }
+        val backdrop = rememberLayerBackdrop()
+        val isBackgroundAdaptive = true
 
-        return remember(colors) {
+        return remember(colors, backdrop, isBackgroundAdaptive) {
             CupertinoButtonAdaptation(
                 colors = colors,
+                backdrop = backdrop,
+                isBackgroundAdaptive
             )
         }
     }
@@ -263,13 +270,15 @@ private class ButtonAdaptation(
 
         val elevation = ButtonDefaults.buttonElevation()
         val shape = ButtonDefaults.shape
+        val border: BorderStroke? = null
 
-        return remember(colors, elevation, elevation, shape) {
+        return remember(colors, elevation, elevation, shape, border) {
             MaterialButtonAdaptation(
                 colors = colors,
                 elevation = elevation,
                 shape = shape,
-                contentPadding = ButtonDefaults.ContentPadding
+                contentPadding = ButtonDefaults.ContentPadding,
+                border = border
             )
         }
     }

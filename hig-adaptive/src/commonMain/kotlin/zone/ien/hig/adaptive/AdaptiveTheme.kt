@@ -168,9 +168,9 @@ fun AdaptiveTheme(
 @Immutable
 @ExperimentalAdaptiveApi
 class MaterialThemeSpec(
-    val colorScheme : MaterialColorScheme = materialLightColorScheme(),
-    val shapes : MaterialShapes = MaterialShapes(),
-    val typography : MaterialTypography = MaterialTypography(),
+    val colorScheme: MaterialColorScheme = materialLightColorScheme(),
+    val shapes: MaterialShapes = MaterialShapes(),
+    val typography: MaterialTypography = MaterialTypography(),
 ) {
     fun copy(
         colorScheme: MaterialColorScheme = this.colorScheme,
@@ -199,14 +199,14 @@ class MaterialThemeSpec(
 @Immutable
 @ExperimentalAdaptiveApi
 class CupertinoThemeSpec(
-    val colorScheme : CupertinoColorScheme = cupertinoLightColorScheme(),
-    val shapes : CupertinoShapes = CupertinoShapes(),
-    val typography : CupertinoTypography = CupertinoTypography()
+    val colorScheme: CupertinoColorScheme = cupertinoLightColorScheme(),
+    val shapes: CupertinoShapes = CupertinoShapes(),
+    val typography: CupertinoTypography = CupertinoTypography()
 ) {
     fun copy(
-        colorScheme : CupertinoColorScheme = this.colorScheme,
-        shapes : CupertinoShapes = this.shapes,
-        typography : CupertinoTypography = this.typography
+        colorScheme: CupertinoColorScheme = this.colorScheme,
+        shapes: CupertinoShapes = this.shapes,
+        typography: CupertinoTypography = this.typography
     ) = CupertinoThemeSpec(
         colorScheme = colorScheme,
         shapes = shapes,
@@ -231,11 +231,11 @@ class CupertinoThemeSpec(
  * Theme declared as a target in [AdaptiveTheme]
  * */
 @ExperimentalAdaptiveApi
-val currentTheme : Theme
+val currentTheme: Theme
     @Composable
     get() = LocalTheme.current
 
-internal expect val DefaultTheme : Theme
+internal expect val DefaultTheme: Theme
 
 internal val LocalTheme = staticCompositionLocalOf<Theme> {
     error("Adaptive theme is not provided. Please add AdaptiveTheme { } to the root of your composable hierarchy")

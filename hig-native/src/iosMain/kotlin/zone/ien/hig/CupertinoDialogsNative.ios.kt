@@ -139,7 +139,7 @@ internal fun UIAlertController(
 
 private class NativeAlertDialogButtonsScopeImpl(
     val onDismissRequest: () -> Unit,
-) : NativeAlertDialogActionsScope {
+): NativeAlertDialogActionsScope {
     val buttons = mutableListOf<UIAlertAction>()
 
     override fun action(

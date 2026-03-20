@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoSwitch
 import zone.ien.hig.CupertinoSwitchColors
 import zone.ien.hig.CupertinoSwitchDefaults
@@ -113,14 +114,15 @@ class MaterialSwitchAdaptation internal constructor(
     var colors by mutableStateOf(colors)
 }
 
+@OptIn(ExperimentalAdaptiveApi::class)
 @Stable
-private class SwitchAdaptation : Adaptation<CupertinoSwitchAdaptation, MaterialSwitchAdaptation>() {
+private class SwitchAdaptation: Adaptation<CupertinoSwitchAdaptation, MaterialSwitchAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoSwitchAdaptation {
         val colors = CupertinoSwitchDefaults.colors()
         val backdrop = rememberLayerBackdrop()
 
-        return remember(colors) {
+        return remember(colors, backdrop) {
             CupertinoSwitchAdaptation(
                 colors = colors,
                 backdrop = backdrop

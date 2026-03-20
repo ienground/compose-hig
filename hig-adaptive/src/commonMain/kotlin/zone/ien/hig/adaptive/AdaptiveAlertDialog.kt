@@ -179,7 +179,7 @@ class CupertinoAlertAdaptation internal constructor(
 
 @ExperimentalAdaptiveApi
 @Stable
-private class AlertDialogAdaptation : Adaptation<CupertinoAlertAdaptation, MaterialAlertAdaptation>() {
+private class AlertDialogAdaptation: Adaptation<CupertinoAlertAdaptation, MaterialAlertAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoAlertAdaptation {
         val shape = CupertinoDialogsDefaults.Shape
@@ -214,7 +214,7 @@ private class AdaptiveAlertDialogButtonData(
     val title: @Composable () -> Unit,
 )
 
-private class AdaptiveAlertDialogButtonScopeImpl : AlertDialogActionsScope {
+private class AdaptiveAlertDialogButtonScopeImpl: AlertDialogActionsScope {
     val buttons = mutableListOf<AdaptiveAlertDialogButtonData>()
 
     override fun action(

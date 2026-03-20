@@ -44,13 +44,13 @@ private val EmptyTransitioningDelegate =
     }
 
 @Suppress("UNUSED")
-private class ControllerHolder<T : UIViewController>(
+private class ControllerHolder<T: UIViewController>(
     val controller: T,
     val transitioningDelegateProtocol: UIViewControllerTransitioningDelegateProtocol,
 )
 
 @Composable
-internal fun <T : UIViewController> PresentationController(
+internal fun <T: UIViewController> PresentationController(
     factory: () -> T,
     update: T.() -> Unit,
     onDismissRequest: () -> Unit,
@@ -68,7 +68,7 @@ internal fun <T : UIViewController> PresentationController(
 
     val delegate =
         remember(currentDelegate) {
-            object : NSObject(), UIViewControllerTransitioningDelegateProtocol {
+            object: NSObject(), UIViewControllerTransitioningDelegateProtocol {
                 override fun animationControllerForPresentedController(
                     presented: UIViewController,
                     presentingController: UIViewController,

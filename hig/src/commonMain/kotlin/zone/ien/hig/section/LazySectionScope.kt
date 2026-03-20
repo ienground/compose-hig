@@ -59,6 +59,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.LocalContentColor
 import zone.ien.hig.CupertinoButtonTokens
 import zone.ien.hig.CupertinoDatePicker
@@ -218,6 +220,7 @@ fun LazySectionScope.dropdownMenu(
                     ),
                 expanded = expanded,
                 onDismissRequest = onDismissRequest,
+                backdrop = rememberLayerBackdrop(),
                 content = content,
             )
             CupertinoIcon(
@@ -390,9 +393,7 @@ fun LazySectionScope.timePicker(
     onExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    icon:
-        @Composable()
-        (() -> Unit)? = null,
+    icon: @Composable (() -> Unit)? = null,
     dividerPadding: Dp =
         if (icon != null) {
             CupertinoSectionDefaults.DividerPaddingWithIcon
@@ -568,9 +569,7 @@ private fun LazySectionScope.labelWithCustomChevron(
     onClick: () -> Unit,
     key: Any? = null,
     enabled: Boolean = true,
-    icon:
-        @Composable()
-        (() -> Unit)? = null,
+    icon: @Composable (() -> Unit)? = null,
     dividerPadding: Dp =
         if (icon != null) {
             CupertinoSectionDefaults.DividerPaddingWithIcon

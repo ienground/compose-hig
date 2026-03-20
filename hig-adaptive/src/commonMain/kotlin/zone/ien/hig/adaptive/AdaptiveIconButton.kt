@@ -32,11 +32,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import zone.ien.hig.CupertinoButtonColors
-import zone.ien.hig.CupertinoButtonDefaults.filledButtonColors
-import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
-import zone.ien.hig.CupertinoIconButton
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.hig.CupertinoLiquidButtonColors
+import zone.ien.hig.CupertinoLiquidButtonDefaults
+import zone.ien.hig.CupertinoLiquidIconButton
+import zone.ien.hig.ExperimentalCupertinoApi
 
+@OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
 fun AdaptiveIconButton(
@@ -63,18 +67,21 @@ fun AdaptiveIconButton(
             )
         },
         cupertino = {
-            CupertinoIconButton(
+            CupertinoLiquidIconButton(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
                 interactionSource = interactionSource,
                 content = content,
-                colors = it.colors
+                colors = it.colors,
+                backdrop = it.backdrop,
+                isBackgroundAdaptive = it.isBackgroundAdaptive
             )
         }
     )
 }
 
+@OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
 fun AdaptiveFilledIconButton(
@@ -101,13 +108,15 @@ fun AdaptiveFilledIconButton(
             )
         },
         cupertino = {
-            CupertinoIconButton(
+            CupertinoLiquidIconButton(
                 onClick = onClick,
                 modifier = modifier,
                 enabled = enabled,
                 interactionSource = interactionSource,
                 content = content,
-                colors = it.colors
+                colors = it.colors,
+                backdrop = it.backdrop,
+                isBackgroundAdaptive = it.isBackgroundAdaptive
             )
         }
     )
@@ -115,36 +124,42 @@ fun AdaptiveFilledIconButton(
 
 @Stable
 class CupertinoIconButtonAdaptation internal constructor(
-    colors : CupertinoButtonColors,
+    colors: CupertinoLiquidButtonColors,
+    backdrop: LayerBackdrop,
+    isBackgroundAdaptive: Boolean
 ) {
-    var colors : CupertinoButtonColors by mutableStateOf(colors)
+    var colors: CupertinoLiquidButtonColors by mutableStateOf(colors)
+    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
+    var isBackgroundAdaptive: Boolean by mutableStateOf(isBackgroundAdaptive)
 }
 
 @Stable
 class MaterialIconButtonAdaptation internal constructor(
-    colors : IconButtonColors
+    colors: IconButtonColors
 ){
-    var colors : IconButtonColors by mutableStateOf(colors)
+    var colors: IconButtonColors by mutableStateOf(colors)
 
 }
 
 @OptIn(ExperimentalAdaptiveApi::class)
 private class IconButtonAdaptation(
-    private val isFilled : Boolean
-) : Adaptation<CupertinoIconButtonAdaptation, MaterialIconButtonAdaptation>() {
+    private val isFilled: Boolean
+): Adaptation<CupertinoIconButtonAdaptation, MaterialIconButtonAdaptation>() {
 
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoIconButtonAdaptation {
         val colors = if (isFilled)
-            filledButtonColors(
-            )
+            CupertinoLiquidButtonDefaults.glassProminentButtonColors()
         else
-            plainButtonColors(
-            )
+            CupertinoLiquidButtonDefaults.glassButtonColors()
+        val backdrop = rememberLayerBackdrop()
+        val isBackgroundAdaptive = true
 
-        return remember(colors) {
+        return remember(colors, backdrop, isBackgroundAdaptive) {
             CupertinoIconButtonAdaptation(
                 colors = colors,
+                backdrop = backdrop,
+                isBackgroundAdaptive = isBackgroundAdaptive
             )
         }
     }

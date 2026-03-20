@@ -260,7 +260,7 @@ private fun AnimatedDialog(
 
 private class CupertinoLiquidAlertDialogButtonsScopeImpl(
     private val orientation: Orientation,
-) : AlertDialogActionsScope {
+): AlertDialogActionsScope {
     private val buttons = mutableListOf<@Composable () -> Unit>()
 
     override fun action(

@@ -40,7 +40,7 @@ internal class SectionItem(
 )
 
 @Stable
-internal class LazySectionScopeImpl : LazySectionScope {
+internal class LazySectionScopeImpl: LazySectionScope {
     val items: List<SectionItem>
         get() = _items
 

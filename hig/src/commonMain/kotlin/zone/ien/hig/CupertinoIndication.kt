@@ -47,7 +47,7 @@ fun rememberCupertinoIndication(color: Color = CupertinoIndication.DefaultColor)
 
 internal class CupertinoIndication(
     private val color: Color,
-) : IndicationNodeFactory {
+): IndicationNodeFactory {
     companion object {
         val DefaultColor: Color
             @Composable
@@ -71,7 +71,7 @@ internal class CupertinoIndication(
 internal class CupertinoIndicationNode(
     val color: Color,
     val interactionSource: InteractionSource,
-) : Modifier.Node(),
+): Modifier.Node(),
     DrawModifierNode {
     private val animatedAlpha =
         androidx.compose.animation.core

@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoLiquidSliderDefaults
 import zone.ien.hig.CupertinoRangeSlider
@@ -210,7 +211,7 @@ class MaterialSliderAdaptation internal constructor(
 @Stable
 private class SliderAdaptation(
     private val steps: Int,
-) : Adaptation<CupertinoSliderAdaptation, MaterialSliderAdaptation>() {
+): Adaptation<CupertinoSliderAdaptation, MaterialSliderAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoSliderAdaptation {
         val colors = CupertinoLiquidSliderDefaults.colors()

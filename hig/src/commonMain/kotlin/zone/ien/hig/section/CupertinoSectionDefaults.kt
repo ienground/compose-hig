@@ -193,8 +193,8 @@ object CupertinoSectionDefaults {
 
     @Composable
     fun TextFieldClearButton(
-        visible : Boolean,
-        onClick : () -> Unit
+        visible: Boolean,
+        onClick: () -> Unit
     ) {
         AnimatedVisibility(
             visible = visible,
@@ -219,7 +219,6 @@ object CupertinoSectionDefaults {
 
 
 internal object CupertinoSectionTokens {
-
     val SplitPadding = 12.dp
     val InlinePadding = 6.dp
     val VerticalPadding = 8.dp

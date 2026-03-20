@@ -87,7 +87,7 @@ import kotlin.math.abs
 class CupertinoPickerState(
     internal val infinite: Boolean = false,
     internal val initiallySelectedItemIndex: Int = 0,
-) : ScrollableState {
+): ScrollableState {
     internal val lazyListState: LazyListState =
         LazyListState(
             firstVisibleItemIndex =
@@ -259,7 +259,7 @@ typealias CupertinoPickerIndicator = DrawScope.(itemHeight: Float) -> Unit
 @OptIn(InternalCupertinoApi::class)
 @Composable
 @ExperimentalCupertinoApi
-fun <T : Any> CupertinoWheelPicker(
+fun <T: Any> CupertinoWheelPicker(
     state: CupertinoPickerState,
     items: List<T>,
     height: Dp = CupertinoPickerDefaults.Height,

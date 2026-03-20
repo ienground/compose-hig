@@ -21,6 +21,7 @@
 package icons
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -40,10 +41,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.backdrops.layerBackdrop
 import zone.ien.hig.CupertinoAlertDialog
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconButton
+import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoNavigateBackButton
+import zone.ien.hig.CupertinoNavigateBackLiquidButton
 import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoSegmentedControl
 import zone.ien.hig.CupertinoSegmentedControlTab
@@ -886,20 +890,16 @@ import zone.ien.hig.icons.outlined.XmarkShield
 import zone.ien.hig.icons.outlined.Yensign
 import zone.ien.hig.icons.outlined.Zzz
 import zone.ien.hig.icons.outlined._4kTv
+import zone.ien.hig.utils.rememberDefaultBackdrop
 
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun IconsScreen(
     navigateBack: () -> Unit
 ) {
-
-    var isOutlined by remember {
-        mutableStateOf(true)
-    }
-
-    val pagerState = rememberPagerState(
-        pageCount = { 2 }
-    )
+    val backdrop = rememberDefaultBackdrop()
+    var isOutlined by remember { mutableStateOf(true) }
+    val pagerState = rememberPagerState { 2 }
 
     LaunchedEffect(isOutlined){
         pagerState.animateScrollToPage(if (isOutlined) 0 else 1)
@@ -911,11 +911,11 @@ fun IconsScreen(
                 navigationIcon = {
                     AdaptiveWidget(
                         cupertino = {
-                            CupertinoNavigateBackButton(
+                            CupertinoNavigateBackLiquidButton(
                                 onClick = navigateBack,
-                            ) {
-                                CupertinoText("Back")
-                            }
+                                backdrop = backdrop,
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
                         },
                         material = {
                             IconButton(
@@ -953,14 +953,12 @@ fun IconsScreen(
                             CupertinoText("Filled")
                         }
                     }
-                }
+                },
+                backdrop = backdrop
             )
         }
     ) { pv ->
-
-        var selectedIcon by remember {
-            mutableStateOf<ImageVector?>(null)
-        }
+        var selectedIcon by remember { mutableStateOf<ImageVector?>(null) }
         if (selectedIcon != null) {
             CupertinoAlertDialog(
                 title = {
@@ -988,7 +986,8 @@ fun IconsScreen(
 
         HorizontalPager(
             state = pagerState,
-            userScrollEnabled = false
+            userScrollEnabled = false,
+            modifier = Modifier.layerBackdrop(backdrop)
         ) { page ->
             LazyVerticalGrid(
                 modifier = Modifier.fillMaxSize(),

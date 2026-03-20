@@ -39,14 +39,12 @@
 package cupertino
 
 import GeneratedAdaptiveTheme
-import IsIos
 import RootDetails
 import RootRoute
 import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
@@ -70,7 +68,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -85,7 +82,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
@@ -95,7 +91,7 @@ import androidx.navigation3.runtime.NavKey
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -125,9 +121,6 @@ import zone.ien.hig.CupertinoLiquidAlertDialog
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
-import zone.ien.hig.CupertinoSlider
-import zone.ien.hig.CupertinoNavigationBar
-import zone.ien.hig.CupertinoNavigationBarItem
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
 import zone.ien.hig.CupertinoRangeSlider
@@ -135,6 +128,7 @@ import zone.ien.hig.CupertinoSearchTextField
 import zone.ien.hig.CupertinoSearchTextFieldDefaults
 import zone.ien.hig.CupertinoSegmentedControl
 import zone.ien.hig.CupertinoSegmentedControlTab
+import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoSwipeBox
 import zone.ien.hig.CupertinoSwitch
 import zone.ien.hig.CupertinoText
@@ -149,10 +143,14 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.MenuAction
 import zone.ien.hig.MenuSection
 import zone.ien.hig.PresentationStyle
+import zone.ien.hig.adaptive.AdaptiveNavigationBar
+import zone.ien.hig.adaptive.AdaptiveNavigationBarItem
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.adaptive.icons.Add
+import zone.ien.hig.adaptive.icons.Menu
+import zone.ien.hig.adaptive.icons.Person
 import zone.ien.hig.adaptive.icons.Settings
 import zone.ien.hig.adaptive.icons.Share
 import zone.ien.hig.cancel
@@ -162,8 +160,6 @@ import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.filled.Alarm
 import zone.ien.hig.icons.filled.Archivebox
 import zone.ien.hig.icons.filled.Banknote
-import zone.ien.hig.icons.filled.Gearshape
-import zone.ien.hig.icons.filled.Person
 import zone.ien.hig.icons.filled.Pin
 import zone.ien.hig.icons.filled.Trash
 import zone.ien.hig.icons.outlined.Bookmark
@@ -178,8 +174,6 @@ import zone.ien.hig.icons.outlined.SquareAndArrowUp
 import zone.ien.hig.icons.outlined.SquareSplit1x2
 import zone.ien.hig.icons.outlined.SunMax
 import zone.ien.hig.icons.outlined.Trash
-import zone.ien.hig.isNavigationBarTransparent
-import zone.ien.hig.isTopBarTransparent
 import zone.ien.hig.rememberCupertinoBottomSheetScaffoldState
 import zone.ien.hig.rememberCupertinoDatePickerState
 import zone.ien.hig.rememberCupertinoDateTimePickerState
@@ -229,7 +223,8 @@ fun CupertinoWidgetsScreen(
     val scrollState = rememberScrollState()
     val sheetListState = rememberLazyListState()
 
-    val backdrop = rememberLayerBackdrop()
+    val backdrop = rememberDefaultBackdrop()
+    val globalBackdrop = rememberDefaultBackdrop()
 
     val scaffoldState = rememberCupertinoBottomSheetScaffoldState(
         rememberCupertinoSheetState(
@@ -275,7 +270,7 @@ fun CupertinoWidgetsScreen(
         },
         bottomBar = {
             BottomBarSample(
-                scrollState = scrollState
+                backdrop = backdrop
             )
         },
     ) { pv ->
@@ -341,6 +336,7 @@ private fun Body(
                 paddingValues = CupertinoSearchTextFieldDefaults.PaddingValues +
                         PaddingValues(bottom = 12.dp)
             )
+//            /*
 
             CupertinoSection {
                 SectionItem(
@@ -388,6 +384,8 @@ private fun Body(
                 SwitchAndProgressBar()
             }
 
+//             */
+
             CupertinoSection(
                 title = {
                     CupertinoText(
@@ -409,7 +407,14 @@ private fun Body(
                     SheetsExamples()
                 }
                 SectionItem {
-                    DropdownExample()
+                    DropdownExample(
+                        backdrop = backdrop
+                    )
+                }
+                SectionItem {
+                    DropdownExample2(
+                        backdrop = backdrop
+                    )
                 }
             }
 
@@ -438,7 +443,7 @@ private fun ScreenPreview() {
             scaffoldState = rememberCupertinoBottomSheetScaffoldState(),
             nativePickers = remember { mutableStateOf(false) },
             onNavigate = {},
-            backdrop = rememberLayerBackdrop()
+            backdrop = rememberDefaultBackdrop()
         )
     }
 }
@@ -483,7 +488,7 @@ private fun PickersSection(
                             )]
                         }"
 
-                    PickerTab.Time -> "${timePickerState.hour} : ${timePickerState.minute}"
+                    PickerTab.Time -> "${timePickerState.hour}: ${timePickerState.minute}"
                     PickerTab.Date -> remember {
                         derivedStateOf {
                             Instant
@@ -792,42 +797,10 @@ private fun TopBarSample(
     CupertinoTopAppBar(
         backdrop = backdrop,
         actions = {
-            /*
-            CupertinoLiquidIconButton(
-                onClick = {},
-                backdrop = backdrop
-            ) {
-                Row {
-                    Box(
-                        modifier = Modifier.clickable(
-                            interactionSource = null,
-                            indication = null,
-                            onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
-                        )
-                    ) {
-                        AnimatedContent(uiState.item.isDark) {
-                            if (it) {
-                                CupertinoIcon(
-                                    imageVector = CupertinoIcons.Default.SunMax,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            } else {
-                                CupertinoIcon(
-                                    imageVector = CupertinoIcons.Default.MoonStars,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-             */
             CupertinoLiquidButton(
                 onClick = {},
-                backdrop = backdrop
+                backdrop = backdrop,
+                modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(24.dp),
@@ -867,46 +840,41 @@ private fun TopBarSample(
     )
 }
 
+@OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 private fun BottomBarSample(
-    scrollState: ScrollState
+    backdrop: LayerBackdrop
 ) {
-    var tab by remember {
-        mutableStateOf(0)
-    }
+    var tab by remember { mutableStateOf(0) }
+    val content = listOf(
+        "Profile" to AdaptiveIcons.Outlined.Person,
+        "Menu" to AdaptiveIcons.Outlined.Menu,
+        "Settings" to AdaptiveIcons.Outlined.Settings,
+    )
 
-    val isTransparent = scrollState.isNavigationBarTransparent
-
-    CupertinoNavigationBar(
-        isTranslucent = isTransparent,
-        isTransparent = isTransparent,
+    AdaptiveNavigationBar(
+        selectedTabIndex = { tab },
+        onTabSelected = { tab = it },
+        tabsCount = 3,
+        adaptation = {
+            cupertino { this.backdrop = backdrop }
+        },
     ) {
-        CupertinoNavigationBarItem(
-            selected = tab == 0,
-            onClick = { tab = 0 },
-            icon = {
-                CupertinoIcon(
-                    imageVector = CupertinoIcons.Filled.Person,
-                    contentDescription = null
-                )
-            },
-            label = {
-                CupertinoText("Profile")
-            }
-        )
-        CupertinoNavigationBarItem(
-            selected = tab == 1,
-            onClick = { tab = 1 },
-            icon = {
-                CupertinoIcon(
-                    imageVector = CupertinoIcons.Filled.Gearshape,
-                    contentDescription = null
-                )
-            },
-            label = {
-                CupertinoText("Settings")
-            }
-        )
+        content.forEachIndexed { index, pair ->
+            AdaptiveNavigationBarItem(
+                index = index,
+                onClick = { tab = index },
+                icon = {
+                    CupertinoIcon(
+                        imageVector = pair.second,
+                        contentDescription = pair.first,
+                    )
+                },
+                label = {
+                    Text(pair.first)
+                },
+            )
+        }
     }
 }
 
@@ -1048,7 +1016,7 @@ fun DateTimePicker(
 
 @Composable
 private fun SectionScope.SwitchAndProgressBar() {
-    val backdrop = rememberLayerBackdrop()
+    val backdrop = rememberDefaultBackdrop()
 
     SectionItem {
         Row(
@@ -1345,7 +1313,7 @@ private fun ColorButtons(
 
 @Composable
 private fun SectionScope.ButtonsExample() {
-    val backdrop = rememberLayerBackdrop()
+    val backdrop = rememberDefaultBackdrop()
     SectionItem {
         Row(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -1748,16 +1716,13 @@ private fun SheetsExamples() {
 
 
 @Composable
-private fun DropdownExample() {
+private fun DropdownExample(
+    backdrop: Backdrop
+) {
+    var dropdownVisible by remember { mutableStateOf(false) }
+    var pickerSheetVisible by remember { mutableStateOf(false) }
+    val layerBackdrop = rememberDefaultBackdrop()
 
-
-    var dropdownVisible by remember {
-        mutableStateOf(false)
-    }
-
-    var pickerSheetVisible by remember {
-        mutableStateOf(false)
-    }
     CupertinoActionSheet(
         visible = pickerSheetVisible,
         onDismissRequest = {
@@ -1793,13 +1758,13 @@ private fun DropdownExample() {
         }
     )
 
-
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        CupertinoButton(
-            colors = CupertinoButtonDefaults.tintedButtonColors(),
+        CupertinoLiquidButton(
+            colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+            backdrop = layerBackdrop,
             onClick = {
                 pickerSheetVisible = true
             }
@@ -1810,22 +1775,101 @@ private fun DropdownExample() {
         Spacer(Modifier.weight(1f))
         //Menu bar should be in the box with anchor to align correctly
         Box {
-            CupertinoButton(
-                onClick = {
-                    dropdownVisible = !dropdownVisible
-                }
+            CupertinoLiquidButton(
+                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                backdrop = layerBackdrop,
+                onClick = { dropdownVisible = !dropdownVisible }
             ) {
                 CupertinoText("Menu")
             }
-
 
             val red = CupertinoColors.systemRed
 
             CupertinoDropdownMenu(
                 expanded = dropdownVisible,
-                onDismissRequest = {
-                    dropdownVisible = false
+                onDismissRequest = { dropdownVisible = false },
+                backdrop = backdrop
+            ) {
+                MenuSection(
+                    title = {
+                        Text("Menu")
+                    }
+                ) {
+                    MenuAction(
+                        onClick = {
+                            dropdownVisible = false
+                        },
+                        icon = {
+                            CupertinoIcon(
+                                imageVector = CupertinoIcons.Default.SquareAndArrowUp,
+                                contentDescription = null
+                            )
+                        }
+                    ) {
+                        CupertinoText("Share")
+                    }
+                    MenuAction(
+                        enabled = false,
+                        onClick = {
+                            dropdownVisible = false
+                        },
+                        icon = {
+                            CupertinoIcon(
+                                imageVector = CupertinoIcons.Default.Bookmark,
+                                contentDescription = null
+                            )
+                        }
+                    ) {
+                        CupertinoText("Add to Favorites")
+                    }
                 }
+
+                MenuAction(
+                    onClick = {
+                        dropdownVisible = false
+
+                    },
+                    contentColor = red,
+                    icon = {
+                        CupertinoIcon(
+                            imageVector = CupertinoIcons.Default.Trash,
+                            contentDescription = null
+                        )
+                    }
+                ) {
+                    CupertinoText("Delete")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DropdownExample2(
+    backdrop: Backdrop
+) {
+    var dropdownVisible by remember { mutableStateOf(false) }
+    val layerBackdrop = rememberDefaultBackdrop()
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        //Menu bar should be in the box with anchor to align correctly
+        Box {
+            CupertinoLiquidButton(
+                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                backdrop = layerBackdrop,
+                onClick = { dropdownVisible = !dropdownVisible }
+            ) {
+                CupertinoText("Menu")
+            }
+
+            val red = CupertinoColors.systemRed
+
+            CupertinoDropdownMenu(
+                expanded = dropdownVisible,
+                onDismissRequest = { dropdownVisible = false },
+                backdrop = backdrop
             ) {
                 MenuSection(
                     title = {
