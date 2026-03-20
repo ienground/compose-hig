@@ -144,26 +144,24 @@ fun CupertinoDropdownMenu(
     val expandedStates = remember { MutableTransitionState(false) }
     expandedStates.targetState = expanded
     val safePadding = 32.dp
-    val density = LocalDensity.current
-    val safePaddingPx = with(density) { safePadding.roundToPx() }
+//    val density = LocalDensity.current
+//    val safePaddingPx = with(density) { safePadding.roundToPx() }
 
     if (expandedStates.currentState || expandedStates.targetState) {
         var transformOrigin by remember { mutableStateOf(TransformOrigin.Center) }
-        var menuOffset by remember { mutableStateOf(Offset.Zero) }
+//        var menuOffset by remember { mutableStateOf(Offset.Zero) }
         val density = LocalDensity.current
         val popupPositionProvider = DropdownMenuPositionProvider(
             contentOffset = offset,
             safePadding = safePadding,
+            verticalMargin = 0.dp,
             density = density
         ) { parentBounds, menuBounds ->
             transformOrigin = calculateTransformOrigin(parentBounds, menuBounds)
-            menuOffset = Offset(
-                menuBounds.left.toFloat() + safePaddingPx,
-                menuBounds.top.toFloat() + safePaddingPx
-            )
-
-            // offset
-            println("LiquidGlass: ${menuOffset.x} ${menuOffset.y} ${transformOrigin.pivotFractionX} ${transformOrigin.pivotFractionY}")
+//            menuOffset = Offset(
+//                menuBounds.left.toFloat() + safePaddingPx,
+//                menuBounds.top.toFloat() + safePaddingPx
+//            )
         }
 
         Popup(
@@ -679,6 +677,7 @@ internal data class DropdownMenuPositionProvider(
     val contentOffset: DpOffset,
     val density: Density,
     val safePadding: Dp = 0.dp,
+    val verticalMargin: Dp = MenuVerticalMargin,
     val onPositionCalculated: (IntRect, IntRect) -> Unit = { _, _ -> },
 ) : PopupPositionProvider {
     override fun calculatePosition(
@@ -687,7 +686,7 @@ internal data class DropdownMenuPositionProvider(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize,
     ): IntOffset {
-        val verticalMargin = with(density) { MenuVerticalMargin.roundToPx() }
+        val verticalMargin = with(density) { verticalMargin.roundToPx() }
         val safePaddingPx = with(density) { safePadding.roundToPx() }
         val contentOffsetX = with(density) {
             contentOffset.x.roundToPx() * (if (layoutDirection == LayoutDirection.Ltr) 1 else -1)
@@ -698,8 +697,7 @@ internal data class DropdownMenuPositionProvider(
         // 실제 메뉴 크기 = popupContentSize - safePadding * 2
         // Popup 자체는 safePadding만큼 앞당겨서 배치해야 내부 컨텐츠가 anchor에 붙음
         val leftToAnchorLeft = anchorBounds.left + contentOffsetX - safePaddingPx
-        val rightToAnchorRight =
-            anchorBounds.right - popupContentSize.width + contentOffsetX + safePaddingPx
+        val rightToAnchorRight = anchorBounds.right - popupContentSize.width + contentOffsetX + safePaddingPx
         val rightToWindowRight = windowSize.width - popupContentSize.width
         val leftToWindowLeft = 0
 
@@ -719,22 +717,30 @@ internal data class DropdownMenuPositionProvider(
             it >= -safePaddingPx && it + popupContentSize.width <= windowSize.width + safePaddingPx
         } ?: rightToAnchorRight
 
-        val topToAnchorTop = maxOf(
-            anchorBounds.top + contentOffsetY - safePaddingPx,
-            verticalMargin - safePaddingPx
-        )
-        val bottomToAnchorBottom =
-            anchorBounds.bottom - popupContentSize.height + contentOffsetY + safePaddingPx
-        val bottomToWindowBottom =
-            windowSize.height - popupContentSize.height - verticalMargin + safePaddingPx
+//        val topToAnchorTop = maxOf(
+//            anchorBounds.top + contentOffsetY - safePaddingPx,
+//            verticalMargin - safePaddingPx
+//        )
+        val topToAnchorTop = anchorBounds.top + contentOffsetY - safePaddingPx
+        val bottomToAnchorBottom = anchorBounds.bottom - popupContentSize.height + contentOffsetY + safePaddingPx
+        val bottomToWindowBottom = windowSize.height - popupContentSize.height - verticalMargin + safePaddingPx
+
+//        val y = sequenceOf(
+//            topToAnchorTop,
+//            bottomToAnchorBottom,
+//            bottomToWindowBottom,
+//        ).firstOrNull {
+//            it + safePaddingPx >= verticalMargin &&
+//                    it + popupContentSize.height - safePaddingPx <= windowSize.height - verticalMargin
+//        } ?: bottomToAnchorBottom
 
         val y = sequenceOf(
             topToAnchorTop,
             bottomToAnchorBottom,
             bottomToWindowBottom,
         ).firstOrNull {
-            it + safePaddingPx >= verticalMargin &&
-                    it + popupContentSize.height - safePaddingPx <= windowSize.height - verticalMargin
+            it + popupContentSize.height - safePaddingPx <= windowSize.height - verticalMargin
+            // 👆 상단 조건(verticalMargin 체크) 제거
         } ?: bottomToAnchorBottom
 
         onPositionCalculated(

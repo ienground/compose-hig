@@ -27,8 +27,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -65,6 +67,7 @@ fun TestScreen(
     val coroutineScope = rememberCoroutineScope()
     val snackbarState = remember { SnackbarHostState() }
     var enabled by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
 
     CupertinoScaffold(
         snackbarHost = { SnackbarHost(snackbarState) },
@@ -78,15 +81,34 @@ fun TestScreen(
                     CupertinoText("sub title")
                 },
                 navigationIcon = {
-                    CupertinoLiquidIconButton(
-                        onClick = {},
-                        backdrop = backdrop
-                    ) {
-                        CupertinoIcon(
-                            imageVector = CupertinoIcons.Default.ChevronBackward,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
+                    Box {
+                        CupertinoLiquidIconButton(
+                            onClick = { expanded = true },
+                            backdrop = backdrop
+                        ) {
+                            CupertinoIcon(
+                                imageVector = CupertinoIcons.Default.ChevronBackward,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                        CupertinoDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            backdrop = rememberLayerBackdrop()
+                        ) {
+                            MenuSection(
+                                title = { Text(text = "Title") }
+                            ) {
+                                repeat(4) {
+                                    MenuAction(
+                                        onClick = {}
+                                    ) {
+                                        Text(text = "Action")
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 actions = {
