@@ -243,7 +243,7 @@ fun CupertinoLiquidIconButton(
 ) {
     CupertinoLiquidButton(
         onClick = onClick,
-        modifier = modifier.size(CupertinoButtonTokens.IconButtonSize),
+        modifier = modifier.size(CupertinoLiquidButtonTokens.IconButtonSize),
         enabled = enabled,
         colors = colors,
         size = CupertinoButtonSize.Regular,
@@ -445,7 +445,7 @@ object CupertinoLiquidButtonDefaults {
 
 internal object CupertinoLiquidButtonTokens {
     const val PressedPlainButonAlpha = .33f
-    val IconButtonSize = 42.dp
+    val IconButtonSize = 48.dp
     const val BorderedButtonAlpha = .2f
 }
 
