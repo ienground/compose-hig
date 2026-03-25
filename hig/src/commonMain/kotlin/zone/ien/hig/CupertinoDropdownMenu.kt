@@ -144,12 +144,9 @@ fun CupertinoDropdownMenu(
     val expandedStates = remember { MutableTransitionState(false) }
     expandedStates.targetState = expanded
     val safePadding = 32.dp
-//    val density = LocalDensity.current
-//    val safePaddingPx = with(density) { safePadding.roundToPx() }
 
     if (expandedStates.currentState || expandedStates.targetState) {
         var transformOrigin by remember { mutableStateOf(TransformOrigin.Center) }
-//        var menuOffset by remember { mutableStateOf(Offset.Zero) }
         val density = LocalDensity.current
         val popupPositionProvider = DropdownMenuPositionProvider(
             contentOffset = offset,
@@ -158,10 +155,6 @@ fun CupertinoDropdownMenu(
             density = density
         ) { parentBounds, menuBounds ->
             transformOrigin = calculateTransformOrigin(parentBounds, menuBounds)
-//            menuOffset = Offset(
-//                menuBounds.left.toFloat() + safePaddingPx,
-//                menuBounds.top.toFloat() + safePaddingPx
-//            )
         }
 
         Popup(

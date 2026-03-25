@@ -1,5 +1,13 @@
 package test
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOut
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -7,10 +15,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.SnackbarHost
@@ -81,30 +91,40 @@ fun TestScreen(
                     CupertinoText("sub title")
                 },
                 navigationIcon = {
-                    Box {
-                        CupertinoLiquidIconButton(
-                            onClick = { expanded = true },
-                            backdrop = backdrop
+                    Row {
+
+                        AnimatedVisibility(
+                            visible = enabled,
+                            enter = slideInHorizontally(tween(3000)) { -it },
+                            exit = slideOutHorizontally(tween(3000)) { -it }
                         ) {
-                            CupertinoIcon(
-                                imageVector = CupertinoIcons.Default.ChevronBackward,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                        CupertinoDropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            backdrop = rememberLayerBackdrop()
-                        ) {
-                            MenuSection(
-                                title = { Text(text = "Title") }
-                            ) {
-                                repeat(4) {
-                                    MenuAction(
-                                        onClick = {}
+                            Box {
+                                CupertinoLiquidIconButton(
+                                    onClick = { expanded = true },
+                                    backdrop = backdrop,
+                                    modifier = Modifier.padding(start = 16.dp)
+                                ) {
+                                    CupertinoIcon(
+                                        imageVector = CupertinoIcons.Default.ChevronBackward,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                                CupertinoDropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false },
+                                    backdrop = rememberLayerBackdrop()
+                                ) {
+                                    MenuSection(
+                                        title = { Text(text = "Title") }
                                     ) {
-                                        Text(text = "Action")
+                                        repeat(4) {
+                                            MenuAction(
+                                                onClick = {}
+                                            ) {
+                                                Text(text = "Action")
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -294,6 +314,37 @@ fun TestScreen(
                     .fillMaxWidth()
                     .height(200.dp)
             )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                modifier = Modifier.padding(horizontal = 24.dp)
+            ) {
+                AnimatedVisibility(
+                    visible = enabled,
+                    enter = slideInHorizontally(tween(3000)),
+                    exit = slideOutHorizontally(tween(3000))
+                ) {
+                    CupertinoLiquidIconButton(
+                        onClick = { },
+                        backdrop = rememberDefaultBackdrop()
+                    ) {
+                        CupertinoIcon(
+                            imageVector = CupertinoIcons.Default.ChevronBackward,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+                CupertinoLiquidIconButton(
+                    onClick = {  },
+                    backdrop = rememberDefaultBackdrop()
+                ) {
+                    CupertinoIcon(
+                        imageVector = CupertinoIcons.Default.ChevronBackward,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
             Box(
                 modifier = Modifier
                     .background(Color.White)
