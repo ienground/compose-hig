@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
@@ -218,7 +217,7 @@ fun TestScreen(
                     ) {
                         MenuAction(
                             onClick = { expanded = false },
-                            icon = {
+                            leadingIcon = {
                                 CupertinoIcon(
                                     imageVector = CupertinoIcons.Default.CheckmarkCircle,
                                     contentDescription = null
@@ -229,7 +228,7 @@ fun TestScreen(
                         }
                         MenuAction(
                             onClick = { expanded = false },
-                            icon = {
+                            leadingIcon = {
                                 CupertinoIcon(
                                     imageVector = CupertinoIcons.Default.Pin,
                                     contentDescription = null
@@ -240,7 +239,7 @@ fun TestScreen(
                         }
                         MenuAction(
                             onClick = { expanded = false },
-                            icon = {
+                            leadingIcon = {
                                 CupertinoIcon(
                                     imageVector = CupertinoIcons.Default.PersonCropCircle,
                                     contentDescription = null

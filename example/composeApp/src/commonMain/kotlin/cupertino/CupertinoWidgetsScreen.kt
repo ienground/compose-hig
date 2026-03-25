@@ -68,6 +68,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Badge
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -1796,10 +1797,11 @@ private fun DropdownExample(
                     }
                 ) {
                     MenuAction(
+                        enabled = false,
                         onClick = {
                             dropdownVisible = false
                         },
-                        icon = {
+                        leadingIcon = {
                             CupertinoIcon(
                                 imageVector = CupertinoIcons.Default.SquareAndArrowUp,
                                 contentDescription = null
@@ -1809,15 +1811,17 @@ private fun DropdownExample(
                         CupertinoText("Share")
                     }
                     MenuAction(
-                        enabled = false,
                         onClick = {
                             dropdownVisible = false
                         },
-                        icon = {
+                        leadingIcon = {
                             CupertinoIcon(
                                 imageVector = CupertinoIcons.Default.Bookmark,
                                 contentDescription = null
                             )
+                        },
+                        trailingIcon = {
+                            Badge { Text("1") }
                         }
                     ) {
                         CupertinoText("Add to Favorites")
@@ -1830,7 +1834,7 @@ private fun DropdownExample(
 
                     },
                     contentColor = red,
-                    icon = {
+                    leadingIcon = {
                         CupertinoIcon(
                             imageVector = CupertinoIcons.Default.Trash,
                             contentDescription = null
@@ -1880,7 +1884,7 @@ private fun DropdownExample2(
                         onClick = {
                             dropdownVisible = false
                         },
-                        icon = {
+                        leadingIcon = {
                             CupertinoIcon(
                                 imageVector = CupertinoIcons.Default.SquareAndArrowUp,
                                 contentDescription = null
@@ -1894,7 +1898,7 @@ private fun DropdownExample2(
                         onClick = {
                             dropdownVisible = false
                         },
-                        icon = {
+                        leadingIcon = {
                             CupertinoIcon(
                                 imageVector = CupertinoIcons.Default.Bookmark,
                                 contentDescription = null
@@ -1911,7 +1915,7 @@ private fun DropdownExample2(
 
                     },
                     contentColor = red,
-                    icon = {
+                    leadingIcon = {
                         CupertinoIcon(
                             imageVector = CupertinoIcons.Default.Trash,
                             contentDescription = null
