@@ -279,8 +279,8 @@ fun CupertinoMenuScope.MenuAction(
     onClickLabel: String? = null,
     enabled: Boolean = true,
     contentColor: Color = CupertinoDropdownMenuDefaults.ContentColor,
-    leadingIcon: @Composable () -> Unit = {},
-    trailingIcon: @Composable () -> Unit = {},
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     title: @Composable () -> Unit,
 ) = ActionWithoutPadding(
     onClickLabel = onClickLabel,
@@ -398,8 +398,8 @@ private fun CupertinoMenuScope.ActionWithoutPadding(
     onClickLabel: String? = null,
     enabled: Boolean = true,
     contentColor: Color = Color.Unspecified,
-    leadingIcon: @Composable () -> Unit = {},
-    trailingIcon: @Composable () -> Unit = {},
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     title: @Composable (PaddingValues) -> Unit,
 ) = MenuItem {
     val color = contentColor.takeOrElse { LocalContentColor.current }.let { if (enabled) it else it.copy(alpha = it.alpha / 4f) }
@@ -426,22 +426,23 @@ private fun CupertinoMenuScope.ActionWithoutPadding(
                     horizontalArrangement = Arrangement.spacedBy(CupertinoSectionTokens.SplitPadding),
                     modifier = Modifier.padding(it.copy(end = 0.dp))
                 ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.size(MinItemHeight / 2),
-                    ) {
-                        leadingIcon.invoke()
+                    leadingIcon?.let { icon ->
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.size(MinItemHeight / 2),
+
+                        ) { icon() }
                     }
                     Box(
                         modifier = Modifier.weight(1f)
                     ) {
                         title(it.copy(start = 0.dp))
                     }
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.size(MinItemHeight / 2),
-                    ) {
-                        trailingIcon.invoke()
+                    trailingIcon?.let { icon ->
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.size(MinItemHeight / 2),
+                        ) { icon() }
                     }
                 }
             }
