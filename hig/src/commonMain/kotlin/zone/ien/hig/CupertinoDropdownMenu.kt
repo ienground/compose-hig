@@ -58,11 +58,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -82,7 +80,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceAtMost
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastSumBy
 import androidx.compose.ui.util.lerp
@@ -144,12 +141,9 @@ fun CupertinoDropdownMenu(
     val expandedStates = remember { MutableTransitionState(false) }
     expandedStates.targetState = expanded
     val safePadding = 32.dp
-//    val density = LocalDensity.current
-//    val safePaddingPx = with(density) { safePadding.roundToPx() }
 
     if (expandedStates.currentState || expandedStates.targetState) {
         var transformOrigin by remember { mutableStateOf(TransformOrigin.Center) }
-//        var menuOffset by remember { mutableStateOf(Offset.Zero) }
         val density = LocalDensity.current
         val popupPositionProvider = DropdownMenuPositionProvider(
             contentOffset = offset,
@@ -158,10 +152,6 @@ fun CupertinoDropdownMenu(
             density = density
         ) { parentBounds, menuBounds ->
             transformOrigin = calculateTransformOrigin(parentBounds, menuBounds)
-//            menuOffset = Offset(
-//                menuBounds.left.toFloat() + safePaddingPx,
-//                menuBounds.top.toFloat() + safePaddingPx
-//            )
         }
 
         Popup(
@@ -279,8 +269,7 @@ fun CupertinoMenuScope.MenuTitle(
  * @param onClickLabel semantics label for the [onClick] action. Should be the same text as in [title]
  * @param contentColor color of the item contend.
  * Usually [CupertinoColors.systemRed] is used for destructive actions.
- * @param icon action trailing icon
- * @param caption content before [icon]
+ * @param leadingIcon action leading icon
  * @param title action title
  * */
 @Composable
@@ -290,8 +279,8 @@ fun CupertinoMenuScope.MenuAction(
     onClickLabel: String? = null,
     enabled: Boolean = true,
     contentColor: Color = CupertinoDropdownMenuDefaults.ContentColor,
-    icon: (@Composable () -> Unit) = {},
-    caption: @Composable () -> Unit = {},
+    leadingIcon: @Composable () -> Unit = {},
+    trailingIcon: @Composable () -> Unit = {},
     title: @Composable () -> Unit,
 ) = ActionWithoutPadding(
     onClickLabel = onClickLabel,
@@ -299,8 +288,8 @@ fun CupertinoMenuScope.MenuAction(
     onClick = onClick,
     enabled = enabled,
     contentColor = contentColor,
-    icon = icon,
-    caption = caption,
+    leadingIcon = leadingIcon,
+    trailingIcon = trailingIcon,
 )
 {
     Box(
@@ -322,8 +311,7 @@ fun CupertinoMenuScope.MenuAction(
  * @param onClickLabel semantics label for the [onClick] action. Should be the same text as in [title]
  * @param contentColor color of the item contend.
  * Usually [CupertinoColors.systemRed] is used for destructive actions.
- * @param icon action trailing icon
- * @param caption content before [icon]
+ * @param leadingIcon action leading icon
  * @param title action title
  * */
 @Composable
@@ -335,8 +323,8 @@ fun CupertinoMenuScope.MenuPickerAction(
     enabled: Boolean = true,
     contentColor: Color = CupertinoDropdownMenuDefaults.ContentColor,
     selectionIcon: (@Composable () -> Unit) = { CupertinoDropdownMenuDefaults.PickerLeadingIcon() },
-    icon: (@Composable () -> Unit) = {},
-    caption: @Composable () -> Unit = {},
+    leadingIcon: (@Composable () -> Unit) = {},
+    trailingIcon: @Composable () -> Unit = {},
     title: @Composable () -> Unit,
 ) {
     this as CupertinoMenuScopeImpl
@@ -358,8 +346,8 @@ fun CupertinoMenuScope.MenuPickerAction(
         onClick = onClick,
         enabled = enabled,
         contentColor = contentColor,
-        icon = icon,
-        caption = caption,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
         title = { pv ->
             Box(
                 contentAlignment = Alignment.CenterStart,
@@ -410,8 +398,8 @@ private fun CupertinoMenuScope.ActionWithoutPadding(
     onClickLabel: String? = null,
     enabled: Boolean = true,
     contentColor: Color = Color.Unspecified,
-    icon: @Composable () -> Unit = {},
-    caption: @Composable () -> Unit = {},
+    leadingIcon: @Composable () -> Unit = {},
+    trailingIcon: @Composable () -> Unit = {},
     title: @Composable (PaddingValues) -> Unit,
 ) = MenuItem {
     val color = contentColor.takeOrElse { LocalContentColor.current }.let { if (enabled) it else it.copy(alpha = it.alpha / 4f) }
@@ -423,7 +411,7 @@ private fun CupertinoMenuScope.ActionWithoutPadding(
             modifier = modifier
                 .heightIn(min = CupertinoSectionTokens.MinHeight)
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(horizontal = 8.dp)
                 .clip(RoundedRectangle(24.dp))
                 .clickable(
                     enabled = enabled,
@@ -438,16 +426,24 @@ private fun CupertinoMenuScope.ActionWithoutPadding(
                     horizontalArrangement = Arrangement.spacedBy(CupertinoSectionTokens.SplitPadding),
                     modifier = Modifier.padding(it.copy(end = 0.dp))
                 ) {
-                    caption.invoke()
-
                     Box(
                         contentAlignment = Alignment.Center,
-                        modifier = Modifier.size(MinItemHeight / 3),
+                        modifier = Modifier.size(MinItemHeight / 2),
                     ) {
-                        icon.invoke()
+                        leadingIcon.invoke()
+                    }
+                    Box(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        title(it.copy(start = 0.dp))
+                    }
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.size(MinItemHeight / 2),
+                    ) {
+                        trailingIcon.invoke()
                     }
                 }
-                title(it.copy(start = 0.dp))
             }
         }
     }
@@ -607,6 +603,7 @@ private fun DropdownMenuContent(
                             },
                         )
                         .fillMaxWidth()
+                        .padding(vertical = 8.dp)
                         .heightIn(max = MenuMaxHeight)
                         .verticalScroll(scrollState),
                 ) { constraints ->
