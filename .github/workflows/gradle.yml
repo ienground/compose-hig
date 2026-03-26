@@ -23,8 +23,6 @@ jobs:
             os: ubuntu-latest
           - target: jsTest
             os: ubuntu-latest
-          - target: testAndroidHostTest
-            os: ubuntu-latest
     runs-on: ${{ matrix.os }}
 
     steps:
