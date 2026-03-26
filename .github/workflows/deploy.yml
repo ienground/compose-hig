@@ -20,10 +20,10 @@ jobs:
           distribution: 'temurin'
 
       - name: Build wasmJs
-        run: ./gradlew wasmJsBrowserDistribution
+        run: ./gradlew :example:composeApp:wasmJsBrowserDistribution
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: composeApp/build/dist/wasmJs/productionExecutable
+          folder: example/composeApp/build/dist/wasmJs/productionExecutable
           branch: gh-pages
