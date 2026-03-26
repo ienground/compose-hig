@@ -4,9 +4,9 @@
 
 # compose-hig
 
-This is a fork of [alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino) except its been updated to work with CMP 1.7+
+This is a fork of [alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino) and [slanos/compose-cupertino](https://github.com/slanos/compose-cupertino).
 
-Additionally this repo has automated builds to enable faster releases, to take advantage of new compose multiplatform features as they become available.
+Additionally, this repo has automated builds to enable faster releases, to take advantage of new compose multiplatform features as they become available.
 
 ## New features (compared to the OG `compose-cupertino`)
 
@@ -67,7 +67,3 @@ Ensure that the copyright information is included in your file(s):
 ```
 
 Ideally you set up Android Studio / IDE to handle copyright notices for you: https://stackoverflow.com/a/48718711/1730421
-
-# Disclaimer
-
-Note this repo is not officially supported in any capacity; changes will be applied upstream when applicable ([example1](https://github.com/alexzhirkevich/compose-cupertino/pull/74), [example2](https://github.com/alexzhirkevich/compose-cupertino/pull/77))
