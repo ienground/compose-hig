@@ -835,7 +835,7 @@ private fun TopBarSample(
             }
         },
         title = {
-            CupertinoText("Cupertino")
+            CupertinoText("HIG")
         }
     )
 }
