@@ -322,7 +322,7 @@ private fun Body(
         ) {
 
             CupertinoNavigationTitle {
-                Text("Cupertino")
+                Text("HIG")
             }
             var searchValue by remember {
                 mutableStateOf("")
