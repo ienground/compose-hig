@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-
-
 package zone.ien.hig
 
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -41,7 +39,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.verticalScroll
@@ -102,7 +100,6 @@ import zone.ien.hig.theme.BrightSeparatorColor
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.systemGray5
-import zone.ien.hig.theme.systemRed
 import zone.ien.hig.utils.InteractiveHighlight
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -114,15 +111,6 @@ import kotlin.math.tanh
 
 sealed interface CupertinoMenuScope
 
-/**
- * Cupertino elevated dropdown menu. Usually used for top bar actions.
- *
- * @see MenuSection
- * @see MenuTitle
- * @see MenuAction
- * @see MenuPickerAction
- * @see MenuDivider
- * */
 @Composable
 @ExperimentalCupertinoApi
 fun CupertinoDropdownMenu(
@@ -166,29 +154,16 @@ fun CupertinoDropdownMenu(
                 expandedStates = expandedStates,
                 transformOriginState = transformOrigin,
                 scrollState = scrollState,
-                modifier = modifier.padding(safePadding),
                 content = { scope.run { content() } },
                 width = width,
                 paddingValue = paddingValues,
                 backdrop = backdrop,
+                modifier = modifier.padding(safePadding)
             )
         }
     }
 }
 
-/**
- * Plain menu item with manual padding control.
- * Usually shouldn't be used directly.
- *
- * @param minHeight minimum item height
- * @param content item content
- *
- * @see MenuSection
- * @see MenuTitle
- * @see MenuAction
- * @see MenuPickerAction
- * @see MenuDivider
- * */
 @Composable
 fun CupertinoMenuScope.MenuItem(
     modifier: Modifier = Modifier,
@@ -198,80 +173,45 @@ fun CupertinoMenuScope.MenuItem(
     this as CupertinoMenuScopeImpl
 
     Box(
-        modifier = modifier.heightIn(minHeight),
         contentAlignment = Alignment.CenterStart,
+        modifier = modifier.heightIn(minHeight)
     ) {
         content(
             MenuPaddingValues.let {
-                if (!hasPicker) {
-                    it
-                } else {
-                    it.copy(
-                        start = it.calculateStartPadding(LocalLayoutDirection.current) + SelectorSize,
-                    )
-                }
+                if (!hasPicker) it
+                else it.copy(
+                    start = it.calculateStartPadding(LocalLayoutDirection.current) + SelectorSize,
+                )
             },
         )
     }
 }
 
-/**
- * Group of buttons with top [MenuTitle] and bottom [MenuDivider]
- *
- * @see MenuTitle
- * @see MenuDivider
- * */
 @Composable
 inline fun CupertinoMenuScope.MenuSection(
     noinline title: (@Composable () -> Unit)? = null,
     content: @Composable CupertinoMenuScope.() -> Unit,
 ) {
-    if (title != null) {
-        MenuTitle(title = title)
-    }
+    if (title != null) MenuTitle(title = title)
     content()
 }
 
-/**
- * Title of the [MenuSection]
- * */
 @Composable
 fun CupertinoMenuScope.MenuTitle(
     modifier: Modifier = Modifier,
     title: @Composable () -> Unit,
 ) {
-    MenuItem(
-        modifier = modifier,
-        minHeight = MinTitleHeight,
-    ) {
+    MenuItem(modifier = modifier, minHeight = MinTitleHeight) {
         CompositionLocalProvider(
             LocalContentColor provides CupertinoTheme.colorScheme.secondaryLabel,
         ) {
-            ProvideTextStyle(
-                CupertinoTheme.typography.footnote,
-            ) {
-                Box(
-                    Modifier
-                        .padding(it),
-                ) {
-                    title()
-                }
+            ProvideTextStyle(CupertinoTheme.typography.footnote) {
+                Box(Modifier.padding(it)) { title() }
             }
         }
     }
 }
 
-/**
- * Default menu button
-
- * @param onClick block performed on action click
- * @param modifier item modifier
- * @param onClickLabel semantics label for the [onClick] action. Should be the same text as in [title]
- * @param contentColor color of the item contend.
- * Usually [CupertinoColors.systemRed] is used for destructive actions.
- * @param leadingIcon action leading icon
- * @param title action title
- * */
 @Composable
 fun CupertinoMenuScope.MenuAction(
     onClick: () -> Unit,
@@ -282,38 +222,31 @@ fun CupertinoMenuScope.MenuAction(
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     title: @Composable () -> Unit,
-) = ActionWithoutPadding(
-    onClickLabel = onClickLabel,
-    modifier = modifier,
-    onClick = onClick,
-    enabled = enabled,
-    contentColor = contentColor,
-    leadingIcon = leadingIcon,
-    trailingIcon = trailingIcon,
-)
-{
-    Box(
-        modifier = Modifier.padding(it),
+) {
+    this as CupertinoMenuScopeImpl
+
+    // ✅ 아이콘이 있는 아이템이 하나라도 있으면 hasIcon = true 등록
+    if (leadingIcon != null) {
+        DisposableEffect(this) {
+            val prev = hasIcon
+            hasIcon = true
+            onDispose { hasIcon = prev }
+        }
+    }
+
+    ActionWithoutPadding(
+        onClickLabel = onClickLabel,
+        modifier = modifier,
+        onClick = onClick,
+        enabled = enabled,
+        contentColor = contentColor,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
     ) {
-        title()
+        Box(modifier = Modifier.padding(it)) { title() }
     }
 }
 
-/**
- * Picker action with leading icon ([Checkmark] by default) if selected.
- *
- * If menu has at least one picker action (no matter selected or not)
- * then all menu items will have additional start padding
- *
- * @param isSelected selection flag. If item is selected, it will have a [selectionIcon]
- * @param onClick block performed on action click
- * @param modifier item modifier
- * @param onClickLabel semantics label for the [onClick] action. Should be the same text as in [title]
- * @param contentColor color of the item contend.
- * Usually [CupertinoColors.systemRed] is used for destructive actions.
- * @param leadingIcon action leading icon
- * @param title action title
- * */
 @Composable
 fun CupertinoMenuScope.MenuPickerAction(
     isSelected: Boolean,
@@ -332,9 +265,7 @@ fun CupertinoMenuScope.MenuPickerAction(
     DisposableEffect(this) {
         val prev = hasPicker
         hasPicker = true
-        onDispose {
-            hasPicker = prev
-        }
+        onDispose { hasPicker = prev }
     }
 
     ActionWithoutPadding(
@@ -349,38 +280,25 @@ fun CupertinoMenuScope.MenuPickerAction(
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
         title = { pv ->
-            Box(
-                contentAlignment = Alignment.CenterStart,
-            ) {
+            Box(contentAlignment = Alignment.CenterStart) {
                 Box(
                     modifier = Modifier.size(MinItemHeight),
                     contentAlignment = Alignment.Center,
                 ) {
-                    if (isSelected) {
-                        selectionIcon()
-                    }
+                    if (isSelected) selectionIcon()
                 }
-                Box(
-                    modifier = Modifier.padding(pv),
-                ) {
-                    title()
-                }
+                Box(modifier = Modifier.padding(pv)) { title() }
             }
         },
     )
 }
 
-/**
- * Separator for the menu actions groups
- * */
 @Composable
 fun CupertinoMenuScope.MenuDivider(
     modifier: Modifier = Modifier,
     color: Color? = null,
     height: Dp = DividerHeight,
-) = MenuItem(
-    minHeight = DividerHeight,
-) {
+) = MenuItem(minHeight = DividerHeight) {
     Spacer(
         modifier = modifier
             .height(height)
@@ -402,7 +320,10 @@ private fun CupertinoMenuScope.ActionWithoutPadding(
     trailingIcon: @Composable (() -> Unit)? = null,
     title: @Composable (PaddingValues) -> Unit,
 ) = MenuItem {
-    val color = contentColor.takeOrElse { LocalContentColor.current }.let { if (enabled) it else it.copy(alpha = it.alpha / 4f) }
+    this as CupertinoMenuScopeImpl
+
+    val color = contentColor.takeOrElse { LocalContentColor.current }
+        .let { if (enabled) it else it.copy(alpha = it.alpha / 4f) }
 
     ProvideTextStyle(CupertinoTheme.typography.callout) {
         Row(
@@ -424,20 +345,26 @@ private fun CupertinoMenuScope.ActionWithoutPadding(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(CupertinoSectionTokens.SplitPadding),
-                    modifier = Modifier.padding(it.copy(end = 0.dp))
+                    modifier = Modifier.padding(it)
                 ) {
-                    leadingIcon?.let { icon ->
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.size(MinItemHeight / 2),
-
-                        ) { icon() }
+                    when {
+                        // 아이콘 있음 → 아이콘 표시
+                        leadingIcon != null -> {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.size(MinItemHeight / 2),
+                            ) { leadingIcon() }
+                        }
+                        // 아이콘 없지만 다른 아이템에 아이콘 있음 → 공백 확보
+                        hasIcon -> {
+                            Spacer(modifier = Modifier.size(MinItemHeight / 2))
+                        }
                     }
-                    Box(
-                        modifier = Modifier.weight(1f)
-                    ) {
+
+                    Box(modifier = Modifier.weight(1f)) {
                         title(it.copy(start = 0.dp))
                     }
+
                     trailingIcon?.let { icon ->
                         Box(
                             contentAlignment = Alignment.Center,
@@ -450,36 +377,27 @@ private fun CupertinoMenuScope.ActionWithoutPadding(
     }
 }
 
-/**
- * Contains default values used for [CupertinoDropdownMenu].
- */
 @Immutable
 object CupertinoDropdownMenuDefaults {
     val DefaultWidth = 260.dp
     val SmallWidth = 160.dp
-
     val Elevation = 16.dp
-
     val PaddingValues = PaddingValues(0.dp)
 
     val Shape: Shape
-        @Composable
-        @ReadOnlyComposable
+        @Composable @ReadOnlyComposable
         get() = CupertinoSectionDefaults.shape(SectionStyle.InsetGrouped)
 
     val ContainerColor: Color
-        @Composable
-        @ReadOnlyComposable
+        @Composable @ReadOnlyComposable
         get() = CupertinoTheme.colorScheme.tertiarySystemBackground
 
     val ContentColor: Color
-        @Composable
-        @ReadOnlyComposable
+        @Composable @ReadOnlyComposable
         get() = CupertinoTheme.colorScheme.label
 
     val DividerColor: Color
-        @Composable
-        @ReadOnlyComposable
+        @Composable @ReadOnlyComposable
         get() = CupertinoColors.systemGray5
 
     @Composable
@@ -504,47 +422,22 @@ private fun DropdownMenuContent(
     backdrop: Backdrop,
     content: @Composable () -> Unit,
 ) {
-    // Menu open/close animation.
     val transition = rememberTransition(expandedStates, "DropDownMenu")
     val animationScope = rememberCoroutineScope()
+    val density = LocalDensity.current
 
     val scale by transition.animateFloat(
         transitionSpec = {
-            if (false isTransitioningTo true) {
-                // Dismissed to expanded
-                MenuEnterTransition
-            } else {
-                // Expanded to dismissed.
-                MenuExitTransition
-            }
+            if (false isTransitioningTo true) MenuEnterTransition else MenuExitTransition
         },
-    ) {
-        if (it) {
-            // Menu is expanded.
-            1f
-        } else {
-            // Menu is dismissed.
-            .1f
-        }
-    }
+    ) { if (it) 1f else .1f }
+
     val alpha by transition.animateFloat(
         transitionSpec = {
-            if (false isTransitioningTo true) {
-                // Dismissed to expanded
-                MenuEnterTransition
-            } else {
-                MenuExitTransition
-            }
+            if (false isTransitioningTo true) MenuEnterTransition else MenuExitTransition
         },
-    ) {
-        if (it) {
-            // Menu is expanded.
-            1f
-        } else {
-            // Menu is dismissed.
-            0f
-        }
-    }
+    ) { if (it) 1f else 0f }
+
     val shape = CupertinoDropdownMenuDefaults.Shape
     val interactiveHighlight = remember(animationScope) { InteractiveHighlight(animationScope = animationScope) }
 
@@ -559,14 +452,10 @@ private fun DropdownMenuContent(
                 transformOrigin = transformOriginState
                 clip = false
             }
-            .width(width)
+            .widthIn(min = width)
     ) {
-        CompositionLocalProvider(
-            LocalSeparatorColor provides BrightSeparatorColor,
-        ) {
-            ProvideTextStyle(
-                CupertinoTheme.typography.body
-            ) {
+        CompositionLocalProvider(LocalSeparatorColor provides BrightSeparatorColor) {
+            ProvideTextStyle(CupertinoTheme.typography.body) {
                 SubcomposeLayout(
                     modifier = modifier
                         .drawBackdrop(
@@ -580,12 +469,10 @@ private fun DropdownMenuContent(
                                 }
                             },
                             layerBlock = {
-                                val width = this.size.width
-                                val height = this.size.height
-
+                                val w = this.size.width
+                                val h = this.size.height
                                 val progress = interactiveHighlight.pressProgress
-                                val scale = lerp(1f, 1f + 4.dp.toPx() / height, progress)
-
+                                val s = lerp(1f, 1f + 4.dp.toPx() / h, progress)
                                 val maxOffset = this.size.minDimension
                                 val initialDerivative = 0.05f
                                 val offset = interactiveHighlight.offset
@@ -593,27 +480,36 @@ private fun DropdownMenuContent(
                                 translationX = maxOffset * tanh(initialDerivative * offset.x / maxOffset)
                                 translationY = maxOffset * tanh(initialDerivative * offset.y / maxOffset)
 
-                                val maxDragScale = 4.dp.toPx() / height
+                                val maxDragScale = 4.dp.toPx() / h
                                 val offsetAngle = atan2(offset.y, offset.x)
 
-                                scaleX = scale + maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension) * (width / height).fastCoerceAtMost(1f)
-                                scaleY = scale + maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension) * (height / width).fastCoerceAtMost(1f)
+                                scaleX = s + maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension) * (w / h).fastCoerceAtMost(1f)
+                                scaleY = s + maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension) * (h / w).fastCoerceAtMost(1f)
                             },
                             onDrawSurface = {
                                 drawRect(containerColor.copy(alpha = 0.95f))
                             },
                         )
-                        .fillMaxWidth()
                         .padding(vertical = 8.dp)
                         .heightIn(max = MenuMaxHeight)
                         .verticalScroll(scrollState),
                 ) { constraints ->
-                    val layoutWidth = constraints.maxWidth
-                    val itemPlaceables = subcompose(CupertinoDropdownMenuSlots.Item, content).fastMap { it.measure(constraints) }
-                    val allPlacements = buildList(itemPlaceables.size * 2) { itemPlaceables.fastForEach { placeable -> add(placeable) } }
-                    val height = allPlacements.fastSumBy { it.height }
+                    val minWidth = with(density) { width.roundToPx() }
+                    val itemConstraints = constraints.copy(
+                        minWidth = minWidth,
+                        maxWidth = minWidth
+                    )
+                    val itemPlaceables = subcompose(CupertinoDropdownMenuSlots.Item, content)
+                        .fastMap { it.measure(itemConstraints) }
+                    val allPlacements = buildList(itemPlaceables.size * 2) {
+                        itemPlaceables.fastForEach { add(it) }
+                    }
 
-                    layout(layoutWidth, height) {
+                    val layoutWidth = allPlacements.maxOfOrNull { it.width }
+                        ?.coerceAtLeast(minWidth) ?: minWidth
+                    val layoutHeight = allPlacements.fastSumBy { it.height }
+
+                    layout(layoutWidth, layoutHeight) {
                         var y = 0
                         allPlacements.fastForEach {
                             it.placeRelative(0, y)
@@ -626,47 +522,27 @@ private fun DropdownMenuContent(
     }
 }
 
-private enum class CupertinoDropdownMenuSlots {
-    Section,
-    Item,
-    Separator,
-}
+private enum class CupertinoDropdownMenuSlots { Section, Item, Separator }
 
-internal fun calculateTransformOrigin(
-    parentBounds: IntRect,
-    menuBounds: IntRect,
-): TransformOrigin {
-    val pivotX =
-        when {
-            menuBounds.left >= parentBounds.right -> 0f
-            menuBounds.right <= parentBounds.left -> 1f
-            menuBounds.width == 0 -> 0f
-            else -> {
-                val intersectionCenter =
-                    (
-                            max(parentBounds.left, menuBounds.left) +
-                                    min(
-                                        parentBounds.right,
-                                        menuBounds.right,
-                                    )
-                            ) / 2
-                (intersectionCenter - menuBounds.left).toFloat() / menuBounds.width
-            }
+internal fun calculateTransformOrigin(parentBounds: IntRect, menuBounds: IntRect): TransformOrigin {
+    val pivotX = when {
+        menuBounds.left >= parentBounds.right -> 0f
+        menuBounds.right <= parentBounds.left -> 1f
+        menuBounds.width == 0 -> 0f
+        else -> {
+            val intersectionCenter = (max(parentBounds.left, menuBounds.left) + min(parentBounds.right, menuBounds.right)) / 2
+            (intersectionCenter - menuBounds.left).toFloat() / menuBounds.width
         }
-    val pivotY =
-        when {
-            menuBounds.top >= parentBounds.bottom -> 0f
-            menuBounds.bottom <= parentBounds.top -> 1f
-            menuBounds.height == 0 -> 0f
-            else -> {
-                val intersectionCenter =
-                    (
-                            max(parentBounds.top, menuBounds.top) +
-                                    min(parentBounds.bottom, menuBounds.bottom)
-                            ) / 2
-                (intersectionCenter - menuBounds.top).toFloat() / menuBounds.height
-            }
+    }
+    val pivotY = when {
+        menuBounds.top >= parentBounds.bottom -> 0f
+        menuBounds.bottom <= parentBounds.top -> 1f
+        menuBounds.height == 0 -> 0f
+        else -> {
+            val intersectionCenter = (max(parentBounds.top, menuBounds.top) + min(parentBounds.bottom, menuBounds.bottom)) / 2
+            (intersectionCenter - menuBounds.top).toFloat() / menuBounds.height
         }
+    }
     return TransformOrigin(pivotX, pivotY)
 }
 
@@ -691,55 +567,27 @@ internal data class DropdownMenuPositionProvider(
         }
         val contentOffsetY = with(density) { contentOffset.y.roundToPx() }
 
-        // popupContentSize는 이미 safePadding * 2를 포함한 크기
-        // 실제 메뉴 크기 = popupContentSize - safePadding * 2
-        // Popup 자체는 safePadding만큼 앞당겨서 배치해야 내부 컨텐츠가 anchor에 붙음
         val leftToAnchorLeft = anchorBounds.left + contentOffsetX - safePaddingPx
         val rightToAnchorRight = anchorBounds.right - popupContentSize.width + contentOffsetX + safePaddingPx
         val rightToWindowRight = windowSize.width - popupContentSize.width
         val leftToWindowLeft = 0
 
         val x = if (layoutDirection == LayoutDirection.Ltr) {
-            sequenceOf(
-                leftToAnchorLeft,
-                rightToAnchorRight,
-                if (anchorBounds.left >= 0) rightToWindowRight else leftToWindowLeft,
-            )
+            sequenceOf(leftToAnchorLeft, rightToAnchorRight, if (anchorBounds.left >= 0) rightToWindowRight else leftToWindowLeft)
         } else {
-            sequenceOf(
-                rightToAnchorRight,
-                leftToAnchorLeft,
-                if (anchorBounds.right <= windowSize.width) leftToWindowLeft else rightToWindowRight,
-            )
+            sequenceOf(rightToAnchorRight, leftToAnchorLeft, if (anchorBounds.right <= windowSize.width) leftToWindowLeft else rightToWindowRight)
         }.firstOrNull {
             it >= -safePaddingPx && it + popupContentSize.width <= windowSize.width + safePaddingPx
         } ?: rightToAnchorRight
 
-//        val topToAnchorTop = maxOf(
-//            anchorBounds.top + contentOffsetY - safePaddingPx,
-//            verticalMargin - safePaddingPx
-//        )
         val topToAnchorTop = anchorBounds.top + contentOffsetY - safePaddingPx
         val bottomToAnchorBottom = anchorBounds.bottom - popupContentSize.height + contentOffsetY + safePaddingPx
         val bottomToWindowBottom = windowSize.height - popupContentSize.height - verticalMargin + safePaddingPx
 
-//        val y = sequenceOf(
-//            topToAnchorTop,
-//            bottomToAnchorBottom,
-//            bottomToWindowBottom,
-//        ).firstOrNull {
-//            it + safePaddingPx >= verticalMargin &&
-//                    it + popupContentSize.height - safePaddingPx <= windowSize.height - verticalMargin
-//        } ?: bottomToAnchorBottom
-
-        val y = sequenceOf(
-            topToAnchorTop,
-            bottomToAnchorBottom,
-            bottomToWindowBottom,
-        ).firstOrNull {
-            it + popupContentSize.height - safePaddingPx <= windowSize.height - verticalMargin
-            // 👆 상단 조건(verticalMargin 체크) 제거
-        } ?: bottomToAnchorBottom
+        val y = sequenceOf(topToAnchorTop, bottomToAnchorBottom, bottomToWindowBottom)
+            .firstOrNull {
+                it + popupContentSize.height - safePaddingPx <= windowSize.height - verticalMargin
+            } ?: bottomToAnchorBottom
 
         onPositionCalculated(
             anchorBounds,
@@ -749,13 +597,14 @@ internal data class DropdownMenuPositionProvider(
     }
 }
 
+// ✅ hasIcon 추가
 internal class CupertinoMenuScopeImpl : CupertinoMenuScope {
     var hasPicker: Boolean by mutableStateOf(false)
+    var hasIcon: Boolean by mutableStateOf(false)
 }
 
 private val MenuMaxHeight: Dp = 600.dp
 private val SelectorSize = 20.dp
-
 private val MenuHorizontalMargin = 24.dp
 private val MenuVerticalMargin = 24.dp
 private val MinItemHeight = 48.dp
@@ -764,14 +613,12 @@ private val MinTitleHeight = 32.dp
 private val SplitPadding = 16.dp
 private val MenuPaddingValues = PaddingValues(16.dp, 8.dp)
 
-private val MenuEnterTransition =
-    spring<Float>(
-        dampingRatio = .825f,
-        stiffness = Spring.StiffnessMediumLow,
-    )
+private val MenuEnterTransition = spring<Float>(
+    dampingRatio = .825f,
+    stiffness = Spring.StiffnessMediumLow,
+)
 
-private val MenuExitTransition =
-    tween<Float>(
-        durationMillis = 350,
-        easing = LinearOutSlowInEasing,
-    )
+private val MenuExitTransition = tween<Float>(
+    durationMillis = 350,
+    easing = LinearOutSlowInEasing,
+)

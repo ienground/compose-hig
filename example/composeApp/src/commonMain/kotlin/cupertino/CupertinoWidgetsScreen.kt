@@ -1801,12 +1801,12 @@ private fun DropdownExample(
                         onClick = {
                             dropdownVisible = false
                         },
-                        leadingIcon = {
-                            CupertinoIcon(
-                                imageVector = CupertinoIcons.Default.SquareAndArrowUp,
-                                contentDescription = null
-                            )
-                        }
+//                        leadingIcon = {
+//                            CupertinoIcon(
+//                                imageVector = CupertinoIcons.Default.SquareAndArrowUp,
+//                                contentDescription = null
+//                            )
+//                        }
                     ) {
                         CupertinoText("Share")
                     }
