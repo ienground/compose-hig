@@ -276,7 +276,7 @@ fun TestScreen(
                         ) {
                             MenuAction(
                                 onClick = { expanded = false },
-                                icon = {
+                                leadingIcon = {
                                     CupertinoIcon(
                                         imageVector = CupertinoIcons.Default.CheckmarkCircle,
                                         contentDescription = null
@@ -287,7 +287,7 @@ fun TestScreen(
                             }
                             MenuAction(
                                 onClick = { expanded = false },
-                                icon = {
+                                leadingIcon = {
                                     CupertinoIcon(
                                         imageVector = CupertinoIcons.Default.Pin,
                                         contentDescription = null
@@ -298,7 +298,7 @@ fun TestScreen(
                             }
                             MenuAction(
                                 onClick = { expanded = false },
-                                icon = {
+                                leadingIcon = {
                                     CupertinoIcon(
                                         imageVector = CupertinoIcons.Default.PersonCropCircle,
                                         contentDescription = null

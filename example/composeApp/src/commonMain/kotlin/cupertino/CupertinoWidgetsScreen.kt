@@ -1803,7 +1803,7 @@ private fun DropdownExample(
                         onClick = {
                             dropdownVisible = false
                         },
-                        icon = {
+                        leadingIcon = {
                             CupertinoIcon(
                                 imageVector = CupertinoIcons.Default.SquareAndArrowUp,
                                 contentDescription = null
@@ -1817,7 +1817,7 @@ private fun DropdownExample(
                         onClick = {
                             dropdownVisible = false
                         },
-                        icon = {
+                        leadingIcon = {
                             CupertinoIcon(
                                 imageVector = CupertinoIcons.Default.Bookmark,
                                 contentDescription = null
@@ -1834,7 +1834,7 @@ private fun DropdownExample(
 
                     },
                     contentColor = red,
-                    icon = {
+                    leadingIcon = {
                         CupertinoIcon(
                             imageVector = CupertinoIcons.Default.Trash,
                             contentDescription = null
@@ -1905,7 +1905,7 @@ private fun DropdownExample2(
                             onClick = {
                                 dropdownVisible = false
                             },
-                            icon = {
+                            leadingIcon = {
                                 CupertinoIcon(
                                     imageVector = CupertinoIcons.Default.SquareAndArrowUp,
                                     contentDescription = null
@@ -1919,7 +1919,7 @@ private fun DropdownExample2(
                             onClick = {
                                 dropdownVisible = false
                             },
-                            icon = {
+                            leadingIcon = {
                                 CupertinoIcon(
                                     imageVector = CupertinoIcons.Default.Bookmark,
                                     contentDescription = null
@@ -1936,7 +1936,7 @@ private fun DropdownExample2(
 
                         },
                         contentColor = red,
-                        icon = {
+                        leadingIcon = {
                             CupertinoIcon(
                                 imageVector = CupertinoIcons.Default.Trash,
                                 contentDescription = null

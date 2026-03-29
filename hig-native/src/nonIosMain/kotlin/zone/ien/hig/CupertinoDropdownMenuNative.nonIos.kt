@@ -45,7 +45,7 @@ actual fun CupertinoDropdownMenuNative(
             MenuAction(
                 onClick = it.onClick,
                 enabled = !it.isDisabled,
-                icon = {
+                leadingIcon = {
                     it.icon?.let { icon ->
                         CupertinoIcon(
                             painter = icon,
@@ -67,7 +67,7 @@ actual fun CupertinoDropdownMenuNative(
                     MenuAction(
                         onClick = it.onClick,
                         enabled = !it.isDisabled,
-                        icon = {
+                        leadingIcon = {
                             it.icon?.let { icon ->
                                 CupertinoIcon(
                                     painter = icon,
