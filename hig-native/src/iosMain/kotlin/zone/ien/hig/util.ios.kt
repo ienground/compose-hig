@@ -20,9 +20,35 @@
 
 package zone.ien.hig
 
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asSkiaBitmap
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.usePinned
+import org.jetbrains.skia.Data
+import org.jetbrains.skia.EncodedImageFormat
+import org.jetbrains.skia.Image
+import platform.Foundation.NSData
+import platform.Foundation.dataWithBytes
+import platform.UIKit.UIImage
 import platform.UIKit.UIUserInterfaceStyle
 import platform.UIKit.UIView
 import platform.UIKit.UIViewController
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import kotlinx.cinterop.useContents
+import platform.CoreGraphics.CGRectMake
+import platform.CoreGraphics.CGSizeMake
+import platform.UIKit.UIGraphicsBeginImageContextWithOptions
+import platform.UIKit.UIGraphicsEndImageContext
+import platform.UIKit.UIGraphicsGetImageFromCurrentImageContext
+import platform.UIKit.UIImageRenderingMode
+import kotlin.math.roundToInt
 
 internal fun UIViewController.applyTheme(dark: Boolean) {
     overrideUserInterfaceStyle =
@@ -42,4 +68,80 @@ internal fun UIView.applyTheme(dark: Boolean) {
                 UIUserInterfaceStyle.UIUserInterfaceStyleLight
             }
     }
+}
+
+@OptIn(ExperimentalForeignApi::class)
+fun ImageBitmap.toUIImage(): UIImage {
+    val skiaImage = Image.makeFromBitmap(this.asSkiaBitmap())
+    val pngData = skiaImage.encodeToData(EncodedImageFormat.PNG)
+        ?: throw Exception("Failed to encode ImageBitmap to PNG")
+    val pngBytes = pngData.bytes
+    val nsData = pngBytes.usePinned { pinned ->
+        NSData.dataWithBytes(pinned.addressOf(0), pngBytes.size.toULong())
+    }
+    return UIImage(data = nsData).imageWithRenderingMode(UIImageRenderingMode.UIImageRenderingModeAlwaysOriginal)
+}
+
+fun Painter.toImageBitmap(
+    size: Size = intrinsicSize,
+    density: Density = Density(1f),
+    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+): ImageBitmap {
+    val width = size.width.toInt().takeIf { it > 0 } ?: 64
+    val height = size.height.toInt().takeIf { it > 0 } ?: 64
+    val bitmap = ImageBitmap(width, height)
+    val canvas = Canvas(bitmap)
+    CanvasDrawScope().draw(
+        density = density,
+        layoutDirection = layoutDirection,
+        canvas = canvas,
+        size = Size(width.toFloat(), height.toFloat())
+    ) {
+        // 흰색으로 강제 렌더링 → AlwaysTemplate이 tint를 올바르게 곱할 수 있음
+        with(this) {
+            drawContext.canvas.let { c ->
+                val paint = androidx.compose.ui.graphics.Paint().apply {
+                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(
+                        androidx.compose.ui.graphics.Color.White
+                    )
+                }
+                c.saveLayer(
+                    bounds = androidx.compose.ui.geometry.Rect(
+                        0f, 0f, width.toFloat(), height.toFloat()
+                    ),
+                    paint = paint
+                )
+            }
+        }
+        draw(Size(width.toFloat(), height.toFloat()))
+        drawContext.canvas.restore()
+    }
+    return bitmap
+}
+
+@OptIn(ExperimentalForeignApi::class)
+fun Painter.toUIImage(size: Size = intrinsicSize): UIImage {
+    return this.toImageBitmap(size).toUIImage()
+}
+
+@OptIn(ExperimentalForeignApi::class)
+fun UIImage.resized(maxSize: Double): UIImage {
+    val originalWidth = this.size.useContents { width }
+    val originalHeight = this.size.useContents { height }
+
+    if (originalWidth <= 0.0 || originalHeight <= 0.0) return this
+
+    val scale = maxSize / maxOf(originalWidth, originalHeight)
+    val targetWidth = originalWidth * scale
+    val targetHeight = originalHeight * scale
+
+    val targetSize = CGSizeMake(targetWidth, targetHeight)
+    UIGraphicsBeginImageContextWithOptions(targetSize, false, 0.0)
+    this.imageWithRenderingMode(UIImageRenderingMode.UIImageRenderingModeAlwaysOriginal)
+        .drawInRect(CGRectMake(0.0, 0.0, targetWidth, targetHeight))
+    val resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+    return resizedImage
+        ?.imageWithRenderingMode(UIImageRenderingMode.UIImageRenderingModeAlwaysTemplate)
+        ?: this
 }

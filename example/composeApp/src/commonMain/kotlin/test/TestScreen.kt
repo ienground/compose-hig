@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,10 +39,13 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import zone.ien.hig.CupertinoDropdownMenu
+import zone.ien.hig.CupertinoDropdownMenuNative
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
+import zone.ien.hig.CupertinoMenuItemData
+import zone.ien.hig.CupertinoMenuSectionData
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoText
@@ -215,54 +219,95 @@ fun TestScreen(
                     isInteractive = false,
                     colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
                 ) {
-                    Text(text = "Open Menu")
+                    Text(text = "${if (expanded) "Close" else "Open"} Menu")
                 }
 
                 // drawBackdrop is used inside Popup internally
-                CupertinoDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    backdrop = rememberDefaultBackdrop()
-                ) {
-                    MenuSection(
+                if (enabled) {
+                    CupertinoDropdownMenuNative(
+                        expanded = expanded,
+                        onDismissRequest = {
+                            expanded = false
+                        },
+                        backdrop = rememberDefaultBackdrop(),
+                        items = listOf(
+                            CupertinoMenuItemData(
+                                title = "메시지 선택",
+                                onClick = {
+                                    expanded = false
+                                    coroutineScope.launch {
+                                        snackbarState.showSnackbar("메시지 선택")
+                                    }
+                                },
+                                icon = rememberVectorPainter(CupertinoIcons.Default.CheckmarkCircle)
+                            ),
+                            CupertinoMenuItemData(
+                                title = "고정 편집",
+                                onClick = {
+                                    expanded = false
+                                    coroutineScope.launch {
+                                        snackbarState.showSnackbar("고정 편집")
+                                    }
+                                },
+                                icon = rememberVectorPainter(CupertinoIcons.Default.Pin)
+                            ),
+                            CupertinoMenuItemData(
+                                title = "이름 및 사진 설정",
+                                onClick = {
+                                    expanded = false
+                                    coroutineScope.launch {
+                                        snackbarState.showSnackbar("이름 및 사진 설정")
+                                    }
+                                },
+                                icon = rememberVectorPainter(CupertinoIcons.Default.PersonCropCircle)
+                            ),
+                        )
+                    )
+                } else {
+                    CupertinoDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        backdrop = rememberDefaultBackdrop()
+                    ) {
+                        MenuSection(
 //                        title = {
 //                            Text("Menu")
 //                        }
-                    ) {
-                        MenuAction(
-                            onClick = { expanded = false },
-                            icon = {
-                                CupertinoIcon(
-                                    imageVector = CupertinoIcons.Default.CheckmarkCircle,
-                                    contentDescription = null
-                                )
-                            }
                         ) {
-                            CupertinoText("메시지 선택")
-                        }
-                        MenuAction(
-                            onClick = { expanded = false },
-                            icon = {
-                                CupertinoIcon(
-                                    imageVector = CupertinoIcons.Default.Pin,
-                                    contentDescription = null
-                                )
+                            MenuAction(
+                                onClick = { expanded = false },
+                                icon = {
+                                    CupertinoIcon(
+                                        imageVector = CupertinoIcons.Default.CheckmarkCircle,
+                                        contentDescription = null
+                                    )
+                                }
+                            ) {
+                                CupertinoText("메시지 선택")
                             }
-                        ) {
-                            CupertinoText("고정 편집")
-                        }
-                        MenuAction(
-                            onClick = { expanded = false },
-                            icon = {
-                                CupertinoIcon(
-                                    imageVector = CupertinoIcons.Default.PersonCropCircle,
-                                    contentDescription = null
-                                )
+                            MenuAction(
+                                onClick = { expanded = false },
+                                icon = {
+                                    CupertinoIcon(
+                                        imageVector = CupertinoIcons.Default.Pin,
+                                        contentDescription = null
+                                    )
+                                }
+                            ) {
+                                CupertinoText("고정 편집")
                             }
-                        ) {
-                            CupertinoText("이름 및 사진 설정")
+                            MenuAction(
+                                onClick = { expanded = false },
+                                icon = {
+                                    CupertinoIcon(
+                                        imageVector = CupertinoIcons.Default.PersonCropCircle,
+                                        contentDescription = null
+                                    )
+                                }
+                            ) {
+                                CupertinoText("이름 및 사진 설정")
+                            }
                         }
-                    }
 //                    MenuDivider()
 //                    MenuSection(
 ////                        title = {
@@ -297,6 +342,7 @@ fun TestScreen(
 //                            CupertinoText("Add to Favorites")
 //                        }
 //                    }
+                    }
                 }
             }
 

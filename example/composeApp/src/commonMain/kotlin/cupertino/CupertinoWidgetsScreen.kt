@@ -115,12 +115,15 @@ import zone.ien.hig.CupertinoDateTimePicker
 import zone.ien.hig.CupertinoDateTimePickerNative
 import zone.ien.hig.CupertinoDateTimePickerState
 import zone.ien.hig.CupertinoDropdownMenu
+import zone.ien.hig.CupertinoDropdownMenuNative
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconButton
 import zone.ien.hig.CupertinoLiquidAlertDialog
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
+import zone.ien.hig.CupertinoMenuItemData
+import zone.ien.hig.CupertinoMenuSectionData
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
 import zone.ien.hig.CupertinoRangeSlider
@@ -413,7 +416,8 @@ private fun Body(
                 }
                 SectionItem {
                     DropdownExample2(
-                        backdrop = backdrop
+                        backdrop = backdrop,
+                        isNative = nativePickers.value
                     )
                 }
             }
@@ -1846,7 +1850,8 @@ private fun DropdownExample(
 
 @Composable
 private fun DropdownExample2(
-    backdrop: Backdrop
+    backdrop: Backdrop,
+    isNative: Boolean
 ) {
     var dropdownVisible by remember { mutableStateOf(false) }
     val layerBackdrop = rememberDefaultBackdrop()
@@ -1866,59 +1871,80 @@ private fun DropdownExample2(
 
             val red = CupertinoColors.systemRed
 
-            CupertinoDropdownMenu(
-                expanded = dropdownVisible,
-                onDismissRequest = { dropdownVisible = false },
-                backdrop = backdrop
-            ) {
-                MenuSection(
-                    title = {
-                        Text("Menu")
-                    }
-                ) {
-                    MenuAction(
-                        onClick = {
-                            dropdownVisible = false
-                        },
-                        icon = {
-                            CupertinoIcon(
-                                imageVector = CupertinoIcons.Default.SquareAndArrowUp,
-                                contentDescription = null
+            if (isNative) {
+                CupertinoDropdownMenuNative(
+                    expanded = dropdownVisible,
+                    onDismissRequest = { dropdownVisible = false },
+                    backdrop = backdrop,
+                    sections = listOf(
+                        CupertinoMenuSectionData(
+                            title = "Menu",
+                            items = listOf(
+                                CupertinoMenuItemData(
+                                    title = "Share",
+                                    onClick = {
+                                        dropdownVisible = false
+                                    }
+                                )
                             )
-                        }
-                    ) {
-                        CupertinoText("Share")
-                    }
-                    MenuAction(
-                        enabled = false,
-                        onClick = {
-                            dropdownVisible = false
-                        },
-                        icon = {
-                            CupertinoIcon(
-                                imageVector = CupertinoIcons.Default.Bookmark,
-                                contentDescription = null
-                            )
-                        }
-                    ) {
-                        CupertinoText("Add to Favorites")
-                    }
-                }
-
-                MenuAction(
-                    onClick = {
-                        dropdownVisible = false
-
-                    },
-                    contentColor = red,
-                    icon = {
-                        CupertinoIcon(
-                            imageVector = CupertinoIcons.Default.Trash,
-                            contentDescription = null
                         )
-                    }
+                    )
+                )
+            } else {
+                CupertinoDropdownMenu(
+                    expanded = dropdownVisible,
+                    onDismissRequest = { dropdownVisible = false },
+                    backdrop = backdrop
                 ) {
-                    CupertinoText("Delete")
+                    MenuSection(
+                        title = {
+                            Text("Menu")
+                        }
+                    ) {
+                        MenuAction(
+                            onClick = {
+                                dropdownVisible = false
+                            },
+                            icon = {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.SquareAndArrowUp,
+                                    contentDescription = null
+                                )
+                            }
+                        ) {
+                            CupertinoText("Share")
+                        }
+                        MenuAction(
+                            enabled = false,
+                            onClick = {
+                                dropdownVisible = false
+                            },
+                            icon = {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.Bookmark,
+                                    contentDescription = null
+                                )
+                            }
+                        ) {
+                            CupertinoText("Add to Favorites")
+                        }
+                    }
+
+                    MenuAction(
+                        onClick = {
+                            dropdownVisible = false
+
+                        },
+                        contentColor = red,
+                        icon = {
+                            CupertinoIcon(
+                                imageVector = CupertinoIcons.Default.Trash,
+                                contentDescription = null
+                            )
+                        }
+                    ) {
+                        CupertinoText("Delete")
+                    }
                 }
             }
         }
