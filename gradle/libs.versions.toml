@@ -11,7 +11,7 @@ compose-navigation3 = "1.0.0-alpha06"
 # ui
 activity-compose = "1.13.0"
 lifecycle = "2.10.0"
-backdrop = "2.0.0-alpha04+dev1"
+backdrop = "2.0.0-alpha04"
 capsule = "1.2.0"
 haze = "1.7.2"
 
@@ -43,7 +43,7 @@ compose-ui-util = { group = "org.jetbrains.compose.ui", name = "ui-util", versio
 compose-resources = { group = "org.jetbrains.compose.components", name = "components-resources", version.ref = "compose-plugin" }
 compose-navigation3 = { group = "org.jetbrains.androidx.navigation3", name = "navigation3-ui", version.ref = "compose-navigation3" }
 
-backdrop = { group = "io.github.kyant0", name = "backdrop", version.ref = "backdrop"}
+backdrop = { group = "zone.ien.backdrop", name = "backdrop", version.ref = "backdrop"}
 capsule = { group = "io.github.kyant0", name = "shapes", version.ref = "capsule"}
 haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 
