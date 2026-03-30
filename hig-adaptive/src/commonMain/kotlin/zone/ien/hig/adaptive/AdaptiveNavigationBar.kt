@@ -23,11 +23,13 @@ package zone.ien.hig.adaptive
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -47,6 +49,8 @@ import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarColors
 import zone.ien.hig.CupertinoNavigationBarDefaults
 import zone.ien.hig.CupertinoNavigationBarItem
+import zone.ien.hig.CupertinoNavigationBarItemData
+import zone.ien.hig.CupertinoNavigationBarNative
 import zone.ien.hig.ExperimentalCupertinoApi
 
 internal data class NavigationBarState(
@@ -97,6 +101,69 @@ fun AdaptiveNavigationBar(
                     tonalElevation = it.tonalElevation,
                     windowInsets = it.windowInsets,
                     content = content
+                )
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
+@Composable
+fun AdaptiveNavigationBarNative(
+    modifier: Modifier = Modifier,
+    selectedTabIndex: () -> Int,
+    onTabSelected: (index: Int) -> Unit,
+    adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, MaterialNavigationBarAdaptation>.() -> Unit = {},
+    items: List<CupertinoNavigationBarItemData>
+) {
+    CompositionLocalProvider(
+        LocalNavigationBarState provides NavigationBarState(
+            selectedTabIndex = selectedTabIndex,
+            onTabSelected = onTabSelected,
+        )
+    ) {
+        AdaptiveWidget(
+            adaptation = remember {
+                NavigationBarAdaptation()
+            },
+            adaptationScope = adaptation,
+            cupertino = {
+                CupertinoNavigationBarNative(
+                    modifier = modifier,
+                    colors = it.colors,
+                    windowInsets = it.windowInsets,
+                    backdrop = it.backdrop,
+                    selectedTabIndex = selectedTabIndex,
+                    onTabSelected = onTabSelected,
+                    items = items
+                )
+            },
+            material = {
+                NavigationBar(
+                    modifier = modifier,
+                    containerColor = it.containerColor,
+                    contentColor = it.contentColor,
+                    tonalElevation = it.tonalElevation,
+                    windowInsets = it.windowInsets,
+                    content = {
+                        items.forEachIndexed { index, item ->
+                            val selected = index == selectedTabIndex()
+                            NavigationBarItem(
+                                selected = selected,
+                                onClick = item.onClick,
+                                icon = {
+                                    Icon(
+                                        painter =
+                                            if (selected && item.selectedIcon != null) item.selectedIcon!!
+                                            else item.icon
+                                        ,
+                                        contentDescription = item.label,
+                                    )
+                                },
+                                label = { Text(text = item.label) },
+                            )
+                        }
+                    }
                 )
             }
         )

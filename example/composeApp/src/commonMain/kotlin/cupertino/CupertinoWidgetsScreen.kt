@@ -81,6 +81,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -124,6 +125,7 @@ import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoMenuItemData
 import zone.ien.hig.CupertinoMenuSectionData
+import zone.ien.hig.CupertinoNavigationBarItemData
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
 import zone.ien.hig.CupertinoRangeSlider
@@ -148,6 +150,7 @@ import zone.ien.hig.MenuSection
 import zone.ien.hig.PresentationStyle
 import zone.ien.hig.adaptive.AdaptiveNavigationBar
 import zone.ien.hig.adaptive.AdaptiveNavigationBarItem
+import zone.ien.hig.adaptive.AdaptiveNavigationBarNative
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
@@ -220,7 +223,7 @@ private enum class PickerTab {
 fun CupertinoWidgetsScreen(
     uiState: RootUiState,
     onItemValueChanged: (RootDetails) -> Unit,
-    onNavigate: (NavKey) -> Unit
+    onNavigate: (NavKey) -> Unit,
 ) {
 
     val scrollState = rememberScrollState()
@@ -273,7 +276,8 @@ fun CupertinoWidgetsScreen(
         },
         bottomBar = {
             BottomBarSample(
-                backdrop = backdrop
+                backdrop = backdrop,
+                isNative = nativePickers.value
             )
         },
     ) { pv ->
@@ -847,7 +851,8 @@ private fun TopBarSample(
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
 private fun BottomBarSample(
-    backdrop: LayerBackdrop
+    backdrop: LayerBackdrop,
+    isNative: Boolean
 ) {
     var tab by remember { mutableStateOf(0) }
     val content = listOf(
@@ -856,28 +861,45 @@ private fun BottomBarSample(
         "Settings" to AdaptiveIcons.Outlined.Settings,
     )
 
-    AdaptiveNavigationBar(
-        selectedTabIndex = { tab },
-        onTabSelected = { tab = it },
-        tabsCount = 3,
-        adaptation = {
-            cupertino { this.backdrop = backdrop }
-        },
-    ) {
-        content.forEachIndexed { index, pair ->
-            AdaptiveNavigationBarItem(
-                index = index,
-                onClick = { tab = index },
-                icon = {
-                    CupertinoIcon(
-                        imageVector = pair.second,
-                        contentDescription = pair.first,
-                    )
-                },
-                label = {
-                    Text(pair.first)
-                },
-            )
+    if (isNative) {
+        AdaptiveNavigationBarNative(
+            selectedTabIndex = { tab },
+            onTabSelected = { tab = it },
+            adaptation = {
+                cupertino { this.backdrop = backdrop }
+            },
+            items = content.mapIndexed { index, item ->
+                CupertinoNavigationBarItemData(
+                    onClick = { tab = index },
+                    icon = rememberVectorPainter(item.second),
+                    label = item.first
+                )
+            }
+        )
+    } else {
+        AdaptiveNavigationBar(
+            selectedTabIndex = { tab },
+            onTabSelected = { tab = it },
+            tabsCount = 3,
+            adaptation = {
+                cupertino { this.backdrop = backdrop }
+            },
+        ) {
+            content.forEachIndexed { index, pair ->
+                AdaptiveNavigationBarItem(
+                    index = index,
+                    onClick = { tab = index },
+                    icon = {
+                        CupertinoIcon(
+                            imageVector = pair.second,
+                            contentDescription = pair.first,
+                        )
+                    },
+                    label = {
+                        Text(pair.first)
+                    },
+                )
+            }
         }
     }
 }
