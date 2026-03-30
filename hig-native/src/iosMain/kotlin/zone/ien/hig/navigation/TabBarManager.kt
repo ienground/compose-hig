@@ -63,7 +63,7 @@ private fun CupertinoNavigationBarItemData.toUITabBarItem(tag: Long): UITabBarIt
         image = icon.toUIImage().resized(20.0),
         tag = tag,
     )
-    selectedIcon?.toUIImage()?.let { item.selectedImage = it }
+    selectedIcon?.toUIImage()?.resized(20.0)?.let { item.selectedImage = it }
     return item
 }
 
