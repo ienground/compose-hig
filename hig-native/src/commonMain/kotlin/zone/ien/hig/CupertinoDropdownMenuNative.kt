@@ -16,9 +16,9 @@ import com.kyant.backdrop.Backdrop
 
 data class CupertinoMenuItemData(
     val title: String,
+    val enabled: Boolean = true,
     val icon: Painter? = null,
     val isDestructive: Boolean = false,
-    val isDisabled: Boolean = false,
     val onClick: () -> Unit,
 )
 

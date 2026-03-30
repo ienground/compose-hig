@@ -44,7 +44,7 @@ actual fun CupertinoDropdownMenuNative(
         items.fastForEach {
             MenuAction(
                 onClick = it.onClick,
-                enabled = !it.isDisabled,
+                enabled = it.enabled,
                 leadingIcon = {
                     it.icon?.let { icon ->
                         CupertinoIcon(
@@ -66,7 +66,7 @@ actual fun CupertinoDropdownMenuNative(
                 items.fastForEach {
                     MenuAction(
                         onClick = it.onClick,
-                        enabled = !it.isDisabled,
+                        enabled = it.enabled,
                         leadingIcon = {
                             it.icon?.let { icon ->
                                 CupertinoIcon(

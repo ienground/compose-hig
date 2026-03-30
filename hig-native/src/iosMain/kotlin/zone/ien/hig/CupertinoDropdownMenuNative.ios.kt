@@ -26,6 +26,13 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGPointMake
 import platform.CoreGraphics.CGRectMake
+import platform.Foundation.NSAttributedString
+import platform.Foundation.NSMakeRange
+import platform.Foundation.NSMutableAttributedString
+import platform.Foundation.NSMutableAttributedStringMeta
+import platform.Foundation.create
+import platform.Foundation.setAttributedString
+import platform.UIKit.NSForegroundColorAttributeName
 import platform.UIKit.UIAction
 import platform.UIKit.UIButton
 import platform.UIKit.UIButtonTypePlain
@@ -42,6 +49,7 @@ import platform.UIKit.UIMenuElement
 import platform.UIKit.UIMenuElementAttributesDestructive
 import platform.UIKit.UIMenuElementAttributesDisabled
 import platform.UIKit.UIMenuOptionsDisplayInline
+import platform.UIKit.secondaryLabelColor
 import platform.UIKit.touchesBegan
 import platform.darwin.NSObject
 
@@ -174,17 +182,17 @@ internal class CupertinoDropdownMenuDelegate : NSObject() {
     }
 }
 
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 private fun CupertinoMenuItemData.toUIAction(): UIAction {
     val action = UIAction.actionWithTitle(
         title = title,
-//        image = UIImage.systemImageNamed("chevron.left"),
         image = icon?.toUIImage()?.resized(20.0),
         identifier = null,
     ) { _ -> onClick() }
 
     var attributes: ULong = 0u
     if (isDestructive) attributes = attributes or UIMenuElementAttributesDestructive
-    if (isDisabled) attributes = attributes or UIMenuElementAttributesDisabled
+    if (!enabled) attributes = attributes or UIMenuElementAttributesDisabled
     action.attributes = attributes
     return action
 }
