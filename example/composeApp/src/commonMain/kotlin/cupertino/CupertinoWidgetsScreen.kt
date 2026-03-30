@@ -68,7 +68,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Badge
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -116,12 +115,15 @@ import zone.ien.hig.CupertinoDateTimePicker
 import zone.ien.hig.CupertinoDateTimePickerNative
 import zone.ien.hig.CupertinoDateTimePickerState
 import zone.ien.hig.CupertinoDropdownMenu
+import zone.ien.hig.CupertinoDropdownMenuNative
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconButton
 import zone.ien.hig.CupertinoLiquidAlertDialog
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
+import zone.ien.hig.CupertinoMenuItemData
+import zone.ien.hig.CupertinoMenuSectionData
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
 import zone.ien.hig.CupertinoRangeSlider
@@ -323,7 +325,7 @@ private fun Body(
         ) {
 
             CupertinoNavigationTitle {
-                Text("HIG")
+                Text("Cupertino")
             }
             var searchValue by remember {
                 mutableStateOf("")
@@ -414,7 +416,8 @@ private fun Body(
                 }
                 SectionItem {
                     DropdownExample2(
-                        backdrop = backdrop
+                        backdrop = backdrop,
+                        isNative = nativePickers.value
                     )
                 }
             }
@@ -836,7 +839,7 @@ private fun TopBarSample(
             }
         },
         title = {
-            CupertinoText("HIG")
+            CupertinoText("Cupertino")
         }
     )
 }
@@ -1797,90 +1800,6 @@ private fun DropdownExample(
                     }
                 ) {
                     MenuAction(
-                        enabled = false,
-                        onClick = {
-                            dropdownVisible = false
-                        },
-//                        leadingIcon = {
-//                            CupertinoIcon(
-//                                imageVector = CupertinoIcons.Default.SquareAndArrowUp,
-//                                contentDescription = null
-//                            )
-//                        }
-                    ) {
-                        CupertinoText("Share")
-                    }
-                    MenuAction(
-                        onClick = {
-                            dropdownVisible = false
-                        },
-                        leadingIcon = {
-                            CupertinoIcon(
-                                imageVector = CupertinoIcons.Default.Bookmark,
-                                contentDescription = null
-                            )
-                        },
-                        trailingIcon = {
-                            Badge { Text("1") }
-                        }
-                    ) {
-                        CupertinoText("Add to Favorites")
-                    }
-                }
-
-                MenuAction(
-                    onClick = {
-                        dropdownVisible = false
-
-                    },
-                    contentColor = red,
-                    leadingIcon = {
-                        CupertinoIcon(
-                            imageVector = CupertinoIcons.Default.Trash,
-                            contentDescription = null
-                        )
-                    }
-                ) {
-                    CupertinoText("Delete")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DropdownExample2(
-    backdrop: Backdrop
-) {
-    var dropdownVisible by remember { mutableStateOf(false) }
-    val layerBackdrop = rememberDefaultBackdrop()
-
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        //Menu bar should be in the box with anchor to align correctly
-        Box {
-            CupertinoLiquidButton(
-                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
-                backdrop = layerBackdrop,
-                onClick = { dropdownVisible = !dropdownVisible }
-            ) {
-                CupertinoText("Menu")
-            }
-
-            val red = CupertinoColors.systemRed
-
-            CupertinoDropdownMenu(
-                expanded = dropdownVisible,
-                onDismissRequest = { dropdownVisible = false },
-                backdrop = backdrop
-            ) {
-                MenuSection(
-                    title = {
-                        Text("Menu")
-                    }
-                ) {
-                    MenuAction(
                         onClick = {
                             dropdownVisible = false
                         },
@@ -1923,6 +1842,109 @@ private fun DropdownExample2(
                     }
                 ) {
                     CupertinoText("Delete")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DropdownExample2(
+    backdrop: Backdrop,
+    isNative: Boolean
+) {
+    var dropdownVisible by remember { mutableStateOf(false) }
+    val layerBackdrop = rememberDefaultBackdrop()
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        //Menu bar should be in the box with anchor to align correctly
+        Box {
+            CupertinoLiquidButton(
+                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                backdrop = layerBackdrop,
+                onClick = { dropdownVisible = !dropdownVisible }
+            ) {
+                CupertinoText("Menu")
+            }
+
+            val red = CupertinoColors.systemRed
+
+            if (isNative) {
+                CupertinoDropdownMenuNative(
+                    expanded = dropdownVisible,
+                    onDismissRequest = { dropdownVisible = false },
+                    backdrop = backdrop,
+                    sections = listOf(
+                        CupertinoMenuSectionData(
+                            title = "Menu",
+                            items = listOf(
+                                CupertinoMenuItemData(
+                                    title = "Share",
+                                    onClick = {
+                                        dropdownVisible = false
+                                    }
+                                )
+                            )
+                        )
+                    )
+                )
+            } else {
+                CupertinoDropdownMenu(
+                    expanded = dropdownVisible,
+                    onDismissRequest = { dropdownVisible = false },
+                    backdrop = backdrop
+                ) {
+                    MenuSection(
+                        title = {
+                            Text("Menu")
+                        }
+                    ) {
+                        MenuAction(
+                            onClick = {
+                                dropdownVisible = false
+                            },
+                            leadingIcon = {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.SquareAndArrowUp,
+                                    contentDescription = null
+                                )
+                            }
+                        ) {
+                            CupertinoText("Share")
+                        }
+                        MenuAction(
+                            enabled = false,
+                            onClick = {
+                                dropdownVisible = false
+                            },
+                            leadingIcon = {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Default.Bookmark,
+                                    contentDescription = null
+                                )
+                            }
+                        ) {
+                            CupertinoText("Add to Favorites")
+                        }
+                    }
+
+                    MenuAction(
+                        onClick = {
+                            dropdownVisible = false
+
+                        },
+                        contentColor = red,
+                        leadingIcon = {
+                            CupertinoIcon(
+                                imageVector = CupertinoIcons.Default.Trash,
+                                contentDescription = null
+                            )
+                        }
+                    ) {
+                        CupertinoText("Delete")
+                    }
                 }
             }
         }

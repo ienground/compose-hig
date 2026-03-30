@@ -33,6 +33,7 @@ kotlin {
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.capsule)
+            implementation(libs.backdrop)
         }
     }
 }
