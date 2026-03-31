@@ -61,7 +61,7 @@ actual fun CupertinoDropdownMenuNative(
         }
         sections.fastForEach { section ->
             MenuSection(
-                title = { CupertinoText(text = section.title) }
+                title = section.title?.let { { CupertinoText(text = it) } }
             ) {
                 items.fastForEach {
                     MenuAction(

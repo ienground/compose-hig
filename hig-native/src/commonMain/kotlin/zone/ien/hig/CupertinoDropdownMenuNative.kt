@@ -23,7 +23,7 @@ data class CupertinoMenuItemData(
 )
 
 data class CupertinoMenuSectionData(
-    val title: String = "",
+    val title: String? = null,
     val items: List<CupertinoMenuItemData>,
 )
 
