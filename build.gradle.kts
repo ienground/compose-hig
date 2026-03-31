@@ -73,12 +73,15 @@ subprojects {
                 }
             }
 
-//            val isSnapshot = version.toString().endsWith("SNAPSHOT")
-//            val hasSigningKey = !(project.findProperty("signingInMemoryKeyId") as String?).isNullOrBlank()
-//
-//            if (!isSnapshot && hasSigningKey) {
-            signAllPublications()
-//            }
+            val isPublishingToMavenLocal = gradle.startParameter.taskNames
+                .any { it.contains("publishToMavenLocal", ignoreCase = true) }
+
+            val isSnapshot = version.toString().endsWith("SNAPSHOT")
+            val hasSigningKey = !(project.findProperty("signingInMemoryKeyId") as String?).isNullOrBlank()
+
+            if (!isSnapshot && hasSigningKey && !isPublishingToMavenLocal) {
+                signAllPublications()
+            }
         }
     }
 }
