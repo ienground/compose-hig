@@ -11,6 +11,8 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.PopupProperties
 import com.kyant.backdrop.Backdrop
+import zone.ien.hig.theme.CupertinoColors
+import zone.ien.hig.theme.systemRed
 
 @OptIn(markerClass = [ExperimentalComposeUiApi::class])
 @ExperimentalCupertinoApi
@@ -61,9 +63,9 @@ actual fun CupertinoDropdownMenuNative(
         }
         sections.fastForEach { section ->
             MenuSection(
-                title = { CupertinoText(text = section.title) }
+                title = section.title?.let { { CupertinoText(text = it) } }
             ) {
-                items.fastForEach {
+                section.items.fastForEach {
                     MenuAction(
                         onClick = it.onClick,
                         enabled = it.enabled,
@@ -77,8 +79,8 @@ actual fun CupertinoDropdownMenuNative(
                         },
                         title = {
                             CupertinoText(text = it.title)
-                        }
-
+                        },
+                        contentColor = if (it.isDestructive) CupertinoColors.systemRed else CupertinoDropdownMenuDefaults.ContentColor
                     )
                 }
             }

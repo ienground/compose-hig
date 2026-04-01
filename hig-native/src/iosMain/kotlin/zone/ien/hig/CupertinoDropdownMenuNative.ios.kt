@@ -167,14 +167,21 @@ internal class CupertinoDropdownMenuDelegate : NSObject() {
     fun buildMenu(): UIMenu {
         val topActions: List<UIMenuElement> = items.map { it.toUIAction() }
         val sectionMenus: List<UIMenuElement> = sections.map { section ->
-            UIMenu.menuWithTitle(
-                title = section.title,
-                image = null,
-                identifier = null,
-                options = UIMenuOptionsDisplayInline,
-                children = section.items.map { it.toUIAction() },
-            )
+            if (section.title != null) {
+                UIMenu.menuWithTitle(
+                    title = section.title,
+                    image = null,
+                    identifier = null,
+                    options = UIMenuOptionsDisplayInline,
+                    children = section.items.map { it.toUIAction() }
+                )
+            } else {
+                UIMenu.menuWithChildren(
+                    children = section.items.map { it.toUIAction() }
+                )
+            }
         }
+
         return UIMenu.menuWithTitle(
             title = "",
             children = topActions + sectionMenus,
