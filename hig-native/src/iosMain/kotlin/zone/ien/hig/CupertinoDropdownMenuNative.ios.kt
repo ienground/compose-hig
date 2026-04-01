@@ -48,10 +48,21 @@ import platform.UIKit.UIMenu
 import platform.UIKit.UIMenuElement
 import platform.UIKit.UIMenuElementAttributesDestructive
 import platform.UIKit.UIMenuElementAttributesDisabled
+import platform.UIKit.UIMenuOptionsDestructive
+import platform.UIKit.UIMenuOptionsDisplayAsPalette
 import platform.UIKit.UIMenuOptionsDisplayInline
+import platform.UIKit.UIMenuOptionsSingleSelection
+import platform.UIKit.UIMenuOptionsVar
 import platform.UIKit.secondaryLabelColor
 import platform.UIKit.touchesBegan
 import platform.darwin.NSObject
+
+fun HigMenuOptions.toUIMenuOptions() = when (this) {
+    HigMenuOptions.DisplayInline -> UIMenuOptionsDisplayInline
+    HigMenuOptions.SingleSelection -> UIMenuOptionsSingleSelection
+    HigMenuOptions.DisplayAsPalette -> UIMenuOptionsDisplayAsPalette
+    HigMenuOptions.Destructive -> UIMenuOptionsDestructive
+}
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 @ExperimentalCupertinoApi
@@ -118,7 +129,6 @@ actual fun CupertinoDropdownMenuNative(
         if (isPerformPrimaryActionAvailable()) {
             button.performPrimaryAction()
         } else {
-            // iOS 17.4 미만: gesture recognizer를 직접 트리거
             val gesture = button.gestureRecognizers
                 .orEmpty()
                 .filterIsInstance<UIGestureRecognizer>()
@@ -167,19 +177,13 @@ internal class CupertinoDropdownMenuDelegate : NSObject() {
     fun buildMenu(): UIMenu {
         val topActions: List<UIMenuElement> = items.map { it.toUIAction() }
         val sectionMenus: List<UIMenuElement> = sections.map { section ->
-            if (section.title != null) {
-                UIMenu.menuWithTitle(
-                    title = section.title,
-                    image = null,
-                    identifier = null,
-                    options = UIMenuOptionsDisplayInline,
-                    children = section.items.map { it.toUIAction() }
-                )
-            } else {
-                UIMenu.menuWithChildren(
-                    children = section.items.map { it.toUIAction() }
-                )
-            }
+            UIMenu.menuWithTitle(
+                title = section.title,
+                image = section.icon?.toUIImage()?.resized(20.0),
+                identifier = null,
+                options = section.options.toUIMenuOptions(),
+                children = section.items.map { it.toUIAction() }
+            )
         }
 
         return UIMenu.menuWithTitle(

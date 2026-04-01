@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.PopupProperties
 import com.kyant.backdrop.Backdrop
+import zone.ien.hig.MenuSection
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.systemRed
 
@@ -55,15 +56,16 @@ actual fun CupertinoDropdownMenuNative(
                         )
                     }
                 },
-                title = {
-                    CupertinoText(text = it.title)
-                }
-
+                title = { CupertinoText(text = it.title) },
+                contentColor = if (it.isDestructive) CupertinoColors.systemRed else CupertinoDropdownMenuDefaults.ContentColor
             )
+        }
+        if (items.isNotEmpty() && sections.isNotEmpty()) {
+            MenuDivider()
         }
         sections.fastForEach { section ->
             MenuSection(
-                title = section.title?.let { { CupertinoText(text = it) } }
+                title = { CupertinoText(text = section.title) }
             ) {
                 section.items.fastForEach {
                     MenuAction(
@@ -77,9 +79,7 @@ actual fun CupertinoDropdownMenuNative(
                                 )
                             }
                         },
-                        title = {
-                            CupertinoText(text = it.title)
-                        },
+                        title = { CupertinoText(text = it.title) },
                         contentColor = if (it.isDestructive) CupertinoColors.systemRed else CupertinoDropdownMenuDefaults.ContentColor
                     )
                 }

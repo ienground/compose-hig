@@ -206,7 +206,11 @@ fun CupertinoMenuScope.MenuTitle(
             LocalContentColor provides CupertinoTheme.colorScheme.secondaryLabel,
         ) {
             ProvideTextStyle(CupertinoTheme.typography.footnote) {
-                Box(Modifier.padding(it)) { title() }
+                Box(
+                    modifier = Modifier
+                        .padding(it)
+                        .padding(horizontal = 8.dp)
+                ) { title() }
             }
         }
     }
