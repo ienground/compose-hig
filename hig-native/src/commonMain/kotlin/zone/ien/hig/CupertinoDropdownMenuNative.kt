@@ -23,9 +23,15 @@ data class CupertinoMenuItemData(
 )
 
 data class CupertinoMenuSectionData(
-    val title: String? = null,
+    val title: String,
+    val icon: Painter? = null,
+    val options: HigMenuOptions = HigMenuOptions.DisplayInline,
     val items: List<CupertinoMenuItemData>,
 )
+
+enum class HigMenuOptions {
+    DisplayInline, SingleSelection, DisplayAsPalette, Destructive
+}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalCupertinoApi

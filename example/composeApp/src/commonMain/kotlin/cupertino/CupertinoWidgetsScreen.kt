@@ -146,6 +146,7 @@ import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.CupertinoTriStateCheckBox
 import zone.ien.hig.CupertinoWheelPicker
 import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.HigMenuOptions
 import zone.ien.hig.MenuAction
 import zone.ien.hig.MenuSection
 import zone.ien.hig.PresentationStyle
@@ -1820,9 +1821,48 @@ private fun DropdownExample(
                     expanded = dropdownVisible,
                     onDismissRequest = { dropdownVisible = false },
                     backdrop = backdrop,
+                    items = listOf(
+                        CupertinoMenuItemData(
+                            title = "Share",
+                            onClick = {
+                                dropdownVisible = false
+                            },
+                            icon = AdaptiveIcons.painter(
+                                material = { CupertinoIcons.Default.SquareAndArrowUp },
+                                cupertino = { "square.and.arrow.up" }
+                            )
+                        ),
+                        CupertinoMenuItemData(
+                            title = "Add to Favorites",
+                            enabled = false,
+                            onClick = {
+                                dropdownVisible = false
+                            },
+                            icon = AdaptiveIcons.painter(
+                                material = { CupertinoIcons.Default.Bookmark},
+                                cupertino = { "bookmark" }
+                            )
+                        ),
+                        CupertinoMenuItemData(
+                            title = "Delete",
+                            onClick = {
+                                dropdownVisible = false
+                            },
+                            isDestructive = true,
+                            icon = AdaptiveIcons.painter(
+                                material = { CupertinoIcons.Default.Trash},
+                                cupertino = { "trash" }
+                            )
+                        ),
+                    ),
                     sections = listOf(
                         CupertinoMenuSectionData(
                             title = "Menu",
+                            options = HigMenuOptions.SingleSelection,
+                            icon = AdaptiveIcons.painter(
+                                material = { CupertinoIcons.Default.SquareAndArrowUp },
+                                cupertino = { "square.and.arrow.up" }
+                            ),
                             items = listOf(
                                 CupertinoMenuItemData(
                                     title = "Share",
