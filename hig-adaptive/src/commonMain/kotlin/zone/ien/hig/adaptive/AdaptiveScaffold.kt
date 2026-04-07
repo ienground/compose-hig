@@ -157,8 +157,8 @@ class ScaffoldAdaptation internal constructor(
     contentColor: Color,
     containerColor: Color
 ) {
-    internal var contentColor by mutableStateOf(contentColor)
-    internal var containerColor by mutableStateOf(containerColor)
+    var contentColor by mutableStateOf(contentColor)
+    var containerColor by mutableStateOf(containerColor)
 }
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
