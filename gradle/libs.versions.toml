@@ -11,7 +11,7 @@ compose-navigation3 = "1.0.0-alpha06"
 # ui
 activity-compose = "1.13.0"
 lifecycle = "2.10.0"
-backdrop = "2.0.0-alpha04"
+backdrop = "2.0.0-alpha05"
 capsule = "1.2.0"
 haze = "1.7.2"
 
