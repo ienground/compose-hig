@@ -73,13 +73,10 @@ subprojects {
                 }
             }
 
-            val isPublishingToMavenLocal = gradle.startParameter.taskNames
-                .any { it.contains("publishToMavenLocal", ignoreCase = true) }
-
+            val isPublishingToMavenLocal = gradle.startParameter.taskNames.any { it.contains("publishToMavenLocal", ignoreCase = true) }
             val isSnapshot = version.toString().endsWith("SNAPSHOT")
-            val hasSigningKey = !(project.findProperty("signingInMemoryKeyId") as String?).isNullOrBlank()
 
-            if (!isSnapshot && hasSigningKey && !isPublishingToMavenLocal) {
+            if (!isSnapshot && !isPublishingToMavenLocal) {
                 signAllPublications()
             }
         }
