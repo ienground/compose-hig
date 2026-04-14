@@ -20,10 +20,10 @@ datetime = "0.7.1"
 material-kolor = "4.1.1"
 
 # backend
-serialization = "1.10.0"
+serialization = "1.11.0"
 vanniktech-mavenPublish = "0.36.0"
 atomicfu = "0.23.2"
-koin = "4.2.0"
+koin = "4.2.1"
 
 [libraries]
 
@@ -45,7 +45,8 @@ compose-navigation3 = { group = "org.jetbrains.androidx.navigation3", name = "na
 
 backdrop = { group = "zone.ien.backdrop", name = "backdrop", version.ref = "backdrop"}
 #backdrop = { group = "io.github.kyant0", name = "backdrop", version.ref = "backdrop"}
-capsule = { group = "io.github.kyant0", name = "shapes", version.ref = "capsule"}
+#capsule = { group = "io.github.kyant0", name = "shapes", version.ref = "capsule"}
+capsule = { group = "zone.ien.shapes", name = "shapes", version.ref = "capsule"}
 haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 
 # functionality
