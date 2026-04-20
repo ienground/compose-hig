@@ -39,7 +39,7 @@ allprojects {
 subprojects {
     plugins.withId("com.vanniktech.maven.publish") {
         configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
-            publishToMavenCentral()
+            publishToMavenCentral(automaticRelease = true)
 
             // Artifact ID만 각 프로젝트의 이름으로 자동 설정
             group = "zone.ien.hig"
