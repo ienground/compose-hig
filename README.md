@@ -14,6 +14,11 @@ Additionally, this repo has automated builds to enable faster releases, to take 
 - Add a Backdrop using [Kyant0/AndroidLiquidGlass](https://github.com/Kyant0/AndroidLiquidGlass)
 -  Attempting to remove `icons-extended`.
 
+## Preview Video
+https://github.com/user-attachments/assets/107fbb68-8604-4621-8037-d373c835406e
+
+
+
 # Usage
 
 This package is published to Maven Central Repository: [cupertino-core on Maven Central](https://central.sonatype.com/artifact/zone.ien.hig/hig-core)
@@ -35,15 +40,11 @@ Wanna see what the library feels like? The latest version builds and deploys the
 # To-do
 Compared to the previous library, we have made efforts to update many components from the Human Interface Guidelines to match the latest design, but there is still much left to be done. Please help complete the library with your contributions.
 
-[ ] BottomBar
-
-[ ] Search Bar
-
-[ ] Dropdown Native
-
-[ ] Dialog
-
-[ ] Segmented Control
+- [ ] BottomBar
+- [ ] Search Bar
+- [ ] Dropdown Native
+- [ ] Dialog
+- [ ] Segmented Control
 
 ...
 

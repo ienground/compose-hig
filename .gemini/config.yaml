@@ -1,0 +1,22 @@
+# Gemini Code Assist 공식 설정 규격
+code_review:
+  # 리뷰 댓글의 최소 심각도 (낮은 단계부터 모두 리포트하도록 설정)
+  comment_severity_threshold: LOW
+  # 리뷰 당 댓글 수 제한 없음
+  max_review_comments: -1
+
+pull_request_opened:
+  # PR 오픈 시 요약 및 리뷰 자동 실행
+  summary: true
+  code_review: true
+  include_drafts: true
+
+# 리뷰 제외 대상 (요청하신 패턴 반영)
+ignore_patterns:
+  - "**/build/**"
+  - "**/.gradle/**"
+  - "**/generated/**"
+  - "**/*.g.kt"
+  - "**/iosApp/Pods/**"
+  - "**/local.properties"
+  - "**/.idea/**"
