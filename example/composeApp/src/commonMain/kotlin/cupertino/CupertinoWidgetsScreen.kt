@@ -868,7 +868,7 @@ private fun BottomBarSample(
     var tab by remember { mutableStateOf(0) }
     val content = listOf(
         "Profile" to Icons.Default.Delete,
-        "Menu" to Icons.Default.Save,
+//        "Menu" to Icons.Default.Save,
 //        "Profile" to AdaptiveIcons.Outlined.Person,
 //        "Menu" to AdaptiveIcons.Outlined.Menu,
 //        "Settings" to AdaptiveIcons.Outlined.Settings,
@@ -912,7 +912,7 @@ private fun BottomBarSample(
                         )
                     },
                     label = {
-                        Text(pair.first, modifier= Modifier.background(Color.Red))
+                        Text(pair.first)
                     },
                 )
             }

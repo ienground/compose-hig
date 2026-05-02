@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
@@ -69,6 +70,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -98,7 +100,8 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 private val NavBarPadding = 4.dp
-private val NavBarItemGap = 0.dp  // 아이템 사이 고정 간격. 필요 시 조절
+private val NavBarItemGap = 0.dp
+private val NavBarItemMinWidth = 90.dp  // 아이템이 소수일 때의 고정 너비
 
 /**
  * Cupertino 스타일의 리퀴드 네비게이션 바입니다.
@@ -130,25 +133,37 @@ fun CupertinoNavigationBar(
             .wrapContentWidth()
             .windowInsetsPadding(windowInsets)
     ) {
-        Box(
+        // BoxWithConstraints로 windowInsets 적용 후 실제 가용 너비를 측정
+        BoxWithConstraints(
             contentAlignment = Alignment.CenterStart,
         ) {
             val density = LocalDensity.current
 
             val paddingPx = with(density) { NavBarPadding.toPx() }
-            val itemWidthPx = with(density) { CupertinoNavigationBarItemWidth.toPx() }
             val gapPx = with(density) { NavBarItemGap.toPx() }
+            val minItemWidthPx = with(density) { NavBarItemMinWidth.toPx() }
+
+            // 가용 너비 기준으로 균등 분할 시 아이템 너비 계산
+            // NavBar 전체 너비 = padding*2 + itemWidth*n + gap*(n-1)
+            // → itemWidth = (availableWidth - padding*2 - gap*(n-1)) / n
+            val availableWidthPx = constraints.maxWidth.toFloat()
+            val calculatedItemWidthPx =
+                (availableWidthPx - paddingPx * 2f - gapPx * (tabsCount - 1)) / tabsCount
+
+            // 균등 분할 너비가 최솟값(90dp) 이상이면 고정, 미만이면 균등 분할
+            val itemWidthPx = if (calculatedItemWidthPx >= minItemWidthPx) {
+                minItemWidthPx
+            } else {
+                calculatedItemWidthPx
+            }
+            val itemWidthDp: Dp = with(density) { itemWidthPx.toDp() }
 
             // NavBar 전체 너비 = padding*2 + itemWidth*n + gap*(n-1)
-            // CupertinoNavigationBarItemWidth 바꾸면 이 값이 자동으로 연동됨
             val rowWidth = paddingPx * 2f + itemWidthPx * tabsCount + gapPx * (tabsCount - 1)
 
-            // 아이템 i 왼쪽 X (BoxWithConstraints 절대좌표)
-            // = paddingPx + (itemWidthPx + gapPx) * i
             fun itemLeftX(index: Float): Float = paddingPx + (itemWidthPx + gapPx) * index
             fun itemCenterX(index: Float): Float = itemLeftX(index) + itemWidthPx / 2f
 
-            // indicator 이동 step = itemWidth + gap
             val tabStep = itemWidthPx + gapPx
 
             val offsetAnimation = remember { Animatable(0f) }
@@ -227,50 +242,13 @@ fun CupertinoNavigationBar(
                 )
             }
 
-            // ── 배경 Row ──────────────────────────────────────────────────────────
-            Row(
-                modifier = Modifier
-                    .graphicsLayer {
-                        translationX = panelOffset
-                    }
-                    .drawBackdrop(
-                        backdrop = backdrop,
-                        shape = { Capsule() },
-                        effects = {
-                            vibrancy()
-                            blur(2.dp.toPx())
-                            lens(24.dp.toPx(), 24.dp.toPx())
-                        },
-                        layerBlock = {
-                            val progress = dampedDragAnimation.pressProgress
-                            val scale = lerp(1f, 1f + 16.dp.toPx() / size.width, progress)
-                            scaleX = scale
-                            scaleY = scale
-                        },
-                        onDrawSurface = {
-                            drawRect(containerColor)
-                        }
-                    )
-                    .then(interactiveHighlight.modifier)
-                    .wrapContentWidth()
-                    .height(64.dp)
-                    .padding(NavBarPadding),
-                horizontalArrangement = Arrangement.spacedBy(NavBarItemGap),
-                verticalAlignment = Alignment.CenterVertically,
-                content = content
-            )
-
-            // ── 액센트 컬러 오버레이 Row ──────────────────────────────────────────
+            // CompositionLocal로 동적 itemWidthDp 전달
             CompositionLocalProvider(
-                LocalLiquidBottomTabScale provides {
-                    lerp(1f, 1.2f, dampedDragAnimation.pressProgress)
-                }
+                LocalCupertinoNavItemWidth provides itemWidthDp,
             ) {
+                // ── 배경 Row ──────────────────────────────────────────────────────────
                 Row(
                     modifier = Modifier
-                        .clearAndSetSemantics {}
-                        .alpha(0f)
-                        .layerBackdrop(tabsBackdrop)
                         .graphicsLayer {
                             translationX = panelOffset
                         }
@@ -278,91 +256,133 @@ fun CupertinoNavigationBar(
                             backdrop = backdrop,
                             shape = { Capsule() },
                             effects = {
-                                val progress = dampedDragAnimation.pressProgress
                                 vibrancy()
-                                blur(8.dp.toPx())
+                                blur(2.dp.toPx())
+                                lens(24.dp.toPx(), 24.dp.toPx())
+                            },
+                            layerBlock = {
+                                val progress = dampedDragAnimation.pressProgress
+                                val scale = lerp(1f, 1f + 16.dp.toPx() / size.width, progress)
+                                scaleX = scale
+                                scaleY = scale
+                            },
+                            onDrawSurface = {
+                                drawRect(containerColor)
+                            }
+                        )
+                        .then(interactiveHighlight.modifier)
+                        .wrapContentWidth()
+                        .height(64.dp)
+                        .padding(NavBarPadding),
+                    horizontalArrangement = Arrangement.spacedBy(NavBarItemGap),
+                    verticalAlignment = Alignment.CenterVertically,
+                    content = content
+                )
+
+                // ── 액센트 컬러 오버레이 Row ──────────────────────────────────────────
+                CompositionLocalProvider(
+                    LocalLiquidBottomTabScale provides {
+                        lerp(1f, 1.2f, dampedDragAnimation.pressProgress)
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .clearAndSetSemantics {}
+                            .alpha(0f)
+                            .layerBackdrop(tabsBackdrop)
+                            .graphicsLayer {
+                                translationX = panelOffset
+                            }
+                            .drawBackdrop(
+                                backdrop = backdrop,
+                                shape = { Capsule() },
+                                effects = {
+                                    val progress = dampedDragAnimation.pressProgress
+                                    vibrancy()
+                                    blur(8.dp.toPx())
+                                    lens(
+                                        24.dp.toPx() * progress,
+                                        24.dp.toPx() * progress
+                                    )
+                                },
+                                highlight = {
+                                    val progress = dampedDragAnimation.pressProgress
+                                    Highlight.Default.copy(alpha = progress)
+                                },
+                                onDrawSurface = {}
+                            )
+                            .then(interactiveHighlight.modifier)
+                            .wrapContentWidth()
+                            .height(56.dp)
+                            .padding(horizontal = NavBarPadding)
+                            .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
+                        horizontalArrangement = Arrangement.spacedBy(NavBarItemGap),
+                        verticalAlignment = Alignment.CenterVertically,
+                        content = content
+                    )
+                }
+
+                // ── 슬라이딩 선택 indicator Box ───────────────────────────────────────
+                Box(
+                    modifier = Modifier
+                        .graphicsLayer {
+                            val leftX = itemLeftX(dampedDragAnimation.value)
+                            translationX = if (isLtr) {
+                                leftX + panelOffset
+                            } else {
+                                rowWidth - leftX - itemWidthPx + panelOffset
+                            }
+                        }
+                        .then(interactiveHighlight.gestureModifier)
+                        .then(dampedDragAnimation.modifier)
+                        .drawBackdrop(
+                            backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
+                            shape = { Capsule() },
+                            effects = {
+                                val progress = dampedDragAnimation.pressProgress
                                 lens(
-                                    24.dp.toPx() * progress,
-                                    24.dp.toPx() * progress
+                                    10.dp.toPx() * progress,
+                                    14.dp.toPx() * progress,
+                                    chromaticAberration = true
                                 )
                             },
                             highlight = {
                                 val progress = dampedDragAnimation.pressProgress
                                 Highlight.Default.copy(alpha = progress)
                             },
-                            onDrawSurface = {}
+                            shadow = {
+                                val progress = dampedDragAnimation.pressProgress
+                                Shadow(alpha = progress)
+                            },
+                            innerShadow = {
+                                val progress = dampedDragAnimation.pressProgress
+                                InnerShadow(
+                                    radius = 8.dp * progress,
+                                    alpha = progress
+                                )
+                            },
+                            layerBlock = {
+                                scaleX = dampedDragAnimation.scaleX
+                                scaleY = dampedDragAnimation.scaleY
+                                val velocity = dampedDragAnimation.velocity / 10f
+                                scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
+                                scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
+                            },
+                            onDrawSurface = {
+                                val progress = dampedDragAnimation.pressProgress
+                                drawRect(
+                                    if (isLightTheme) Color.Black.copy(0.1f)
+                                    else Color.White.copy(0.1f),
+                                    alpha = 1f - progress
+                                )
+                                drawRect(Color.Black.copy(alpha = 0.03f * progress))
+                            }
                         )
-                        .then(interactiveHighlight.modifier)
-                        .wrapContentWidth()
+                        .align(Alignment.CenterStart)
                         .height(56.dp)
-                        .padding(horizontal = NavBarPadding)
-                        .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
-                    horizontalArrangement = Arrangement.spacedBy(NavBarItemGap),
-                    verticalAlignment = Alignment.CenterVertically,
-                    content = content
+                        .width(itemWidthDp)  // ★ 동적 너비 적용
                 )
             }
-
-            // ── 슬라이딩 선택 indicator Box ───────────────────────────────────────
-            Box(
-                modifier = Modifier
-                    .graphicsLayer {
-                        val leftX = itemLeftX(dampedDragAnimation.value)
-                        translationX = if (isLtr) {
-                            leftX + panelOffset
-                        } else {
-                            rowWidth - leftX - itemWidthPx + panelOffset
-                        }
-                    }
-                    .then(interactiveHighlight.gestureModifier)
-                    .then(dampedDragAnimation.modifier)
-                    .drawBackdrop(
-                        backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
-                        shape = { Capsule() },
-                        effects = {
-                            val progress = dampedDragAnimation.pressProgress
-                            lens(
-                                10.dp.toPx() * progress,
-                                14.dp.toPx() * progress,
-                                chromaticAberration = true
-                            )
-                        },
-                        highlight = {
-                            val progress = dampedDragAnimation.pressProgress
-                            Highlight.Default.copy(alpha = progress)
-                        },
-                        shadow = {
-                            val progress = dampedDragAnimation.pressProgress
-                            Shadow(alpha = progress)
-                        },
-                        innerShadow = {
-                            val progress = dampedDragAnimation.pressProgress
-                            InnerShadow(
-                                radius = 8.dp * progress,
-                                alpha = progress
-                            )
-                        },
-                        layerBlock = {
-                            scaleX = dampedDragAnimation.scaleX
-                            scaleY = dampedDragAnimation.scaleY
-                            val velocity = dampedDragAnimation.velocity / 10f
-                            scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
-                            scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
-                        },
-                        onDrawSurface = {
-                            val progress = dampedDragAnimation.pressProgress
-                            drawRect(
-                                if (isLightTheme) Color.Black.copy(0.1f)
-                                else Color.White.copy(0.1f),
-                                alpha = 1f - progress
-                            )
-                            drawRect(Color.Black.copy(alpha = 0.03f * progress))
-                        }
-                    )
-                    .align(Alignment.CenterStart)
-                    .height(56.dp)
-                    .width(CupertinoNavigationBarItemWidth)
-            )
         }
     }
 }
@@ -377,6 +397,7 @@ fun RowScope.CupertinoNavigationBarItem(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val scale = LocalLiquidBottomTabScale.current
+    val itemWidth = LocalCupertinoNavItemWidth.current  // ★ CompositionLocal에서 동적 너비 읽기
 
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
@@ -391,7 +412,7 @@ fun RowScope.CupertinoNavigationBarItem(
                 onClick = onClick
             )
             .fillMaxHeight()
-            .width(CupertinoNavigationBarItemWidth)
+            .width(itemWidth)  // ★ 고정 90.dp 대신 동적 너비 사용
             .graphicsLayer {
                 val s = scale()
                 scaleX = s
@@ -497,4 +518,4 @@ object CupertinoNavigationBarDefaults {
 }
 
 internal val LocalLiquidBottomTabScale = staticCompositionLocalOf { { 1f } }
-internal val CupertinoNavigationBarItemWidth = 90.dp
+internal val LocalCupertinoNavItemWidth = staticCompositionLocalOf { 90.dp }  // ★ 동적 너비 전달용
