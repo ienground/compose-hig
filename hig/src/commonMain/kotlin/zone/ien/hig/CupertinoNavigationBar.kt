@@ -120,7 +120,7 @@ fun CupertinoNavigationBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 24.dp)
+            .padding(bottom = CupertinoNavigationBarDefaults.BottomPadding)
             .wrapContentWidth()
             .windowInsetsPadding(windowInsets)
     ) {
