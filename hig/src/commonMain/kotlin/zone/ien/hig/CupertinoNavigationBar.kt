@@ -124,7 +124,7 @@ fun CupertinoNavigationBar(
             .wrapContentWidth()
             .windowInsetsPadding(windowInsets)
     ) {
-        BoxWithConstraints(
+        Box(
             contentAlignment = Alignment.CenterStart,
         ) {
             val density = LocalDensity.current
