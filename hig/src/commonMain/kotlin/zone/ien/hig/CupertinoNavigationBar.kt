@@ -405,7 +405,7 @@ fun RowScope.CupertinoNavigationBarItem(
             icon()
         }
         ProvideTextStyle(
-            value = TextStyle(fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            value = TextStyle(fontSize = 10.sp, lineHeight = 10.sp, fontWeight = FontWeight.Bold)
         ) {
             label?.invoke()
         }

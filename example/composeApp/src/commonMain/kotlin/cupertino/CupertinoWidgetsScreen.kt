@@ -45,6 +45,7 @@ import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
@@ -68,6 +69,10 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -126,6 +131,8 @@ import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoMenuItemData
 import zone.ien.hig.CupertinoMenuSectionData
+import zone.ien.hig.CupertinoNavigationBar
+import zone.ien.hig.CupertinoNavigationBarItem
 import zone.ien.hig.CupertinoNavigationBarItemData
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
@@ -860,9 +867,11 @@ private fun BottomBarSample(
 ) {
     var tab by remember { mutableStateOf(0) }
     val content = listOf(
-        "Profile" to AdaptiveIcons.Outlined.Person,
-        "Menu" to AdaptiveIcons.Outlined.Menu,
-        "Settings" to AdaptiveIcons.Outlined.Settings,
+        "Profile" to Icons.Default.Delete,
+        "Menu" to Icons.Default.Save,
+//        "Profile" to AdaptiveIcons.Outlined.Person,
+//        "Menu" to AdaptiveIcons.Outlined.Menu,
+//        "Settings" to AdaptiveIcons.Outlined.Settings,
     )
 
     if (isNative) {
@@ -881,26 +890,29 @@ private fun BottomBarSample(
             }
         )
     } else {
-        AdaptiveNavigationBar(
+        CupertinoNavigationBar(
+//        AdaptiveNavigationBar(
             selectedTabIndex = { tab },
             onTabSelected = { tab = it },
-            tabsCount = 3,
-            adaptation = {
-                cupertino { this.backdrop = backdrop }
-            },
+            tabsCount = content.size,
+            backdrop = backdrop,
+//            adaptation = {
+//                cupertino { this.backdrop = backdrop }
+//            },
         ) {
             content.forEachIndexed { index, pair ->
-                AdaptiveNavigationBarItem(
-                    index = index,
+                CupertinoNavigationBarItem(
+//                AdaptiveNavigationBarItem(
+//                    index = index,
                     onClick = { tab = index },
                     icon = {
-                        CupertinoIcon(
+                        Icon(
                             imageVector = pair.second,
                             contentDescription = pair.first,
                         )
                     },
                     label = {
-                        Text(pair.first)
+                        Text(pair.first, modifier= Modifier.background(Color.Red))
                     },
                 )
             }
