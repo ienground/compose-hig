@@ -1,12 +1,12 @@
 [versions]
 agp = "9.0.0"
-kotlin = "2.3.20"
-lib-version-name = "1.0.2-alpha17"
+kotlin = "2.3.21"
+lib-version-name = "1.1.0-alpha01"
 
 # plugin
 compose-plugin = "1.10.3"
 compose-plugin-experimental = "1.10.0-alpha05"
-compose-navigation3 = "1.0.0-alpha06"
+compose-navigation3 = "1.1.0"
 
 # ui
 activity-compose = "1.13.0"
