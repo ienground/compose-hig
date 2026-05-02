@@ -100,6 +100,12 @@ import kotlin.math.sign
 private val NavBarPadding = 4.dp
 private val NavBarItemGap = 0.dp  // 아이템 사이 고정 간격. 필요 시 조절
 
+/**
+ * Cupertino 스타일의 리퀴드 네비게이션 바입니다.
+ *
+ * @param tabsCount 네비게이션 아이템의 총 개수입니다. [content] 내의 아이템 개수와 일치해야 합니다.
+ * @param content 네비게이션 아이템들을 포함하는 블록입니다.
+ */
 @Composable
 @ExperimentalCupertinoApi
 fun CupertinoNavigationBar(
@@ -487,6 +493,7 @@ object CupertinoNavigationBarDefaults {
     )
 
     val windowInsets = WindowInsets(left = 36.dp, right = 36.dp)
+    val BottomPadding = 24.dp
 }
 
 internal val LocalLiquidBottomTabScale = staticCompositionLocalOf { { 1f } }
