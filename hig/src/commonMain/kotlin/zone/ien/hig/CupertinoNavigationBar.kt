@@ -105,7 +105,7 @@ private val NavBarItemGap = 0.dp  // 아이템 사이 고정 간격. 필요 시 
 fun CupertinoNavigationBar(
     modifier: Modifier = Modifier,
     colors: CupertinoNavigationBarColors = CupertinoNavigationBarDefaults.colors(),
-    windowInsets: WindowInsets = WindowInsets.navigationBars,
+    windowInsets: WindowInsets = CupertinoNavigationBarDefaults.windowInsets,
     backdrop: LayerBackdrop,
     selectedTabIndex: () -> Int,
     onTabSelected: (index: Int) -> Unit,
