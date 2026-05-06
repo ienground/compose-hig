@@ -393,7 +393,7 @@ fun SectionScope.SectionTextField(
                     enabled = enabled,
                     readOnly = readOnly,
                     visualTransformation = visualTransformation,
-                    keyboardOptions = keyboardOptions.enableNativeInput(),
+                    keyboardOptions = keyboardOptions,
                     keyboardActions = keyboardActions,
                     singleLine = singleLine,
                     maxLines = maxLines,

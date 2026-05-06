@@ -286,7 +286,7 @@ fun CupertinoSearchTextField(
             colors = colors,
             textStyle = textStyle,
             shape = shape,
-            keyboardOptions = keyboardOptions.enableNativeInput(),
+            keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             singleLine = true,
             maxLines = 1,

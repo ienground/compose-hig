@@ -419,7 +419,7 @@ fun CupertinoBorderedTextField(
             trailingIcon = trailingIcon,
             isError = isError,
             visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions.enableNativeInput(),
+            keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             singleLine = singleLine,
             maxLines = maxLines,

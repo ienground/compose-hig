@@ -5,4 +5,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.text.input.PlatformImeOptions
 
 @OptIn(ExperimentalComposeUiApi::class)
-internal actual fun KeyboardOptions.enableNativeInput() = copy()//copy(platformImeOptions = PlatformImeOptions { usingNativeTextInput(true) })
+internal actual fun KeyboardOptions.enableNativeInput() =
+    this
+//    copy(platformImeOptions = PlatformImeOptions { usingNativeTextInput(true) })
