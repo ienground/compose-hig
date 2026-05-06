@@ -4,14 +4,14 @@ kotlin = "2.3.21"
 lib-version-name = "1.1.0-alpha03"
 
 # plugin
-compose-plugin = "1.10.3"
-compose-plugin-experimental = "1.10.0-alpha05"
-compose-navigation3 = "1.1.0"
+compose-plugin = "1.11.0-rc01"
+compose-plugin-experimental = "1.11.0-alpha07"
+compose-navigation3 = "1.1.1"
 
 # ui
 activity-compose = "1.13.0"
 lifecycle = "2.10.0"
-backdrop = "2.0.0-alpha05"
+backdrop = "2.0.0-alpha06"
 capsule = "1.2.0"
 haze = "1.7.2"
 

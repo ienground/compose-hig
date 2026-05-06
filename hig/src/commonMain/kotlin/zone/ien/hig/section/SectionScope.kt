@@ -82,6 +82,7 @@ import zone.ien.hig.icons.outlined.ChevronUp
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.toStringWithLeadingZero
 import zone.ien.hig.defaultLocale
+import zone.ien.hig.enableNativeInput
 
 @Stable
 internal object SectionScopeImpl: SectionScope

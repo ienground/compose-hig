@@ -74,6 +74,8 @@ import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.systemRed
 
+internal expect fun KeyboardOptions.enableNativeInput(): KeyboardOptions
+
 @Composable
 fun CupertinoTextField(
     value: String,
@@ -121,7 +123,7 @@ fun CupertinoTextField(
             textStyle = mergedTextStyle,
             cursorBrush = SolidColor(colors.cursorColor(isError).value),
             visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             keyboardActions = keyboardActions,
             interactionSource = interactionSource,
             singleLine = singleLine,
@@ -196,7 +198,7 @@ fun CupertinoTextField(
             textStyle = mergedTextStyle,
             cursorBrush = SolidColor(colors.cursorColor(isError).value),
             visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             keyboardActions = keyboardActions,
             interactionSource = interactionSource,
             singleLine = singleLine,
@@ -267,7 +269,7 @@ fun CupertinoTextField(
             inputTransformation = inputTransformation,
             textStyle = mergedTextStyle,
             cursorBrush = SolidColor(colors.cursorColor(isError).value),
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             onKeyboardAction = onKeyboardAction,
             lineLimits = lineLimits,
             interactionSource = interactionSource,
@@ -340,7 +342,7 @@ fun CupertinoSecureTextField(
             inputTransformation = inputTransformation,
             textStyle = mergedTextStyle,
             cursorBrush = SolidColor(colors.cursorColor(isError).value),
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             onKeyboardAction = onKeyboardAction,
             interactionSource = interactionSource,
             onTextLayout = {
@@ -475,7 +477,7 @@ fun CupertinoBorderedTextField(
             trailingIcon = trailingIcon,
             isError = isError,
             visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             keyboardActions = keyboardActions,
             singleLine = singleLine,
             maxLines = maxLines,
@@ -530,7 +532,7 @@ fun CupertinoBorderedTextField(
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
             isError = isError,
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             onKeyboardAction = onKeyboardAction,
             interactionSource = interactionSource,
             contentAlignment = contentAlignment,
@@ -582,7 +584,7 @@ fun CupertinoBorderedSecureTextField(
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
             isError = isError,
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             onKeyboardAction = onKeyboardAction,
             interactionSource = interactionSource,
             contentAlignment = contentAlignment,
