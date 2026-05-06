@@ -90,6 +90,7 @@ import zone.ien.hig.icons.outlined.ChevronUp
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.toStringWithLeadingZero
 import zone.ien.hig.defaultLocale
+import zone.ien.hig.enableNativeInput
 
 @Stable
 sealed interface LazySectionScope {
@@ -495,7 +496,7 @@ fun LazySectionScope.textField(
                     enabled = enabled,
                     readOnly = readOnly,
                     visualTransformation = visualTransformation,
-                    keyboardOptions = keyboardOptions,
+                    keyboardOptions = keyboardOptions.enableNativeInput(),
                     keyboardActions = keyboardActions,
                     singleLine = singleLine,
                     maxLines = maxLines,
