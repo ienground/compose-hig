@@ -16,8 +16,24 @@
  * limitations under the License.
  */
 
-
-
+/**
+ * An adaptive switch that adapts between Cupertino and Material design based on the platform.
+ *
+ * Switches toggle the state of a single item on or off.
+ * This composable automatically switches between Cupertino (iOS) and Material (Android) design patterns
+ * based on the current theme.
+ *
+ * @param checked whether or not this switch is checked
+ * @param onCheckedChange called when this switch is clicked. If `null`, then this switch will not
+ * be interactable, unless something else handles its input events and updates its state.
+ * @param modifier the [Modifier] to be applied to this switch
+ * @param thumbContent content that will be drawn inside the thumb
+ * @param enabled controls the enabled state of this switch. When `false`, this component will not
+ * respond to user input, and it will appear visually disabled and disabled to accessibility
+ * services.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * @param adaptation configuration block for theme-dependent properties for this switch
+ */
 package zone.ien.hig.adaptive
 
 import androidx.compose.foundation.interaction.Interaction
@@ -39,22 +55,6 @@ import zone.ien.hig.CupertinoSwitch
 import zone.ien.hig.CupertinoSwitchColors
 import zone.ien.hig.CupertinoSwitchDefaults
 
-/**
- * Adaptive Switch depending on current [Theme].
- *
- * Switches toggle the state of a single item on or off.
- *
- * @param checked whether or not this switch is checked
- * @param onCheckedChange called when this switch is clicked. If `null`, then this switch will not
- * be interactable, unless something else handles its input events and updates its state.
- * @param modifier the [Modifier] to be applied to this switch
- * @param thumbContent content that will be drawn inside the thumb
- * @param enabled controls the enabled state of this switch. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services.
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * @param adaptation configuration block for theme-dependent properties for this switch
- */
 @ExperimentalAdaptiveApi
 @Composable
 fun AdaptiveSwitch(
@@ -98,6 +98,14 @@ fun AdaptiveSwitch(
     )
 }
 
+/**
+ * Cupertino switch adaptation.
+ *
+ * Container class for Cupertino switch adaptation properties.
+ *
+ * @param colors the colors to be used for the switch
+ * @param backdrop backdrop to use for the switch
+ */
 @Stable
 class CupertinoSwitchAdaptation internal constructor(
     colors: CupertinoSwitchColors,
@@ -107,6 +115,13 @@ class CupertinoSwitchAdaptation internal constructor(
     var backdrop by mutableStateOf(backdrop)
 }
 
+/**
+ * Material switch adaptation.
+ *
+ * Container class for Material switch adaptation properties.
+ *
+ * @param colors the colors to be used for the switch
+ */
 @Stable
 class MaterialSwitchAdaptation internal constructor(
     colors: SwitchColors,
@@ -114,6 +129,11 @@ class MaterialSwitchAdaptation internal constructor(
     var colors by mutableStateOf(colors)
 }
 
+/**
+ * Switch adaptation implementation.
+ *
+ * Implementation of [Adaptation] for switch adaptation.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
 private class SwitchAdaptation: Adaptation<CupertinoSwitchAdaptation, MaterialSwitchAdaptation>() {

@@ -16,8 +16,15 @@
  * limitations under the License.
  */
 
-
-
+/**
+ * Adaptive theme that allows seamless use of both Material and Cupertino widgets.
+ *
+ * This theme provides a way to seamlessly use Material and Cupertino widgets together in the same application
+ * by adapting based on the target theme. It also makes [Text] and [CupertinoText], as well as [Icon] and [CupertinoIcon]
+ * behave identically in both design systems.
+ *
+ * The current theme target can be accessed inside the [content] using [currentTheme] property.
+ */
 package zone.ien.hig.adaptive
 
 import androidx.compose.material3.Icon
@@ -46,6 +53,9 @@ import zone.ien.hig.CupertinoText
 import androidx.compose.material3.LocalContentColor as MaterialLocalContentColor
 import androidx.compose.material3.LocalTextStyle as MaterialLocalTextStyle
 
+/**
+ * The supported themes for adaptive widgets.
+ */
 enum class Theme {
     Cupertino, Material3
 }
@@ -57,11 +67,11 @@ enum class Theme {
  *
  * Current theme target can be accessed inside the [content] using [currentTheme] property
  *
- * @param target theme for adaptive widgets
- * @param material [MaterialTheme] specification
- * @param cupertino [CupertinoTheme] specification
+ * @param target theme for adaptive widgets. Defaults to [Theme.Cupertino] for iOS and [Theme.Material3] for other platforms
+ * @param material [MaterialTheme] specification. NOTE: You must use lambda parameter as a content
+ * @param cupertino [CupertinoTheme] specification. NOTE: You must use lambda parameter as a content
  * @param content themed content
- * */
+ */
 @ExperimentalAdaptiveApi
 @Composable
 fun AdaptiveTheme(
@@ -123,7 +133,7 @@ fun AdaptiveTheme(
  * @param material [MaterialTheme] specification. NOTE: You must use lambda parameter as a content
  * @param cupertino [CupertinoTheme] specification. NOTE: You must use lambda parameter as a content
  * @param content themed content
- * */
+ */
 @ExperimentalAdaptiveApi
 @Deprecated(
     message = "Use variant with theme specs instead of lambdas",
@@ -165,6 +175,15 @@ fun AdaptiveTheme(
     }
 }
 
+/**
+ * Material theme specification.
+ *
+ * This class holds the specification for Material themes including color scheme, shapes, and typography.
+ *
+ * @param colorScheme the color scheme to use for Material design
+ * @param shapes the shapes to use for Material design
+ * @param typography the typography to use for Material design
+ */
 @Immutable
 @ExperimentalAdaptiveApi
 class MaterialThemeSpec(
@@ -187,6 +206,14 @@ class MaterialThemeSpec(
     }
 
     companion object {
+        /**
+         * Creates a default Material theme specification based on the current MaterialTheme.
+         *
+         * @param colorScheme the color scheme to use for Material design
+         * @param shapes the shapes to use for Material design
+         * @param typography the typography to use for Material design
+         * @return a MaterialThemeSpec with the default values
+         */
         @Composable
         fun Default(
             colorScheme: MaterialColorScheme = MaterialTheme.colorScheme,
@@ -196,6 +223,15 @@ class MaterialThemeSpec(
     }
 }
 
+/**
+ * Cupertino theme specification.
+ *
+ * This class holds the specification for Cupertino themes including color scheme, shapes, and typography.
+ *
+ * @param colorScheme the color scheme to use for Cupertino design
+ * @param shapes the shapes to use for Cupertino design
+ * @param typography the typography to use for Cupertino design
+ */
 @Immutable
 @ExperimentalAdaptiveApi
 class CupertinoThemeSpec(
@@ -217,6 +253,14 @@ class CupertinoThemeSpec(
         return "CupertinoThemeSpec(colorScheme=$colorScheme, shapes=$shapes, typography=$typography)"
     }
     companion object {
+        /**
+         * Creates a default Cupertino theme specification based on the current CupertinoTheme.
+         *
+         * @param colorScheme the color scheme to use for Cupertino design
+         * @param shapes the shapes to use for Cupertino design
+         * @param typography the typography to use for Cupertino design
+         * @return a CupertinoThemeSpec with the default values
+         */
         @Composable
         fun Default(
             colorScheme: CupertinoColorScheme = CupertinoTheme.colorScheme,

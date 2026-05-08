@@ -16,6 +16,12 @@
  * limitations under the License.
  */
 
+/**
+ * Platform-specific default theme for non-iOS platforms.
+ *
+ * This file defines the default theme for non-iOS platforms (such as Android) to use Material 3 design.
+ * It ensures consistent theming across Android applications using this library.
+ */
 package zone.ien.hig.adaptive
 
 internal actual val DefaultTheme: Theme

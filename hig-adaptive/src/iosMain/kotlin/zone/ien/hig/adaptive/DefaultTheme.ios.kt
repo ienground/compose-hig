@@ -16,6 +16,12 @@
  * limitations under the License.
  */
 
+/**
+ * Platform-specific default theme for iOS platforms.
+ *
+ * This file defines the default theme for iOS platforms to use Cupertino design.
+ * It ensures consistent theming across iOS applications using this library.
+ */
 package zone.ien.hig.adaptive
 
 internal actual val DefaultTheme: Theme

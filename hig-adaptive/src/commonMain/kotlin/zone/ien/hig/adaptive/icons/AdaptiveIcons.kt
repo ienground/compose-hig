@@ -16,8 +16,12 @@
  * limitations under the License.
  */
 
-
-
+/**
+ * Provides adaptive icons for both Cupertino and Material design.
+ *
+ * This object contains a collection of adaptive icons that switch between Material and Cupertino design based on
+ * the current theme. Icons are defined for both filled and outlined variants.
+ */
 package zone.ien.hig.adaptive.icons
 
 import androidx.compose.material.icons.Icons
@@ -85,7 +89,11 @@ object AdaptiveIcons {
      * Adaptive vector icon based on current theme.
      *
      * To retrieve system images on iOS use [painter]
-     * */
+     *
+     * @param material composable that returns the Material design icon
+     * @param cupertino composable that returns the Cupertino icon
+     * @return the appropriate icon based on the current theme
+     */
     @Composable
     fun vector(
         material: @Composable () -> ImageVector,
@@ -101,7 +109,11 @@ object AdaptiveIcons {
      *
      * - For [Theme.Material3] and [Theme.Cupertino] on non-iOS it return painter from [material] vector.
      * - For [Theme.Cupertino] on iOS it returns SF Symbol with system name [cupertino]
-     * */
+     *
+     * @param material composable that returns the Material design icon
+     * @param cupertino composable that returns the Cupertino system name
+     * @return the appropriate painter based on the current theme
+     */
     @Composable
     fun painter(
         material: @Composable () -> ImageVector,

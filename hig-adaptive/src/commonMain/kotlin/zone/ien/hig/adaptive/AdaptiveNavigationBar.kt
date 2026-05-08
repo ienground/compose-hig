@@ -16,6 +16,20 @@
  * limitations under the License.
  */
 
+/**
+ * An adaptive navigation bar that adapts between Cupertino and Material design based on the platform.
+ *
+ * This composable provides a navigation bar that automatically switches between Cupertino (iOS) and Material (Android)
+ * design patterns based on the target platform. It supports tab navigation with appropriate styling for each platform.
+ *
+ * @param modifier optional [Modifier] for customizing the appearance and behavior
+ * @param selectedTabIndex lambda that returns the currently selected tab index
+ * @param onTabSelected callback to be invoked when a tab is selected
+ * @param tabsCount the total number of tabs
+ * @param adaptation lambda for customizing the adaptation behavior
+ * @param content composable content of the navigation bar items
+ */
+
 
 
 package zone.ien.hig.adaptive
@@ -170,6 +184,33 @@ fun AdaptiveNavigationBarNative(
     }
 }
 
+/**
+ * An adaptive navigation bar that adapts between Cupertino and Material design based on the platform.
+ *
+ * This composable provides a navigation bar that automatically switches between Cupertino (iOS) and Material (Android)
+ * design patterns based on the target platform. It supports native navigation bar items with appropriate styling for each platform.
+ *
+ * @param modifier optional [Modifier] for customizing the appearance and behavior
+ * @param selectedTabIndex lambda that returns the currently selected tab index
+ * @param onTabSelected callback to be invoked when a tab is selected
+ * @param adaptation lambda for customizing the adaptation behavior
+ * @param items list of navigation bar items for the Material implementation
+ */
+/**
+ * An adaptive navigation bar item that adapts between Cupertino and Material design based on the platform.
+ *
+ * This composable provides a navigation bar item that automatically switches between Cupertino (iOS) and Material (Android)
+ * design patterns based on the target platform. It's designed to be used within an [AdaptiveNavigationBar].
+ *
+ * @param index the index of this item in the navigation bar
+ * @param onClick callback to be invoked when the item is clicked
+ * @param icon composable that draws the icon for the item
+ * @param modifier optional [Modifier] for customizing the appearance and behavior
+ * @param enabled whether the item is enabled
+ * @param label composable that draws the label for the item
+ * @param interactionSource the interaction source for the item
+ * @param adaptation lambda for customizing the adaptation behavior
+ */
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun RowScope.AdaptiveNavigationBarItem(
@@ -188,6 +229,43 @@ fun RowScope.AdaptiveNavigationBarItem(
         navState?.onTabSelected(index)
         onClick()
     }
+
+    AdaptiveWidget(
+        adaptation = remember {
+            NavigationBarItemAdaptation()
+        },
+        adaptationScope = adaptation,
+        cupertino = {
+            CupertinoNavigationBarItem(
+                onClick = resolvedOnClick,
+                icon = icon,
+                modifier = modifier,
+                enabled = enabled,
+                label = label,
+                interactionSource = interactionSource,
+            )
+        },
+        material = {
+            NavigationBarItem(
+                selected = selected,
+                onClick = resolvedOnClick,
+                icon = icon,
+                modifier = modifier,
+                enabled = enabled,
+                label = label,
+                alwaysShowLabel = it.alwaysShowLabel,
+                colors = it.colors,
+                interactionSource = interactionSource
+            )
+        }
+    )
+}
+                    }
+                )
+            }
+        )
+    }
+}
 
     AdaptiveWidget(
         adaptation = remember {
