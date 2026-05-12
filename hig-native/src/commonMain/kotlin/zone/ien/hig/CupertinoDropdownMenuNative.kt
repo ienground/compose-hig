@@ -42,7 +42,8 @@ import com.kyant.backdrop.Backdrop
  * @param enabled whether the menu item is enabled
  * @param icon an optional icon painter for the menu item
  * @param isDestructive whether this is a destructive menu action
- * @param onClick callback when the menu item is clicked
+@Immutable
+data class CupertinoMenuItemData(
  */
 data class CupertinoMenuItemData(
     val title: String,
