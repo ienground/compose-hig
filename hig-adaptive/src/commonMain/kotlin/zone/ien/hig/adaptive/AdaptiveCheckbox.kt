@@ -89,17 +89,17 @@ fun AdaptiveCheckbox(
 }
 
 /**
- * 적응형 삼중 상태 체크박스 컴포넌트로, Material Design과 Cupertino 테마에 따라 다른 체크박스 스타일을 제공합니다.
+ * An adaptive tri-state checkbox component that provides different checkbox styles based on Material Design and Cupertino themes.
  *
- * [AdaptiveTriStateCheckbox]는 Material Design의 [TriStateCheckbox] 컴포넌트와 Cupertino의 [CupertinoTriStateCheckBox] 컴포넌트를 사용하여
- * 운영체제별로 적절한 삼중 상태 체크박스를 제공합니다.
+ * [AdaptiveTriStateCheckbox] uses the Material Design [TriStateCheckbox] component and the Cupertino [CupertinoTriStateCheckBox] component
+ * to provide an appropriate tri-state checkbox for each operating system.
  *
- * @param state 체크박스의 상태 (Unchecked, Checked, Indeterminate)
- * @param onClick 체크박스 클릭 시 호출되는 함수
- * @param modifier 요소에 적용할 Modifier
- * @param enabled 체크박스가 활성화되어 있는지 여부
- * @param interactionSource 상호작용 소스
- * @param adaptation [CupertinoCheckBoxAdaptation]와 [MaterialCheckBoxAdaptation]에 대한 사용자 정의 설정 함수
+ * @param state The state of the checkbox (Unchecked, Checked, Indeterminate)
+ * @param onClick The function to be called when the checkbox is clicked
+ * @param modifier The modifier to be applied to the element
+ * @param enabled Whether the checkbox is enabled
+ * @param interactionSource The interaction source
+ * @param adaptation Custom settings function for [CupertinoCheckBoxAdaptation] and [MaterialCheckBoxAdaptation]
  * @see AdaptiveWidget
  * @see CupertinoTriStateCheckBox
  * @see TriStateCheckbox
