@@ -172,10 +172,7 @@ fun AdaptiveNavigationBarNative(
                                 onClick = item.onClick,
                                 icon = {
                                     Icon(
-                                        painter =
-                                            if (selected && item.selectedIcon != null) item.selectedIcon!!
-                                            else item.icon
-                                        ,
+                                        painter = (if (selected) item.selectedIcon else null) ?: item.icon,
                                         contentDescription = item.label,
                                     )
                                 },
