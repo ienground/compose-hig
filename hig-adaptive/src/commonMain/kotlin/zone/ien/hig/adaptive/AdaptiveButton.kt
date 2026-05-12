@@ -244,20 +244,7 @@ fun AdaptiveTonalButton(
 
 
 @Stable
-@@ -247,12 +247,12 @@
--/**
-- * [CupertinoButton]에 대한 적응형 어댑테이션 클래스로, Cupertino 버튼 스타일의 다양한 속성을 관리합니다.
-- *
-- * @param colors [CupertinoLiquidButtonColors] - 버튼의 색상 설정
-- * @param backdrop [LayerBackdrop] - 버튼의 레이어 배경 설정
-- * @param isBackgroundAdaptive 배경이 적응형으로 처리되는지 여부
-- * @see CupertinoLiquidButtonColors
-- * @see LayerBackdrop
-- * @see CupertinoButtonSize
-- * @see Shape
-- * @see PaddingValues
-- */
-+/**
+/**
 + * An adaptive adaptation class for [CupertinoButton] that manages various properties of the Cupertino button style.
 + *
 + * @param colors [CupertinoLiquidButtonColors] - The color configuration for the button
@@ -282,21 +269,21 @@ class CupertinoButtonAdaptation internal constructor(
     var contentPadding: PaddingValues? by mutableStateOf(null)
 }
 
-@Stable
 /**
- * [MaterialButton]에 대한 적응형 어댑테이션 클래스로, Material 버튼 스타일의 다양한 속성을 관리합니다.
+ * An adaptive adaptation class for [MaterialButton] that manages various properties of the Material button style.
  *
- * @param colors [ButtonColors] - 버튼의 색상 설정
- * @param elevation [ButtonElevation] - 버튼의 그림자 효과
- * @param shape [Shape] - 버튼의 모양
- * @param contentPadding [PaddingValues] - 버튼 내용의 패딩
- * @param border [BorderStroke] - 버튼 테두리 스타일
+ * @param colors [ButtonColors] - The color configuration for the button
+ * @param elevation [ButtonElevation] - The shadow effect for the button
+ * @param shape [Shape] - The shape of the button
+ * @param contentPadding [PaddingValues] - The padding for the button content
+ * @param border [BorderStroke] - The border style for the button
  * @see ButtonColors
  * @see ButtonElevation
  * @see Shape
  * @see PaddingValues
  * @see BorderStroke
  */
+@Stable
 class MaterialButtonAdaptation internal constructor(
     colors: ButtonColors,
     elevation: ButtonElevation?,
