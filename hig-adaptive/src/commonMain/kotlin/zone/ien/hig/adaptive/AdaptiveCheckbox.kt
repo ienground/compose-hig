@@ -47,7 +47,7 @@ import zone.ien.hig.CupertinoTriStateCheckBox
  * @param modifier 요소에 적용할 Modifier
  * @param enabled 체크박스가 활성화되어 있는지 여부
  * @param interactionSource 상호작용 소스
- * @param adaptation [CupertinoCheckBoxAdaptation]와 [MaterialCheckBoxAdaptation]에 대한 사용자 정의 설정 함수
+ * @param adaptation [CupertinoCheckBoxAdaptation]과 [MaterialCheckBoxAdaptation]에 대한 사용자 정의 설정 함수
  * @see AdaptiveWidget
  * @see CupertinoCheckBox
  * @see Checkbox
