@@ -114,7 +114,7 @@ fun AdaptiveButton(
 }
 
 /**
- * 적응형 버튼으로, Material [TextButton] 또는 테두리가 없는 [CupertinoButton] 모양을 사용합니다.
+ * 적응형 버튼으로, Material [TextButton] 또는 테두리가 없는 [CupertinoLiquidButton] 모양을 사용합니다.
  *
  * Material Design에서는 [TextButton] 컴포넌트를 사용하고, Cupertino 테마에서는 [CupertinoLiquidButton] 컴포넌트를 사용하여
  * 운영체제별로 적절한 UI를 제공합니다.
