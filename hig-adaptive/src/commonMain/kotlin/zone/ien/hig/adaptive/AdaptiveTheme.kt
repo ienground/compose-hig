@@ -291,7 +291,7 @@ class CupertinoThemeSpec(
 
 
 /**
- * [AdaptiveTheme]에서 선언된 테마로, 현재 테마를 확인할 수 있습니다.
+ * The theme declared as a target in [AdaptiveTheme], allowing you to check the current theme.
  */
 @ExperimentalAdaptiveApi
 val currentTheme: Theme
