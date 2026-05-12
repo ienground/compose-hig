@@ -16,6 +16,10 @@
  * limitations under the License.
  */
 
+package zone.ien.hig.adaptive
+
+import androidx.compose.runtime.Composable
+
 /**
  * A composable that adapts between Cupertino and Material design based on the current theme.
  *
@@ -24,11 +28,8 @@
  *
  * @param material composable for the material design implementation
  * @param cupertino composable for the cupertino design implementation
+ * @param content The content that will be rendered based on the current theme
  */
-package zone.ien.hig.adaptive
-
-import androidx.compose.runtime.Composable
-
 @Composable
 @ExperimentalAdaptiveApi
 fun AdaptiveWidget(
@@ -51,6 +52,7 @@ fun AdaptiveWidget(
  * @param material composable for the material design implementation with adaptation
  * @param cupertino composable for the cupertino design implementation with adaptation
  * @param adaptationScope lambda that allows customization of the adaptation behavior
+ * @param content The content that will be rendered based on the current theme and adaptation
  */
 @Composable
 @ExperimentalAdaptiveApi
