@@ -41,7 +41,9 @@ import zone.ien.hig.theme.CupertinoTheme
 
 /**
  * Return true if container can't scroll forward
- * */
+ *
+ * @return True if the container cannot scroll forward
+ */
 inline val ScrollableState.isNavigationBarTransparent: Boolean
     get() = !canScrollForward
 
@@ -56,7 +58,8 @@ inline val ScrollableState.isNavigationBarTransparent: Boolean
  * @param color navigation bar container color. Alpha is controlled by the [CupertinoScaffold]
  * @param isTransparent if navigation bar currently should be transparent. See [CupertinoNavigationBar]
  * for use cases example.
- * */
+ * @return The appropriate color for the navigation bar
+ */
 @Composable
 @ExperimentalCupertinoApi
 fun cupertinoTranslucentBottomBarColor(
@@ -86,6 +89,20 @@ fun cupertinoTranslucentBottomBarColor(
     return Color.Transparent
 }
 
+/**
+ * Composable function that creates a Cupertino-style bottom app bar.
+ *
+ * This composable displays a bottom app bar with Cupertino styling, similar to iOS's bottom navigation bar.
+ *
+ * @param modifier The modifier to be applied to the bottom app bar
+ * @param isTranslucent Whether the bottom app bar should be translucent
+ * @param isTransparent Whether the bottom app bar should be transparent
+ * @param containerColor The color of the bottom app bar container
+ * @param contentColor The color of the content in the bottom app bar
+ * @param contentPadding The padding around the content in the bottom app bar
+ * @param windowInsets The window insets to be applied to the bottom app bar
+ * @param content The content to be displayed in the bottom app bar
+ */
 @ExperimentalCupertinoApi
 @Composable
 fun CupertinoBottomAppBar(

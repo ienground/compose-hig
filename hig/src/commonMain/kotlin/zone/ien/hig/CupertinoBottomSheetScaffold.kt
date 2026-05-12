@@ -77,7 +77,7 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
- * Standard bottom sheets co-exist with the screen’s main UI region and allow for simultaneously
+ * Standard bottom sheets co-exist with the screen's main UI region and allow for simultaneously
  * viewing and interacting with both regions. They are commonly used to keep a feature or
  * secondary content visible on screen when content in main UI region is frequently scrolled or
  * panned.
@@ -86,18 +86,23 @@ import kotlin.math.roundToInt
  * screen, by ensuring proper layout strategy for them and collecting necessary data so these
  * components will work together correctly.
  *
- * @param sheetContent the content of the bottom sheet
- * @param modifier the [Modifier] to be applied to this scaffold
- * @param scaffoldState the state of the bottom sheet scaffold
- * @param colors color of the scaffold, sheet, scrim and background.
- * @param sheetShape the shape of the bottom sheet children
- * @param sheetShadowElevation the shadow elevation of the bottom sheet
- * @param sheetDragHandle optional visual marker to pull the scaffold's bottom sheet
- * @param sheetSwipeEnabled whether the sheet swiping is enabled and should react to the user's
+ * @param sheetContent The content of the bottom sheet
+ * @param modifier The [Modifier] to be applied to this scaffold
+ * @param windowInsets The window insets to be applied to the scaffold
+ * @param scaffoldState The state of the bottom sheet scaffold
+ * @param colors Color of the scaffold, sheet, scrim and background.
+ * @param sheetShape The shape of the bottom sheet children
+ * @param sheetShadowElevation The shadow elevation of the bottom sheet
+ * @param sheetDragHandle Optional visual marker to pull the scaffold's bottom sheet
+ * @param sheetSwipeEnabled Whether the sheet swiping is enabled and should react to the user's
  * input
- * @param topBar top app bar of the screen, typically a [CupertinoTopAppBar]
- * to have no color.
- * @param content content of the screen. The lambda receives a [PaddingValues] that should be
+ * @param topBar Top app bar of the screen, typically a [CupertinoTopAppBar]
+ * @param bottomBar Bottom app bar of the screen
+ * @param appBarsBlurAlpha The alpha value for app bars
+ * @param appBarsBlurRadius The blur radius for app bars
+ * @param hasNavigationTitle Whether the screen has a navigation title
+ * @param applyContentScaling Whether to apply content scaling based on sheet position
+ * @param content Content of the screen. The lambda receives a [PaddingValues] that should be
  * applied to the content root via [Modifier.padding] and [Modifier.consumeWindowInsets] to
  * properly offset top and bottom bars. If using [Modifier.verticalScroll], apply this modifier to
  * the child of the scroll, and not on the scroll itself.
