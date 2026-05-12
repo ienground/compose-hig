@@ -16,22 +16,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused",
-    "unused", "unused", "unused", "unused", "unused", "unused"
-)
+@file:Suppress("unused")
 
 package zone.ien.hig
 
@@ -44,23 +29,37 @@ import zone.ien.hig.theme.isDark
 
 /**
  * This object provides access to native accessibility preferences
- * */
+ *
+ * It allows for checking system accessibility settings such as high contrast mode and
+ * reduced transparency.
+ */
 object Accessibility
 
+/**
+ * Checks if high contrast mode is enabled in the system.
+ */
 expect val Accessibility.isHighContrastEnabled: Boolean
 
+/**
+ * Checks if reduced transparency is enabled in the system.
+ */
 expect val Accessibility.isReduceTransparencyEnabled: Boolean
 
 /**
  * Adjust color contrast if corresponding OS accessibility system preference is enabled
- * */
+ *
+ * @return the accessible color version based on system settings
+ */
 val Color.accessible: Color
     @Composable
     get() = accessible(isDark())
 
 /**
  * Adjust color contrast if corresponding accessibility system preference is enabled
- * */
+ *
+ * @param isDark whether the theme is dark or light
+ * @return the accessible color version based on system settings
+ */
 fun Color.accessible(isDark: Boolean): Color =
     if (Accessibility.isHighContrastEnabled) {
         lerp(this, if (isDark) CupertinoColors.White else Color.Black, .2f)

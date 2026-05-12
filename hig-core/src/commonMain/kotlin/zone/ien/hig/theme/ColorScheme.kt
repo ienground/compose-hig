@@ -29,6 +29,32 @@ import zone.ien.hig.Accessibility
 import zone.ien.hig.InternalCupertinoApi
 import zone.ien.hig.isHighContrastEnabled
 
+/**
+ * A color scheme for the Cupertino design system.
+ *
+ * @param isDark whether the theme is dark or light
+ * @param accent the accent color used for interactive elements
+ * @param label the primary label color
+ * @param secondaryLabel the secondary label color
+ * @param tertiaryLabel the tertiary label color
+ * @param quaternaryLabel the quaternary label color
+ * @param link the link color
+ * @param placeholderText the placeholder text color
+ * @param separator the separator color
+ * @param opaqueSeparator the opaque separator color
+ * @param systemBackground the system background color
+ * @param secondarySystemBackground the secondary system background color
+ * @param tertiarySystemBackground the tertiary system background color
+ * @param systemGroupedBackground the system grouped background color
+ * @param secondarySystemGroupedBackground the secondary system grouped background color
+ * @param tertiarySystemGroupedBackground the tertiary system grouped background color
+ * @param systemFill the system fill color
+ * @param secondarySystemFill the secondary system fill color
+ * @param tertiarySystemFill the tertiary system fill color
+ * @param quaternarySystemFill the quaternary system fill color
+ * @param lightText the light text color
+ * @param darkText the dark text color
+ */
 @Immutable
 class ColorScheme internal constructor(
     val isDark: Boolean,
@@ -54,6 +80,31 @@ class ColorScheme internal constructor(
     val lightText: Color,
     val darkText: Color
 ) {
+    /**
+     * Creates a copy of this ColorScheme with the specified values replaced.
+     *
+     * @param accent the new accent color
+     * @param label the new label color
+     * @param secondaryLabel the new secondary label color
+     * @param tertiaryLabel the new tertiary label color
+     * @param quaternaryLabel the new quaternary label color
+     * @param link the new link color
+     * @param placeholderText the new placeholder text color
+     * @param separator the new separator color
+     * @param opaqueSeparator the new opaque separator color
+     * @param systemBackground the new system background color
+     * @param secondarySystemBackground the new secondary system background color
+     * @param tertiarySystemBackground the new tertiary system background color
+     * @param systemGroupedBackground the new system grouped background color
+     * @param secondarySystemGroupedBackground the new secondary system grouped background color
+     * @param tertiarySystemGroupedBackground the new tertiary system grouped background color
+     * @param systemFill the new system fill color
+     * @param secondarySystemFill the new secondary system fill color
+     * @param tertiarySystemFill the new tertiary system fill color
+     * @param quaternarySystemFill the new quaternary system fill color
+     * @param lightText the new light text color
+     * @param darkText the new dark text color
+     */
     fun copy(
         accent: Color = this.accent,
         label: Color = this.label,
