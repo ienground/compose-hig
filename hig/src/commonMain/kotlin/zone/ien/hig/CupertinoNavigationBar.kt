@@ -147,8 +147,11 @@ fun CupertinoNavigationBar(
             // NavBar 전체 너비 = padding*2 + itemWidth*n + gap*(n-1)
             // → itemWidth = (availableWidth - padding*2 - gap*(n-1)) / n
             val availableWidthPx = constraints.maxWidth.toFloat()
-            val calculatedItemWidthPx =
+            val calculatedItemWidthPx = if (tabsCount > 0) {
                 (availableWidthPx - paddingPx * 2f - gapPx * (tabsCount - 1)) / tabsCount
+            } else {
+                0f
+            }
 
             // 균등 분할 너비가 최솟값(90dp) 이상이면 고정, 미만이면 균등 분할
             val itemWidthPx = if (calculatedItemWidthPx >= minItemWidthPx) {
