@@ -25,5 +25,14 @@ import androidx.compose.ui.graphics.painter.Painter
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.named
 
+/**
+ * iOS 플랫폼에 맞춘 시스템 이미지를 반환하는 함수
+ * 
+ * 이 함수는 주어진 이름에 해당하는 시스템 이미지를 반환하며,
+ * iOS 환경에서는 CupertinoIcons를 사용하여 이미지를 로드합니다.
+ * 
+ * @param name 시스템 이미지 이름
+ * @return 해당 이름의 시스템 이미지 또는 null
+ */
 @Composable
 internal actual fun systemImage(name: String): Painter? = CupertinoIcons.named(name)

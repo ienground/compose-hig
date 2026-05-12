@@ -40,6 +40,25 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.FabPosition
 
 
+/**
+ * 적응형 [Scaffold] 컴포넌트로, Material Design과 Cupertino 테마에 따라 다른 레이아웃을 제공합니다.
+ *
+ * [AdaptiveScaffold]는 Material Design의 [Scaffold] 컴포넌트와 Cupertino의 [CupertinoScaffold] 컴포넌트를 사용하여
+ * 운영체제별로 적절한 레이아웃을 제공합니다.
+ *
+ * @param modifier 요소에 적용할 Modifier
+ * @param topBar 상단 탑바 컴포넌트
+ * @param bottomBar 하단 바 컴포넌트
+ * @param snackbarHost 스낵바 호스트 컴포넌트
+ * @param floatingActionButton 플로팅 액션 버튼 컴포넌트
+ * @param floatingActionButtonPosition 플로팅 액션 버튼 위치
+ * @param contentWindowInsets 내용 패딩 설정
+ * @param adaptation [ScaffoldAdaptation]에 대한 사용자 정의 설정 함수
+ * @param content 컨텐츠 영역 컴포넌트
+ * @see AdaptiveWidget
+ * @see CupertinoScaffold
+ * @see Scaffold
+ */
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
@@ -93,6 +112,26 @@ fun AdaptiveScaffold(
     )
 }
 
+/**
+ * 적응형 [Scaffold] 컴포넌트로, Material Design과 Cupertino 테마에 따라 다른 레이아웃을 제공합니다.
+ *
+ * [AdaptiveScaffold]는 Material Design의 [Scaffold] 컴포넌트와 Cupertino의 [CupertinoScaffold] 컴포넌트를 사용하여
+ * 운영체제별로 적절한 레이아웃을 제공합니다.
+ *
+ * @param modifier 요소에 적용할 Modifier
+ * @param topBar 상단 탑바 컴포넌트
+ * @param bottomBar 하단 바 컴포넌트
+ * @param snackbarHost 스낵바 호스트 컴포넌트
+ * @param floatingActionButton 플로팅 액션 버튼 컴포넌트
+ * @param floatingActionButtonPosition 플로팅 액션 버튼 위치
+ * @param containerColor 스크린 컨테이너의 배경 색상
+ * @param contentColor 스크린 내용의 색상
+ * @param contentWindowInsets 내용 패딩 설정
+ * @param content 컨텐츠 영역 컴포넌트
+ * @see AdaptiveWidget
+ * @see CupertinoScaffold
+ * @see Scaffold
+ */
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
@@ -153,6 +192,13 @@ fun AdaptiveScaffold(
 }
 
 @Stable
+/**
+ * [Scaffold] 컴포넌트에 대한 적응형 어댑테이션 클래스로, Scaffold 스타일의 다양한 속성을 관리합니다.
+ *
+ * @param contentColor 스크린 내용의 색상
+ * @param containerColor 스크린 컨테이너의 배경 색상
+ * @see Color
+ */
 class ScaffoldAdaptation internal constructor(
     contentColor: Color,
     containerColor: Color
@@ -162,6 +208,12 @@ class ScaffoldAdaptation internal constructor(
 }
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
+/**
+ * [Scaffold] 컴포넌트에 대한 적응형 어댑테이션을 구현하는 클래스입니다.
+ *
+ * @see Adaptation
+ * @see ScaffoldAdaptation
+ */
 private class ScaffoldAdaptationImpl :
     Adaptation<ScaffoldAdaptation, ScaffoldAdaptation>() {
 

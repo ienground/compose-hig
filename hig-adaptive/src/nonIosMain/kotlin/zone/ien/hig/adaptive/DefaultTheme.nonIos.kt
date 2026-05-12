@@ -18,5 +18,11 @@
 
 package zone.ien.hig.adaptive
 
+/**
+ * 비 iOS 플랫폼에 맞춘 기본 테마를 반환하는 actual 값
+ * 
+ * 이 값은 iOS가 아닌 플랫폼(예: Android, Desktop 등)에서 사용되는
+ * 기본 테마를 제공하며, Material3 테마를 반환합니다.
+ */
 internal actual val DefaultTheme: Theme
     get() = Theme.Material3

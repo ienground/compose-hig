@@ -50,8 +50,21 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.theme.CupertinoTheme
 
 /**
- * Adaptive button that takes [Button] or borderedProminent [CupertinoButton] appearance
- * */
+ * 적응형 버튼으로, Material [Button] 또는 테두리가 있는 [CupertinoButton] 모양을 사용합니다.
+ *
+ * Material Design에서는 [Button] 컴포넌트를 사용하고, Cupertino 테마에서는 [CupertinoLiquidButton] 컴포넌트를 사용하여
+ * 운영체제별로 적절한 UI를 제공합니다.
+ *
+ * @param onClick 버튼이 클릭되었을 때 호출되는 함수
+ * @param modifier 버튼에 적용할 Modifier
+ * @param enabled 버튼이 활성화되어 있는지 여부
+ * @param interactionSource 상호작용 소스
+ * @param adaptation [CupertinoButtonAdaptation]와 [MaterialButtonAdaptation]에 대한 사용자 정의 설정 함수
+ * @param content 버튼 내부에 표시될 내용
+ * @see AdaptiveWidget
+ * @see CupertinoButton
+ * @see Button
+ */
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
@@ -101,8 +114,21 @@ fun AdaptiveButton(
 }
 
 /**
- * Adaptive button that takes [TextButton] or borderless [CupertinoButton] appearance
- * */
+ * 적응형 버튼으로, Material [TextButton] 또는 테두리가 없는 [CupertinoButton] 모양을 사용합니다.
+ *
+ * Material Design에서는 [TextButton] 컴포넌트를 사용하고, Cupertino 테마에서는 [CupertinoLiquidButton] 컴포넌트를 사용하여
+ * 운영체제별로 적절한 UI를 제공합니다.
+ *
+ * @param onClick 버튼이 클릭되었을 때 호출되는 함수
+ * @param modifier 버튼에 적용할 Modifier
+ * @param enabled 버튼이 활성화되어 있는지 여부
+ * @param interactionSource 상호작용 소스
+ * @param adaptation [CupertinoButtonAdaptation]와 [MaterialButtonAdaptation]에 대한 사용자 정의 설정 함수
+ * @param content 버튼 내부에 표시될 내용
+ * @see AdaptiveWidget
+ * @see CupertinoButton
+ * @see TextButton
+ */
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
@@ -152,8 +178,21 @@ fun AdaptiveTextButton(
 }
 
 /**
- * Adaptive button that takes [FilledTonalButton] or bordered [CupertinoButton] appearance
- * */
+ * 적응형 버튼으로, Material [FilledTonalButton] 또는 테두리가 있는 [CupertinoButton] 모양을 사용합니다.
+ *
+ * Material Design에서는 [FilledTonalButton] 컴포넌트를 사용하고, Cupertino 테마에서는 [CupertinoLiquidButton] 컴포넌트를 사용하여
+ * 운영체제별로 적절한 UI를 제공합니다.
+ *
+ * @param onClick 버튼이 클릭되었을 때 호출되는 함수
+ * @param modifier 버튼에 적용할 Modifier
+ * @param enabled 버튼이 활성화되어 있는지 여부
+ * @param interactionSource 상호작용 소스
+ * @param adaptation [CupertinoButtonAdaptation]와 [MaterialButtonAdaptation]에 대한 사용자 정의 설정 함수
+ * @param content 버튼 내부에 표시될 내용
+ * @see AdaptiveWidget
+ * @see CupertinoButton
+ * @see FilledTonalButton
+ */
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
@@ -204,6 +243,18 @@ fun AdaptiveTonalButton(
 
 
 @Stable
+/**
+ * [CupertinoButton]에 대한 적응형 어댑테이션 클래스로, Cupertino 버튼 스타일의 다양한 속성을 관리합니다.
+ *
+ * @param colors [CupertinoLiquidButtonColors] - 버튼의 색상 설정
+ * @param backdrop [LayerBackdrop] - 버튼의 레이어 배경 설정
+ * @param isBackgroundAdaptive 배경이 적응형으로 처리되는지 여부
+ * @see CupertinoLiquidButtonColors
+ * @see LayerBackdrop
+ * @see CupertinoButtonSize
+ * @see Shape
+ * @see PaddingValues
+ */
 class CupertinoButtonAdaptation internal constructor(
     colors: CupertinoLiquidButtonColors,
     backdrop: LayerBackdrop,
@@ -218,6 +269,20 @@ class CupertinoButtonAdaptation internal constructor(
 }
 
 @Stable
+/**
+ * [MaterialButton]에 대한 적응형 어댑테이션 클래스로, Material 버튼 스타일의 다양한 속성을 관리합니다.
+ *
+ * @param colors [ButtonColors] - 버튼의 색상 설정
+ * @param elevation [ButtonElevation] - 버튼의 그림자 효과
+ * @param shape [Shape] - 버튼의 모양
+ * @param contentPadding [PaddingValues] - 버튼 내용의 패딩
+ * @param border [BorderStroke] - 버튼 테두리 스타일
+ * @see ButtonColors
+ * @see ButtonElevation
+ * @see Shape
+ * @see PaddingValues
+ * @see BorderStroke
+ */
 class MaterialButtonAdaptation internal constructor(
     colors: ButtonColors,
     elevation: ButtonElevation?,
@@ -237,6 +302,13 @@ private enum class ButtonType {
 }
 
 @ExperimentalAdaptiveApi
+/**
+ * 버튼 유형에 따라 적응형 어댑테이션을 제공하는 클래스입니다.
+ *
+ * @param type [ButtonType] - 버튼의 유형 (Filled, Text, Tonal)
+ * @see CupertinoButtonAdaptation
+ * @see MaterialButtonAdaptation
+ */
 private class ButtonAdaptation(
     private val type: ButtonType,
 ): Adaptation<CupertinoButtonAdaptation, MaterialButtonAdaptation>() {

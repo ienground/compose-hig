@@ -18,5 +18,11 @@
 
 package zone.ien.hig.adaptive
 
+/**
+ * iOS 플랫폼에 맞춘 기본 테마를 반환하는 actual 값
+ * 
+ * 이 값은 iOS 환경에서 사용되는 기본 테마를 제공하며,
+ * iOS 전용 테마인 Cupertino 테마를 반환합니다.
+ */
 internal actual val DefaultTheme: Theme
     get() = Theme.Cupertino

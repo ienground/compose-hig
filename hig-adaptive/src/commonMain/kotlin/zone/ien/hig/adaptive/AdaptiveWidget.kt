@@ -22,6 +22,12 @@ package zone.ien.hig.adaptive
 
 import androidx.compose.runtime.Composable
 
+/**
+ * 기본 적응형 위젯으로, 주어진 내용을 현재 테마에 따라 Material 또는 Cupertino 스타일로 표시합니다.
+ * 
+ * @param material Material 스타일로 표시할 내용
+ * @param cupertino Cupertino 스타일로 표시할 내용
+ */
 @Composable
 @ExperimentalAdaptiveApi
 fun AdaptiveWidget(
@@ -34,6 +40,14 @@ fun AdaptiveWidget(
     }
 }
 
+/**
+ * 다양한 적응형 컴포넌트를 처리하는 고급 적응형 위젯입니다.
+ * 
+ * @param adaptation [Adaptation] - 어댑테이션 정의
+ * @param material Material 스타일로 표시할 내용
+ * @param cupertino Cupertino 스타일로 표시할 내용
+ * @param adaptationScope 어댑테이션에 대한 사용자 정의 설정 함수
+ */
 @Composable
 @ExperimentalAdaptiveApi
 fun <C, M> AdaptiveWidget(
