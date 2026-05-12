@@ -24,6 +24,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
+/**
+ * A date picker that is implemented with Compose widgets on non-iOS platforms.
+ *
+ * @param state the state of the date picker
+ * @param modifier the [Modifier] to be applied to this date picker
+ * @param style the date picker style, either wheel or pager
+ * @param containerColor the color to apply to the background of the date picker
+ */
 @Composable
 @ExperimentalCupertinoApi
 actual fun CupertinoDatePickerNative(

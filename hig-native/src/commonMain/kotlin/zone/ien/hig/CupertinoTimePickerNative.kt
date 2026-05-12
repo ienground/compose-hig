@@ -27,6 +27,15 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.Dp
 import zone.ien.hig.theme.CupertinoTheme
 
+/**
+ * A time picker that is implemented with native platform widgets on iOS and Compose widgets on
+ * non-iOS platforms.
+ *
+ * @param state the state of the time picker
+ * @param modifier the [Modifier] to be applied to this time picker
+ * @param height the height of the time picker
+ * @param containerColor the color to apply to the background of the time picker
+ */
 @Composable
 @ExperimentalCupertinoApi
 expect fun CupertinoTimePickerNative(
