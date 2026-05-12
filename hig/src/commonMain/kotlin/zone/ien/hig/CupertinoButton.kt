@@ -541,7 +541,7 @@ fun borderlessButtonColors(
  * Tinted button with .bordered SwiftUI with default tint
  * 
  * @param contentColor The color of the button's text/content
- * @param containerColor The background color of the button (computed from contentColor)
+ * @param containerColor The background color of the button
  * @param disabledContentColor The color of the button's text/content when disabled
  * @param disabledContainerColor The background color of the button when disabled
  * @param indicationColor The color used for visual feedback during interactions
