@@ -32,4 +32,4 @@ import androidx.compose.ui.text.input.PlatformImeOptions
 @OptIn(ExperimentalComposeUiApi::class)
 internal actual fun KeyboardOptions.enableNativeInput() =
     this
-//    copy(platformImeOptions = PlatformImeOptions { usingNativeTextInput(true) })
+//    copy(platformImeOptions = PlatformImeOptions { usingNativeTextInput(true) }) // TODO: iOS 네이티브 입력 시 키보드 레이아웃 깨짐 이슈로 인해 비활성화됨
