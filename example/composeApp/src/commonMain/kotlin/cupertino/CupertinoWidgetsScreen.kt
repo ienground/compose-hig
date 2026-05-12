@@ -868,10 +868,8 @@ private fun BottomBarSample(
     var tab by remember { mutableStateOf(0) }
     val content = listOf(
         "Profile" to Icons.Default.Delete,
-//        "Menu" to Icons.Default.Save,
-//        "Profile" to AdaptiveIcons.Outlined.Person,
-//        "Menu" to AdaptiveIcons.Outlined.Menu,
-//        "Settings" to AdaptiveIcons.Outlined.Settings,
+        "Menu" to Icons.Default.Save,
+        "Profile" to AdaptiveIcons.Outlined.Person,
     )
 
     if (isNative) {
@@ -890,20 +888,17 @@ private fun BottomBarSample(
             }
         )
     } else {
-        CupertinoNavigationBar(
-//        AdaptiveNavigationBar(
+        AdaptiveNavigationBar(
             selectedTabIndex = { tab },
             onTabSelected = { tab = it },
             tabsCount = content.size,
-            backdrop = backdrop,
-//            adaptation = {
-//                cupertino { this.backdrop = backdrop }
-//            },
+            adaptation = {
+                cupertino { this.backdrop = backdrop }
+            },
         ) {
             content.forEachIndexed { index, pair ->
-                CupertinoNavigationBarItem(
-//                AdaptiveNavigationBarItem(
-//                    index = index,
+                AdaptiveNavigationBarItem(
+                    index = index,
                     onClick = { tab = index },
                     icon = {
                         Icon(
@@ -947,7 +942,6 @@ private fun SheetSample(
                         CupertinoText("Done")
                     }
                 },
-//                isTransparent = sheetListState.isTopBarTransparent
             )
         }
     ) { pv ->

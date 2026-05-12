@@ -281,7 +281,7 @@ fun CupertinoMenuScope.MenuAction(
 ) {
     this as CupertinoMenuScopeImpl
 
-// If at least one item has an icon, set hasIcon to true
+    // If at least one item has an icon, set hasIcon to true
     if (leadingIcon != null) {
         DisposableEffect(this) {
             val prev = hasIcon
