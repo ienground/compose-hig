@@ -115,19 +115,19 @@ fun AdaptiveButton(
 }
 
 /**
- * 적응형 버튼으로, Material [TextButton] 또는 테두리가 없는 [CupertinoLiquidButton] 모양을 사용합니다.
+ * An adaptive button that uses either Material [TextButton] or borderless [CupertinoLiquidButton] appearance.
  *
- * Material Design에서는 [TextButton] 컴포넌트를 사용하고, Cupertino 테마에서는 [CupertinoLiquidButton] 컴포넌트를 사용하여
- * 운영체제별로 적절한 UI를 제공합니다.
+ * Material Design uses the [TextButton] component, while the Cupertino theme uses
+ * the [CupertinoLiquidButton] component to provide a native look and feel on each platform.
  *
- * @param onClick 버튼이 클릭되었을 때 호출되는 함수
- * @param modifier 버튼에 적용할 Modifier
- * @param enabled 버튼이 활성화되어 있는지 여부
- * @param interactionSource 상호작용 소스
- * @param adaptation [CupertinoButtonAdaptation]와 [MaterialButtonAdaptation]에 대한 사용자 정의 설정 함수
- * @param content 버튼 내부에 표시될 내용
+ * @param onClick called when the button is clicked
+ * @param modifier the [Modifier] to be applied to this button
+ * @param enabled controls the enabled state of this button
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * @param adaptation configuration block for [CupertinoButtonAdaptation] and [MaterialButtonAdaptation]
+ * @param content the content to be displayed inside the button
  * @see AdaptiveWidget
- * @see CupertinoButton
+ * @see CupertinoLiquidButton
  * @see TextButton
  */
 @OptIn(ExperimentalCupertinoApi::class)
@@ -318,13 +318,6 @@ private enum class ButtonType {
  * @param type The type of button to adapt (Filled, Text, or Tonal)
  */
 @ExperimentalAdaptiveApi
-/**
- * 버튼 유형에 따라 적응형 어댑테이션을 제공하는 클래스입니다.
- *
- * @param type [ButtonType] - 버튼의 유형 (Filled, Text, Tonal)
- * @see CupertinoButtonAdaptation
- * @see MaterialButtonAdaptation
- */
 private class ButtonAdaptation(
     private val type: ButtonType,
 ): Adaptation<CupertinoButtonAdaptation, MaterialButtonAdaptation>() {
