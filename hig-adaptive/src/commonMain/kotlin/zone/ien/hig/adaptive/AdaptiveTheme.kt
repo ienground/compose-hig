@@ -132,7 +132,7 @@ fun AdaptiveTheme(
  */
 @ExperimentalAdaptiveApi
 @Deprecated(
-    message = "테마 사양을 파라미터로 받는 버전을 사용하세요",
+    message = "Use the version that takes theme specifications as parameters",
     replaceWith = ReplaceWith(
         "AdaptiveTheme(target, MaterialThemeSpec.Default(), CupertinoThemeSpec.Default(), content)",
         "import zone.ien.hig.adaptive.MaterialThemeSpec",

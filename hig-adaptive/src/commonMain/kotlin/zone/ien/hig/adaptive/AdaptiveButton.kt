@@ -50,19 +50,20 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.theme.CupertinoTheme
 
 /**
- * 적응형 버튼으로, Material [Button] 또는 테두리가 있는 [CupertinoLiquidButton] 모양을 사용합니다.
+ * An adaptive button that uses either Material [Button] or [CupertinoLiquidButton]
+ * depending on the current theme.
  *
- * Material Design에서는 [Button] 컴포넌트를 사용하고, Cupertino 테마에서는 [CupertinoLiquidButton] 컴포넌트를 사용하여
- * 운영체제별로 적절한 UI를 제공합니다.
+ * Material Design uses the [Button] component, while the Cupertino theme uses
+ * the [CupertinoLiquidButton] component to provide a native look and feel on each platform.
  *
- * @param onClick 버튼이 클릭되었을 때 호출되는 함수
- * @param modifier 버튼에 적용할 Modifier
- * @param enabled 버튼이 활성화되어 있는지 여부
- * @param interactionSource 상호작용 소스
- * @param adaptation [CupertinoButtonAdaptation]와 [MaterialButtonAdaptation]에 대한 사용자 정의 설정 함수
- * @param content 버튼 내부에 표시될 내용
+ * @param onClick called when the button is clicked
+ * @param modifier the [Modifier] to be applied to this button
+ * @param enabled controls the enabled state of this button
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * @param adaptation configuration block for [CupertinoButtonAdaptation] and [MaterialButtonAdaptation]
+ * @param content the content to be displayed inside the button
  * @see AdaptiveWidget
- * @see CupertinoButton
+ * @see CupertinoLiquidButton
  * @see Button
  */
 @OptIn(ExperimentalCupertinoApi::class)

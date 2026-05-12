@@ -38,19 +38,17 @@ import zone.ien.hig.CupertinoSwitchColors
 import zone.ien.hig.CupertinoSwitchDefaults
 
 /**
- * An adaptive switch that adapts between Cupertino and Material design based on the platform.
+ * An adaptive switch that changes its appearance based on the current [Theme].
  *
  * Switches toggle the state of a single item on or off.
- * This composable automatically switches between Cupertino (iOS) and Material (Android) design patterns
- * based on the current theme.
  *
- * @param checked 스위치가 체크되었는지 여부
- * @param onCheckedChange 스위치가 클릭되었을 때 호출되는 함수. null인 경우, 이 스위치는 상호작용이 불가능하며, 다른 요소가 입력 이벤트를 처리하고 상태를 업데이트해야 합니다.
- * @param modifier 스위치에 적용할 [Modifier]
- * @param thumbContent 스위치의 엄지/thumb 안에 표시할 내용
- * @param enabled 스위치의 활성화 상태를 제어합니다. false인 경우, 이 컴포넌트는 사용자 입력에 응답하지 않으며, 시각적으로 비활성화되고 접근성 서비스에서는 비활성화된 상태로 표시됩니다.
- * @param interactionSource [Interaction] 스트림을 나타내는 [MutableInteractionSource]
- * @param adaptation 테마에 따라 다른 속성을 설정하는 구성 블록
+ * @param checked whether this switch is checked
+ * @param onCheckedChange called when the switch is clicked. If null, the switch is not interactable.
+ * @param modifier the [Modifier] to be applied to this switch
+ * @param thumbContent content to be drawn inside the thumb
+ * @param enabled controls the enabled state of this switch
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * @param adaptation configuration block for theme-dependent properties
  * @see AdaptiveWidget
  * @see CupertinoSwitch
  * @see Switch
