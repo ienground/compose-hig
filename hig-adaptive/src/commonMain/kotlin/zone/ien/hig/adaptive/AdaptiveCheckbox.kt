@@ -37,17 +37,17 @@ import zone.ien.hig.CupertinoCheckboxDefaults
 import zone.ien.hig.CupertinoTriStateCheckBox
 
 /**
- * 적응형 체크박스 컴포넌트로, Material Design과 Cupertino 테마에 따라 다른 체크박스 스타일을 제공합니다.
+ * An adaptive checkbox component that provides different checkbox styles based on Material Design and Cupertino themes.
  *
- * [AdaptiveCheckbox]는 Material Design의 [Checkbox] 컴포넌트와 Cupertino의 [CupertinoCheckBox] 컴포넌트를 사용하여
- * 운영체제별로 적절한 체크박스를 제공합니다.
+ * [AdaptiveCheckbox] uses the Material Design [Checkbox] component and the Cupertino [CupertinoCheckBox] component
+ * to provide an appropriate checkbox for each operating system.
  *
- * @param checked 체크박스의 현재 체크 여부
- * @param onCheckedChange 체크박스 상태 변경 시 호출되는 함수
- * @param modifier 요소에 적용할 Modifier
- * @param enabled 체크박스가 활성화되어 있는지 여부
- * @param interactionSource 상호작용 소스
- * @param adaptation [CupertinoCheckBoxAdaptation]와 [MaterialCheckBoxAdaptation]에 대한 사용자 정의 설정 함수
+ * @param checked the current checked state of the checkbox
+ * @param onCheckedChange callback to be invoked when the checkbox state changes
+ * @param modifier the [Modifier] to be applied to the element
+ * @param enabled controls the enabled state of the checkbox
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * @param adaptation configuration block for [CupertinoCheckBoxAdaptation] and [MaterialCheckBoxAdaptation]
  * @see AdaptiveWidget
  * @see CupertinoCheckBox
  * @see Checkbox
