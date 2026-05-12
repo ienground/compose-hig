@@ -44,42 +44,34 @@ object CupertinoHapticFeedback {
      * Selection changed haptic feedback type.
      */
     val SelectionChanged: HapticFeedbackType = HapticFeedbackType(1001)
-
     /**
      * Success haptic feedback type.
      */
     val Success: HapticFeedbackType = HapticFeedbackType(2001)
-    
     /**
      * Warning haptic feedback type.
      */
     val Warning: HapticFeedbackType = HapticFeedbackType(2002)
-    
     /**
      * Error haptic feedback type.
      */
     val Error: HapticFeedbackType = HapticFeedbackType(2003)
-
     /**
      * Impact light haptic feedback type.
      */
     val ImpactLight: HapticFeedbackType = HapticFeedbackType(3001)
-    
     /**
      * Impact medium haptic feedback type.
      */
     val ImpactMedium: HapticFeedbackType = HapticFeedbackType(3002)
-    
     /**
      * Impact heavy haptic feedback type.
      */
     val ImpactHeavy: HapticFeedbackType = HapticFeedbackType(3003)
-    
     /**
      * Impact rigid haptic feedback type.
      */
     val ImpactRigid: HapticFeedbackType = HapticFeedbackType(3004)
-    
     /**
      * Impact soft haptic feedback type.
      */

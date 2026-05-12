@@ -51,7 +51,6 @@ fun <T> cupertinoTween(
  * The easing function used for Cupertino transitions.
  */
 val CupertinoEasing = CubicBezierEasing(0.2833f, 0.99f, 0.31833f, 0.99f)
-
 /**
  * The default transition duration for Cupertino transitions.
  */
