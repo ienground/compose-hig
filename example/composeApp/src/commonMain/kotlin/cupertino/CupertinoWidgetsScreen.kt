@@ -72,6 +72,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -869,7 +870,7 @@ private fun BottomBarSample(
     val content = listOf(
         "Profile" to Icons.Default.Delete,
         "Menu" to Icons.Default.Save,
-        "Profile" to AdaptiveIcons.Outlined.Person,
+        "Setting" to Icons.Default.Settings,
     )
 
     if (isNative) {
@@ -1822,49 +1823,51 @@ private fun DropdownExample(
 
             val red = CupertinoColors.systemRed
 
-CupertinoDropdownMenuNative(
-    expanded = dropdownVisible,
-    onDismissRequest = { dropdownVisible = false },
-    backdrop = backdrop,
-    sections = listOf(
-        CupertinoMenuSectionData(
-            title = "Menu",
-            options = HigMenuOptions.SingleSelection,
-            icon = AdaptiveIcons.painter(
-                material = { CupertinoIcons.Default.SquareAndArrowUp },
-                cupertino = { "square.and.arrow.up" }
-            ),
-            items = listOf(
-                CupertinoMenuItemData(
-                    title = "Share",
-                    onClick = { dropdownVisible = false },
-                    icon = AdaptiveIcons.painter(
-                        material = { CupertinoIcons.Default.SquareAndArrowUp },
-                        cupertino = { "square.and.arrow.up" }
-                    )
-                ),
-                CupertinoMenuItemData(
-                    title = "Add to Favorites",
-                    enabled = false,
-                    onClick = { dropdownVisible = false },
-                    icon = AdaptiveIcons.painter(
-                        material = { CupertinoIcons.Default.Bookmark },
-                        cupertino = { "bookmark" }
-                    )
-                ),
-                CupertinoMenuItemData(
-                    title = "Delete",
-                    onClick = { dropdownVisible = false },
-                    isDestructive = true,
-                    icon = AdaptiveIcons.painter(
-                        material = { CupertinoIcons.Default.Trash },
-                        cupertino = { "trash" }
+            if (isNative) {
+
+                CupertinoDropdownMenuNative(
+                    expanded = dropdownVisible,
+                    onDismissRequest = { dropdownVisible = false },
+                    backdrop = backdrop,
+                    sections = listOf(
+                        CupertinoMenuSectionData(
+                            title = "Menu",
+                            options = HigMenuOptions.SingleSelection,
+                            icon = AdaptiveIcons.painter(
+                                material = { CupertinoIcons.Default.SquareAndArrowUp },
+                                cupertino = { "square.and.arrow.up" }
+                            ),
+                            items = listOf(
+                                CupertinoMenuItemData(
+                                    title = "Share",
+                                    onClick = { dropdownVisible = false },
+                                    icon = AdaptiveIcons.painter(
+                                        material = { CupertinoIcons.Default.SquareAndArrowUp },
+                                        cupertino = { "square.and.arrow.up" }
+                                    )
+                                ),
+                                CupertinoMenuItemData(
+                                    title = "Add to Favorites",
+                                    enabled = false,
+                                    onClick = { dropdownVisible = false },
+                                    icon = AdaptiveIcons.painter(
+                                        material = { CupertinoIcons.Default.Bookmark },
+                                        cupertino = { "bookmark" }
+                                    )
+                                ),
+                                CupertinoMenuItemData(
+                                    title = "Delete",
+                                    onClick = { dropdownVisible = false },
+                                    isDestructive = true,
+                                    icon = AdaptiveIcons.painter(
+                                        material = { CupertinoIcons.Default.Trash },
+                                        cupertino = { "trash" }
+                                    )
+                                )
+                            )
+                        )
                     )
                 )
-            )
-        )
-    )
-)
             } else {
                 CupertinoDropdownMenu(
                     expanded = dropdownVisible,

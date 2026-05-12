@@ -97,7 +97,7 @@ fun Painter.toImageBitmap(
         canvas = canvas,
         size = Size(width.toFloat(), height.toFloat())
     ) {
-        // 흰색으로 강제 렌더링 → AlwaysTemplate이 tint를 올바르게 곱할 수 있음
+        // Force render as white -> so AlwaysTemplate can multiply tint correctly
         with(this) {
             drawContext.canvas.let { c ->
                 val paint = androidx.compose.ui.graphics.Paint().apply {
