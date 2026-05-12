@@ -212,5 +212,5 @@ private fun isPerformPrimaryActionAvailable(): Boolean {
     val systemVersion = UIDevice.currentDevice.systemVersion
     val major = systemVersion.split(".").firstOrNull()?.toIntOrNull() ?: 0
     val minor = systemVersion.split(".").getOrNull(1)?.toIntOrNull() ?: 0
-    return major >= 17 && minor >= 4
+    return major > 17 || (major == 17 && minor >= 4)
 }
