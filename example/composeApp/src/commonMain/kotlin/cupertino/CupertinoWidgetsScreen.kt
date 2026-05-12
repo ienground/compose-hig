@@ -1822,90 +1822,49 @@ private fun DropdownExample(
 
             val red = CupertinoColors.systemRed
 
-            if (isNative) {
-                CupertinoDropdownMenuNative(
-                    expanded = dropdownVisible,
-                    onDismissRequest = { dropdownVisible = false },
-                    backdrop = backdrop,
-                    items = listOf(
-                        CupertinoMenuItemData(
-                            title = "Share",
-                            onClick = {
-                                dropdownVisible = false
-                            },
-                            icon = AdaptiveIcons.painter(
-                                material = { CupertinoIcons.Default.SquareAndArrowUp },
-                                cupertino = { "square.and.arrow.up" }
-                            )
-                        ),
-                        CupertinoMenuItemData(
-                            title = "Add to Favorites",
-                            enabled = false,
-                            onClick = {
-                                dropdownVisible = false
-                            },
-                            icon = AdaptiveIcons.painter(
-                                material = { CupertinoIcons.Default.Bookmark},
-                                cupertino = { "bookmark" }
-                            )
-                        ),
-                        CupertinoMenuItemData(
-                            title = "Delete",
-                            onClick = {
-                                dropdownVisible = false
-                            },
-                            isDestructive = true,
-                            icon = AdaptiveIcons.painter(
-                                material = { CupertinoIcons.Default.Trash},
-                                cupertino = { "trash" }
-                            )
-                        ),
-                    ),
-                    sections = listOf(
-                        CupertinoMenuSectionData(
-                            title = "Menu",
-                            options = HigMenuOptions.SingleSelection,
-                            icon = AdaptiveIcons.painter(
-                                material = { CupertinoIcons.Default.SquareAndArrowUp },
-                                cupertino = { "square.and.arrow.up" }
-                            ),
-                            items = listOf(
-                                CupertinoMenuItemData(
-                                    title = "Share",
-                                    onClick = {
-                                        dropdownVisible = false
-                                    },
-                                    icon = AdaptiveIcons.painter(
-                                        material = { CupertinoIcons.Default.SquareAndArrowUp },
-                                        cupertino = { "square.and.arrow.up" }
-                                    )
-                                ),
-                                CupertinoMenuItemData(
-                                    title = "Add to Favorites",
-                                    enabled = false,
-                                    onClick = {
-                                        dropdownVisible = false
-                                    },
-                                    icon = AdaptiveIcons.painter(
-                                        material = { CupertinoIcons.Default.Bookmark},
-                                        cupertino = { "bookmark" }
-                                    )
-                                ),
-                                CupertinoMenuItemData(
-                                    title = "Delete",
-                                    onClick = {
-                                        dropdownVisible = false
-                                    },
-                                    isDestructive = true,
-                                    icon = AdaptiveIcons.painter(
-                                        material = { CupertinoIcons.Default.Trash},
-                                        cupertino = { "trash" }
-                                    )
-                                ),
-                            )
-                        )
+CupertinoDropdownMenuNative(
+    expanded = dropdownVisible,
+    onDismissRequest = { dropdownVisible = false },
+    backdrop = backdrop,
+    sections = listOf(
+        CupertinoMenuSectionData(
+            title = "Menu",
+            options = HigMenuOptions.SingleSelection,
+            icon = AdaptiveIcons.painter(
+                material = { CupertinoIcons.Default.SquareAndArrowUp },
+                cupertino = { "square.and.arrow.up" }
+            ),
+            items = listOf(
+                CupertinoMenuItemData(
+                    title = "Share",
+                    onClick = { dropdownVisible = false },
+                    icon = AdaptiveIcons.painter(
+                        material = { CupertinoIcons.Default.SquareAndArrowUp },
+                        cupertino = { "square.and.arrow.up" }
+                    )
+                ),
+                CupertinoMenuItemData(
+                    title = "Add to Favorites",
+                    enabled = false,
+                    onClick = { dropdownVisible = false },
+                    icon = AdaptiveIcons.painter(
+                        material = { CupertinoIcons.Default.Bookmark },
+                        cupertino = { "bookmark" }
+                    )
+                ),
+                CupertinoMenuItemData(
+                    title = "Delete",
+                    onClick = { dropdownVisible = false },
+                    isDestructive = true,
+                    icon = AdaptiveIcons.painter(
+                        material = { CupertinoIcons.Default.Trash },
+                        cupertino = { "trash" }
                     )
                 )
+            )
+        )
+    )
+)
             } else {
                 CupertinoDropdownMenu(
                     expanded = dropdownVisible,
