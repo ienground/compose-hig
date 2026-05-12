@@ -244,18 +244,31 @@ fun AdaptiveTonalButton(
 
 
 @Stable
-/**
- * [CupertinoButton]에 대한 적응형 어댑테이션 클래스로, Cupertino 버튼 스타일의 다양한 속성을 관리합니다.
- *
- * @param colors [CupertinoLiquidButtonColors] - 버튼의 색상 설정
- * @param backdrop [LayerBackdrop] - 버튼의 레이어 배경 설정
- * @param isBackgroundAdaptive 배경이 적응형으로 처리되는지 여부
- * @see CupertinoLiquidButtonColors
- * @see LayerBackdrop
- * @see CupertinoButtonSize
- * @see Shape
- * @see PaddingValues
- */
+@@ -247,12 +247,12 @@
+-/**
+- * [CupertinoButton]에 대한 적응형 어댑테이션 클래스로, Cupertino 버튼 스타일의 다양한 속성을 관리합니다.
+- *
+- * @param colors [CupertinoLiquidButtonColors] - 버튼의 색상 설정
+- * @param backdrop [LayerBackdrop] - 버튼의 레이어 배경 설정
+- * @param isBackgroundAdaptive 배경이 적응형으로 처리되는지 여부
+- * @see CupertinoLiquidButtonColors
+- * @see LayerBackdrop
+- * @see CupertinoButtonSize
+- * @see Shape
+- * @see PaddingValues
+- */
++/**
++ * An adaptive adaptation class for [CupertinoButton] that manages various properties of the Cupertino button style.
++ *
++ * @param colors [CupertinoLiquidButtonColors] - The color configuration for the button
++ * @param backdrop [LayerBackdrop] - The layer backdrop configuration for the button
++ * @param isBackgroundAdaptive Whether the background is treated as adaptive
++ * @see CupertinoLiquidButtonColors
++ * @see LayerBackdrop
++ * @see CupertinoButtonSize
++ * @see Shape
++ * @see PaddingValues
++ */
 class CupertinoButtonAdaptation internal constructor(
     colors: CupertinoLiquidButtonColors,
     backdrop: LayerBackdrop,
