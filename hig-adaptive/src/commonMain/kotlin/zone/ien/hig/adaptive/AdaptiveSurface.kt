@@ -32,6 +32,19 @@ import zone.ien.hig.LocalContentColor
 import zone.ien.hig.CupertinoSurface
 import zone.ien.hig.theme.CupertinoTheme
 
+/**
+ * A composable that renders a surface that adapts its appearance based on the current theme.
+ *
+ * This composable provides a consistent surface implementation across both Material and Cupertino design systems.
+ * It automatically chooses the appropriate surface implementation based on the current theme set by [AdaptiveTheme].
+ *
+ * @param modifier Modifier to be applied to the surface.
+ * @param shape The shape of the surface. Defaults to [RectangleShape].
+ * @param color The background color of the surface. Defaults to [Color.Unspecified].
+ * @param contentColor The color of the content within the surface. Defaults to [Color.Unspecified].
+ * @param shadowElevation The elevation of the surface's shadow. Defaults to 0.dp.
+ * @param content The content to be displayed within the surface.
+ */
 @ExperimentalAdaptiveApi
 @Composable
 fun AdaptiveSurface(

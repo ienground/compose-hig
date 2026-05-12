@@ -19,6 +19,15 @@ package zone.ien.hig.adaptive
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 
+/**
+ * 시스템 Material Color Scheme을 반환하는 함수
+ * 
+ * 이 함수는 Android 플랫폼에서 사용되는 시스템 색상 기준을 반환하며,
+ * 현재는 null을 반환하는 구현을 가지고 있습니다.
+ * 
+ * @param dark 다크 모드 여부
+ * @return 시스템 색상 스킴 또는 null
+ */
 @Composable
 internal actual fun systemMaterialColorScheme(dark: Boolean): ColorScheme? {
     val r: ColorScheme? = null // https://github.com/JetBrains/compose-multiplatform/issues/3900

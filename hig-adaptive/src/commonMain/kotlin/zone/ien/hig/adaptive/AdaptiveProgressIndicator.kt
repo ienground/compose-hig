@@ -119,6 +119,12 @@ class CupertinoCircularProgressIndicatorAdaptation internal constructor(
     var minAlpha: Float by mutableStateOf(minAlpha)
 }
 
+/**
+ * Adaptation class for progress indicator components that manages theme-specific values for progress indicators.
+ *
+ * This class handles the adaptation between Cupertino and Material design for progress indicators,
+ * providing appropriate styling for both design systems.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 private class ProgressIndicatorAdaptation :
     Adaptation<CupertinoCircularProgressIndicatorAdaptation, MaterialCircularProgressIndicatorAdaptation>() {

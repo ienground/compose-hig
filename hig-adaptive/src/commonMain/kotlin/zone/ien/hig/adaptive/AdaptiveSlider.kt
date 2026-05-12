@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-
-
 package zone.ien.hig.adaptive
 
 import androidx.compose.foundation.interaction.Interaction
@@ -42,10 +40,11 @@ import zone.ien.hig.CupertinoRangeSlider
 import zone.ien.hig.CupertinoSliderColors
 
 /**
- * Sliders allow users to make selections from a range of values.
+ * An adaptive slider that adapts between Cupertino and Material design based on the platform.
  *
- * Sliders reflect a range of values along a bar, from which users may select a single value.
- * They are ideal for adjusting settings such as volume, brightness, or applying image filters.
+ * Sliders allow users to make selections from a range of values.
+ * This composable automatically switches between Cupertino (iOS) and Material (Android) design patterns
+ * based on the current theme. It supports both single value and range sliders.
  *
  * @param value current value of the slider. If outside of [valueRange] provided, value will be
  * coerced to this range.
@@ -119,10 +118,11 @@ fun AdaptiveSlider(
 }
 
 /**
- * Sliders allow users to make selections from a range of values.
+ * An adaptive range slider that adapts between Cupertino and Material design based on the platform.
  *
- * Sliders reflect a range of values along a bar, from which users may select a single value.
- * They are ideal for adjusting settings such as volume, brightness, or applying image filters.
+ * Sliders allow users to make selections from a range of values.
+ * This composable automatically switches between Cupertino (iOS) and Material (Android) design patterns
+ * based on the current theme. It supports both single value and range sliders.
  *
  * @param value current values of the RangeSlider. If either value is outside of [valueRange]
  * provided, it will be coerced to this range.
@@ -187,6 +187,16 @@ fun AdaptiveRangeSlider(
     )
 }
 
+/**
+ * Cupertino slider adaptation.
+ *
+ * Container class for Cupertino slider adaptation properties.
+ *
+ * @param colors the colors to be used for the slider
+ * @param showStepIndicator whether to show step indicators
+ * @param backdrop backdrop to use for the slider
+ * @param visibilityThreshold threshold for visibility
+ */
 @Stable
 class CupertinoSliderAdaptation internal constructor(
     colors: CupertinoSliderColors,
@@ -200,6 +210,13 @@ class CupertinoSliderAdaptation internal constructor(
     var visibilityThreshold: Float by mutableStateOf(visibilityThreshold)
 }
 
+/**
+ * Material slider adaptation.
+ *
+ * Container class for Material slider adaptation properties.
+ *
+ * @param colors the colors to be used for the slider
+ */
 @Stable
 class MaterialSliderAdaptation internal constructor(
     colors: SliderColors,
@@ -207,6 +224,13 @@ class MaterialSliderAdaptation internal constructor(
     var colors: SliderColors by mutableStateOf(colors)
 }
 
+/**
+ * Slider adaptation implementation.
+ *
+ * Implementation of [Adaptation] for slider adaptation.
+ *
+ * @param steps The number of discrete steps for the slider, or 0 for continuous
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
 private class SliderAdaptation(

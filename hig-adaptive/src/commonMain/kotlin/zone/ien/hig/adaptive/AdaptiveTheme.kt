@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-
-
 package zone.ien.hig.adaptive
 
 import androidx.compose.material3.Icon
@@ -46,6 +44,12 @@ import zone.ien.hig.CupertinoText
 import androidx.compose.material3.LocalContentColor as MaterialLocalContentColor
 import androidx.compose.material3.LocalTextStyle as MaterialLocalTextStyle
 
+/**
+ * The supported themes for adaptive widgets.
+ *
+ * This enum defines the two supported themes that can be used in [AdaptiveTheme].
+ * The choice of theme affects how adaptive widgets behave and which design system they follow.
+ */
 enum class Theme {
     Cupertino, Material3
 }
@@ -53,15 +57,17 @@ enum class Theme {
 /**
  * Adaptive theme depending on [target]. It allows to seamlessly use Material and Cupertino widgets.
  *
- * This theme also make [Text] <-> [CupertinoText] and [Icon] <-> [CupertinoIcon] behave identically
+ * This theme provides a way to seamlessly use Material and Cupertino widgets together in the same application
+ * by adapting based on the target theme. It also makes [Text] and [CupertinoText], as well as [Icon] and [CupertinoIcon]
+ * behave identically in both design systems.
  *
- * Current theme target can be accessed inside the [content] using [currentTheme] property
+ * The current theme target can be accessed inside the [content] using [currentTheme] property.
  *
- * @param target theme for adaptive widgets
- * @param material [MaterialTheme] specification
- * @param cupertino [CupertinoTheme] specification
- * @param content themed content
- * */
+ * @param target theme for adaptive widgets. Defaults to [Theme.Cupertino] for iOS and [Theme.Material3] for other platforms.
+ * @param material [MaterialThemeSpec] specification.
+ * @param cupertino [CupertinoThemeSpec] specification.
+ * @param content themed content.
+ */
 @ExperimentalAdaptiveApi
 @Composable
 fun AdaptiveTheme(
@@ -123,10 +129,10 @@ fun AdaptiveTheme(
  * @param material [MaterialTheme] specification. NOTE: You must use lambda parameter as a content
  * @param cupertino [CupertinoTheme] specification. NOTE: You must use lambda parameter as a content
  * @param content themed content
- * */
+ */
 @ExperimentalAdaptiveApi
 @Deprecated(
-    message = "Use variant with theme specs instead of lambdas",
+    message = "Use the version that takes theme specifications as parameters",
     replaceWith = ReplaceWith(
         "AdaptiveTheme(target, MaterialThemeSpec.Default(), CupertinoThemeSpec.Default(), content)",
         "import zone.ien.hig.adaptive.MaterialThemeSpec",
@@ -165,6 +171,15 @@ fun AdaptiveTheme(
     }
 }
 
+/**
+ * Material theme specification.
+ *
+ * This class holds the specification for Material themes including color scheme, shapes, and typography.
+ *
+ * @param colorScheme the color scheme to use for Material design
+ * @param shapes the shapes to use for Material design
+ * @param typography the typography to use for Material design
+ */
 @Immutable
 @ExperimentalAdaptiveApi
 class MaterialThemeSpec(
@@ -172,6 +187,14 @@ class MaterialThemeSpec(
     val shapes: MaterialShapes = MaterialShapes(),
     val typography: MaterialTypography = MaterialTypography(),
 ) {
+    /**
+     * MaterialThemeSpec 인스턴스를 복사하여 새로운 인스턴스를 생성합니다.
+     * 
+     * @param colorScheme 새로운 컬러 스키마
+     * @param shapes 새로운 모양
+     * @param typography 새로운 타이포그래피
+     * @return 복사된 MaterialThemeSpec 인스턴스
+     */
     fun copy(
         colorScheme: MaterialColorScheme = this.colorScheme,
         shapes: MaterialShapes = this.shapes,
@@ -187,6 +210,14 @@ class MaterialThemeSpec(
     }
 
     companion object {
+        /**
+         * Creates a default Material theme specification based on the current MaterialTheme.
+         *
+         * @param colorScheme the color scheme to use for Material design
+         * @param shapes the shapes to use for Material design
+         * @param typography the typography to use for Material design
+         * @return a MaterialThemeSpec with the default values
+         */
         @Composable
         fun Default(
             colorScheme: MaterialColorScheme = MaterialTheme.colorScheme,
@@ -196,13 +227,37 @@ class MaterialThemeSpec(
     }
 }
 
+/**
+ * Cupertino theme specification.
+ *
+ * This class holds the specification for Cupertino themes including color scheme, shapes, and typography.
+ *
+ * @param colorScheme the color scheme to use for Cupertino design
+ * @param shapes the shapes to use for Cupertino design
+ * @param typography the typography to use for Cupertino design
+ */
 @Immutable
 @ExperimentalAdaptiveApi
+/**
+ * Cupertino 테마 사양 클래스로, Cupertino 테마의 컬러, 모양, 타이포그래피를 정의합니다.
+ * 
+ * @param colorScheme [CupertinoColorScheme] - 테마의 컬러 스키마
+ * @param shapes [CupertinoShapes] - 테마의 모양
+ * @param typography [CupertinoTypography] - 테마의 타이포그래피
+ */
 class CupertinoThemeSpec(
     val colorScheme: CupertinoColorScheme = cupertinoLightColorScheme(),
     val shapes: CupertinoShapes = CupertinoShapes(),
     val typography: CupertinoTypography = CupertinoTypography()
 ) {
+    /**
+     * CupertinoThemeSpec 인스턴스를 복사하여 새로운 인스턴스를 생성합니다.
+     * 
+     * @param colorScheme 새로운 컬러 스키마
+     * @param shapes 새로운 모양
+     * @param typography 새로운 타이포그래피
+     * @return 복사된 CupertinoThemeSpec 인스턴스
+     */
     fun copy(
         colorScheme: CupertinoColorScheme = this.colorScheme,
         shapes: CupertinoShapes = this.shapes,
@@ -217,6 +272,14 @@ class CupertinoThemeSpec(
         return "CupertinoThemeSpec(colorScheme=$colorScheme, shapes=$shapes, typography=$typography)"
     }
     companion object {
+        /**
+         * Creates a default Cupertino theme specification based on the current CupertinoTheme.
+         *
+         * @param colorScheme the color scheme to use for Cupertino design
+         * @param shapes the shapes to use for Cupertino design
+         * @param typography the typography to use for Cupertino design
+         * @return a CupertinoThemeSpec with the default values
+         */
         @Composable
         fun Default(
             colorScheme: CupertinoColorScheme = CupertinoTheme.colorScheme,
@@ -228,8 +291,8 @@ class CupertinoThemeSpec(
 
 
 /**
- * Theme declared as a target in [AdaptiveTheme]
- * */
+ * [AdaptiveTheme]에서 선언된 테마로, 현재 테마를 확인할 수 있습니다.
+ */
 @ExperimentalAdaptiveApi
 val currentTheme: Theme
     @Composable
