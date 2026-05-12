@@ -56,7 +56,7 @@ expect fun CupertinoAlertDialogNative(
 )
 
 /**
- * Native analog for to compose [CupertinoActionSheet].
+ * Native analog to [CupertinoActionSheet].
  *
  * @param visible whether the action sheet is visible
  * @param onDismissRequest called when dialog is already dismissed. Must not be ignored
