@@ -74,7 +74,7 @@ internal fun UIView.applyTheme(dark: Boolean) {
 fun ImageBitmap.toUIImage(): UIImage {
     val skiaImage = Image.makeFromBitmap(this.asSkiaBitmap())
     val pngData = skiaImage.encodeToData(EncodedImageFormat.PNG)
-        ?: throw Exception("Failed to encode ImageBitmap to PNG")
+        ?: error("Failed to encode ImageBitmap to PNG")
     val pngBytes = pngData.bytes
     val nsData = pngBytes.usePinned { pinned ->
         NSData.dataWithBytes(pinned.addressOf(0), pngBytes.size.toULong())
