@@ -602,7 +602,7 @@ private fun DropdownMenuContent(
                     val minWidth = with(density) { width.roundToPx() }
                     val itemConstraints = constraints.copy(
                         minWidth = minWidth,
-                        maxWidth = minWidth
+                        maxWidth = constraints.maxWidth
                     )
                     val itemPlaceables = subcompose(CupertinoDropdownMenuSlots.Item, content)
                         .fastMap { it.measure(itemConstraints) }
