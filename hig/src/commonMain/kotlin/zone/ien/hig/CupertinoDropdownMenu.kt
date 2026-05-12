@@ -281,7 +281,7 @@ fun CupertinoMenuScope.MenuAction(
 ) {
     this as CupertinoMenuScopeImpl
 
-    // ✅ 아이콘이 있는 아이템이 하나라도 있으면 hasIcon = true 등록
+// If at least one item has an icon, set hasIcon to true
     if (leadingIcon != null) {
         DisposableEffect(this) {
             val prev = hasIcon
