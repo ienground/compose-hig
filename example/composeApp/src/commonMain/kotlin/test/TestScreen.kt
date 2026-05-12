@@ -92,8 +92,8 @@ fun TestScreen(
 
                         AnimatedVisibility(
                             visible = enabled,
-                            enter = slideInHorizontally(tween(3000)) { -it },
-                            exit = slideOutHorizontally(tween(3000)) { -it }
+enter = slideInHorizontally(tween(300)) { -it },
+exit = slideOutHorizontally(tween(300)) { -it }
                         ) {
                             Box {
                                 CupertinoLiquidIconButton(
