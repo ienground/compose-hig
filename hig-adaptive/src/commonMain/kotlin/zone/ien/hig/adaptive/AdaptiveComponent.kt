@@ -23,15 +23,14 @@ package zone.ien.hig.adaptive
 import androidx.compose.runtime.Composable
 
 /**
- * [adaptiveComponent]는 현재 테마에 따라 적절한 컴포넌트를 렌더링하는 함수입니다.
+ * Creates an adaptive component that chooses between Material and Cupertino implementations based on the current theme.
  *
- * 이 함수는 Material Design과 Cupertino 테마를 지원하며, 현재 테마에 따라 적절한 컴포넌트를 렌더링합니다.
+ * This function provides a way to define platform-specific implementations for a composable component.
+ * The implementation that is used depends on the current theme set by [AdaptiveTheme].
  *
- * @param material Material Design 테마에 사용될 컴포저블 블록입니다.
- * @param cupertino Cupertino 테마에 사용될 컴포저블 블록입니다.
- * @return 현재 테마에 따라 선택된 컴포넌트를 반환합니다.
- * @see LocalTheme
- * @see Theme
+ * @param material The Material implementation of the component. This is used when the current theme is [Theme.Material3].
+ * @param cupertino The Cupertino implementation of the component. This is used when the current theme is [Theme.Cupertino].
+ * @return The result of the selected implementation based on the current theme.
  */
 @Composable
 @ExperimentalAdaptiveApi
@@ -46,18 +45,16 @@ fun <T> adaptiveComponent(
 }
 
 /**
- * [adaptiveComponent]는 적응형 컴포넌트를 지원하는 함수로, 특정 어댑테이션 설정을 기반으로
- * Material Design과 Cupertino 테마에 따라 적절한 컴포넌트를 반환합니다.
+ * Creates an adaptive component using the provided [adaptation] to customize both Material and Cupertino implementations.
  *
- * @param adaptation 적용할 어댑테이션 설정입니다.
- * @param material Material Design 테마에 사용될 컴포저블 블록입니다.
- * @param cupertino Cupertino 테마에 사용될 컴포저블 블록입니다.
- * @param adaptationScope 어댑테이션 설정을 위한 확장 함수입니다.
- * @return 현재 테마에 따라 선택된 컴포넌트를 반환합니다.
- * @see Adaptation
- * @see AdaptationScope
- * @see LocalTheme
- * @see Theme
+ * This function allows for more complex adaptations where the Material and Cupertino implementations need different
+ * customization parameters. It uses the provided [adaptation] to configure both implementations.
+ *
+ * @param adaptation The adaptation object that defines how to customize both Material and Cupertino implementations.
+ * @param material The Material implementation of the component. This is used when the current theme is [Theme.Material3].
+ * @param cupertino The Cupertino implementation of the component. This is used when the current theme is [Theme.Cupertino].
+ * @param adaptationScope The scope for customizing both Material and Cupertino implementations using [AdaptationScope].
+ * @return The result of the selected implementation based on the current theme.
  */
 @Composable
 @ExperimentalAdaptiveApi

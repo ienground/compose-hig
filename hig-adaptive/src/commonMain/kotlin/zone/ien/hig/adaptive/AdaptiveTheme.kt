@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-
-
 package zone.ien.hig.adaptive
 
 import androidx.compose.material3.Icon
@@ -47,26 +45,28 @@ import androidx.compose.material3.LocalContentColor as MaterialLocalContentColor
 import androidx.compose.material3.LocalTextStyle as MaterialLocalTextStyle
 
 /**
- * 테마의 유형을 정의하는 열거형입니다.
- * 
- * @property Cupertino Cupertino 스타일 테마
- * @property Material3 Material Design 3 스타일 테마
+ * The supported themes for adaptive widgets.
+ *
+ * This enum defines the two supported themes that can be used in [AdaptiveTheme].
+ * The choice of theme affects how adaptive widgets behave and which design system they follow.
  */
 enum class Theme {
     Cupertino, Material3
 }
 
 /**
- * 적응형 테마로, 현재 테마에 따라 Material 또는 Cupertino 위젯을 사용합니다.
- * 
- * 이 테마는 [Text] ↔ [CupertinoText] 및 [Icon] ↔ [CupertinoIcon] 컴포넌트를 동일하게 작동하게 만듭니다.
- * 
- * 현재 테마는 [content] 내에서 [currentTheme] 속성을 사용하여 접근할 수 있습니다.
- * 
- * @param target [AdaptiveWidget]에 대한 테마
- * @param material [MaterialTheme] 사양
- * @param cupertino [CupertinoTheme] 사양
- * @param content 테마가 적용된 내용
+ * Adaptive theme depending on [target]. It allows to seamlessly use Material and Cupertino widgets.
+ *
+ * This theme provides a way to seamlessly use Material and Cupertino widgets together in the same application
+ * by adapting based on the target theme. It also makes [Text] and [CupertinoText], as well as [Icon] and [CupertinoIcon]
+ * behave identically in both design systems.
+ *
+ * The current theme target can be accessed inside the [content] using [currentTheme] property.
+ *
+ * @param target theme for adaptive widgets. Defaults to [Theme.Cupertino] for iOS and [Theme.Material3] for other platforms.
+ * @param material [MaterialThemeSpec] specification.
+ * @param cupertino [CupertinoThemeSpec] specification.
+ * @param content themed content.
  */
 @ExperimentalAdaptiveApi
 @Composable
@@ -116,16 +116,19 @@ fun AdaptiveTheme(
 }
 
 /**
- * 적응형 테마로, 현재 테마에 따라 Material 또는 Cupertino 위젯을 사용합니다.
- * 
- * 이 테마는 [Text] ↔ [CupertinoText] 및 [Icon] ↔ [CupertinoIcon] 컴포넌트를 동일하게 작동하게 만듭니다.
- * 
- * 현재 테마는 [content] 내에서 [currentTheme] 속성을 사용하여 접근할 수 있습니다.
- * 
- * @param target [AdaptiveWidget]에 대한 테마. iOS의 경우 [Theme.Cupertino] 기본값을 사용하고, 다른 플랫폼의 경우 [Theme.Material3] 기본값을 사용합니다.
- * @param material [MaterialTheme] 사양. 참고로 람다 파라미터를 내용으로 사용해야 합니다.
- * @param cupertino [CupertinoTheme] 사양. 참고로 람다 파라미터를 내용으로 사용해야 합니다.
- * @param content 테마가 적용된 내용
+ * Adaptive theme depending on [target]. It allows to seamlessly use Material and Cupertino widgets.
+ *
+ * This theme also allows to use [Text] together with [CupertinoText] and
+ * [Icon] together with [CupertinoIcon] both in Material and Cupertino widgets.
+ * This components will behave identically
+ *
+ * Current theme target can be accessed inside the [content] using [currentTheme] property.
+ *
+ * @param target theme for adaptive widgets. Defaults to [Theme.Cupertino] for iOS
+ * and [Theme.Material3] for other platforms
+ * @param material [MaterialTheme] specification. NOTE: You must use lambda parameter as a content
+ * @param cupertino [CupertinoTheme] specification. NOTE: You must use lambda parameter as a content
+ * @param content themed content
  */
 @ExperimentalAdaptiveApi
 @Deprecated(
@@ -168,6 +171,15 @@ fun AdaptiveTheme(
     }
 }
 
+/**
+ * Material theme specification.
+ *
+ * This class holds the specification for Material themes including color scheme, shapes, and typography.
+ *
+ * @param colorScheme the color scheme to use for Material design
+ * @param shapes the shapes to use for Material design
+ * @param typography the typography to use for Material design
+ */
 @Immutable
 @ExperimentalAdaptiveApi
 /**
@@ -206,12 +218,12 @@ class MaterialThemeSpec(
 
     companion object {
         /**
-         * MaterialThemeSpec의 기본 인스턴스를 생성합니다.
-         * 
-         * @param colorScheme 컬러 스키마. 기본값은 MaterialTheme.colorScheme입니다.
-         * @param shapes 모양. 기본값은 MaterialTheme.shapes입니다.
-         * @param typography 타이포그래피. 기본값은 MaterialTheme.typography입니다.
-         * @return 생성된 MaterialThemeSpec 인스턴스
+         * Creates a default Material theme specification based on the current MaterialTheme.
+         *
+         * @param colorScheme the color scheme to use for Material design
+         * @param shapes the shapes to use for Material design
+         * @param typography the typography to use for Material design
+         * @return a MaterialThemeSpec with the default values
          */
         @Composable
         fun Default(
@@ -222,6 +234,15 @@ class MaterialThemeSpec(
     }
 }
 
+/**
+ * Cupertino theme specification.
+ *
+ * This class holds the specification for Cupertino themes including color scheme, shapes, and typography.
+ *
+ * @param colorScheme the color scheme to use for Cupertino design
+ * @param shapes the shapes to use for Cupertino design
+ * @param typography the typography to use for Cupertino design
+ */
 @Immutable
 @ExperimentalAdaptiveApi
 /**
@@ -259,12 +280,12 @@ class CupertinoThemeSpec(
     }
     companion object {
         /**
-         * CupertinoThemeSpec의 기본 인스턴스를 생성합니다.
-         * 
-         * @param colorScheme 컬러 스키마. 기본값은 CupertinoTheme.colorScheme입니다.
-         * @param shapes 모양. 기본값은 CupertinoTheme.shapes입니다.  
-         * @param typography 타이포그래피. 기본값은 CupertinoTheme.typography입니다.
-         * @return 생성된 CupertinoThemeSpec 인스턴스
+         * Creates a default Cupertino theme specification based on the current CupertinoTheme.
+         *
+         * @param colorScheme the color scheme to use for Cupertino design
+         * @param shapes the shapes to use for Cupertino design
+         * @param typography the typography to use for Cupertino design
+         * @return a CupertinoThemeSpec with the default values
          */
         @Composable
         fun Default(

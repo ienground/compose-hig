@@ -53,6 +53,15 @@ sealed interface AdaptationScope<C, M> {
     fun material(block: @Composable M.() -> Unit)
 }
 
+/**
+ * Base class for creating custom adaptations between Material and Cupertino implementations.
+ *
+ * This class provides a framework for defining how Material and Cupertino widgets should be adapted
+ * by specifying how their properties can be customized.
+ *
+ * @param C The type of the Cupertino adaptation object.
+ * @param M The type of the Material adaptation object.
+ */
 @Stable
 @ExperimentalAdaptiveApi
 abstract class Adaptation<C, M>: AdaptationScope<C, M> {

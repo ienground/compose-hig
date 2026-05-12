@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 package zone.ien.hig.adaptive
 
 import androidx.compose.foundation.layout.RowScope
@@ -43,21 +42,17 @@ import zone.ien.hig.CupertinoTopAppBarDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 
 /**
- * 적응형 상단 앱바로, 현재 테마에 따라 Material 또는 Cupertino 스타일로 표시됩니다.
+ * An adaptive top app bar that adapts between Cupertino and Material design based on the platform.
  *
- * [AdaptiveTopAppBar]는 Material Design의 [TopAppBar] 또는 [CenterAlignedTopAppBar] 컴포넌트와
- * Cupertino의 [CupertinoTopAppBar] 컴포넌트를 사용하여 운영체제별로 적절한 상단 앱바를 제공합니다.
+ * This composable provides a top app bar that automatically switches between Cupertino (iOS) and Material (Android)
+ * design patterns based on the target platform. The content adapts to appropriate design guidelines and styles.
  *
- * @param title 상단 앱바에 표시할 제목
- * @param modifier 상단 앱바에 적용할 Modifier
- * @param navigationIcon 네비게이션 아이콘
- * @param actions 앱바에 표시할 액션 버튼들
- * @param windowInsets 윈도우 인셋 설정
- * @param adaptation [CupertinoTopAppBarAdaptation]와 [MaterialTopAppBarAdaptation]에 대한 사용자 정의 설정 함수
- * @see AdaptiveWidget
- * @see CupertinoTopAppBar
- * @see TopAppBar
- * @see CenterAlignedTopAppBar
+ * @param title composable for the title
+ * @param modifier optional [Modifier] for customizing the appearance and behavior
+ * @param navigationIcon composable for the navigation icon
+ * @param actions composable for the actions
+ * @param windowInsets the window insets to be used for the content
+ * @param adaptation lambda for customizing the adaptation behavior
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
@@ -103,18 +98,18 @@ fun AdaptiveTopAppBar(
 }
 
 /**
- * 단일 행 상단 앱바를 표시하는 내부 함수로, 중심 정렬 여부에 따라 다른 상단 앱바를 선택적으로 사용합니다.
+ * A single row top app bar.
  *
- * @param title 상단 앱바에 표시할 제목
- * @param isCenterAligned 제목이 중앙 정렬되는지 여부
- * @param colors 상단 앱바의 색상 설정
- * @param modifier 상단 앱바에 적용할 Modifier
- * @param navigationIcon 네비게이션 아이콘
- * @param actions 앱바에 표시할 액션 버튼들
- * @param windowInsets 윈도우 인셋 설정
- * @param scrollBehavior 스크롤 행동 설정
- * @see TopAppBar
- * @see CenterAlignedTopAppBar
+ * This private composable renders either a CenterAlignedTopAppBar or a TopAppBar based on the isCenterAligned parameter.
+ *
+ * @param title composable for the title
+ * @param isCenterAligned whether the title should be centered
+ * @param colors the colors to be used for the top app bar
+ * @param modifier optional [Modifier] for customizing the appearance and behavior
+ * @param navigationIcon composable for the navigation icon
+ * @param actions composable for the actions
+ * @param windowInsets the window insets to be used for the content
+ * @param scrollBehavior the scroll behavior for the top app bar
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -151,6 +146,15 @@ private fun SingleRowTopAppBar(
     }
 }
 
+/**
+ * Material top app bar adaptation.
+ *
+ * Container class for Material top app bar adaptation properties.
+ *
+ * @param colors the colors to be used for the top app bar
+ * @param isCenterAligned whether the title should be centered
+ * @param scrollBehavior the scroll behavior for the top app bar
+ */
 @Stable
 @OptIn(ExperimentalMaterial3Api::class)
 /**
@@ -173,6 +177,14 @@ class MaterialTopAppBarAdaptation internal constructor(
     var scrollBehavior: TopAppBarScrollBehavior? by mutableStateOf(scrollBehavior)
 }
 
+/**
+ * Cupertino top app bar adaptation.
+ *
+ * Container class for Cupertino top app bar adaptation properties.
+ *
+ * @param colors the colors to be used for the top app bar
+ * @param backdrop backdrop to use for the bar
+ */
 @Stable
 /**
  * Cupertino 상단 앱바에 대한 적응형 어댑테이션 클래스로, 상단 앱바의 다양한 속성을 관리합니다.
@@ -190,6 +202,11 @@ class CupertinoTopAppBarAdaptation internal constructor(
     var backdrop: LayerBackdrop by mutableStateOf(backdrop)
 }
 
+/**
+ * Top app bar adaptation.
+ *
+ * Implementation of [Adaptation] for top app bar adaptation.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
 /**
