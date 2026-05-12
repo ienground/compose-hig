@@ -316,15 +316,13 @@ private enum class ButtonType {
  * providing appropriate styling for different button types (Filled, Text, Tonal).
  *
  * @param type The type of button to adapt (Filled, Text, or Tonal)
- */
-@ExperimentalAdaptiveApi
-/**
- * 버튼 유형에 따라 적응형 어댑테이션을 제공하는 클래스입니다.
- *
- * @param type [ButtonType] - 버튼의 유형 (Filled, Text, Tonal)
  * @see CupertinoButtonAdaptation
  * @see MaterialButtonAdaptation
  */
+@ExperimentalAdaptiveApi
+private class ButtonAdaptation(
+    private val type: ButtonType,
+): Adaptation<CupertinoButtonAdaptation, MaterialButtonAdaptation>() {
 private class ButtonAdaptation(
     private val type: ButtonType,
 ): Adaptation<CupertinoButtonAdaptation, MaterialButtonAdaptation>() {
