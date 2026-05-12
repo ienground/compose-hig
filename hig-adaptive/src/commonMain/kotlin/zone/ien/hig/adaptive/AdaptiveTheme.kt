@@ -183,7 +183,6 @@ fun AdaptiveTheme(
 @Immutable
 @ExperimentalAdaptiveApi
 class MaterialThemeSpec(
-class MaterialThemeSpec(
     val colorScheme: MaterialColorScheme = materialLightColorScheme(),
     val shapes: MaterialShapes = MaterialShapes(),
     val typography: MaterialTypography = MaterialTypography(),

@@ -99,13 +99,6 @@ fun AdaptiveSwitch(
 /**
  * Cupertino switch adaptation.
  *
- * Container class for Cupertino switch adaptation properties.
- *
- * @param colors the colors to be used for the switch
- * @param backdrop backdrop to use for the switch
- */
-@Stable
-/**
  * Cupertino 스위치에 대한 적응형 어댑테이션 클래스로, 스위치의 다양한 속성을 관리합니다.
  *
  * @param colors [CupertinoSwitchColors] - 스위치의 색상 설정
@@ -113,6 +106,7 @@ fun AdaptiveSwitch(
  * @see CupertinoSwitchColors
  * @see Backdrop
  */
+@Stable
 class CupertinoSwitchAdaptation internal constructor(
     colors: CupertinoSwitchColors,
     backdrop: Backdrop

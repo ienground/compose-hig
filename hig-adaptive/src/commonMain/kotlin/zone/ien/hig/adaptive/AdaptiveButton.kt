@@ -319,10 +319,7 @@ private enum class ButtonType {
  * @see CupertinoButtonAdaptation
  * @see MaterialButtonAdaptation
  */
-@ExperimentalAdaptiveApi
-private class ButtonAdaptation(
-    private val type: ButtonType,
-): Adaptation<CupertinoButtonAdaptation, MaterialButtonAdaptation>() {
+@OptIn(ExperimentalAdaptiveApi::class)
 private class ButtonAdaptation(
     private val type: ButtonType,
 ): Adaptation<CupertinoButtonAdaptation, MaterialButtonAdaptation>() {
