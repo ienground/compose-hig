@@ -39,7 +39,7 @@ import zone.ien.hig.CupertinoSwitchColors
 import zone.ien.hig.CupertinoSwitchDefaults
 
 /**
- * 현재 [Theme]에 따라 적응형 스위치입니다.
+ * 현재 [Theme]에 따라 스타일이 결정되는 적응형 스위치입니다.
  *
  * 스위치는 단일 항목을 켜거나 끕니다.
  *
