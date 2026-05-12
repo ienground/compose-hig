@@ -29,10 +29,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.by
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.var
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
@@ -198,119 +198,6 @@ class CupertinoTopAppBarAdaptation internal constructor(
  * @see Adaptation
  * @see CupertinoTopAppBarAdaptation
  * @see MaterialTopAppBarAdaptation
- */
-private class TopAppBarAdaptation: Adaptation<CupertinoTopAppBarAdaptation, MaterialTopAppBarAdaptation>() {
-    @Composable
-    override fun rememberCupertinoAdaptation(): CupertinoTopAppBarAdaptation {
-        val colors = CupertinoTopAppBarDefaults.topAppBarColors()
-        val backdrop = rememberLayerBackdrop()
-
-        return remember(colors, backdrop) {
-            CupertinoTopAppBarAdaptation(
-                colors = colors,
-                backdrop = backdrop
-            )
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    override fun rememberMaterialAdaptation(): MaterialTopAppBarAdaptation {
-        val colors = TopAppBarDefaults.topAppBarColors()
-
-        return remember(colors) {
-            MaterialTopAppBarAdaptation(
-                colors = colors,
-            )
-        }
-    }
-}
-
-/**
- * 단일 행 상단 앱바를 표시하는 내부 함수로, 중심 정렬 여부에 따라 다른 상단 앱바를 선택적으로 사용합니다.
- * 
- * @param title 상단 앱바에 표시할 제목
- * @param isCenterAligned 제목이 중앙 정렬되는지 여부
- * @param colors 상단 앱바의 색상 설정
- * @param modifier 상단 앱바에 적용할 Modifier
- * @param navigationIcon 네비게이션 아이콘
- * @param actions 앱바에 표시할 액션 버튼들
- * @param windowInsets 윈도우 인셋 설정
- * @param scrollBehavior 스크롤 행동 설정
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SingleRowTopAppBar(
-    title: @Composable () -> Unit,
-    isCenterAligned: Boolean,
-    colors: TopAppBarColors,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable (RowScope.() -> Unit) = {},
-    windowInsets: WindowInsets = CupertinoTopAppBarDefaults.windowInsets,
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-) {
-    if (isCenterAligned) {
-        CenterAlignedTopAppBar(
-            title = title,
-            modifier = modifier,
-            navigationIcon = navigationIcon,
-            actions = actions,
-            windowInsets = windowInsets,
-            colors = colors,
-            scrollBehavior = scrollBehavior,
-        )
-    } else {
-        TopAppBar(
-            title = title,
-            modifier = modifier,
-            navigationIcon = navigationIcon,
-            actions = actions,
-            windowInsets = windowInsets,
-            colors = colors,
-            scrollBehavior = scrollBehavior,
-        )
-    }
-}
-
-@Stable
-@OptIn(ExperimentalMaterial3Api::class)
-/**
- * Material 상단 앱바에 대한 적응형 어댑테이션 클래스로, 상단 앱바의 다양한 속성을 관리합니다.
- * 
- * @param colors [TopAppBarColors] - 상단 앱바의 색상 설정
- * @param isCenterAligned 제목이 중앙 정렬되는지 여부
- * @param scrollBehavior 스크롤 행동 설정
- */
-class MaterialTopAppBarAdaptation internal constructor(
-    colors: TopAppBarColors,
-    isCenterAligned: Boolean = false,
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-) {
-    var isCenterAligned: Boolean by mutableStateOf(isCenterAligned)
-    var colors: TopAppBarColors by mutableStateOf(colors)
-    var scrollBehavior: TopAppBarScrollBehavior? by mutableStateOf(scrollBehavior)
-}
-
-@Stable
-/**
- * Cupertino 상단 앱바에 대한 적응형 어댑테이션 클래스로, 상단 앱바의 다양한 속성을 관리합니다.
- * 
- * @param colors [CupertinoTopAppBarColors] - 상단 앱바의 색상 설정
- * @param backdrop [LayerBackdrop] - 상단 앱바의 레이어 배경
- */
-class CupertinoTopAppBarAdaptation internal constructor(
-    colors: CupertinoTopAppBarColors,
-    backdrop: LayerBackdrop
-) {
-    var colors: CupertinoTopAppBarColors by mutableStateOf(colors)
-    var backdrop: LayerBackdrop by mutableStateOf(backdrop)
-}
-
-@OptIn(ExperimentalAdaptiveApi::class)
-@Stable
-/**
- * 상단 앱바 유형에 따라 적응형 어댑테이션을 제공하는 클래스입니다.
  */
 private class TopAppBarAdaptation: Adaptation<CupertinoTopAppBarAdaptation, MaterialTopAppBarAdaptation>() {
     @Composable

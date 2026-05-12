@@ -26,10 +26,10 @@ import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.by
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.var
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
@@ -136,62 +136,6 @@ class MaterialSwitchAdaptation internal constructor(
  * @see Adaptation
  * @see CupertinoSwitchAdaptation
  * @see MaterialSwitchAdaptation
- */
-private class SwitchAdaptation: Adaptation<CupertinoSwitchAdaptation, MaterialSwitchAdaptation>() {
-    @Composable
-    override fun rememberCupertinoAdaptation(): CupertinoSwitchAdaptation {
-        val colors = CupertinoSwitchDefaults.colors()
-        val backdrop = rememberLayerBackdrop()
-
-        return remember(colors, backdrop) {
-            CupertinoSwitchAdaptation(
-                colors = colors,
-                backdrop = backdrop
-            )
-        }
-    }
-
-    @Composable
-    override fun rememberMaterialAdaptation(): MaterialSwitchAdaptation {
-        val colors = SwitchDefaults.colors()
-
-        return remember(colors) {
-            MaterialSwitchAdaptation(colors)
-        }
-    }
-}
-
-@Stable
-/**
- * Cupertino 스위치에 대한 적응형 어댑테이션 클래스로, 스위치의 다양한 속성을 관리합니다.
- * 
- * @param colors [CupertinoSwitchColors] - 스위치의 색상 설정
- * @param backdrop [Backdrop] - 스위치의 배경
- */
-class CupertinoSwitchAdaptation internal constructor(
-    colors: CupertinoSwitchColors,
-    backdrop: Backdrop
-) {
-    var colors by mutableStateOf(colors)
-    var backdrop by mutableStateOf(backdrop)
-}
-
-@Stable
-/**
- * Material 스위치에 대한 적응형 어댑테이션 클래스로, 스위치의 다양한 속성을 관리합니다.
- * 
- * @param colors [SwitchColors] - 스위치의 색상 설정
- */
-class MaterialSwitchAdaptation internal constructor(
-    colors: SwitchColors,
-) {
-    var colors by mutableStateOf(colors)
-}
-
-@OptIn(ExperimentalAdaptiveApi::class)
-@Stable
-/**
- * 스위치 유형에 따라 적응형 어댑테이션을 제공하는 클래스입니다.
  */
 private class SwitchAdaptation: Adaptation<CupertinoSwitchAdaptation, MaterialSwitchAdaptation>() {
     @Composable

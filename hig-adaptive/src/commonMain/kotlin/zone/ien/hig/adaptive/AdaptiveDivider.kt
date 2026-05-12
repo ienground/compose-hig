@@ -23,10 +23,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.by
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.var
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
@@ -182,73 +182,6 @@ private class DividerAdaptationScope: Adaptation<DividerAdaptation, DividerAdapt
  * @see Color
  * @see Dp
  */
-class DividerAdaptation internal constructor(
-    color: Color,
-    thickness: Dp
-) {
-    var color: Color by mutableStateOf(color)
-    var thickness: Dp by mutableStateOf(thickness)
-}
-    )
-}
-
-@Composable
-@ExperimentalAdaptiveApi
-fun AdaptiveVerticalDivider(
-    modifier: Modifier = Modifier,
-    adaptation: AdaptationScope<DividerAdaptation, DividerAdaptation>.() -> Unit = {}
-) {
-    AdaptiveWidget(
-        adaptation = remember {
-            DividerAdaptationScope()
-        },
-        adaptationScope = adaptation,
-        material = {
-            VerticalDivider(
-                modifier = modifier,
-                thickness = it.thickness,
-                color = it.color
-            )
-        },
-        cupertino = {
-            CupertinoVerticalDivider(
-                modifier = modifier,
-                thickness = it.thickness,
-                color = it.color
-            )
-        }
-    )
-}
-
-@ExperimentalAdaptiveApi
-private class DividerAdaptationScope: Adaptation<DividerAdaptation, DividerAdaptation>() {
-
-    @Composable
-    override fun rememberCupertinoAdaptation(): DividerAdaptation {
-
-        val color = CupertinoDividerDefaults.color
-        return remember(color) {
-            DividerAdaptation(
-                color = color,
-                thickness = CupertinoDividerDefaults.Thickness
-            )
-        }
-    }
-
-    @Composable
-    override fun rememberMaterialAdaptation(): DividerAdaptation {
-        val color = DividerDefaults.color
-
-        return remember(color) {
-            DividerAdaptation(
-                color = color,
-                thickness = DividerDefaults.Thickness
-            )
-        }
-    }
-}
-
-@Stable
 class DividerAdaptation internal constructor(
     color: Color,
     thickness: Dp
