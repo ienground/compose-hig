@@ -165,6 +165,14 @@ class MaterialDatePickerAdaptation internal constructor(
 private val DatePickerTitlePadding = PaddingValues(start = 24.dp, end = 12.dp, top = 16.dp)
 private val DatePickerHeadlinePadding = PaddingValues(start = 24.dp, end = 12.dp, bottom = 12.dp)
 
+/**
+ * Adaptation class for date picker components that manages theme-specific values for date pickers.
+ *
+ * This class handles the adaptation between Cupertino and Material design for date pickers,
+ * providing appropriate styling and behavior for both design systems.
+ *
+ * @param state The DatePickerState used for managing the state of the date picker
+ */
 @ExperimentalAdaptiveApi
 @OptIn(ExperimentalMaterial3Api::class)
 private class DatePickerAdaptation(

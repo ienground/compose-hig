@@ -297,10 +297,25 @@ class MaterialButtonAdaptation internal constructor(
     var border: BorderStroke? by mutableStateOf(border)
 }
 
+/**
+ * Enum representing the different button types that can be adapted
+ *
+ * @property Filled - Represents a filled button style
+ * @property Text - Represents a text button style
+ * @property Tonal - Represents a tonal button style
+ */
 private enum class ButtonType {
     Filled, Text, Tonal
 }
 
+/**
+ * Adaptation class for button components that manages theme-specific values for buttons.
+ *
+ * This class handles the adaptation between Cupertino and Material design for buttons,
+ * providing appropriate styling for different button types (Filled, Text, Tonal).
+ *
+ * @param type The type of button to adapt (Filled, Text, or Tonal)
+ */
 @ExperimentalAdaptiveApi
 /**
  * 버튼 유형에 따라 적응형 어댑테이션을 제공하는 클래스입니다.

@@ -41,23 +41,21 @@ import zone.ien.hig.FabPosition
 
 
 /**
- * 적응형 [Scaffold] 컴포넌트로, Material Design과 Cupertino 테마에 따라 다른 레이아웃을 제공합니다.
+ * An adaptive scaffold that adapts between Cupertino and Material design based on the platform.
  *
- * [AdaptiveScaffold]는 Material Design의 [Scaffold] 컴포넌트와 Cupertino의 [CupertinoScaffold] 컴포넌트를 사용하여
- * 운영체제별로 적절한 레이아웃을 제공합니다.
+ * This composable provides a scaffold that automatically switches between Cupertino (iOS) and Material (Android)
+ * design patterns based on the target platform. The content of the scaffold adapts to the appropriate design
+ * guidelines and styles.
  *
- * @param modifier 요소에 적용할 Modifier
- * @param topBar 상단 탑바 컴포넌트
- * @param bottomBar 하단 바 컴포넌트
- * @param snackbarHost 스낵바 호스트 컴포넌트
- * @param floatingActionButton 플로팅 액션 버튼 컴포넌트
- * @param floatingActionButtonPosition 플로팅 액션 버튼 위치
- * @param contentWindowInsets 내용 패딩 설정
- * @param adaptation [ScaffoldAdaptation]에 대한 사용자 정의 설정 함수
- * @param content 컨텐츠 영역 컴포넌트
- * @see AdaptiveWidget
- * @see CupertinoScaffold
- * @see Scaffold
+ * @param modifier optional [Modifier] for customizing the appearance and behavior
+ * @param topBar composable for the top app bar
+ * @param bottomBar composable for the bottom app bar
+ * @param snackbarHost composable for the snackbar host
+ * @param floatingActionButton composable for the floating action button
+ * @param floatingActionButtonPosition determines the position of the floating action button
+ * @param contentWindowInsets the window insets to be used for the content
+ * @param adaptation lambda for customizing the adaptation behavior
+ * @param content composable content of the scaffold
  */
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
@@ -113,24 +111,22 @@ fun AdaptiveScaffold(
 }
 
 /**
- * 적응형 [Scaffold] 컴포넌트로, Material Design과 Cupertino 테마에 따라 다른 레이아웃을 제공합니다.
+ * An adaptive scaffold that adapts between Cupertino and Material design based on the platform.
  *
- * [AdaptiveScaffold]는 Material Design의 [Scaffold] 컴포넌트와 Cupertino의 [CupertinoScaffold] 컴포넌트를 사용하여
- * 운영체제별로 적절한 레이아웃을 제공합니다.
+ * This composable provides a scaffold that automatically switches between Cupertino (iOS) and Material (Android)
+ * design patterns based on the target platform. The content of the scaffold adapts to the appropriate design
+ * guidelines and styles.
  *
- * @param modifier 요소에 적용할 Modifier
- * @param topBar 상단 탑바 컴포넌트
- * @param bottomBar 하단 바 컴포넌트
- * @param snackbarHost 스낵바 호스트 컴포넌트
- * @param floatingActionButton 플로팅 액션 버튼 컴포넌트
- * @param floatingActionButtonPosition 플로팅 액션 버튼 위치
- * @param containerColor 스크린 컨테이너의 배경 색상
- * @param contentColor 스크린 내용의 색상
- * @param contentWindowInsets 내용 패딩 설정
- * @param content 컨텐츠 영역 컴포넌트
- * @see AdaptiveWidget
- * @see CupertinoScaffold
- * @see Scaffold
+ * @param modifier optional [Modifier] for customizing the appearance and behavior
+ * @param topBar composable for the top app bar
+ * @param bottomBar composable for the bottom app bar
+ * @param snackbarHost composable for the snackbar host
+ * @param floatingActionButton composable for the floating action button
+ * @param floatingActionButtonPosition determines the position of the floating action button
+ * @param containerColor color for the container
+ * @param contentColor color for the content
+ * @param contentWindowInsets the window insets to be used for the content
+ * @param content composable content of the scaffold
  */
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
@@ -206,6 +202,13 @@ class ScaffoldAdaptation internal constructor(
     var contentColor by mutableStateOf(contentColor)
     var containerColor by mutableStateOf(containerColor)
 }
+
+/**
+ * Implementation of [Adaptation] for [ScaffoldAdaptation].
+ *
+ * This class manages the adaptation between Cupertino and Material design for scaffolds,
+ * providing appropriate container and content colors for both design systems.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
 /**

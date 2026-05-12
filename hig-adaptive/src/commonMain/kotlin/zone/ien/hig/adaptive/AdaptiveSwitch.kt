@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 package zone.ien.hig.adaptive
 
 import androidx.compose.foundation.interaction.Interaction
@@ -39,9 +38,11 @@ import zone.ien.hig.CupertinoSwitchColors
 import zone.ien.hig.CupertinoSwitchDefaults
 
 /**
- * 현재 [Theme]에 따라 스타일이 결정되는 적응형 스위치입니다.
+ * An adaptive switch that adapts between Cupertino and Material design based on the platform.
  *
- * 스위치는 단일 항목을 켜거나 끕니다.
+ * Switches toggle the state of a single item on or off.
+ * This composable automatically switches between Cupertino (iOS) and Material (Android) design patterns
+ * based on the current theme.
  *
  * @param checked 스위치가 체크되었는지 여부
  * @param onCheckedChange 스위치가 클릭되었을 때 호출되는 함수. null인 경우, 이 스위치는 상호작용이 불가능하며, 다른 요소가 입력 이벤트를 처리하고 상태를 업데이트해야 합니다.
@@ -97,6 +98,14 @@ fun AdaptiveSwitch(
     )
 }
 
+/**
+ * Cupertino switch adaptation.
+ *
+ * Container class for Cupertino switch adaptation properties.
+ *
+ * @param colors the colors to be used for the switch
+ * @param backdrop backdrop to use for the switch
+ */
 @Stable
 /**
  * Cupertino 스위치에 대한 적응형 어댑테이션 클래스로, 스위치의 다양한 속성을 관리합니다.
@@ -114,6 +123,13 @@ class CupertinoSwitchAdaptation internal constructor(
     var backdrop by mutableStateOf(backdrop)
 }
 
+/**
+ * Material switch adaptation.
+ *
+ * Container class for Material switch adaptation properties.
+ *
+ * @param colors the colors to be used for the switch
+ */
 @Stable
 /**
  * Material 스위치에 대한 적응형 어댑테이션 클래스로, 스위치의 다양한 속성을 관리합니다.
@@ -128,6 +144,11 @@ class MaterialSwitchAdaptation internal constructor(
     var colors by mutableStateOf(colors)
 }
 
+/**
+ * Switch adaptation implementation.
+ *
+ * Implementation of [Adaptation] for switch adaptation.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
 /**

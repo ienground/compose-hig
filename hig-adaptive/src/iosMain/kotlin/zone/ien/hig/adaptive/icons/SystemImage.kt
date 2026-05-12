@@ -26,13 +26,13 @@ import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.named
 
 /**
- * iOS 플랫폼에 맞춘 시스템 이미지를 반환하는 함수
- * 
- * 이 함수는 주어진 이름에 해당하는 시스템 이미지를 반환하며,
- * iOS 환경에서는 CupertinoIcons를 사용하여 이미지를 로드합니다.
- * 
- * @param name 시스템 이미지 이름
- * @return 해당 이름의 시스템 이미지 또는 null
+ * Platform-specific implementation for retrieving system icons on iOS platforms.
+ *
+ * This function provides a way to retrieve system icons for iOS platforms.
+ * It delegates to the Cupertino icon implementation using the [CupertinoIcons.named] function.
+ *
+ * @param name The name of the system icon to retrieve.
+ * @return A [Painter] for the specified system icon, or null if the icon is not found.
  */
 @Composable
 internal actual fun systemImage(name: String): Painter? = CupertinoIcons.named(name)
