@@ -16,19 +16,6 @@
  * limitations under the License.
  */
 
-/**
- * An adaptive top app bar that adapts between Cupertino and Material design based on the platform.
- *
- * This composable provides a top app bar that automatically switches between Cupertino (iOS) and Material (Android)
- * design patterns based on the target platform. The content adapts to appropriate design guidelines and styles.
- *
- * @param title composable for the title
- * @param modifier optional [Modifier] for customizing the appearance and behavior
- * @param navigationIcon composable for the navigation icon
- * @param actions composable for the actions
- * @param windowInsets the window insets to be used for the content
- * @param adaptation lambda for customizing the adaptation behavior
- */
 package zone.ien.hig.adaptive
 
 import androidx.compose.foundation.layout.RowScope
@@ -54,6 +41,19 @@ import zone.ien.hig.CupertinoTopAppBarColors
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 
+/**
+ * An adaptive top app bar that adapts between Cupertino and Material design based on the platform.
+ *
+ * This composable provides a top app bar that automatically switches between Cupertino (iOS) and Material (Android)
+ * design patterns based on the target platform. The content adapts to appropriate design guidelines and styles.
+ *
+ * @param title composable for the title
+ * @param modifier optional [Modifier] for customizing the appearance and behavior
+ * @param navigationIcon composable for the navigation icon
+ * @param actions composable for the actions
+ * @param windowInsets the window insets to be used for the content
+ * @param adaptation lambda for customizing the adaptation behavior
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable

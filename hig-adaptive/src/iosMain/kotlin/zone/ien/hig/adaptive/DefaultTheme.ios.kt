@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+package zone.ien.hig.adaptive
+
 /**
  * Platform-specific default theme for iOS platforms.
  *
@@ -26,7 +28,5 @@
  *
  * @return The default theme for iOS platforms, which is [Theme.Cupertino].
  */
-package zone.ien.hig.adaptive
-
 internal actual val DefaultTheme: Theme
     get() = Theme.Cupertino

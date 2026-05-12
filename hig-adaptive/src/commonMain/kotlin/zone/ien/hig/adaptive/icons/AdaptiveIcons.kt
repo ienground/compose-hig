@@ -16,12 +16,6 @@
  * limitations under the License.
  */
 
-/**
- * Provides adaptive icons for both Cupertino and Material design.
- *
- * This object contains a collection of adaptive icons that switch between Material and Cupertino design based on
- * the current theme. Icons are defined for both filled and outlined variants.
- */
 package zone.ien.hig.adaptive.icons
 
 import androidx.compose.material.icons.Icons
@@ -80,6 +74,12 @@ import zone.ien.hig.icons.outlined.WrenchAndScrewdriver
 import zone.ien.hig.icons.outlined.Xmark
 import zone.ien.hig.icons.outlined.XmarkCircle
 
+/**
+ * Provides adaptive icons for both Cupertino and Material design.
+ *
+ * This object contains a collection of adaptive icons that switch between Material and Cupertino design based on
+ * the current theme. Icons are defined for both filled and outlined variants.
+ */
 object AdaptiveIcons {
     object Filled
 
