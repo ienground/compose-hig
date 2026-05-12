@@ -21,5 +21,14 @@ package zone.ien.hig.adaptive.icons
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 
+/**
+ * 비 iOS 플랫폼에 맞춘 시스템 이미지를 반환하는 함수
+ * 
+ * 이 함수는 iOS가 아닌 플랫폼(예: Android, Desktop 등)에서 사용되며,
+ * 항상 null을 반환하여 시스템 이미지 사용을 방지합니다.
+ * 
+ * @param name 시스템 이미지 이름
+ * @return null (시스템 이미지 지원되지 않음)
+ */
 @Composable
 internal actual fun systemImage(name: String): Painter? = null

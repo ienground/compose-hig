@@ -38,22 +38,20 @@ import zone.ien.hig.CupertinoSwitchColors
 import zone.ien.hig.CupertinoSwitchDefaults
 
 /**
- * An adaptive switch that adapts between Cupertino and Material design based on the platform.
+ * An adaptive switch that changes its appearance based on the current [Theme].
  *
  * Switches toggle the state of a single item on or off.
- * This composable automatically switches between Cupertino (iOS) and Material (Android) design patterns
- * based on the current theme.
  *
- * @param checked whether or not this switch is checked
- * @param onCheckedChange called when this switch is clicked. If `null`, then this switch will not
- * be interactable, unless something else handles its input events and updates its state.
+ * @param checked whether this switch is checked
+ * @param onCheckedChange called when the switch is clicked. If null, the switch is not interactable.
  * @param modifier the [Modifier] to be applied to this switch
- * @param thumbContent content that will be drawn inside the thumb
- * @param enabled controls the enabled state of this switch. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services.
+ * @param thumbContent content to be drawn inside the thumb
+ * @param enabled controls the enabled state of this switch
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * @param adaptation configuration block for theme-dependent properties for this switch
+ * @param adaptation configuration block for theme-dependent properties
+ * @see AdaptiveWidget
+ * @see CupertinoSwitch
+ * @see Switch
  */
 @ExperimentalAdaptiveApi
 @Composable
@@ -107,6 +105,14 @@ fun AdaptiveSwitch(
  * @param backdrop backdrop to use for the switch
  */
 @Stable
+/**
+ * Cupertino 스위치에 대한 적응형 어댑테이션 클래스로, 스위치의 다양한 속성을 관리합니다.
+ *
+ * @param colors [CupertinoSwitchColors] - 스위치의 색상 설정
+ * @param backdrop [Backdrop] - 스위치의 배경
+ * @see CupertinoSwitchColors
+ * @see Backdrop
+ */
 class CupertinoSwitchAdaptation internal constructor(
     colors: CupertinoSwitchColors,
     backdrop: Backdrop
@@ -123,6 +129,13 @@ class CupertinoSwitchAdaptation internal constructor(
  * @param colors the colors to be used for the switch
  */
 @Stable
+/**
+ * Material 스위치에 대한 적응형 어댑테이션 클래스로, 스위치의 다양한 속성을 관리합니다.
+ *
+ * @param colors [SwitchColors] - 스위치의 색상 설정
+ * @see SwitchColors
+ * @see SwitchDefaults
+ */
 class MaterialSwitchAdaptation internal constructor(
     colors: SwitchColors,
 ) {
@@ -136,6 +149,13 @@ class MaterialSwitchAdaptation internal constructor(
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
+/**
+ * 스위치 유형에 따라 적응형 어댑테이션을 제공하는 클래스입니다.
+ *
+ * @see Adaptation
+ * @see CupertinoSwitchAdaptation
+ * @see MaterialSwitchAdaptation
+ */
 private class SwitchAdaptation: Adaptation<CupertinoSwitchAdaptation, MaterialSwitchAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoSwitchAdaptation {

@@ -188,6 +188,13 @@ fun AdaptiveScaffold(
 }
 
 @Stable
+/**
+ * [Scaffold] 컴포넌트에 대한 적응형 어댑테이션 클래스로, Scaffold 스타일의 다양한 속성을 관리합니다.
+ *
+ * @param contentColor 스크린 내용의 색상
+ * @param containerColor 스크린 컨테이너의 배경 색상
+ * @see Color
+ */
 class ScaffoldAdaptation internal constructor(
     contentColor: Color,
     containerColor: Color
@@ -204,6 +211,12 @@ class ScaffoldAdaptation internal constructor(
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
+/**
+ * [Scaffold] 컴포넌트에 대한 적응형 어댑테이션을 구현하는 클래스입니다.
+ *
+ * @see Adaptation
+ * @see ScaffoldAdaptation
+ */
 private class ScaffoldAdaptationImpl :
     Adaptation<ScaffoldAdaptation, ScaffoldAdaptation>() {
 

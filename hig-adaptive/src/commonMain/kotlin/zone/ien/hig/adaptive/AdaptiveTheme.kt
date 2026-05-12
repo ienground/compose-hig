@@ -132,7 +132,7 @@ fun AdaptiveTheme(
  */
 @ExperimentalAdaptiveApi
 @Deprecated(
-    message = "Use variant with theme specs instead of lambdas",
+    message = "Use the version that takes theme specifications as parameters",
     replaceWith = ReplaceWith(
         "AdaptiveTheme(target, MaterialThemeSpec.Default(), CupertinoThemeSpec.Default(), content)",
         "import zone.ien.hig.adaptive.MaterialThemeSpec",
@@ -182,11 +182,26 @@ fun AdaptiveTheme(
  */
 @Immutable
 @ExperimentalAdaptiveApi
+/**
+ * Material 테마 사양 클래스로, Material Design 3 테마의 컬러, 모양, 타이포그래피를 정의합니다.
+ * 
+ * @param colorScheme [MaterialColorScheme] - 테마의 컬러 스키마
+ * @param shapes [MaterialShapes] - 테마의 모양
+ * @param typography [MaterialTypography] - 테마의 타이포그래피
+ */
 class MaterialThemeSpec(
     val colorScheme: MaterialColorScheme = materialLightColorScheme(),
     val shapes: MaterialShapes = MaterialShapes(),
     val typography: MaterialTypography = MaterialTypography(),
 ) {
+    /**
+     * MaterialThemeSpec 인스턴스를 복사하여 새로운 인스턴스를 생성합니다.
+     * 
+     * @param colorScheme 새로운 컬러 스키마
+     * @param shapes 새로운 모양
+     * @param typography 새로운 타이포그래피
+     * @return 복사된 MaterialThemeSpec 인스턴스
+     */
     fun copy(
         colorScheme: MaterialColorScheme = this.colorScheme,
         shapes: MaterialShapes = this.shapes,
@@ -230,11 +245,26 @@ class MaterialThemeSpec(
  */
 @Immutable
 @ExperimentalAdaptiveApi
+/**
+ * Cupertino 테마 사양 클래스로, Cupertino 테마의 컬러, 모양, 타이포그래피를 정의합니다.
+ * 
+ * @param colorScheme [CupertinoColorScheme] - 테마의 컬러 스키마
+ * @param shapes [CupertinoShapes] - 테마의 모양
+ * @param typography [CupertinoTypography] - 테마의 타이포그래피
+ */
 class CupertinoThemeSpec(
     val colorScheme: CupertinoColorScheme = cupertinoLightColorScheme(),
     val shapes: CupertinoShapes = CupertinoShapes(),
     val typography: CupertinoTypography = CupertinoTypography()
 ) {
+    /**
+     * CupertinoThemeSpec 인스턴스를 복사하여 새로운 인스턴스를 생성합니다.
+     * 
+     * @param colorScheme 새로운 컬러 스키마
+     * @param shapes 새로운 모양
+     * @param typography 새로운 타이포그래피
+     * @return 복사된 CupertinoThemeSpec 인스턴스
+     */
     fun copy(
         colorScheme: CupertinoColorScheme = this.colorScheme,
         shapes: CupertinoShapes = this.shapes,
@@ -268,8 +298,8 @@ class CupertinoThemeSpec(
 
 
 /**
- * Theme declared as a target in [AdaptiveTheme]
- * */
+ * [AdaptiveTheme]에서 선언된 테마로, 현재 테마를 확인할 수 있습니다.
+ */
 @ExperimentalAdaptiveApi
 val currentTheme: Theme
     @Composable

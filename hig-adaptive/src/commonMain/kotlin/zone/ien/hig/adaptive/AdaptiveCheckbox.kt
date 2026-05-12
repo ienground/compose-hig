@@ -36,6 +36,22 @@ import zone.ien.hig.CupertinoCheckboxColors
 import zone.ien.hig.CupertinoCheckboxDefaults
 import zone.ien.hig.CupertinoTriStateCheckBox
 
+/**
+ * 적응형 체크박스 컴포넌트로, Material Design과 Cupertino 테마에 따라 다른 체크박스 스타일을 제공합니다.
+ *
+ * [AdaptiveCheckbox]는 Material Design의 [Checkbox] 컴포넌트와 Cupertino의 [CupertinoCheckBox] 컴포넌트를 사용하여
+ * 운영체제별로 적절한 체크박스를 제공합니다.
+ *
+ * @param checked 체크박스의 현재 체크 여부
+ * @param onCheckedChange 체크박스 상태 변경 시 호출되는 함수
+ * @param modifier 요소에 적용할 Modifier
+ * @param enabled 체크박스가 활성화되어 있는지 여부
+ * @param interactionSource 상호작용 소스
+ * @param adaptation [CupertinoCheckBoxAdaptation]와 [MaterialCheckBoxAdaptation]에 대한 사용자 정의 설정 함수
+ * @see AdaptiveWidget
+ * @see CupertinoCheckBox
+ * @see Checkbox
+ */
 @ExperimentalAdaptiveApi
 @Composable
 fun AdaptiveCheckbox(
@@ -72,6 +88,22 @@ fun AdaptiveCheckbox(
     )
 }
 
+/**
+ * 적응형 삼중 상태 체크박스 컴포넌트로, Material Design과 Cupertino 테마에 따라 다른 체크박스 스타일을 제공합니다.
+ *
+ * [AdaptiveTriStateCheckbox]는 Material Design의 [TriStateCheckbox] 컴포넌트와 Cupertino의 [CupertinoTriStateCheckBox] 컴포넌트를 사용하여
+ * 운영체제별로 적절한 삼중 상태 체크박스를 제공합니다.
+ *
+ * @param state 체크박스의 상태 (Unchecked, Checked, Indeterminate)
+ * @param onClick 체크박스 클릭 시 호출되는 함수
+ * @param modifier 요소에 적용할 Modifier
+ * @param enabled 체크박스가 활성화되어 있는지 여부
+ * @param interactionSource 상호작용 소스
+ * @param adaptation [CupertinoCheckBoxAdaptation]와 [MaterialCheckBoxAdaptation]에 대한 사용자 정의 설정 함수
+ * @see AdaptiveWidget
+ * @see CupertinoTriStateCheckBox
+ * @see TriStateCheckbox
+ */
 @ExperimentalAdaptiveApi
 @Composable
 fun AdaptiveTriStateCheckbox(
@@ -109,6 +141,13 @@ fun AdaptiveTriStateCheckbox(
 }
 
 @Stable
+/**
+ * Material Design 체크박스에 대한 적응형 어댑테이션 클래스로, 체크박스 색상 속성을 관리합니다.
+ *
+ * @param colors [CheckboxColors] - 체크박스의 색상 설정
+ * @see CheckboxColors
+ * @see CheckboxDefaults
+ */
 class MaterialCheckBoxAdaptation(
     colors: CheckboxColors
 ) {
@@ -116,6 +155,13 @@ class MaterialCheckBoxAdaptation(
 }
 
 @Stable
+/**
+ * Cupertino 체크박스에 대한 적응형 어댑테이션 클래스로, 체크박스 색상 속성을 관리합니다.
+ *
+ * @param colors [CupertinoCheckboxColors] - 체크박스의 색상 설정
+ * @see CupertinoCheckboxColors
+ * @see CupertinoCheckboxDefaults
+ */
 class CupertinoCheckBoxAdaptation(
     colors: CupertinoCheckboxColors
 ){
@@ -130,6 +176,13 @@ class CupertinoCheckBoxAdaptation(
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
+/**
+ * 체크박스 컴포넌트에 대한 적응형 어댑테이션을 구현하는 클래스입니다.
+ *
+ * @see Adaptation
+ * @see CupertinoCheckBoxAdaptation
+ * @see MaterialCheckBoxAdaptation
+ */
 private class CheckBoxAdaptation: Adaptation<CupertinoCheckBoxAdaptation, MaterialCheckBoxAdaptation>(){
 
     @Composable
@@ -149,5 +202,4 @@ private class CheckBoxAdaptation: Adaptation<CupertinoCheckBoxAdaptation, Materi
             MaterialCheckBoxAdaptation(colors)
         }
     }
-
 }
