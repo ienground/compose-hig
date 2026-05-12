@@ -127,7 +127,7 @@ fun AdaptiveButton(
  * @param adaptation [CupertinoButtonAdaptation]와 [MaterialButtonAdaptation]에 대한 사용자 정의 설정 함수
  * @param content 버튼 내부에 표시될 내용
  * @see AdaptiveWidget
- * @see CupertinoButton
+ * @see CupertinoLiquidButton
  * @see TextButton
  */
 @OptIn(ExperimentalCupertinoApi::class)
