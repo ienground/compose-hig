@@ -61,6 +61,16 @@ import zone.ien.hig.theme.DefaultAlpha
 import zone.ien.hig.theme.Shapes
 import zone.ien.hig.theme.Typography
 
+/**
+ * Represents the size configuration for Cupertino buttons.
+ * 
+ * This enum defines different button sizes including Small, Regular, Large, and ExtraLarge.
+ * Each size has associated shape, text style, and content padding values.
+ * 
+ * @property shape The shape function that returns the appropriate shape for the button size
+ * @property textStyle The text style function that returns an appropriate text style for the button size
+ * @property contentPadding The padding values for the button content
+ */
 enum class CupertinoButtonSize(
     val shape: (Shapes) -> Shape,
     val textStyle: (Typography) -> TextStyle = { it.body },
@@ -88,6 +98,30 @@ enum class CupertinoButtonSize(
     ),
 }
 
+/**
+ * A composable function that creates a Cupertino-styled button.
+ * 
+ * This button has Cupertino styling and can be customized with various sizes, colors, and appearances.
+ * It handles press animations and interaction states.
+ * 
+ * @param onClick The action to perform when the button is clicked
+ * @param modifier Modifier to be applied to the button
+ * @param enabled Whether the button is enabled and interactive
+ * @param size The size of the button (Small, Regular, Large, ExtraLarge)
+ * @param colors The colors to use for the button appearance
+ * @param border The border stroke to apply to the button, or null for no border
+ * @param shape The shape of the button
+ * @param contentPadding The padding to apply to the button content
+ * @param interactionSource The interaction source to track button interactions
+ * @param content The content to display inside the button
+ * 
+ * Sample usage:
+ * ```
+ * CupertinoButton(onClick = { /* handle click */ }) {
+ *     Text("Button")
+ * }
+ * ```
+ */
 @Composable
 @ExperimentalCupertinoApi
 fun CupertinoButton(
@@ -145,6 +179,27 @@ fun CupertinoButton(
     }
 }
 
+/**
+ * Creates a composable icon button with Cupertino styling.
+ * 
+ * This function creates a button that displays only an icon. It uses the [CupertinoButton] internally
+ * and applies icon-specific sizing and layout.
+ * 
+ * @param onClick The action to perform when the button is clicked
+ * @param modifier Modifier to be applied to the button
+ * @param enabled Whether the button is enabled and interactive
+ * @param colors The colors to use for the button appearance
+ * @param border The border stroke to apply to the button, or null for no border
+ * @param interactionSource The interaction source to track button interactions
+ * @param content The icon content to display inside the button
+ * 
+ * Sample usage:
+ * ```
+ * CupertinoIconButton(onClick = { /* handle click */ }) {
+ *     CupertinoIcon(CupertinoIcons.star)
+ * }
+ * ```
+ */
 @ExperimentalCupertinoApi
 @Composable
 fun CupertinoIconButton(
@@ -181,6 +236,19 @@ fun CupertinoIconButton(
 }
 
 
+/**
+ * Represents the color configuration for Cupertino buttons.
+ * 
+ * This immutable class holds color values for different button states (enabled, disabled)
+ * and different visual styles (filled, plain).
+ * 
+ * @property containerColor The container color when the button is enabled
+ * @property contentColor The content color when the button is enabled  
+ * @property disabledContainerColor The container color when the button is disabled
+ * @property disabledContentColor The content color when the button is disabled
+ * @property indicationColor The color used for visual feedback during interactions
+ * @property isPlain Indicates if this is a plain button style (no background)
+ */
 @Immutable
 class CupertinoButtonColors internal constructor(
     private val containerColor: Color,
@@ -190,23 +258,25 @@ class CupertinoButtonColors internal constructor(
     internal val indicationColor: Color,
     internal val isPlain: Boolean = false
 ) {
-    /**
-     * Represents the container color for this button, depending on [enabled].
-     *
-     * @param enabled whether the button is enabled
-     */
-    @Composable
-    fun containerColor(enabled: Boolean): State<Color> {
+/**
+ * Represents the container color for this button, depending on [enabled].
+ *
+ * @param enabled whether the button is enabled
+ * @return The appropriate container color based on enabled state
+ */
+@Composable
+fun containerColor(enabled: Boolean): State<Color> {
         return rememberUpdatedState(if (enabled) containerColor else disabledContainerColor)
     }
 
-    /**
-     * Represents the content color for this button, depending on [enabled].
-     *
-     * @param enabled whether the button is enabled
-     */
-    @Composable
-    fun contentColor(enabled: Boolean): State<Color> {
+/**
+ * Represents the content color for this button, depending on [enabled].
+ *
+ * @param enabled whether the button is enabled
+ * @return The appropriate content color based on enabled state
+ */
+@Composable
+fun contentColor(enabled: Boolean): State<Color> {
         return rememberUpdatedState(if (enabled) contentColor else disabledContentColor)
     }
 
@@ -232,15 +302,32 @@ class CupertinoButtonColors internal constructor(
 }
 
 
+/**
+ * The default values and color configurations for Cupertino buttons.
+ * 
+ * This object provides factory methods to create different button color schemes 
+ * that match Apple's Cupertino design guidelines, including filled, plain, 
+ * tinted, and gray button styles.
+ */
 @Immutable
 object CupertinoButtonDefaults {
 
-    /**
-     * Tinted button with .bordered SwiftUI style with default gray tint
-     * */
-    @Composable
-    @ReadOnlyComposable
-    fun grayButtonColors(
+/**
+ * Tinted button with .bordered SwiftUI style with default gray tint
+ * 
+ * Creates a button with a gray background and accent text color.
+ * 
+ * @param contentColor The color of the button's text/content
+ * @param containerColor The background color of the button
+ * @param disabledContentColor The color of the button's text/content when disabled
+ * @param disabledContainerColor The background color of the button when disabled
+ * @param indicationColor The color used for visual feedback during interactions
+ * 
+ * @return A [CupertinoButtonColors] object with the specified configuration
+ */
+@Composable
+@ReadOnlyComposable
+fun grayButtonColors(
         contentColor: Color = CupertinoTheme.colorScheme.accent,
         containerColor: Color = CupertinoTheme.colorScheme.quaternarySystemFill,
         disabledContentColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
@@ -254,12 +341,22 @@ object CupertinoButtonDefaults {
         indicationColor = indicationColor,
     )
 
-    /**
-     * SwiftUI .borderless button
-     * */
-    @Composable
-    @ReadOnlyComposable
-    fun plainButtonColors(
+/**
+ * SwiftUI .borderless button
+ * 
+ * Creates a button with no background that uses transparent container colors.
+ * 
+ * @param contentColor The color of the button's text/content
+ * @param containerColor The background color of the button (default transparent)
+ * @param disabledContentColor The color of the button's text/content when disabled
+ * @param disabledContainerColor The background color of the button when disabled
+ * @param indicationColor The color used for visual feedback during interactions
+ * 
+ * @return A [CupertinoButtonColors] object with the specified configuration
+ */
+@Composable
+@ReadOnlyComposable
+fun plainButtonColors(
         contentColor: Color = CupertinoTheme.colorScheme.accent,
         containerColor: Color = Color.Transparent,
         disabledContentColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
@@ -274,12 +371,22 @@ object CupertinoButtonDefaults {
         indicationColor = indicationColor
     )
 
-    /**
-     * Filled button with .borderedProminent SwiftUI style
-     * */
-    @Composable
-    @ReadOnlyComposable
-    fun filledButtonColors(
+/**
+ * Filled button with .borderedProminent SwiftUI style
+ * 
+ * Creates a button with a prominent filled appearance with white text.
+ * 
+ * @param contentColor The color of the button's text/content (default white)
+ * @param containerColor The background color of the button (default accent color)
+ * @param disabledContentColor The color of the button's text/content when disabled
+ * @param disabledContainerColor The background color of the button when disabled
+ * @param indicationColor The color used for visual feedback during interactions
+ * 
+ * @return A [CupertinoButtonColors] object with the specified configuration
+ */
+@Composable
+@ReadOnlyComposable
+fun filledButtonColors(
         contentColor: Color = Color.White,
         containerColor: Color = CupertinoTheme.colorScheme.accent,
         disabledContentColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
@@ -293,12 +400,22 @@ object CupertinoButtonDefaults {
         indicationColor = indicationColor
     )
 
-    /**
-     * Tinted button with .bordered SwiftUI style and [contentColor] tint
-     * */
-    @Composable
-    @ReadOnlyComposable
-    fun tintedButtonColors(
+/**
+ * Tinted button with .bordered SwiftUI style and [contentColor] tint
+ * 
+ * Creates a button with a tinted background based on the content color.
+ * 
+ * @param contentColor The color of the button's text/content
+ * @param containerColor The background color of the button (computed from contentColor)
+ * @param disabledContentColor The color of the button's text/content when disabled
+ * @param disabledContainerColor The background color of the button when disabled
+ * @param indicationColor The color used for visual feedback during interactions
+ * 
+ * @return A [CupertinoButtonColors] object with the specified configuration
+ */
+@Composable
+@ReadOnlyComposable
+fun tintedButtonColors(
         contentColor: Color = CupertinoTheme.colorScheme.accent,
         containerColor: Color = contentColor.copy(alpha = CupertinoButtonTokens.BorderedButtonAlpha),
         disabledContentColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
@@ -312,19 +429,29 @@ object CupertinoButtonDefaults {
         indicationColor = indicationColor,
     )
 
-    /**
-     * Filled button with .borderedProminent SwiftUI style
-     * */
-    @Composable
-    @ReadOnlyComposable
-    @Deprecated(
-        "Use filledButtonColors instead",
-        replaceWith = ReplaceWith(
-            "filledButtonColors(contentColor,containerColor,disabledContentColor,disabledContainerColor,indicationColor)",
-            "import zone.ien.hig.filledButtonColors"
-        )
+/**
+ * Filled button with .borderedProminent SwiftUI style
+ * 
+ * @param contentColor The color of the button's text/content (default white)
+ * @param containerColor The background color of the button (default accent color)
+ * @param disabledContentColor The color of the button's text/content when disabled
+ * @param disabledContainerColor The background color of the button when disabled
+ * @param indicationColor The color used for visual feedback during interactions
+ * 
+ * @return A [CupertinoButtonColors] object with the specified configuration
+ * 
+ * @deprecated Use [filledButtonColors] instead
+ */
+@Composable
+@ReadOnlyComposable
+@Deprecated(
+    "Use filledButtonColors instead",
+    replaceWith = ReplaceWith(
+        "filledButtonColors(contentColor,containerColor,disabledContentColor,disabledContainerColor,indicationColor)",
+        "import zone.ien.hig.filledButtonColors"
     )
-    fun borderedProminentButtonColors(
+)
+fun borderedProminentButtonColors(
         contentColor: Color = Color.White,
         containerColor: Color = CupertinoTheme.colorScheme.accent,
         disabledContentColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
@@ -338,19 +465,29 @@ object CupertinoButtonDefaults {
         indicationColor = indicationColor
     )
 
-    /**
-     * Tinted button with .bordered SwiftUI style and [contentColor] tint
-     * */
-    @Deprecated(
-        "Use tintedButtonColors instead",
-        replaceWith = ReplaceWith(
-            "tintedButtonColors(contentColor,containerColor,disabledContentColor,disabledContainerColor,indicationColor)",
-            "import zone.ien.hig.tintedButtonColors"
-        )
+/**
+ * Tinted button with .bordered SwiftUI style and [contentColor] tint
+ * 
+ * @param contentColor The color of the button's text/content
+ * @param containerColor The background color of the button (computed from contentColor)
+ * @param disabledContentColor The color of the button's text/content when disabled
+ * @param disabledContainerColor The background color of the button when disabled
+ * @param indicationColor The color used for visual feedback during interactions
+ * 
+ * @return A [CupertinoButtonColors] object with the specified configuration
+ * 
+ * @deprecated Use [tintedButtonColors] instead
+ */
+@Composable
+@ReadOnlyComposable
+@Deprecated(
+    "Use tintedButtonColors instead",
+    replaceWith = ReplaceWith(
+        "tintedButtonColors(contentColor,containerColor,disabledContentColor,disabledContainerColor,indicationColor)",
+        "import zone.ien.hig.tintedButtonColors"
     )
-    @Composable
-    @ReadOnlyComposable
-    fun borderedButtonColors(
+)
+fun borderedButtonColors(
         contentColor: Color = CupertinoTheme.colorScheme.accent,
         containerColor: Color = contentColor.copy(alpha = CupertinoButtonTokens.BorderedButtonAlpha),
         disabledContentColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
@@ -364,19 +501,29 @@ object CupertinoButtonDefaults {
         indicationColor = indicationColor,
     )
 
-    /**
-     * SwiftUI .borderless button
-     * */
-    @Deprecated(
-        "Use plainButtonColors instead",
-        replaceWith = ReplaceWith(
-            "plainButtonColors(contentColor,containerColor,disabledContentColor,disabledContainerColor,indicationColor)",
-            "import zone.ien.hig.plainButtonColors"
-        )
+/**
+ * SwiftUI .borderless button
+ * 
+ * @param contentColor The color of the button's text/content
+ * @param containerColor The background color of the button (default transparent)
+ * @param disabledContentColor The color of the button's text/content when disabled
+ * @param disabledContainerColor The background color of the button when disabled
+ * @param indicationColor The color used for visual feedback during interactions
+ * 
+ * @return A [CupertinoButtonColors] object with the specified configuration
+ * 
+ * @deprecated Use [plainButtonColors] instead
+ */
+@Composable
+@ReadOnlyComposable
+@Deprecated(
+    "Use plainButtonColors instead",
+    replaceWith = ReplaceWith(
+        "plainButtonColors(contentColor,containerColor,disabledContentColor,disabledContainerColor,indicationColor)",
+        "import zone.ien.hig.plainButtonColors"
     )
-    @Composable
-    @ReadOnlyComposable
-    fun borderlessButtonColors(
+)
+fun borderlessButtonColors(
         contentColor: Color = CupertinoTheme.colorScheme.accent,
         containerColor: Color = Color.Transparent,
         disabledContentColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
@@ -390,19 +537,29 @@ object CupertinoButtonDefaults {
         indicationColor = indicationColor
     )
 
-    /**
-     * Tinted button with .bordered SwiftUI with default tint
-     * */
-    @Deprecated(
-        "Use grayButtonColors instead",
-        replaceWith = ReplaceWith(
-            "grayButtonColors(contentColor,containerColor,disabledContentColor,disabledContainerColor,indicationColor)",
-            "import zone.ien.hig.grayButtonColors"
-        )
+/**
+ * Tinted button with .bordered SwiftUI with default tint
+ * 
+ * @param contentColor The color of the button's text/content
+ * @param containerColor The background color of the button
+ * @param disabledContentColor The color of the button's text/content when disabled
+ * @param disabledContainerColor The background color of the button when disabled
+ * @param indicationColor The color used for visual feedback during interactions
+ * 
+ * @return A [CupertinoButtonColors] object with the specified configuration
+ * 
+ * @deprecated Use [grayButtonColors] instead
+ */
+@Composable
+@ReadOnlyComposable
+@Deprecated(
+    "Use grayButtonColors instead",
+    replaceWith = ReplaceWith(
+        "grayButtonColors(contentColor,containerColor,disabledContentColor,disabledContainerColor,indicationColor)",
+        "import zone.ien.hig.grayButtonColors"
     )
-    @Composable
-    @ReadOnlyComposable
-    fun borderedGrayButtonColors(
+)
+fun borderedGrayButtonColors(
         contentColor: Color = CupertinoTheme.colorScheme.accent,
         containerColor: Color = CupertinoTheme.colorScheme.quaternarySystemFill,
         disabledContentColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
@@ -417,6 +574,11 @@ object CupertinoButtonDefaults {
     )
 }
 
+/**
+ * Internal token values used for button styling and behavior.
+ * 
+ * This object contains constants used for button animations, sizing, and other styling properties.
+ */
 internal object CupertinoButtonTokens {
     const val PressedPlainButonAlpha = .33f
     val IconButtonSize = 42.dp

@@ -66,7 +66,19 @@ import kotlin.jvm.JvmName
 
 /**
  * Content of the Cupertino modal bottom sheet.
- * */
+ *
+ * This composable creates the content area for a Cupertino modal bottom sheet.
+ *
+ * @param modifier The modifier to be applied to the bottom sheet
+ * @param containerColor The color of the bottom sheet container
+ * @param contentColor The color of the content in the bottom sheet
+ * @param appBarsAlpha The alpha value for app bars
+ * @param appBarsBlurRadius The blur radius for app bars
+ * @param hasNavigationTitle Whether the sheet has a navigation title
+ * @param topBar The top bar content of the bottom sheet
+ * @param bottomBar The bottom bar content of the bottom sheet
+ * @param content The main content of the bottom sheet
+ */
 @Composable
 @ExperimentalCupertinoApi
 fun CupertinoBottomSheetContent(

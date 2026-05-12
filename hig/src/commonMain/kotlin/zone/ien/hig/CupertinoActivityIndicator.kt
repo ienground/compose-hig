@@ -50,16 +50,19 @@ import zone.ien.hig.theme.Gray
 import kotlin.math.roundToInt
 
 /**
+ * iOS-like segmented circle progress indicator.
  *
- * iOS-like segmented circle progress indicator
+ * This composable displays an activity indicator similar to iOS's UIActivityIndicatorView.
  *
- * @param modifier indicator modifier
- * @param color color of the indicator
- * @param count number of paths of the activity indicator
- * @param innerRadius radius of the inner circle relative to indicator radius
- * @param animationSpec infinite repeatable animation spec
- * @param minAlpha opacity of the most translucent item
- * */
+ * @param modifier The modifier to be applied to the indicator
+ * @param size The size of the indicator
+ * @param color The color of the indicator
+ * @param count The number of paths of the activity indicator
+ * @param innerRadius The radius of the inner circle relative to indicator radius (0-1)
+ * @param strokeWidth The stroke width of the indicator, if unspecified uses default value
+ * @param animationSpec The infinite repeatable animation spec
+ * @param minAlpha The opacity of the most translucent item (0-1)
+ */
 @Composable
 @ExperimentalCupertinoApi
 fun CupertinoActivityIndicator(
@@ -160,16 +163,20 @@ fun CupertinoActivityIndicator(
 }
 
 /**
+ * iOS-like segmented circle progress indicator with progress tracking.
  *
- * iOS-like segmented circle progress indicator
+ * This composable displays an activity indicator similar to iOS's UIActivityIndicatorView with progress tracking.
  *
- * @param modifier indicator modifier
- * @param color color of the indicator
- * @param count number of paths of the activity indicator
- * @param innerRadius radius of the inner circle relative to indicator radius
- * @param animationSpec infinite repeatable animation spec
- * @param minAlpha opacity of the most translucent item
- * */
+ * @param modifier The modifier to be applied to the indicator
+ * @param progress The progress value (0-1) to indicate completion
+ * @param size The size of the indicator
+ * @param color The color of the indicator
+ * @param count The number of paths of the activity indicator
+ * @param innerRadius The radius of the inner circle relative to indicator radius (0-1)
+ * @param strokeWidth The stroke width of the indicator, if unspecified uses default value
+ * @param animationSpec The infinite repeatable animation spec
+ * @param minAlpha The opacity of the most translucent item (0-1)
+ */
 @Composable
 @ExperimentalCupertinoApi
 fun CupertinoActivityIndicator(
