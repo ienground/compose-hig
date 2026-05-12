@@ -63,10 +63,10 @@ enum class Theme {
  *
  * The current theme target can be accessed inside the [content] using [currentTheme] property.
  *
- * @param target theme for adaptive widgets. Defaults to [Theme.Cupertino] for iOS and [Theme.Material3] for other platforms
- * @param material [MaterialTheme] specification. NOTE: You must use lambda parameter as a content
- * @param cupertino [CupertinoTheme] specification. NOTE: You must use lambda parameter as a content
- * @param content themed content
+ * @param target theme for adaptive widgets. Defaults to [Theme.Cupertino] for iOS and [Theme.Material3] for other platforms.
+ * @param material [MaterialThemeSpec] specification.
+ * @param cupertino [CupertinoThemeSpec] specification.
+ * @param content themed content.
  */
 @ExperimentalAdaptiveApi
 @Composable
