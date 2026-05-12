@@ -191,7 +191,7 @@ fun AdaptiveTextButton(
  * @param adaptation [CupertinoButtonAdaptation]와 [MaterialButtonAdaptation]에 대한 사용자 정의 설정 함수
  * @param content 버튼 내부에 표시될 내용
  * @see AdaptiveWidget
- * @see CupertinoButton
+ * @see CupertinoLiquidButton
  * @see FilledTonalButton
  */
 @OptIn(ExperimentalCupertinoApi::class)
@@ -316,8 +316,10 @@ private enum class ButtonType {
  * providing appropriate styling for different button types (Filled, Text, Tonal).
  *
  * @param type The type of button to adapt (Filled, Text, or Tonal)
+ * @see CupertinoButtonAdaptation
+ * @see MaterialButtonAdaptation
  */
-@ExperimentalAdaptiveApi
+@OptIn(ExperimentalAdaptiveApi::class)
 private class ButtonAdaptation(
     private val type: ButtonType,
 ): Adaptation<CupertinoButtonAdaptation, MaterialButtonAdaptation>() {

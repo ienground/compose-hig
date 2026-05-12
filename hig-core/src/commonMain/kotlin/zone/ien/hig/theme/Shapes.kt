@@ -30,6 +30,15 @@ import com.kyant.shapes.RoundedRectangle
 import com.kyant.shapes.UnevenRoundedRectangle
 import zone.ien.hig.InternalCupertinoApi
 
+/**
+ * Shapes for the Cupertino design system.
+ *
+ * @param extraSmall the extra small corner shape
+ * @param small the small corner shape
+ * @param medium the medium corner shape
+ * @param large the large corner shape
+ * @param extraLarge the extra large corner shape
+ */
 @Stable
 class Shapes(
     val extraSmall: RoundedRectangle = ShapeDefaults.ExtraSmall,
@@ -38,6 +47,15 @@ class Shapes(
     val large: RoundedRectangle = ShapeDefaults.Large,
     val extraLarge: RoundedRectangle = ShapeDefaults.ExtraLarge,
 ) {
+    /**
+     * Creates a copy of this Shapes with the specified values replaced.
+     *
+     * @param extraSmall the new extra small corner shape
+     * @param small the new small corner shape
+     * @param medium the new medium corner shape
+     * @param large the new large corner shape
+     * @param extraLarge the new extra large corner shape
+     */
     fun copy(
         extraSmall: RoundedRectangle = this.extraSmall,
         small: RoundedRectangle = this.small,
@@ -56,6 +74,9 @@ class Shapes(
 @InternalCupertinoApi
 val LocalShapes = staticCompositionLocalOf { Shapes() }
 
+/**
+ * Default shapes for the Cupertino design system.
+ */
 @Immutable
 object ShapeDefaults {
     /** Extra small sized corner shape */

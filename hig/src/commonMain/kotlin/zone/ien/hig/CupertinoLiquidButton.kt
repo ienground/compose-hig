@@ -61,6 +61,32 @@ import kotlin.math.tanh
 import androidx.compose.animation.Animatable as ColorAnimatable
 import androidx.compose.animation.core.Animatable as FloatAnimatable
 
+/**
+ * A composable function that creates a Cupertino-styled liquid button with backdrop effects.
+ * 
+ * This button features liquid glass-like effects with adaptive tinting and surface colors that 
+ * respond to the background theme and content luminance.
+ * 
+ * @param onClick The action to perform when the button is clicked
+ * @param modifier Modifier to be applied to the button
+ * @param enabled Whether the button is enabled and interactive
+ * @param size The size of the button (Small, Regular, Large, ExtraLarge)
+ * @param colors The colors to use for the button appearance
+ * @param shape The shape of the button
+ * @param contentPadding The padding to apply to the button content
+ * @param interactionSource The interaction source to track button interactions
+ * @param backdrop The backdrop effect configuration for the button's visual appearance
+ * @param isBackgroundAdaptive Whether the button should adapt to the background color
+ * @param isInteractive Whether the button responds to interactive gestures
+ * @param content The content to display inside the button
+ * 
+ * Sample usage:
+ * ```
+ * CupertinoLiquidButton(onClick = { /* handle click */ }, backdrop = backdrop) {
+ *     Text("Button")
+ * }
+ * ```
+ */
 @Composable
 @ExperimentalCupertinoApi
 fun CupertinoLiquidButton(

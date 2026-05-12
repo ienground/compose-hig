@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-
-
 package zone.ien.hig
 
 import android.os.Build
@@ -40,22 +38,44 @@ import java.time.format.FormatStyle
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields
 import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
+/**
+ * Gets the default locale for the device.
+ *
+ * @return The default [CalendarLocale] for the device
+ */
 @Composable
 @ReadOnlyComposable
 internal actual fun defaultLocale(): CalendarLocale =
     LocalConfiguration.current.run {
         val locales = locales
-        if (locales.isEmpty) Locale.getDefault() else locales[0]
+        if (locales.isEmpty) LocalLocale.current.platformLocale else locales[0]
     }
 
+/**
+ * Gets the current locale for the device.
+ *
+ * @return The current [CalendarLocale] for the device
+ */
 internal actual fun currentLocale(): CalendarLocale = Locale.getDefault()
 
 /**
  * A [CalendarModel] implementation for API >= 26.
+ *
+ * This implementation uses Java 8 Time APIs available on Android API level 26 and above.
+ *
+ * @property today The current date
+ * @property firstDayOfWeek The first day of the week for the default locale
+ * @property weekdayNames The weekday names for the default locale
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal class AndroidCalendarModelImpl: CalendarModel {
+    /**
+     * Gets the current date.
+     *
+     * @return The [CalendarDate] representing today
+     */
     override val today
         get(): CalendarDate {
             val systemLocalDate = LocalDate.now()
@@ -72,10 +92,26 @@ internal class AndroidCalendarModelImpl: CalendarModel {
             )
         }
 
+    /**
+     * Gets the first day of the week for the default locale.
+     *
+     * @return The first day of the week (1 = Sunday, 2 = Monday, etc.)
+     */
     override val firstDayOfWeek: Int = WeekFields.of(Locale.getDefault()).firstDayOfWeek.value
 
+    /**
+     * Gets the weekday names for the default locale.
+     *
+     * @return A list of pairs containing full and short weekday names
+     */
     override val weekdayNames: List<Pair<String, String>> = weekdayNames(Locale.getDefault())
 
+    /**
+     * Gets the weekday names for a specific locale.
+     *
+     * @param locale The [Locale] to get weekday names for
+     * @return A list of pairs containing full and short weekday names
+     */
     fun weekdayNames(locale: Locale): List<Pair<String, String>> =
         // This will start with Monday as the first day, according to ISO-8601.
         with(locale) {
@@ -93,6 +129,12 @@ internal class AndroidCalendarModelImpl: CalendarModel {
             }
         }
 
+    /**
+     * Gets the date input format for the given locale.
+     *
+     * @param locale The [Locale] to get the input format for
+     * @return The [DateInputFormat] for the specified locale
+     */
     override fun getDateInputFormat(locale: Locale): DateInputFormat =
         datePatternAsInputFormat(
             DateTimeFormatterBuilder.getLocalizedDateTimePattern(
@@ -107,6 +149,12 @@ internal class AndroidCalendarModelImpl: CalendarModel {
             ),
         )
 
+    /**
+     * Gets the canonical date from a timestamp.
+     *
+     * @param timeInMillis The timestamp in milliseconds
+     * @return The [CalendarDate] for the given timestamp
+     */
     override fun getCanonicalDate(timeInMillis: Long): CalendarDate {
         val localDate =
             Instant.ofEpochMilli(timeInMillis).atZone(utcTimeZoneId).toLocalDate()
@@ -118,6 +166,12 @@ internal class AndroidCalendarModelImpl: CalendarModel {
         )
     }
 
+    /**
+     * Gets the month from a timestamp.
+     *
+     * @param timeInMillis The timestamp in milliseconds
+     * @return The [CalendarMonth] for the given timestamp
+     */
     override fun getMonth(timeInMillis: Long): CalendarMonth =
         getMonth(
             Instant
@@ -127,21 +181,55 @@ internal class AndroidCalendarModelImpl: CalendarModel {
                 .toLocalDate(),
         )
 
+    /**
+     * Gets the month from a [CalendarDate].
+     *
+     * @param date The [CalendarDate] to get the month for
+     * @return The [CalendarMonth] for the given date
+     */
     override fun getMonth(date: CalendarDate): CalendarMonth = getMonth(LocalDate.of(date.year, date.month, 1))
 
+    /**
+     * Gets the month from year and month values.
+     *
+     * @param year The year
+     * @param month The month (1-12)
+     * @return The [CalendarMonth] for the given year and month
+     */
     override fun getMonth(
         year: Int,
         month: Int,
     ): CalendarMonth = getMonth(LocalDate.of(year, month, 1))
 
+    /**
+     * Gets a date with the specified year, month, and day.
+     *
+     * @param year The year
+     * @param month The month (1-12)
+     * @param day The day of month (1-31)
+     * @return The [CalendarDate] for the given year, month, and day
+     */
     override fun getDate(
         year: Int,
         month: Int,
         day: Int,
     ): CalendarDate = CalendarDate(year, month, day, 0)
 
+    /**
+     * Gets the day of week for the given date.
+     *
+     * @param date The [CalendarDate] to get the day of week for
+     * @return The day of week (1 = Sunday, 2 = Monday, etc.)
+     */
     override fun getDayOfWeek(date: CalendarDate): Int = date.toLocalDate().dayOfWeek.value
 
+    /**
+     * Adds months to a month.
+     *
+     * @param from The [CalendarMonth] to add months to
+     * @param addedMonthsCount The number of months to add
+     * @return The [CalendarMonth] with added months
+     */
     override fun plusMonths(
         from: CalendarMonth,
         addedMonthsCount: Int,
@@ -153,6 +241,13 @@ internal class AndroidCalendarModelImpl: CalendarModel {
         return getMonth(laterMonth)
     }
 
+    /**
+     * Subtracts months from a month.
+     *
+     * @param from The [CalendarMonth] to subtract months from
+     * @param subtractedMonthsCount The number of months to subtract
+     * @return The [CalendarMonth] with subtracted months
+     */
     override fun minusMonths(
         from: CalendarMonth,
         subtractedMonthsCount: Int,
@@ -164,12 +259,27 @@ internal class AndroidCalendarModelImpl: CalendarModel {
         return getMonth(earlierMonth)
     }
 
+    /**
+     * Formats a date using a custom pattern.
+     *
+     * @param utcTimeMillis The UTC timestamp to format (milliseconds from epoch)
+     * @param pattern The date format pattern to use
+     * @param locale The [Locale] to use when formatting the date
+     * @return The formatted date string
+     */
     override fun formatWithPattern(
         utcTimeMillis: Long,
         pattern: String,
         locale: Locale,
     ): String = Companion.formatWithPattern(utcTimeMillis, pattern, locale)
 
+    /**
+     * Parses a date string using the provided pattern.
+     *
+     * @param date The date string to parse
+     * @param pattern The date format pattern to use
+     * @return The parsed [CalendarDate] or null if parsing fails
+     */
     override fun parse(
         date: String,
         pattern: String,
@@ -194,6 +304,11 @@ internal class AndroidCalendarModelImpl: CalendarModel {
         }
     }
 
+    /**
+     * Returns a string representation of this calendar model.
+     *
+     * @return The string "CalendarModel"
+     */
     override fun toString(): String = "CalendarModel"
 
     companion object {
@@ -203,6 +318,7 @@ internal class AndroidCalendarModelImpl: CalendarModel {
          * @param utcTimeMillis a UTC timestamp to format (milliseconds from epoch)
          * @param pattern a date format pattern
          * @param locale the [Locale] to use when formatting the given timestamp
+         * @return The formatted date string
          */
         fun formatWithPattern(
             utcTimeMillis: Long,
@@ -222,10 +338,18 @@ internal class AndroidCalendarModelImpl: CalendarModel {
 
         /**
          * Holds a UTC [ZoneId].
+         *
+         * @return The UTC [ZoneId] for time zone operations
          */
         internal val utcTimeZoneId: ZoneId = ZoneId.of("UTC")
     }
 
+    /**
+     * Gets a calendar month from a LocalDate.
+     *
+     * @param firstDayLocalDate The first day of the month as a LocalDate
+     * @return The [CalendarMonth] for the given LocalDate
+     */
     private fun getMonth(firstDayLocalDate: LocalDate): CalendarMonth {
         val difference = firstDayLocalDate.dayOfWeek.value - firstDayOfWeek
         val daysFromStartOfWeekToFirstOfMonth =
@@ -249,10 +373,20 @@ internal class AndroidCalendarModelImpl: CalendarModel {
         )
     }
 
+    /**
+     * Converts a CalendarMonth to a LocalDate.
+     *
+     * @return The [LocalDate] representation of the calendar month
+     */
     private fun CalendarMonth.toLocalDate(): LocalDate = Instant.ofEpochMilli(startUtcTimeMillis).atZone(
         utcTimeZoneId
     ).toLocalDate()
 
+    /**
+     * Converts a CalendarDate to a LocalDate.
+     *
+     * @return The [LocalDate] representation of the calendar date
+     */
     private fun CalendarDate.toLocalDate(): LocalDate =
         LocalDate.of(
             this.year,

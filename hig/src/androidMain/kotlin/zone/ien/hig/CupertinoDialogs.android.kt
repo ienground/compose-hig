@@ -17,13 +17,20 @@
  */
 
 
-
 package zone.ien.hig
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.window.DialogProperties
 
+/**
+ * Creates platform-specific dialog properties for fullscreen popups on Android.
+ *
+ * @param dismissOnBackPress Whether to dismiss the dialog when the back button is pressed
+ * @param dismissOnClickOutside Whether to dismiss the dialog when clicking outside
+ * @param usePlatformDefaultWidth Whether to use the platform default width
+ * @return The [DialogProperties] for the dialog
+ */
 @Composable
 @ReadOnlyComposable
 internal actual fun FullscreenPopupProperties(
@@ -38,4 +45,11 @@ internal actual fun FullscreenPopupProperties(
         usePlatformDefaultWidth = usePlatformDefaultWidth,
     )
 
+/**
+ * Gets the platform-specific insets for dialog properties.
+ *
+ * For Android, this returns true, indicating that platform insets should be used.
+ *
+ * @return true, indicating platform insets are used on Android
+ */
 actual val DialogProperties.platformInsets: Boolean get() = true

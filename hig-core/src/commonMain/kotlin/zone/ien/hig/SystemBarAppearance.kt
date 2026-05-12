@@ -20,6 +20,11 @@ package zone.ien.hig
 
 import androidx.compose.runtime.Composable
 
+/**
+ * Applies the system bar appearance to the current composable.
+ *
+ * @param dark whether the status bar should be dark (true) or light (false)
+ */
 @Composable
 @InternalCupertinoApi
 expect fun SystemBarAppearance(dark: Boolean)

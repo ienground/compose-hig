@@ -25,17 +25,29 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 
 
+/**
+ * Represents a calendar locale for formatting dates.
+ *
+ * This class is used to represent the locale used when formatting dates in the calendar.
+ */
 expect class CalendarLocale
 
 /**
  * A composable function that returns the default [CalendarLocale].
  *
  * When running on an Android platform, it will be recomposed when the `Configuration` gets updated.
+ *
+ * @return The default calendar locale
  */
 @Composable
 @ReadOnlyComposable
 internal expect fun defaultLocale(): CalendarLocale
 
+/**
+ * Returns the current [CalendarLocale].
+ *
+ * @return The current calendar locale
+ */
 internal expect fun currentLocale(): CalendarLocale
 
 /**
@@ -47,9 +59,10 @@ internal expect fun currentLocale(): CalendarLocale
  * One difference is that order is irrelevant. For example, "MMMMd" will return "MMMM d" in the
  * en_US locale, but "d. MMMM" in the de_CH locale.
  *
- * @param utcTimeMillis a UTC timestamp to format (milliseconds from epoch)
- * @param skeleton a date format skeleton
- * @param locale the [CalendarLocale] to use when formatting the given timestamp
+ * @param utcTimeMillis A UTC timestamp to format (milliseconds from epoch)
+ * @param skeleton A date format skeleton
+ * @param locale The [CalendarLocale] to use when formatting the given timestamp
+ * @return The formatted date string
  */
 internal fun formatWithSkeleton(
     utcTimeMillis: Long,
@@ -58,16 +71,26 @@ internal fun formatWithSkeleton(
 ): String = PlatformDateFormat.formatWithSkeleton(utcTimeMillis, skeleton, locale)
 
 
+/**
+ * Represents a calendar model interface for date calculations and formatting.
+ *
+ * This interface provides methods for working with calendar dates and months, including
+ * formatting dates and retrieving calendar information like first day of week and weekday names.
+ */
 internal interface CalendarModel {
 
     /**
      * A [CalendarDate] representing the current day.
+     *
+     * @return The current day as a [CalendarDate]
      */
     val today: CalendarDate
 
     /**
      * Hold the first day of the week at the current `Locale` as an integer. The integer value
      * follows the ISO-8601 standard and refer to Monday as 1, and Sunday as 7.
+     *
+     * @return The first day of the week as an integer (1-7)
      */
     val firstDayOfWeek: Int
 
@@ -80,6 +103,8 @@ internal interface CalendarModel {
      * Newer APIs (i.e. API 26+), a [Pair] will hold a full name and the first letter of the
      * day.
      * Older APIs that predate API 26 will hold a full name and the first three letters of the day.
+     *
+     * @return A list of weekday names and abbreviations as [Pair] objects
      */
     val weekdayNames: List<Pair<String, String>>
 
@@ -98,6 +123,9 @@ internal interface CalendarModel {
      *  - dd-MM-yyyy
      *  - dd.MM.yyyy
      *  - MM/dd/yyyy
+     *
+     * @param locale The [CalendarLocale] to use when formatting the given timestamp
+     * @return The date input format for the given locale
      */
     fun getDateInputFormat(locale: CalendarLocale): DateInputFormat
 
@@ -108,6 +136,7 @@ internal interface CalendarModel {
      * be different than the one provided to this function.
      *
      * @param timeInMillis UTC milliseconds from the epoch
+     * @return The [CalendarDate] for the given time
      */
     fun getCanonicalDate(timeInMillis: Long): CalendarDate
 
@@ -115,6 +144,7 @@ internal interface CalendarModel {
      * Returns a [CalendarMonth] from a given _UTC_ time in milliseconds.
      *
      * @param timeInMillis UTC milliseconds from the epoch for the first day the month
+     * @return The [CalendarMonth] for the given time
      */
     fun getMonth(timeInMillis: Long): CalendarMonth
 
@@ -124,7 +154,8 @@ internal interface CalendarModel {
      * Note: This function ignores the [CalendarDate.dayOfMonth] value and just uses the date's
      * year and month to resolve a [CalendarMonth].
      *
-     * @param date a [CalendarDate] to resolve into a month
+     * @param date A [CalendarDate] to resolve into a month
+     * @return The [CalendarMonth] for the given date
      */
     fun getMonth(date: CalendarDate): CalendarMonth
 

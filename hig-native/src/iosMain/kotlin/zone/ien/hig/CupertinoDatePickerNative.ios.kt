@@ -56,6 +56,14 @@ import platform.UIKit.UIDatePickerMode
 import platform.UIKit.UIDatePickerStyle
 import platform.UIKit.UIView
 
+/**
+ * An iOS implementation of the date picker native component.
+ *
+ * @param state the date picker state
+ * @param modifier the [Modifier] to be applied to this date picker
+ * @param style the date picker style, either wheel or pager
+ * @param containerColor the color to apply to the background of the date picker
+ */
 @OptIn(InternalCupertinoApi::class)
 @Composable
 @ExperimentalCupertinoApi
@@ -81,6 +89,16 @@ actual fun CupertinoDatePickerNative(
     )
 }
 
+/**
+ * Composable that creates a native iOS UIDatePicker for use inside a [UIKitView].
+ *
+ * @param millis the initial date in milliseconds since epoch
+ * @param mode the UIDatePickerMode
+ * @param onChange callback when the date changed
+ * @param modifier the [Modifier] to be applied to this date picker
+ * @param style the date picker style, either wheel or pager
+ * @param containerColor the color to apply to the background of the date picker
+ */
 @OptIn(ExperimentalForeignApi::class, ExperimentalComposeUiApi::class)
 @Composable
 internal fun CupertinoDatePickerNativeImpl(
@@ -140,6 +158,14 @@ internal fun CupertinoDatePickerNativeImpl(
     )
 }
 
+/**
+ * A UIDatePicker subclass that handles date selection and UI configuration.
+ *
+ * @param millis the initial date in milliseconds since epoch
+ * @param mode the UIDatePickerMode
+ * @param style the date picker style, either wheel or pager
+ * @param onChange callback when the date changed
+ */
 @OptIn(ExperimentalForeignApi::class)
 private class DatePicker(
     millis: Long,

@@ -21,4 +21,11 @@ package zone.ien.hig
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.systemGestureExclusion as androidSystemGestureExclusion
 
+/**
+ * Applies system gesture exclusion to the modifier.
+ *
+ * This modifier is used to exclude areas from system gestures on Android devices.
+ *
+ * @return The modifier with system gesture exclusion applied
+ */
 internal actual fun Modifier.systemGestureExclusion() = androidSystemGestureExclusion()

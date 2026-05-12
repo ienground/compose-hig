@@ -182,13 +182,6 @@ fun AdaptiveTheme(
  */
 @Immutable
 @ExperimentalAdaptiveApi
-/**
- * Material 테마 사양 클래스로, Material Design 3 테마의 컬러, 모양, 타이포그래피를 정의합니다.
- * 
- * @param colorScheme [MaterialColorScheme] - 테마의 컬러 스키마
- * @param shapes [MaterialShapes] - 테마의 모양
- * @param typography [MaterialTypography] - 테마의 타이포그래피
- */
 class MaterialThemeSpec(
     val colorScheme: MaterialColorScheme = materialLightColorScheme(),
     val shapes: MaterialShapes = MaterialShapes(),

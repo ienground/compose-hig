@@ -49,6 +49,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import zone.ien.hig.theme.CupertinoTheme
 
+/**
+ * Cupertino-style checkbox composable.
+ *
+ * This composable creates a checkbox that follows Cupertino design guidelines.
+ * 
+ * @param checked Whether the checkbox is currently checked
+ * @param onCheckedChange Called when the user clicks the checkbox to change its state
+ * @param modifier The modifier to be applied to the checkbox
+ * @param enabled Whether the checkbox is enabled or not
+ * @param colors The colors to be used for the checkbox in different states
+ * @param interactionSource The interaction source for the checkbox
+ */
 @Composable
 fun CupertinoCheckBox(
     checked: Boolean,
