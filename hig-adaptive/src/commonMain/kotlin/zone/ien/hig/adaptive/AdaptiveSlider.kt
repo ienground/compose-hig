@@ -16,6 +16,29 @@
  * limitations under the License.
  */
 
+package zone.ien.hig.adaptive
+
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderColors
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.hig.CupertinoSlider
+import zone.ien.hig.CupertinoLiquidSliderDefaults
+import zone.ien.hig.CupertinoRangeSlider
+import zone.ien.hig.CupertinoSliderColors
+
 /**
  * An adaptive slider that adapts between Cupertino and Material design based on the platform.
  *
@@ -43,29 +66,6 @@
  * [Interaction]s and customize the appearance / behavior of this slider in different states.
  * @param adaptation adaptation scope
  */
-package zone.ien.hig.adaptive
-
-import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.material3.RangeSlider
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderColors
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import com.kyant.backdrop.Backdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import zone.ien.hig.utils.rememberDefaultBackdrop
-import zone.ien.hig.CupertinoSlider
-import zone.ien.hig.CupertinoLiquidSliderDefaults
-import zone.ien.hig.CupertinoRangeSlider
-import zone.ien.hig.CupertinoSliderColors
-
 @ExperimentalAdaptiveApi
 @Composable
 fun AdaptiveSlider(
@@ -228,6 +228,8 @@ class MaterialSliderAdaptation internal constructor(
  * Slider adaptation implementation.
  *
  * Implementation of [Adaptation] for slider adaptation.
+ *
+ * @param steps The number of discrete steps for the slider, or 0 for continuous
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable

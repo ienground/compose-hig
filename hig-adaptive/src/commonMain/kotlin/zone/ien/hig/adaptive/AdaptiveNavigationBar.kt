@@ -16,22 +16,6 @@
  * limitations under the License.
  */
 
-/**
- * An adaptive navigation bar that adapts between Cupertino and Material design based on the platform.
- *
- * This composable provides a navigation bar that automatically switches between Cupertino (iOS) and Material (Android)
- * design patterns based on the target platform. It supports tab navigation with appropriate styling for each platform.
- *
- * @param modifier optional [Modifier] for customizing the appearance and behavior
- * @param selectedTabIndex lambda that returns the currently selected tab index
- * @param onTabSelected callback to be invoked when a tab is selected
- * @param tabsCount the total number of tabs
- * @param adaptation lambda for customizing the adaptation behavior
- * @param content composable content of the navigation bar items
- */
-
-
-
 package zone.ien.hig.adaptive
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -67,12 +51,33 @@ import zone.ien.hig.CupertinoNavigationBarItemData
 import zone.ien.hig.CupertinoNavigationBarNative
 import zone.ien.hig.ExperimentalCupertinoApi
 
+/**
+ * Data class that holds the navigation bar state.
+ *
+ * This class contains the current selected tab index and the callback to update it.
+ *
+ * @param selectedTabIndex lambda that returns the currently selected tab index
+ * @param onTabSelected callback to be invoked when a tab is selected
+ */
 internal data class NavigationBarState(
     val selectedTabIndex: () -> Int,
     val onTabSelected: (Int) -> Unit,
 )
 internal val LocalNavigationBarState = compositionLocalOf<NavigationBarState?> { null }
 
+/**
+ * An adaptive navigation bar that adapts between Cupertino and Material design based on the platform.
+ *
+ * This composable provides a navigation bar that automatically switches between Cupertino (iOS) and Material (Android)
+ * design patterns based on the target platform. It supports tab navigation with appropriate styling for each platform.
+ *
+ * @param modifier optional [Modifier] for customizing the appearance and behavior
+ * @param selectedTabIndex lambda that returns the currently selected tab index
+ * @param onTabSelected callback to be invoked when a tab is selected
+ * @param tabsCount the total number of tabs
+ * @param adaptation lambda for customizing the adaptation behavior
+ * @param content composable content of the navigation bar items
+ */
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
@@ -185,18 +190,6 @@ fun AdaptiveNavigationBarNative(
 }
 
 /**
- * An adaptive navigation bar that adapts between Cupertino and Material design based on the platform.
- *
- * This composable provides a navigation bar that automatically switches between Cupertino (iOS) and Material (Android)
- * design patterns based on the target platform. It supports native navigation bar items with appropriate styling for each platform.
- *
- * @param modifier optional [Modifier] for customizing the appearance and behavior
- * @param selectedTabIndex lambda that returns the currently selected tab index
- * @param onTabSelected callback to be invoked when a tab is selected
- * @param adaptation lambda for customizing the adaptation behavior
- * @param items list of navigation bar items for the Material implementation
- */
-/**
  * An adaptive navigation bar item that adapts between Cupertino and Material design based on the platform.
  *
  * This composable provides a navigation bar item that automatically switches between Cupertino (iOS) and Material (Android)
@@ -260,44 +253,17 @@ fun RowScope.AdaptiveNavigationBarItem(
         }
     )
 }
-                    }
-                )
-            }
-        )
-    }
-}
 
-    AdaptiveWidget(
-        adaptation = remember {
-            NavigationBarItemAdaptation()
-        },
-        adaptationScope = adaptation,
-        cupertino = {
-            CupertinoNavigationBarItem(
-                onClick = resolvedOnClick,
-                icon = icon,
-                modifier = modifier,
-                enabled = enabled,
-                label = label,
-                interactionSource = interactionSource,
-            )
-        },
-        material = {
-            NavigationBarItem(
-                selected = selected,
-                onClick = resolvedOnClick,
-                icon = icon,
-                modifier = modifier,
-                enabled = enabled,
-                label = label,
-                alwaysShowLabel = it.alwaysShowLabel,
-                colors = it.colors,
-                interactionSource = interactionSource
-            )
-        }
-    )
-}
-
+/**
+ * Material navigation bar adaptation.
+ *
+ * Container class for Material navigation bar adaptation properties.
+ *
+ * @param containerColor color for the container
+ * @param contentColor color for the content
+ * @param tonalElevation elevation for the navigation bar
+ * @param windowInsets window insets to be used for the navigation bar
+ */
 class MaterialNavigationBarAdaptation internal constructor(
     containerColor: Color,
     contentColor: Color,
@@ -310,6 +276,15 @@ class MaterialNavigationBarAdaptation internal constructor(
     var windowInsets: WindowInsets by mutableStateOf(windowInsets)
 }
 
+/**
+ * Cupertino navigation bar adaptation.
+ *
+ * Container class for Cupertino navigation bar adaptation properties.
+ *
+ * @param colors colors to be used for the navigation bar
+ * @param windowInsets window insets to be used for the navigation bar
+ * @param backdrop backdrop to use for the navigation bar
+ */
 @OptIn(ExperimentalCupertinoApi::class)
 class CupertinoNavigationBarAdaptation internal constructor(
     colors: CupertinoNavigationBarColors,

@@ -177,6 +177,12 @@ class CupertinoAlertAdaptation internal constructor(
     var buttonsOrientation: Orientation by mutableStateOf(buttonsOrientation)
 }
 
+/**
+ * Adaptation class for alert dialog that manages theme-specific values for alert dialogs.
+ *
+ * This class handles the adaptation between Cupertino and Material design for alert dialogs
+ * by providing appropriate values for container color, shape, and button orientation.
+ */
 @ExperimentalAdaptiveApi
 @Stable
 private class AlertDialogAdaptation: Adaptation<CupertinoAlertAdaptation, MaterialAlertAdaptation>() {

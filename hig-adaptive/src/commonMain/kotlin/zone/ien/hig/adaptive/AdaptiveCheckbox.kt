@@ -122,6 +122,12 @@ class CupertinoCheckBoxAdaptation(
     var colors: CupertinoCheckboxColors by mutableStateOf(colors)
 }
 
+/**
+ * Adaptation class for checkbox components that manages theme-specific values for checkboxes.
+ *
+ * This class handles the adaptation between Cupertino and Material design for checkboxes,
+ * providing appropriate color styling for both design systems.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
 private class CheckBoxAdaptation: Adaptation<CupertinoCheckBoxAdaptation, MaterialCheckBoxAdaptation>(){

@@ -132,6 +132,15 @@ private class DividerAdaptationScope: Adaptation<DividerAdaptation, DividerAdapt
     }
 }
 
+/**
+ * Adaptation class for divider components that manages theme-specific values for dividers.
+ *
+ * This class handles the adaptation between Cupertino and Material design for dividers,
+ * providing appropriate color and thickness styling for both design systems.
+ *
+ * @param color The color of the divider
+ * @param thickness The thickness of the divider
+ */
 @Stable
 class DividerAdaptation internal constructor(
     color: Color,

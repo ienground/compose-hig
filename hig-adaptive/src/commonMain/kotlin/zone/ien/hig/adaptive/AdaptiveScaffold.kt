@@ -109,8 +109,6 @@ fun AdaptiveScaffold(
         }
     )
 }
-    )
-}
 
 /**
  * An adaptive scaffold that adapts between Cupertino and Material design based on the platform.
@@ -200,6 +198,9 @@ class ScaffoldAdaptation internal constructor(
 
 /**
  * Implementation of [Adaptation] for [ScaffoldAdaptation].
+ *
+ * This class manages the adaptation between Cupertino and Material design for scaffolds,
+ * providing appropriate container and content colors for both design systems.
  */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable

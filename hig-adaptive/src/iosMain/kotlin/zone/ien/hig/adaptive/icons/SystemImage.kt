@@ -25,5 +25,14 @@ import androidx.compose.ui.graphics.painter.Painter
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.named
 
+/**
+ * Platform-specific implementation for retrieving system icons on iOS platforms.
+ *
+ * This function provides a way to retrieve system icons for iOS platforms.
+ * It delegates to the Cupertino icon implementation using the [CupertinoIcons.named] function.
+ *
+ * @param name The name of the system icon to retrieve.
+ * @return A [Painter] for the specified system icon, or null if the icon is not found.
+ */
 @Composable
 internal actual fun systemImage(name: String): Painter? = CupertinoIcons.named(name)

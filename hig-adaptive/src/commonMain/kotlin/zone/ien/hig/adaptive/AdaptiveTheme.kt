@@ -16,15 +16,6 @@
  * limitations under the License.
  */
 
-/**
- * Adaptive theme that allows seamless use of both Material and Cupertino widgets.
- *
- * This theme provides a way to seamlessly use Material and Cupertino widgets together in the same application
- * by adapting based on the target theme. It also makes [Text] and [CupertinoText], as well as [Icon] and [CupertinoIcon]
- * behave identically in both design systems.
- *
- * The current theme target can be accessed inside the [content] using [currentTheme] property.
- */
 package zone.ien.hig.adaptive
 
 import androidx.compose.material3.Icon
@@ -55,6 +46,9 @@ import androidx.compose.material3.LocalTextStyle as MaterialLocalTextStyle
 
 /**
  * The supported themes for adaptive widgets.
+ *
+ * This enum defines the two supported themes that can be used in [AdaptiveTheme].
+ * The choice of theme affects how adaptive widgets behave and which design system they follow.
  */
 enum class Theme {
     Cupertino, Material3
@@ -63,9 +57,11 @@ enum class Theme {
 /**
  * Adaptive theme depending on [target]. It allows to seamlessly use Material and Cupertino widgets.
  *
- * This theme also make [Text] <-> [CupertinoText] and [Icon] <-> [CupertinoIcon] behave identically
+ * This theme provides a way to seamlessly use Material and Cupertino widgets together in the same application
+ * by adapting based on the target theme. It also makes [Text] and [CupertinoText], as well as [Icon] and [CupertinoIcon]
+ * behave identically in both design systems.
  *
- * Current theme target can be accessed inside the [content] using [currentTheme] property
+ * The current theme target can be accessed inside the [content] using [currentTheme] property.
  *
  * @param target theme for adaptive widgets. Defaults to [Theme.Cupertino] for iOS and [Theme.Material3] for other platforms
  * @param material [MaterialTheme] specification. NOTE: You must use lambda parameter as a content

@@ -21,6 +21,10 @@
  *
  * This file defines the default theme for iOS platforms to use Cupertino design.
  * It ensures consistent theming across iOS applications using this library.
+ *
+ * On iOS platforms, the default theme is set to [Theme.Cupertino] to provide a native Cupertino experience.
+ *
+ * @return The default theme for iOS platforms, which is [Theme.Cupertino].
  */
 package zone.ien.hig.adaptive
 
