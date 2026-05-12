@@ -42,7 +42,7 @@ import zone.ien.hig.CupertinoTriStateCheckBox
  * [AdaptiveCheckbox]는 Material Design의 [Checkbox] 컴포넌트와 Cupertino의 [CupertinoCheckBox] 컴포넌트를 사용하여
  * 운영체제별로 적절한 체크박스를 제공합니다.
  *
- * @param checked 체크박스의 현재 상태 (checked)
+ * @param checked 체크박스의 현재 체크 여부
  * @param onCheckedChange 체크박스 상태 변경 시 호출되는 함수
  * @param modifier 요소에 적용할 Modifier
  * @param enabled 체크박스가 활성화되어 있는지 여부
