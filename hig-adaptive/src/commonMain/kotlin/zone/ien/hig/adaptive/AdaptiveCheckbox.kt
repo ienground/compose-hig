@@ -156,9 +156,9 @@ class MaterialCheckBoxAdaptation(
 
 @Stable
 /**
- * Cupertino 체크박스에 대한 적응형 어댑테이션 클래스로, 체크박스 색상 속성을 관리합니다.
+ * Cupertino checkbox adaptation class that manages checkbox color properties.
  *
- * @param colors [CupertinoCheckboxColors] - 체크박스의 색상 설정
+ * @param colors [CupertinoCheckboxColors] - Checkbox color configuration
  * @see CupertinoCheckboxColors
  * @see CupertinoCheckboxDefaults
  */
@@ -177,7 +177,7 @@ class CupertinoCheckBoxAdaptation(
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
 /**
- * 체크박스 컴포넌트에 대한 적응형 어댑테이션을 구현하는 클래스입니다.
+ * Checkbox component adaptive adaptation class.
  *
  * @see Adaptation
  * @see CupertinoCheckBoxAdaptation

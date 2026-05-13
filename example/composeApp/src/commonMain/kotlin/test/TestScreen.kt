@@ -171,12 +171,12 @@ fun TestScreen(
             CupertinoNavigationTitle(
                 subtitle = {
                     Text(
-                        text = "87개의 메모"
+                        text = "87 memos"
                     )
                 }
             ) {
                 Text(
-                    text = "메모",
+                    text = "Memo",
                 )
             }
 
@@ -232,31 +232,31 @@ fun TestScreen(
                         backdrop = rememberDefaultBackdrop(),
                         items = listOf(
                             CupertinoMenuItemData(
-                                title = "메시지 선택",
+                                title = "Message Select",
                                 onClick = {
                                     expanded = false
                                     coroutineScope.launch {
-                                        snackbarState.showSnackbar("메시지 선택")
+                                        snackbarState.showSnackbar("Message Select")
                                     }
                                 },
                                 icon = rememberVectorPainter(CupertinoIcons.Default.CheckmarkCircle)
                             ),
                             CupertinoMenuItemData(
-                                title = "고정 편집",
+                                title = "Pin Edit",
                                 onClick = {
                                     expanded = false
                                     coroutineScope.launch {
-                                        snackbarState.showSnackbar("고정 편집")
+                                        snackbarState.showSnackbar("Pin Edit")
                                     }
                                 },
                                 icon = rememberVectorPainter(CupertinoIcons.Default.Pin)
                             ),
                             CupertinoMenuItemData(
-                                title = "이름 및 사진 설정",
+                                title = "Name and Photo Setting",
                                 onClick = {
                                     expanded = false
                                     coroutineScope.launch {
-                                        snackbarState.showSnackbar("이름 및 사진 설정")
+                                        snackbarState.showSnackbar("Name and Photo Setting")
                                     }
                                 },
                                 icon = rememberVectorPainter(CupertinoIcons.Default.PersonCropCircle)
@@ -283,7 +283,7 @@ fun TestScreen(
                                     )
                                 }
                             ) {
-                                CupertinoText("메시지 선택")
+                                CupertinoText("Message Select")
                             }
                             MenuAction(
                                 onClick = { expanded = false },
@@ -294,7 +294,7 @@ fun TestScreen(
                                     )
                                 }
                             ) {
-                                CupertinoText("고정 편집")
+                                CupertinoText("Pin Edit")
                             }
                             MenuAction(
                                 onClick = { expanded = false },
@@ -305,7 +305,7 @@ fun TestScreen(
                                     )
                                 }
                             ) {
-                                CupertinoText("이름 및 사진 설정")
+                                CupertinoText("Name and Photo Setting")
                             }
                         }
 //                    MenuDivider()

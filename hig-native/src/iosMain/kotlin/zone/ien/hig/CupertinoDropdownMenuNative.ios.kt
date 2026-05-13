@@ -80,7 +80,7 @@ actual fun CupertinoDropdownMenuNative(
     delegate.sections = sections
     delegate.onDismissRequest = onDismissRequest
 
-    // UIButton을 뷰 계층 최하단에 삽입
+    // Insert UIButton at the bottom of the view hierarchy
     DisposableEffect(viewController) {
         val button = UIButton.buttonWithType(UIButtonTypePlain).apply {
             backgroundColor = UIColor.clearColor
@@ -98,17 +98,17 @@ actual fun CupertinoDropdownMenuNative(
         }
     }
 
-    // 아이템/섹션 변경 시 메뉴 갱신
+    // Refresh menu when items/sections change
     LaunchedEffect(items, sections) {
         delegate.button?.menu = delegate.buildMenu()
     }
 
-    // expanded 변경 → 메뉴 표시
+    // Show menu when expanded changes
     LaunchedEffect(expanded) {
         val button = delegate.button ?: return@LaunchedEffect
         if (!expanded) return@LaunchedEffect
 
-        delegate.isMenuVisible = true // 메뉴 표시 중 프레임 업데이트 방지
+        delegate.isMenuVisible = true // Prevent frame updates while menu is visible
         if (isPerformPrimaryActionAvailable()) {
             button.performPrimaryAction()
         } else {

@@ -254,11 +254,11 @@ fun CupertinoNavigationBar(
                 )
             }
 
-            // CompositionLocal로 동적 itemWidthDp 전달
+            // Pass dynamic itemWidthDp via CompositionLocal
             CompositionLocalProvider(
                 LocalCupertinoNavItemWidth provides itemWidthDp,
             ) {
-                // ── 배경 Row ──────────────────────────────────────────────────────────
+                // ── Background Row ───────────────────────────────────────────────────────────────
                 Row(
                     modifier = Modifier
                         .graphicsLayer {
@@ -291,7 +291,7 @@ fun CupertinoNavigationBar(
                     content = content
                 )
 
-                // ── 액센트 컬러 오버레이 Row ──────────────────────────────────────────
+                // ── Accent color overlay Row ──────────────────────────────────────────────────────
                 CompositionLocalProvider(
                     LocalLiquidBottomTabScale provides {
                         lerp(1f, 1.2f, dampedDragAnimation.pressProgress)
@@ -334,7 +334,7 @@ fun CupertinoNavigationBar(
                     )
                 }
 
-                // ── 슬라이딩 선택 indicator Box ───────────────────────────────────────
+                // ── Sliding selection indicator Box ───────────────────────────────────────────
                 Box(
                     modifier = Modifier
                         .graphicsLayer {
@@ -392,7 +392,7 @@ fun CupertinoNavigationBar(
                         )
                         .align(Alignment.CenterStart)
                         .height(56.dp)
-                        .width(itemWidthDp)  // ★ 동적 너비 적용
+                        .width(itemWidthDp)  // ★ Apply dynamic width
                 )
             }
         }
@@ -409,7 +409,7 @@ fun RowScope.CupertinoNavigationBarItem(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val scale = LocalLiquidBottomTabScale.current
-    val itemWidth = LocalCupertinoNavItemWidth.current  // ★ CompositionLocal에서 동적 너비 읽기
+    val itemWidth = LocalCupertinoNavItemWidth.current  // ★ Read dynamic width from CompositionLocal
 
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
@@ -424,7 +424,7 @@ fun RowScope.CupertinoNavigationBarItem(
                 onClick = onClick
             )
             .fillMaxHeight()
-            .width(itemWidth)  // ★ 고정 90.dp 대신 동적 너비 사용
+            .width(itemWidth)  // ★ Use dynamic width instead of fixed 90.dp
             .graphicsLayer {
                 val s = scale()
                 scaleX = s
@@ -530,4 +530,4 @@ object CupertinoNavigationBarDefaults {
 }
 
 internal val LocalLiquidBottomTabScale = staticCompositionLocalOf { { 1f } }
-internal val LocalCupertinoNavItemWidth = staticCompositionLocalOf { 90.dp }  // ★ 동적 너비 전달용
+internal val LocalCupertinoNavItemWidth = staticCompositionLocalOf { 90.dp }  // ★ Dynamic width transmission

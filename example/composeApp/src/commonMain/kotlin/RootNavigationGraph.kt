@@ -45,7 +45,7 @@ fun RootNavigationGraph(
         modifier = modifier,
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator() // 뷰모델 꺼짐 보장
+            rememberViewModelStoreNavEntryDecorator() // ViewModel lifecycle guarantee
         ),
         entryProvider = entryProvider {
             entry<RootRoute.Cupertino> {

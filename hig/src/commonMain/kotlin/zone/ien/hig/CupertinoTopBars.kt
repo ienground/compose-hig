@@ -302,20 +302,20 @@ fun CupertinoNavigationTitle(
 
     val titleAlpha by remember {
         derivedStateOf {
-            if (!topAppBarExists) {
-                1f // TopBar 없으면 항상 보임
-            } else {
-                val d = offsetDifference - actualTopBarHeight + 50
-                // d가 음수면 Large Title 영역 → alpha 1
-                // d가 양수면 TopBar로 들어감 → alpha 0
-                if (d <= 0) {
-                    1f
+                if (!topAppBarExists) {
+                    1f // TopBar does not exist, always visible
                 } else {
-                    // fadeDistance만큼 부드럽게 0으로
-                    val fadeDistance = 100f // 조절 가능 (dp → px 변환 권장)
-                    (1f - (d / fadeDistance)).coerceIn(0f, 1f)
+                    val d = offsetDifference - actualTopBarHeight + 50
+                    // If d is negative, it's in Large Title area → alpha 1
+                    // If d is positive, it's entering TopBar → alpha 0
+                    if (d <= 0) {
+                        1f
+                    } else {
+                        // Fade smoothly to 0 over fadeDistance
+                        val fadeDistance = 100f // Adjustable (recommended: dp → px conversion)
+                        (1f - (d / fadeDistance)).coerceIn(0f, 1f)
+                    }
                 }
-            }
         }
     }
 
@@ -471,7 +471,7 @@ private fun InlineTopAppBar(
                             tween(300)
                         )
                     } catch (e: RuntimeException) {
-                        // layer가 dispose된 경우 → 루프 종료
+                        // When layer is disposed → exit loop
                         break
                     }
                 }
@@ -642,7 +642,7 @@ private fun TopAppBarLayout(
             if (constraints.maxWidth == Constraints.Infinity) {
                 constraints.maxWidth
             } else {
-                val actionReservedWidth = actionIconsPlaceable.width + TopAppBarHorizontalPadding.roundToPx() * 2 // 또는 고정값 72.dp 등
+                 val actionReservedWidth = actionIconsPlaceable.width + TopAppBarHorizontalPadding.roundToPx() * 2 // or fixed value 72.dp, etc.
                 (constraints.maxWidth - navigationIconPlaceable.width - actionReservedWidth)
                     .coerceAtLeast(0)
             }

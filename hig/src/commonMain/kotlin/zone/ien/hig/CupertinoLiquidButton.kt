@@ -145,7 +145,7 @@ fun CupertinoLiquidButton(
                             tween(300)
                         )
                     } catch (e: RuntimeException) {
-                        // layer가 dispose된 경우 → 루프 종료
+                        // When layer is disposed → exit loop
                         break
                     }
                 }

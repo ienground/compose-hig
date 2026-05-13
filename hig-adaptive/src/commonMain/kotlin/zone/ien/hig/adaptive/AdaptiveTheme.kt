@@ -239,11 +239,11 @@ class MaterialThemeSpec(
 @Immutable
 @ExperimentalAdaptiveApi
 /**
- * Cupertino 테마 사양 클래스로, Cupertino 테마의 컬러, 모양, 타이포그래피를 정의합니다.
+ * Cupertino theme specification class that defines color, shapes, and typography for Cupertino theme.
  * 
- * @param colorScheme [CupertinoColorScheme] - 테마의 컬러 스키마
- * @param shapes [CupertinoShapes] - 테마의 모양
- * @param typography [CupertinoTypography] - 테마의 타이포그래피
+ * @param colorScheme [CupertinoColorScheme] - Theme color scheme
+ * @param shapes [CupertinoShapes] - Theme shapes
+ * @param typography [CupertinoTypography] - Theme typography
  */
 class CupertinoThemeSpec(
     val colorScheme: CupertinoColorScheme = cupertinoLightColorScheme(),
@@ -251,12 +251,12 @@ class CupertinoThemeSpec(
     val typography: CupertinoTypography = CupertinoTypography()
 ) {
     /**
-     * CupertinoThemeSpec 인스턴스를 복사하여 새로운 인스턴스를 생성합니다.
+     * Creates a copy of this CupertinoThemeSpec with the specified values replaced.
      * 
-     * @param colorScheme 새로운 컬러 스키마
-     * @param shapes 새로운 모양
-     * @param typography 새로운 타이포그래피
-     * @return 복사된 CupertinoThemeSpec 인스턴스
+     * @param colorScheme the new color scheme
+     * @param shapes the new shapes
+     * @param typography the new typography
+     * @return a copy of this CupertinoThemeSpec
      */
     fun copy(
         colorScheme: CupertinoColorScheme = this.colorScheme,

@@ -99,10 +99,10 @@ fun AdaptiveSwitch(
 /**
  * Cupertino switch adaptation.
  *
- * Cupertino 스위치에 대한 적응형 어댑테이션 클래스로, 스위치의 다양한 속성을 관리합니다.
+ * Adaptive adaptation class for Cupertino switch that manages various switch properties.
  *
- * @param colors [CupertinoSwitchColors] - 스위치의 색상 설정
- * @param backdrop [Backdrop] - 스위치의 배경
+ * @param colors [CupertinoSwitchColors] - Switch color configuration
+ * @param backdrop [Backdrop] - Switch backdrop
  * @see CupertinoSwitchColors
  * @see Backdrop
  */
@@ -124,9 +124,9 @@ class CupertinoSwitchAdaptation internal constructor(
  */
 @Stable
 /**
- * Material 스위치에 대한 적응형 어댑테이션 클래스로, 스위치의 다양한 속성을 관리합니다.
+ * Material switch adaptation class that manages various switch properties.
  *
- * @param colors [SwitchColors] - 스위치의 색상 설정
+ * @param colors [SwitchColors] - Switch color configuration
  * @see SwitchColors
  * @see SwitchDefaults
  */
@@ -144,7 +144,7 @@ class MaterialSwitchAdaptation internal constructor(
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
 /**
- * 스위치 유형에 따라 적응형 어댑테이션을 제공하는 클래스입니다.
+ * Class that provides adaptive adaptation for switch type.
  *
  * @see Adaptation
  * @see CupertinoSwitchAdaptation

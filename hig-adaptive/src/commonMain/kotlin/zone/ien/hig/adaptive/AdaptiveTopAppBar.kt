@@ -158,11 +158,11 @@ private fun SingleRowTopAppBar(
 @Stable
 @OptIn(ExperimentalMaterial3Api::class)
 /**
- * Material 상단 앱바에 대한 적응형 어댑테이션 클래스로, 상단 앱바의 다양한 속성을 관리합니다.
+ * Adaptive adaptation class for Material top app bar that manages various top app bar properties.
  *
- * @param colors [TopAppBarColors] - 상단 앱바의 색상 설정
- * @param isCenterAligned 제목이 중앙 정렬되는지 여부
- * @param scrollBehavior 스크롤 행동 설정
+ * @param colors [TopAppBarColors] - Top app bar color configuration
+ * @param isCenterAligned Whether the title is centered
+ * @param scrollBehavior Scroll behavior configuration
  * @see TopAppBarColors
  * @see TopAppBarDefaults
  * @see TopAppBarScrollBehavior
@@ -187,10 +187,10 @@ class MaterialTopAppBarAdaptation internal constructor(
  */
 @Stable
 /**
- * Cupertino 상단 앱바에 대한 적응형 어댑테이션 클래스로, 상단 앱바의 다양한 속성을 관리합니다.
+ * Adaptive adaptation class for Cupertino top app bar that manages various top app bar properties.
  *
- * @param colors [CupertinoTopAppBarColors] - 상단 앱바의 색상 설정
- * @param backdrop [LayerBackdrop] - 상단 앱바의 레이어 배경
+ * @param colors [CupertinoTopAppBarColors] - Top app bar color configuration
+ * @param backdrop [LayerBackdrop] - Top app bar layer backdrop
  * @see CupertinoTopAppBarColors
  * @see LayerBackdrop
  */
@@ -210,7 +210,7 @@ class CupertinoTopAppBarAdaptation internal constructor(
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
 /**
- * 상단 앱바 유형에 따라 적응형 어댑테이션을 제공하는 클래스입니다.
+ * Class that provides adaptive adaptation based on top app bar type.
  *
  * @see Adaptation
  * @see CupertinoTopAppBarAdaptation

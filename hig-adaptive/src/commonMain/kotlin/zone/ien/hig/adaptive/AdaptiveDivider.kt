@@ -35,12 +35,12 @@ import zone.ien.hig.CupertinoHorizontalDivider
 import zone.ien.hig.CupertinoVerticalDivider
 
 /**
- * 적응형 구분선 컴포넌트로, Material Design과 Cupertino 테마에 따라 다른 구분선 스타일을 제공합니다.
+ * Adaptive divider component that provides different divider styles based on Material Design and Cupertino themes.
  *
- * 이 함수는 [AdaptiveHorizontalDivider] 함수로 대체되었습니다.
+ * This function is deprecated and replaced by [AdaptiveHorizontalDivider] function.
  *
- * @param modifier 요소에 적용할 Modifier
- * @param adaptation [DividerAdaptation]에 대한 사용자 정의 설정 함수
+ * @param modifier Modifier to be applied to the element
+ * @param adaptation Custom configuration function for [DividerAdaptation]
  * @see AdaptiveHorizontalDivider
  * @see HorizontalDivider
  * @see CupertinoHorizontalDivider
@@ -60,13 +60,13 @@ fun AdaptiveDivider(
 
 
 /**
- * 적응형 수평 구분선 컴포넌트로, Material Design과 Cupertino 테마에 따라 다른 구분선 스타일을 제공합니다.
+ * Adaptive horizontal divider component that provides different divider styles based on Material Design and Cupertino themes.
  *
- * [AdaptiveHorizontalDivider]는 Material Design의 [HorizontalDivider] 컴포넌트와 Cupertino의 [CupertinoHorizontalDivider] 컴포넌트를 사용하여
- * 운영체제별로 적절한 수평 구분선을 제공합니다.
+ * [AdaptiveHorizontalDivider] uses the Material Design [HorizontalDivider] component and the Cupertino [CupertinoHorizontalDivider] component to
+ * provide an appropriate horizontal divider for each operating system.
  *
- * @param modifier 요소에 적용할 Modifier
- * @param adaptation [DividerAdaptation]에 대한 사용자 정의 설정 함수
+ * @param modifier Modifier to be applied to the element
+ * @param adaptation Custom configuration function for [DividerAdaptation]
  * @see AdaptiveWidget
  * @see HorizontalDivider
  * @see CupertinoHorizontalDivider
@@ -100,13 +100,13 @@ fun AdaptiveHorizontalDivider(
 }
 
 /**
- * 적응형 수직 구분선 컴포넌트로, Material Design과 Cupertino 테마에 따라 다른 구분선 스타일을 제공합니다.
+ * Adaptive vertical divider component that provides different divider styles based on Material Design and Cupertino themes.
  *
- * [AdaptiveVerticalDivider]는 Material Design의 [VerticalDivider] 컴포넌트와 Cupertino의 [CupertinoVerticalDivider] 컴포넌트를 사용하여
- * 운영체제별로 적절한 수직 구분선을 제공합니다.
+ * [AdaptiveVerticalDivider] uses the Material Design [VerticalDivider] component and the Cupertino [CupertinoVerticalDivider] component to
+ * provide an appropriate vertical divider for each operating system.
  *
- * @param modifier 요소에 적용할 Modifier
- * @param adaptation [DividerAdaptation]에 대한 사용자 정의 설정 함수
+ * @param modifier Modifier to be applied to the element
+ * @param adaptation Custom configuration function for [DividerAdaptation]
  * @see AdaptiveWidget
  * @see VerticalDivider
  * @see CupertinoVerticalDivider
@@ -141,7 +141,7 @@ fun AdaptiveVerticalDivider(
 
 @ExperimentalAdaptiveApi
 /**
- * 구분선 컴포넌트에 대한 적응형 어댑테이션을 구현하는 클래스입니다.
+ * Implementation class for divider component adaptation.
  *
  * @see Adaptation
  * @see DividerAdaptation
@@ -184,12 +184,13 @@ private class DividerAdaptationScope: Adaptation<DividerAdaptation, DividerAdapt
  */
 @Stable
 /**
- * 구분선 컴포넌트에 대한 적응형 어댑테이션 클래스로, 구분선의 색상과 두께 속성을 관리합니다.
+ * Adaptation class for divider components that manages theme-specific values for dividers.
  *
- * @param color 구분선의 색상
- * @param thickness 구분선의 두께
- * @see Color
- * @see Dp
+ * This class handles the adaptation between Cupertino and Material design for dividers,
+ * providing appropriate color and thickness styling for both design systems.
+ *
+ * @param color The color of the divider
+ * @param thickness The thickness of the divider
  */
 class DividerAdaptation internal constructor(
     color: Color,

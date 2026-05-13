@@ -37,8 +37,8 @@ actual fun ImageBitmap.crop(x: Int, y: Int, width: Int, height: Int): ImageBitma
 
     Canvas(dstBitmap).use { canvas ->
         val srcRect = Rect.makeXYWH(x.toFloat(), y.toFloat(), cropWidth.toFloat(), cropHeight.toFloat())
-        val dstRect = Rect.makeXYWH(0f, 0f, cropWidth.toFloat(), cropHeight.toFloat())  // ← 추가
-        canvas.drawImageRect(Image.makeFromBitmap(srcBitmap), srcRect, dstRect)  // ← dst 명시
+        val dstRect = Rect.makeXYWH(0f, 0f, cropWidth.toFloat(), cropHeight.toFloat())  // ← added
+        canvas.drawImageRect(Image.makeFromBitmap(srcBitmap), srcRect, dstRect)  // ← dst specified
     }
 
     return dstBitmap.asComposeImageBitmap()

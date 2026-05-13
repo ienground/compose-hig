@@ -437,14 +437,14 @@ private fun CupertinoMenuScope.ActionWithoutPadding(
                     modifier = Modifier.padding(it)
                 ) {
                     when {
-                        // 아이콘 있음 → 아이콘 표시
+                        // Has icon → display icon
                         leadingIcon != null -> {
                             Box(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier.size(MinItemHeight / 2),
                             ) { leadingIcon() }
                         }
-                        // 아이콘 없지만 다른 아이템에 아이콘 있음 → 공백 확보
+                        // No icon but other items have icons → reserve space
                         hasIcon -> {
                             Spacer(modifier = Modifier.size(MinItemHeight / 2))
                         }
@@ -709,7 +709,7 @@ internal data class DropdownMenuPositionProvider(
     }
 }
 
-// ✅ hasIcon 추가
+// ✅ Added hasIcon
 internal class CupertinoMenuScopeImpl : CupertinoMenuScope {
     var hasPicker: Boolean by mutableStateOf(false)
     var hasIcon: Boolean by mutableStateOf(false)
