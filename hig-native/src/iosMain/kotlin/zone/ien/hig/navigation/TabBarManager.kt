@@ -10,8 +10,7 @@ import zone.ien.hig.resized
 import zone.ien.hig.toUIImage
 
 /**
- * Calf code
- * com.mohamedrejeb.calf.ui.navigation
+ * Reference: com.mohamedrejeb.calf.ui.navigation
  */
 
 /**
