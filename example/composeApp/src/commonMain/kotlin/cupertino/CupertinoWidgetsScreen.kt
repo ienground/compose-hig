@@ -1833,7 +1833,6 @@ private fun DropdownExample(
                 CupertinoDropdownMenuNative(
                     expanded = dropdownVisible,
                     onDismissRequest = {
-                        println("onDismissRequest on Screen");
                         dropdownVisible = false
                     },
                     backdrop = backdrop,
