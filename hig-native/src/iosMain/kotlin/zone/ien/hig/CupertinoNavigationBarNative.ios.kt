@@ -54,7 +54,7 @@ actual fun CupertinoNavigationBarNative(
             translatesAutoresizingMaskIntoConstraints = false
         }
     }
-    val isLiquidGlassEnabled = true
+    val isLiquidGlassEnabled = true // TODO: 파라미터화 고려
 
     val onItemSelectedState by rememberUpdatedState(onTabSelected)
 
