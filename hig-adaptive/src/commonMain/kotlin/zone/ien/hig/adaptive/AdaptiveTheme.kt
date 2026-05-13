@@ -188,12 +188,12 @@ class MaterialThemeSpec(
     val typography: MaterialTypography = MaterialTypography(),
 ) {
     /**
-     * MaterialThemeSpec 인스턴스를 복사하여 새로운 인스턴스를 생성합니다.
+     * Creates a copy of this MaterialThemeSpec with the specified values replaced.
      * 
-     * @param colorScheme 새로운 컬러 스키마
-     * @param shapes 새로운 모양
-     * @param typography 새로운 타이포그래피
-     * @return 복사된 MaterialThemeSpec 인스턴스
+     * @param colorScheme the new color scheme
+     * @param shapes the new shapes
+     * @param typography the new typography
+     * @return a copy of this MaterialThemeSpec
      */
     fun copy(
         colorScheme: MaterialColorScheme = this.colorScheme,
