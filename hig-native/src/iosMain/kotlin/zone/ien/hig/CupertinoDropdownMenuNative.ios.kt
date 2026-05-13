@@ -94,7 +94,7 @@ actual fun CupertinoDropdownMenuNative(
     var btnW by remember { mutableStateOf(0.0) }
     var btnH by remember { mutableStateOf(0.0) }
 
-    // UIButton을 뷰 계층 최하단에 삽입 (터치 가로채기 방지)
+    // Insert UIButton at the bottom of the view hierarchy (to prevent touch interception)
     DisposableEffect(viewController) {
         val button = UIButton.buttonWithType(UIButtonTypePlain).apply {
             backgroundColor = UIColor.clearColor
