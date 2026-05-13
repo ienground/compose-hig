@@ -35,6 +35,14 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.Instant
 
+
+/**
+ * A composable function that returns the default [CalendarLocale].
+ *
+ * When running on an Android platform, it will be recomposed when the `Configuration` gets updated.
+ *
+ * @return The default calendar locale
+ */
 internal class CalendarModelImpl: CalendarModel {
 
     override val today: CalendarDate

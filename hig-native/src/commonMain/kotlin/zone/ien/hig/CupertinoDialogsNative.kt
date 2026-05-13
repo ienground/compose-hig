@@ -42,7 +42,7 @@ import zone.ien.hig.theme.systemGray7
  * @param buttonsOrientation not used. iOS automatically picks most suitable layout
  * based on buttons width and count
  * @param buttons actions builder block
- * */
+ */
 @Composable
 expect fun CupertinoAlertDialogNative(
     onDismissRequest: () -> Unit,
@@ -58,6 +58,7 @@ expect fun CupertinoAlertDialogNative(
 /**
  * Native analog for the compose [CupertinoActionSheet].
  *
+ * @param visible whether the action sheet is visible
  * @param onDismissRequest called when dialog is already dismissed. Must not be ignored
  * @param title alert dialog title
  * @param message alert dialog message
@@ -66,7 +67,7 @@ expect fun CupertinoAlertDialogNative(
  * @param properties not used. To enable dismissOnClickOutside behavior
  * add an action with [AlertActionStyle.Cancel] that would receive a cancel callback.
  * @param buttons actions builder block
- * */
+ */
 @Composable
 expect fun CupertinoActionSheetNative(
     visible: Boolean,
@@ -79,10 +80,18 @@ expect fun CupertinoActionSheetNative(
     buttons: NativeAlertDialogActionsScope.() -> Unit,
 )
 
+/**
+ * Scope for building native alert dialog actions.
+ */
 interface NativeAlertDialogActionsScope {
     /**
      * Alert controller button
-     * */
+     *
+     * @param onClick callback when button is clicked
+     * @param style the style of the action button
+     * @param enabled whether the button is enabled
+     * @param title the title of the button
+     */
     fun action(
         onClick: () -> Unit,
         style: AlertActionStyle = AlertActionStyle.Default,
@@ -93,7 +102,11 @@ interface NativeAlertDialogActionsScope {
 
 /**
  * Alert controller button with default style
- * */
+ *
+ * @param onClick callback when button is clicked
+ * @param enabled whether the button is enabled
+ * @param title the title of the button
+ */
 fun NativeAlertDialogActionsScope.default(
     onClick: () -> Unit,
     enabled: Boolean = true,
@@ -107,7 +120,11 @@ fun NativeAlertDialogActionsScope.default(
 
 /**
  * Alert controller button with destructive style
- * */
+ *
+ * @param onClick callback when button is clicked
+ * @param enabled whether the button is enabled
+ * @param title the title of the button
+ */
 fun NativeAlertDialogActionsScope.destructive(
     onClick: () -> Unit,
     enabled: Boolean = true,
@@ -121,7 +138,11 @@ fun NativeAlertDialogActionsScope.destructive(
 
 /**
  * Alert controller button with cancel style
- * */
+ *
+ * @param onClick callback when button is clicked
+ * @param enabled whether the button is enabled
+ * @param title the title of the button
+ */
 fun NativeAlertDialogActionsScope.cancel(
     onClick: () -> Unit,
     enabled: Boolean = true,
@@ -133,6 +154,14 @@ fun NativeAlertDialogActionsScope.cancel(
     title = title,
 )
 
+/**
+ * A button for a native alert dialog.
+ *
+ * @param onClick callback when the button is clicked
+ * @param style the style of the action button
+ * @param enabled whether the button is enabled
+ * @param title the title of the button
+ */
 internal class CupertinoAlertDialogButtonNative(
     val onClick: () -> Unit,
     val style: AlertActionStyle,
@@ -140,6 +169,11 @@ internal class CupertinoAlertDialogButtonNative(
     val title: String,
 )
 
+/**
+ * Converts native alert dialog actions to regular dialog actions.
+ *
+ * @param native the native dialog actions to convert
+ */
 internal fun AlertDialogActionsScope.fromNative(native: NativeAlertDialogActionsScope.() -> Unit) {
     val buttons = mutableListOf<CupertinoAlertDialogButtonNative>()
 

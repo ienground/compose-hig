@@ -50,8 +50,22 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.theme.CupertinoTheme
 
 /**
- * Adaptive button that takes [Button] or borderedProminent [CupertinoButton] appearance
- * */
+ * An adaptive button that uses either Material [Button] or [CupertinoLiquidButton]
+ * depending on the current theme.
+ *
+ * Material Design uses the [Button] component, while the Cupertino theme uses
+ * the [CupertinoLiquidButton] component to provide a native look and feel on each platform.
+ *
+ * @param onClick called when the button is clicked
+ * @param modifier the [Modifier] to be applied to this button
+ * @param enabled controls the enabled state of this button
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * @param adaptation configuration block for [CupertinoButtonAdaptation] and [MaterialButtonAdaptation]
+ * @param content the content to be displayed inside the button
+ * @see AdaptiveWidget
+ * @see CupertinoLiquidButton
+ * @see Button
+ */
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
@@ -101,8 +115,21 @@ fun AdaptiveButton(
 }
 
 /**
- * Adaptive button that takes [TextButton] or borderless [CupertinoButton] appearance
- * */
+ * An adaptive button that uses either Material [TextButton] or borderless [CupertinoLiquidButton] appearance.
+ *
+ * Material Design uses the [TextButton] component, while the Cupertino theme uses
+ * the [CupertinoLiquidButton] component to provide a native look and feel on each platform.
+ *
+ * @param onClick called when the button is clicked
+ * @param modifier the [Modifier] to be applied to this button
+ * @param enabled controls the enabled state of this button
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * @param adaptation configuration block for [CupertinoButtonAdaptation] and [MaterialButtonAdaptation]
+ * @param content the content to be displayed inside the button
+ * @see AdaptiveWidget
+ * @see CupertinoLiquidButton
+ * @see TextButton
+ */
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
@@ -152,8 +179,21 @@ fun AdaptiveTextButton(
 }
 
 /**
- * Adaptive button that takes [FilledTonalButton] or bordered [CupertinoButton] appearance
- * */
+ * An adaptive button that uses either Material [FilledTonalButton] or bordered [CupertinoLiquidButton] appearance.
+ *
+ * Material Design uses the [FilledTonalButton] component, while the Cupertino theme uses
+ * the [CupertinoLiquidButton] component to provide a native look and feel on each platform.
+ *
+ * @param onClick called when the button is clicked
+ * @param modifier the [Modifier] to be applied to this button
+ * @param enabled controls the enabled state of this button
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * @param adaptation configuration block for [CupertinoButtonAdaptation] and [MaterialButtonAdaptation]
+ * @param content the content to be displayed inside the button
+ * @see AdaptiveWidget
+ * @see CupertinoLiquidButton
+ * @see FilledTonalButton
+ */
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
@@ -204,6 +244,18 @@ fun AdaptiveTonalButton(
 
 
 @Stable
+/**
++ * An adaptive adaptation class for [CupertinoButton] that manages various properties of the Cupertino button style.
++ *
++ * @param colors [CupertinoLiquidButtonColors] - The color configuration for the button
++ * @param backdrop [LayerBackdrop] - The layer backdrop configuration for the button
++ * @param isBackgroundAdaptive Whether the background is treated as adaptive
++ * @see CupertinoLiquidButtonColors
++ * @see LayerBackdrop
++ * @see CupertinoButtonSize
++ * @see Shape
++ * @see PaddingValues
++ */
 class CupertinoButtonAdaptation internal constructor(
     colors: CupertinoLiquidButtonColors,
     backdrop: LayerBackdrop,
@@ -217,6 +269,20 @@ class CupertinoButtonAdaptation internal constructor(
     var contentPadding: PaddingValues? by mutableStateOf(null)
 }
 
+/**
+ * An adaptive adaptation class for [MaterialButton] that manages various properties of the Material button style.
+ *
+ * @param colors [ButtonColors] - The color configuration for the button
+ * @param elevation [ButtonElevation] - The shadow effect for the button
+ * @param shape [Shape] - The shape of the button
+ * @param contentPadding [PaddingValues] - The padding for the button content
+ * @param border [BorderStroke] - The border style for the button
+ * @see ButtonColors
+ * @see ButtonElevation
+ * @see Shape
+ * @see PaddingValues
+ * @see BorderStroke
+ */
 @Stable
 class MaterialButtonAdaptation internal constructor(
     colors: ButtonColors,
@@ -232,11 +298,28 @@ class MaterialButtonAdaptation internal constructor(
     var border: BorderStroke? by mutableStateOf(border)
 }
 
+/**
+ * Enum representing the different button types that can be adapted
+ *
+ * @property Filled - Represents a filled button style
+ * @property Text - Represents a text button style
+ * @property Tonal - Represents a tonal button style
+ */
 private enum class ButtonType {
     Filled, Text, Tonal
 }
 
-@ExperimentalAdaptiveApi
+/**
+ * Adaptation class for button components that manages theme-specific values for buttons.
+ *
+ * This class handles the adaptation between Cupertino and Material design for buttons,
+ * providing appropriate styling for different button types (Filled, Text, Tonal).
+ *
+ * @param type The type of button to adapt (Filled, Text, or Tonal)
+ * @see CupertinoButtonAdaptation
+ * @see MaterialButtonAdaptation
+ */
+@OptIn(ExperimentalAdaptiveApi::class)
 private class ButtonAdaptation(
     private val type: ButtonType,
 ): Adaptation<CupertinoButtonAdaptation, MaterialButtonAdaptation>() {

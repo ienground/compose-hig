@@ -21,5 +21,14 @@ package zone.ien.hig.adaptive.icons
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 
+/**
+ * Returns a system image for non-iOS platforms.
+ *
+ * This function is used on platforms other than iOS (e.g., Android, Desktop, etc.)
+ * and always returns null to prevent the use of system images.
+ *
+ * @param name the name of the system image
+ * @return null (system images are not supported)
+ */
 @Composable
 internal actual fun systemImage(name: String): Painter? = null

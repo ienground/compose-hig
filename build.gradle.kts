@@ -39,7 +39,7 @@ allprojects {
 subprojects {
     plugins.withId("com.vanniktech.maven.publish") {
         configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
-            publishToMavenCentral()
+            publishToMavenCentral(automaticRelease = true)
 
             // Artifact ID만 각 프로젝트의 이름으로 자동 설정
             group = "zone.ien.hig"
@@ -73,12 +73,12 @@ subprojects {
                 }
             }
 
-//            val isSnapshot = version.toString().endsWith("SNAPSHOT")
-//            val hasSigningKey = !(project.findProperty("signingInMemoryKeyId") as String?).isNullOrBlank()
-//
-//            if (!isSnapshot && hasSigningKey) {
-            signAllPublications()
-//            }
+            val isPublishingToMavenLocal = gradle.startParameter.taskNames.any { it.contains("publishToMavenLocal", ignoreCase = true) }
+            val isSnapshot = version.toString().endsWith("SNAPSHOT")
+
+            if (!isSnapshot && !isPublishingToMavenLocal) {
+                signAllPublications()
+            }
         }
     }
 }

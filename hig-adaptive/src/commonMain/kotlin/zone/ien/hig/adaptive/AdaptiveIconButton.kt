@@ -141,6 +141,13 @@ class MaterialIconButtonAdaptation internal constructor(
 
 }
 
+/**
+ * IconButton adaptation implementation.
+ *
+ * Implementation of [Adaptation] for icon button adaptation.
+ *
+ * @param isFilled whether the button is filled (true) or outlined (false)
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 private class IconButtonAdaptation(
     private val isFilled: Boolean

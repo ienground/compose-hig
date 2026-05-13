@@ -19,6 +19,15 @@ package zone.ien.hig.adaptive
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 
+/**
+ * Returns the system Material Color Scheme.
+ *
+ * This function returns the system color scheme used on the Android platform,
+ * and currently has an implementation that returns null.
+ *
+ * @param dark whether dark mode is enabled
+ * @return the system color scheme or null
+ */
 @Composable
 internal actual fun systemMaterialColorScheme(dark: Boolean): ColorScheme? {
     val r: ColorScheme? = null // https://github.com/JetBrains/compose-multiplatform/issues/3900

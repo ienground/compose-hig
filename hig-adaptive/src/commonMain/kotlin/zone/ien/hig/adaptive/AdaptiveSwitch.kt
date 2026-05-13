@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-
-
 package zone.ien.hig.adaptive
 
 import androidx.compose.foundation.interaction.Interaction
@@ -40,20 +38,20 @@ import zone.ien.hig.CupertinoSwitchColors
 import zone.ien.hig.CupertinoSwitchDefaults
 
 /**
- * Adaptive Switch depending on current [Theme].
+ * An adaptive switch that changes its appearance based on the current [Theme].
  *
  * Switches toggle the state of a single item on or off.
  *
- * @param checked whether or not this switch is checked
- * @param onCheckedChange called when this switch is clicked. If `null`, then this switch will not
- * be interactable, unless something else handles its input events and updates its state.
+ * @param checked whether this switch is checked
+ * @param onCheckedChange called when the switch is clicked. If null, the switch is not interactable.
  * @param modifier the [Modifier] to be applied to this switch
- * @param thumbContent content that will be drawn inside the thumb
- * @param enabled controls the enabled state of this switch. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services.
+ * @param thumbContent content to be drawn inside the thumb
+ * @param enabled controls the enabled state of this switch
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * @param adaptation configuration block for theme-dependent properties for this switch
+ * @param adaptation configuration block for theme-dependent properties
+ * @see AdaptiveWidget
+ * @see CupertinoSwitch
+ * @see Switch
  */
 @ExperimentalAdaptiveApi
 @Composable
@@ -98,6 +96,16 @@ fun AdaptiveSwitch(
     )
 }
 
+/**
+ * Cupertino switch adaptation.
+ *
+ * Adaptive adaptation class for Cupertino switch that manages various switch properties.
+ *
+ * @param colors [CupertinoSwitchColors] - Switch color configuration
+ * @param backdrop [Backdrop] - Switch backdrop
+ * @see CupertinoSwitchColors
+ * @see Backdrop
+ */
 @Stable
 class CupertinoSwitchAdaptation internal constructor(
     colors: CupertinoSwitchColors,
@@ -107,15 +115,41 @@ class CupertinoSwitchAdaptation internal constructor(
     var backdrop by mutableStateOf(backdrop)
 }
 
+/**
+ * Material switch adaptation.
+ *
+ * Container class for Material switch adaptation properties.
+ *
+ * @param colors the colors to be used for the switch
+ */
 @Stable
+/**
+ * Material switch adaptation class that manages various switch properties.
+ *
+ * @param colors [SwitchColors] - Switch color configuration
+ * @see SwitchColors
+ * @see SwitchDefaults
+ */
 class MaterialSwitchAdaptation internal constructor(
     colors: SwitchColors,
 ) {
     var colors by mutableStateOf(colors)
 }
 
+/**
+ * Switch adaptation implementation.
+ *
+ * Implementation of [Adaptation] for switch adaptation.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
+/**
+ * Class that provides adaptive adaptation for switch type.
+ *
+ * @see Adaptation
+ * @see CupertinoSwitchAdaptation
+ * @see MaterialSwitchAdaptation
+ */
 private class SwitchAdaptation: Adaptation<CupertinoSwitchAdaptation, MaterialSwitchAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoSwitchAdaptation {

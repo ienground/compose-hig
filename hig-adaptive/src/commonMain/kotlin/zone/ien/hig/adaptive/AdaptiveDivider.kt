@@ -34,6 +34,17 @@ import zone.ien.hig.CupertinoDividerDefaults
 import zone.ien.hig.CupertinoHorizontalDivider
 import zone.ien.hig.CupertinoVerticalDivider
 
+/**
+ * Adaptive divider component that provides different divider styles based on Material Design and Cupertino themes.
+ *
+ * This function is deprecated and replaced by [AdaptiveHorizontalDivider] function.
+ *
+ * @param modifier Modifier to be applied to the element
+ * @param adaptation Custom configuration function for [DividerAdaptation]
+ * @see AdaptiveHorizontalDivider
+ * @see HorizontalDivider
+ * @see CupertinoHorizontalDivider
+ */
 @Deprecated(
     replaceWith = ReplaceWith(
         "AdaptiveHorizontalDivider(modifier,adaptation)",
@@ -48,6 +59,18 @@ fun AdaptiveDivider(
 ) = AdaptiveHorizontalDivider(modifier, adaptation)
 
 
+/**
+ * Adaptive horizontal divider component that provides different divider styles based on Material Design and Cupertino themes.
+ *
+ * [AdaptiveHorizontalDivider] uses the Material Design [HorizontalDivider] component and the Cupertino [CupertinoHorizontalDivider] component to
+ * provide an appropriate horizontal divider for each operating system.
+ *
+ * @param modifier Modifier to be applied to the element
+ * @param adaptation Custom configuration function for [DividerAdaptation]
+ * @see AdaptiveWidget
+ * @see HorizontalDivider
+ * @see CupertinoHorizontalDivider
+ */
 @Composable
 @ExperimentalAdaptiveApi
 fun AdaptiveHorizontalDivider(
@@ -76,6 +99,18 @@ fun AdaptiveHorizontalDivider(
     )
 }
 
+/**
+ * Adaptive vertical divider component that provides different divider styles based on Material Design and Cupertino themes.
+ *
+ * [AdaptiveVerticalDivider] uses the Material Design [VerticalDivider] component and the Cupertino [CupertinoVerticalDivider] component to
+ * provide an appropriate vertical divider for each operating system.
+ *
+ * @param modifier Modifier to be applied to the element
+ * @param adaptation Custom configuration function for [DividerAdaptation]
+ * @see AdaptiveWidget
+ * @see VerticalDivider
+ * @see CupertinoVerticalDivider
+ */
 @Composable
 @ExperimentalAdaptiveApi
 fun AdaptiveVerticalDivider(
@@ -105,6 +140,12 @@ fun AdaptiveVerticalDivider(
 }
 
 @ExperimentalAdaptiveApi
+/**
+ * Implementation class for divider component adaptation.
+ *
+ * @see Adaptation
+ * @see DividerAdaptation
+ */
 private class DividerAdaptationScope: Adaptation<DividerAdaptation, DividerAdaptation>() {
 
     @Composable
@@ -132,7 +173,25 @@ private class DividerAdaptationScope: Adaptation<DividerAdaptation, DividerAdapt
     }
 }
 
+/**
+ * Adaptation class for divider components that manages theme-specific values for dividers.
+ *
+ * This class handles the adaptation between Cupertino and Material design for dividers,
+ * providing appropriate color and thickness styling for both design systems.
+ *
+ * @param color The color of the divider
+ * @param thickness The thickness of the divider
+ */
 @Stable
+/**
+ * Adaptation class for divider components that manages theme-specific values for dividers.
+ *
+ * This class handles the adaptation between Cupertino and Material design for dividers,
+ * providing appropriate color and thickness styling for both design systems.
+ *
+ * @param color The color of the divider
+ * @param thickness The thickness of the divider
+ */
 class DividerAdaptation internal constructor(
     color: Color,
     thickness: Dp

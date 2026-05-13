@@ -36,6 +36,22 @@ import zone.ien.hig.CupertinoCheckboxColors
 import zone.ien.hig.CupertinoCheckboxDefaults
 import zone.ien.hig.CupertinoTriStateCheckBox
 
+/**
+ * An adaptive checkbox component that provides different checkbox styles based on Material Design and Cupertino themes.
+ *
+ * [AdaptiveCheckbox] uses the Material Design [Checkbox] component and the Cupertino [CupertinoCheckBox] component
+ * to provide an appropriate checkbox for each operating system.
+ *
+ * @param checked the current checked state of the checkbox
+ * @param onCheckedChange callback to be invoked when the checkbox state changes
+ * @param modifier the [Modifier] to be applied to the element
+ * @param enabled controls the enabled state of the checkbox
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * @param adaptation configuration block for [CupertinoCheckBoxAdaptation] and [MaterialCheckBoxAdaptation]
+ * @see AdaptiveWidget
+ * @see CupertinoCheckBox
+ * @see Checkbox
+ */
 @ExperimentalAdaptiveApi
 @Composable
 fun AdaptiveCheckbox(
@@ -72,6 +88,22 @@ fun AdaptiveCheckbox(
     )
 }
 
+/**
+ * An adaptive tri-state checkbox component that provides different checkbox styles based on Material Design and Cupertino themes.
+ *
+ * [AdaptiveTriStateCheckbox] uses the Material Design [TriStateCheckbox] component and the Cupertino [CupertinoTriStateCheckBox] component
+ * to provide an appropriate tri-state checkbox for each operating system.
+ *
+ * @param state The state of the checkbox (Unchecked, Checked, Indeterminate)
+ * @param onClick The function to be called when the checkbox is clicked
+ * @param modifier The modifier to be applied to the element
+ * @param enabled Whether the checkbox is enabled
+ * @param interactionSource The interaction source
+ * @param adaptation Custom settings function for [CupertinoCheckBoxAdaptation] and [MaterialCheckBoxAdaptation]
+ * @see AdaptiveWidget
+ * @see CupertinoTriStateCheckBox
+ * @see TriStateCheckbox
+ */
 @ExperimentalAdaptiveApi
 @Composable
 fun AdaptiveTriStateCheckbox(
@@ -109,6 +141,13 @@ fun AdaptiveTriStateCheckbox(
 }
 
 @Stable
+/**
+ * An adaptive adaptation class for Material Design checkboxes that manages checkbox color properties.
+ *
+ * @param colors [CheckboxColors] - The color configuration for the checkbox
+ * @see CheckboxColors
+ * @see CheckboxDefaults
+ */
 class MaterialCheckBoxAdaptation(
     colors: CheckboxColors
 ) {
@@ -116,14 +155,34 @@ class MaterialCheckBoxAdaptation(
 }
 
 @Stable
+/**
+ * Cupertino checkbox adaptation class that manages checkbox color properties.
+ *
+ * @param colors [CupertinoCheckboxColors] - Checkbox color configuration
+ * @see CupertinoCheckboxColors
+ * @see CupertinoCheckboxDefaults
+ */
 class CupertinoCheckBoxAdaptation(
     colors: CupertinoCheckboxColors
 ){
     var colors: CupertinoCheckboxColors by mutableStateOf(colors)
 }
 
+/**
+ * Adaptation class for checkbox components that manages theme-specific values for checkboxes.
+ *
+ * This class handles the adaptation between Cupertino and Material design for checkboxes,
+ * providing appropriate color styling for both design systems.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
+/**
+ * Checkbox component adaptive adaptation class.
+ *
+ * @see Adaptation
+ * @see CupertinoCheckBoxAdaptation
+ * @see MaterialCheckBoxAdaptation
+ */
 private class CheckBoxAdaptation: Adaptation<CupertinoCheckBoxAdaptation, MaterialCheckBoxAdaptation>(){
 
     @Composable
@@ -143,5 +202,4 @@ private class CheckBoxAdaptation: Adaptation<CupertinoCheckBoxAdaptation, Materi
             MaterialCheckBoxAdaptation(colors)
         }
     }
-
 }

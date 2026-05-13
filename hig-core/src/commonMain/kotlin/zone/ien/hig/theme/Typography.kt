@@ -27,6 +27,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import zone.ien.hig.InternalCupertinoApi
 
+/**
+ * Typography for the Cupertino design system.
+ *
+ * @param largeTitle the large title text style
+ * @param title1 the title 1 text style
+ * @param title2 the title 2 text style
+ * @param title3 the title 3 text style
+ * @param headline the headline text style
+ * @param body the body text style
+ * @param callout the callout text style
+ * @param subhead the subhead text style
+ * @param footnote the footnote text style
+ * @param caption1 the caption 1 text style
+ * @param caption2 the caption 2 text style
+ */
 @Immutable
 class Typography(
     val largeTitle: TextStyle =
@@ -86,6 +101,21 @@ class Typography(
             lineHeight = 13.sp,
         ),
 ) {
+    /**
+     * Creates a copy of this Typography with the specified values replaced.
+     *
+     * @param largeTitle the new large title text style
+     * @param title1 the new title 1 text style
+     * @param title2 the new title 2 text style
+     * @param title3 the new title 3 text style
+     * @param headline the new headline text style
+     * @param body the new body text style
+     * @param callout the new callout text style
+     * @param subhead the new subhead text style
+     * @param footnote the new footnote text style
+     * @param caption1 the new caption 1 text style
+     * @param caption2 the new caption 2 text style
+     */
     fun copy(
         largeTitle: TextStyle = this.largeTitle,
         title1: TextStyle = this.title1,

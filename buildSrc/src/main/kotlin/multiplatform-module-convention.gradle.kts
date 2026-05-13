@@ -110,6 +110,13 @@ kotlin {
             jsMain.get().dependsOn(this)
             wasmJsMain.dependsOn(this)
         }
+        val nonDarwinMain by creating {
+            dependsOn(commonMain.get())
+            androidMain.get().dependsOn(this)
+            desktopMain.dependsOn(this)
+            jsMain.get().dependsOn(this)
+            wasmJsMain.dependsOn(this)
+        }
 
         val darwinMain by creating {
             dependsOn(commonMain.get())
@@ -124,5 +131,5 @@ kotlin {
         }
     }
 
-    compilerOptions.freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
+    compilerOptions.freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
 }

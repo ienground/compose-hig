@@ -22,6 +22,16 @@ package zone.ien.hig.adaptive
 
 import androidx.compose.runtime.Composable
 
+/**
+ * Creates an adaptive component that chooses between Material and Cupertino implementations based on the current theme.
+ *
+ * This function provides a way to define platform-specific implementations for a composable component.
+ * The implementation that is used depends on the current theme set by [AdaptiveTheme].
+ *
+ * @param material The Material implementation of the component. This is used when the current theme is [Theme.Material3].
+ * @param cupertino The Cupertino implementation of the component. This is used when the current theme is [Theme.Cupertino].
+ * @return The result of the selected implementation based on the current theme.
+ */
 @Composable
 @ExperimentalAdaptiveApi
 fun <T> adaptiveComponent(
@@ -34,6 +44,18 @@ fun <T> adaptiveComponent(
     }
 }
 
+/**
+ * Creates an adaptive component using the provided [adaptation] to customize both Material and Cupertino implementations.
+ *
+ * This function allows for more complex adaptations where the Material and Cupertino implementations need different
+ * customization parameters. It uses the provided [adaptation] to configure both implementations.
+ *
+ * @param adaptation The adaptation object that defines how to customize both Material and Cupertino implementations.
+ * @param material The Material implementation of the component. This is used when the current theme is [Theme.Material3].
+ * @param cupertino The Cupertino implementation of the component. This is used when the current theme is [Theme.Cupertino].
+ * @param adaptationScope The scope for customizing both Material and Cupertino implementations using [AdaptationScope].
+ * @return The result of the selected implementation based on the current theme.
+ */
 @Composable
 @ExperimentalAdaptiveApi
 fun <C, M, T> adaptiveComponent(

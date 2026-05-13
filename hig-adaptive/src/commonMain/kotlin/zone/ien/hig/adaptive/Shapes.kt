@@ -28,6 +28,24 @@ import com.kyant.shapes.RoundedRectangle
 import com.kyant.shapes.UnevenRoundedRectangle
 import zone.ien.hig.theme.Shapes as CupertinoShapes
 import androidx.compose.material3.Shapes as MaterialShapes
+
+/**
+ * A class that holds the shapes for different design systems.
+ *
+ * This class provides a consistent set of shapes that can be used across both Material and Cupertino design systems.
+ * It includes shapes for different sizes and also provides HIG-specific shapes.
+ *
+ * @param extraSmall The extra small shape, typically used for small components.
+ * @param small The small shape, typically used for small components.
+ * @param medium The medium shape, typically used for medium components.
+ * @param large The large shape, typically used for large components.
+ * @param extraLarge The extra large shape, typically used for large components.
+ * @param higExtraSmall The extra small HIG shape, typically used for small components.
+ * @param higSmall The small HIG shape, typically used for small components.
+ * @param higMedium The medium HIG shape, typically used for medium components.
+ * @param higLarge The large HIG shape, typically used for large components.
+ * @param higExtraLarge The extra large HIG shape, typically used for large components.
+ */
 @Immutable
 class Shapes(
     val extraSmall: CornerBasedShape = RoundedCornerShape(4.dp),
@@ -41,6 +59,21 @@ class Shapes(
     val higLarge: RoundedRectangle = RoundedRectangle(16.dp),
     val higExtraLarge: RoundedRectangle = RoundedRectangle(24.dp)
 ) {
+    /**
+     * Creates a copy of this Shapes object with the specified values replaced.
+     *
+     * @param extraSmall The extra small shape, typically used for small components.
+     * @param small The small shape, typically used for small components.
+     * @param medium The medium shape, typically used for medium components.
+     * @param large The large shape, typically used for large components.
+     * @param extraLarge The extra large shape, typically used for large components.
+     * @param higExtraSmall The extra small HIG shape, typically used for small components.
+     * @param higSmall The small HIG shape, typically used for small components.
+     * @param higMedium The medium HIG shape, typically used for medium components.
+     * @param higLarge The large HIG shape, typically used for large components.
+     * @param higExtraLarge The extra large HIG shape, typically used for large components.
+     * @return A new Shapes object with the specified values replaced.
+     */
     fun copy(
         extraSmall: CornerBasedShape = this.extraSmall,
         small: CornerBasedShape = this.small,

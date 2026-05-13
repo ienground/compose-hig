@@ -107,7 +107,7 @@ kotlin {
         }
     }
 
-    compilerOptions.freeCompilerArgs.add("-Xopt-in=kotlin.time.ExperimentalTime")
+    compilerOptions.freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")
 }
 
 dependencies {

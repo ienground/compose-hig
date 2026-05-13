@@ -74,6 +74,34 @@ import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.systemRed
 
+internal expect fun KeyboardOptions.enableNativeInput(): KeyboardOptions
+
+/**
+ * A Cupertino-style text field that allows users to enter and edit text.
+ *
+ * @param value the text field's input value
+ * @param onValueChange called when the text field's input value changes
+ * @param modifier the [Modifier] to be applied to this text field
+ * @param enabled controls the enabled state of this text field. When `false`, this component will not
+ *     respond to user input and will be displayed as disabled
+ * @param readOnly controls the read-only state of this text field. When `true`, this component will not
+ *     respond to user input and will be displayed as read-only
+ * @param textStyle the [TextStyle] to be applied to the text content
+ * @param placeholder the placeholder content to be displayed when the text field is empty
+ * @param leadingIcon the icon displayed at the start of the text field
+ * @param trailingIcon the icon displayed at the end of the text field
+ * @param isError controls the error state of this text field. When `true`, this component will be displayed
+ *     with error styling
+ * @param visualTransformation the [VisualTransformation] to be applied to the text content
+ * @param keyboardOptions the keyboard options configuration for this text field
+ * @param keyboardActions the keyboard actions configuration for this text field
+ * @param singleLine when `true`, this text field will be constrained to a single line
+ * @param maxLines the maximum number of lines this text field can grow to
+ * @param minLines the minimum number of lines this text field will show
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * @param contentAlignment the vertical alignment of the text field content
+ * @param colors the [CupertinoTextFieldColors] to be used to configure the text field's appearance
+ */
 @Composable
 fun CupertinoTextField(
     value: String,
@@ -121,7 +149,7 @@ fun CupertinoTextField(
             textStyle = mergedTextStyle,
             cursorBrush = SolidColor(colors.cursorColor(isError).value),
             visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             keyboardActions = keyboardActions,
             interactionSource = interactionSource,
             singleLine = singleLine,
@@ -196,7 +224,7 @@ fun CupertinoTextField(
             textStyle = mergedTextStyle,
             cursorBrush = SolidColor(colors.cursorColor(isError).value),
             visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             keyboardActions = keyboardActions,
             interactionSource = interactionSource,
             singleLine = singleLine,
@@ -267,7 +295,7 @@ fun CupertinoTextField(
             inputTransformation = inputTransformation,
             textStyle = mergedTextStyle,
             cursorBrush = SolidColor(colors.cursorColor(isError).value),
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             onKeyboardAction = onKeyboardAction,
             lineLimits = lineLimits,
             interactionSource = interactionSource,
@@ -340,7 +368,7 @@ fun CupertinoSecureTextField(
             inputTransformation = inputTransformation,
             textStyle = mergedTextStyle,
             cursorBrush = SolidColor(colors.cursorColor(isError).value),
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             onKeyboardAction = onKeyboardAction,
             interactionSource = interactionSource,
             onTextLayout = {
@@ -475,7 +503,7 @@ fun CupertinoBorderedTextField(
             trailingIcon = trailingIcon,
             isError = isError,
             visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             keyboardActions = keyboardActions,
             singleLine = singleLine,
             maxLines = maxLines,
@@ -530,7 +558,7 @@ fun CupertinoBorderedTextField(
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
             isError = isError,
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             onKeyboardAction = onKeyboardAction,
             interactionSource = interactionSource,
             contentAlignment = contentAlignment,
@@ -582,7 +610,7 @@ fun CupertinoBorderedSecureTextField(
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
             isError = isError,
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.enableNativeInput(),
             onKeyboardAction = onKeyboardAction,
             interactionSource = interactionSource,
             contentAlignment = contentAlignment,

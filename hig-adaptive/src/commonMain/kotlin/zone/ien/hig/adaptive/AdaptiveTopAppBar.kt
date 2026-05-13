@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-
-
 package zone.ien.hig.adaptive
 
 import androidx.compose.foundation.layout.RowScope
@@ -43,6 +41,19 @@ import zone.ien.hig.CupertinoTopAppBarColors
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 
+/**
+ * An adaptive top app bar that adapts between Cupertino and Material design based on the platform.
+ *
+ * This composable provides a top app bar that automatically switches between Cupertino (iOS) and Material (Android)
+ * design patterns based on the target platform. The content adapts to appropriate design guidelines and styles.
+ *
+ * @param title composable for the title
+ * @param modifier optional [Modifier] for customizing the appearance and behavior
+ * @param navigationIcon composable for the navigation icon
+ * @param actions composable for the actions
+ * @param windowInsets the window insets to be used for the content
+ * @param adaptation lambda for customizing the adaptation behavior
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
 @Composable
@@ -86,6 +97,20 @@ fun AdaptiveTopAppBar(
     )
 }
 
+/**
+ * A single row top app bar.
+ *
+ * This private composable renders either a CenterAlignedTopAppBar or a TopAppBar based on the isCenterAligned parameter.
+ *
+ * @param title composable for the title
+ * @param isCenterAligned whether the title should be centered
+ * @param colors the colors to be used for the top app bar
+ * @param modifier optional [Modifier] for customizing the appearance and behavior
+ * @param navigationIcon composable for the navigation icon
+ * @param actions composable for the actions
+ * @param windowInsets the window insets to be used for the content
+ * @param scrollBehavior the scroll behavior for the top app bar
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SingleRowTopAppBar(
@@ -121,8 +146,27 @@ private fun SingleRowTopAppBar(
     }
 }
 
+/**
+ * Material top app bar adaptation.
+ *
+ * Container class for Material top app bar adaptation properties.
+ *
+ * @param colors the colors to be used for the top app bar
+ * @param isCenterAligned whether the title should be centered
+ * @param scrollBehavior the scroll behavior for the top app bar
+ */
 @Stable
 @OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Adaptive adaptation class for Material top app bar that manages various top app bar properties.
+ *
+ * @param colors [TopAppBarColors] - Top app bar color configuration
+ * @param isCenterAligned Whether the title is centered
+ * @param scrollBehavior Scroll behavior configuration
+ * @see TopAppBarColors
+ * @see TopAppBarDefaults
+ * @see TopAppBarScrollBehavior
+ */
 class MaterialTopAppBarAdaptation internal constructor(
     colors: TopAppBarColors,
     isCenterAligned: Boolean = false,
@@ -133,7 +177,23 @@ class MaterialTopAppBarAdaptation internal constructor(
     var scrollBehavior: TopAppBarScrollBehavior? by mutableStateOf(scrollBehavior)
 }
 
+/**
+ * Cupertino top app bar adaptation.
+ *
+ * Container class for Cupertino top app bar adaptation properties.
+ *
+ * @param colors the colors to be used for the top app bar
+ * @param backdrop backdrop to use for the bar
+ */
 @Stable
+/**
+ * Adaptive adaptation class for Cupertino top app bar that manages various top app bar properties.
+ *
+ * @param colors [CupertinoTopAppBarColors] - Top app bar color configuration
+ * @param backdrop [LayerBackdrop] - Top app bar layer backdrop
+ * @see CupertinoTopAppBarColors
+ * @see LayerBackdrop
+ */
 class CupertinoTopAppBarAdaptation internal constructor(
     colors: CupertinoTopAppBarColors,
     backdrop: LayerBackdrop
@@ -142,8 +202,20 @@ class CupertinoTopAppBarAdaptation internal constructor(
     var backdrop: LayerBackdrop by mutableStateOf(backdrop)
 }
 
+/**
+ * Top app bar adaptation.
+ *
+ * Implementation of [Adaptation] for top app bar adaptation.
+ */
 @OptIn(ExperimentalAdaptiveApi::class)
 @Stable
+/**
+ * Class that provides adaptive adaptation based on top app bar type.
+ *
+ * @see Adaptation
+ * @see CupertinoTopAppBarAdaptation
+ * @see MaterialTopAppBarAdaptation
+ */
 private class TopAppBarAdaptation: Adaptation<CupertinoTopAppBarAdaptation, MaterialTopAppBarAdaptation>() {
     @Composable
     override fun rememberCupertinoAdaptation(): CupertinoTopAppBarAdaptation {

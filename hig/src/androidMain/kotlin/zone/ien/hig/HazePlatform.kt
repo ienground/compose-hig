@@ -29,9 +29,13 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 
 /**
- * With CMP + Android, we can't do much other than display a transparent scrim.
- * See `:haze-jetpack-compose` for a working blur on Android, but we need Compose 1.6.0 APIs,
- * which are not available in CMP (yet).
+ * Android implementation of the HazeNode for drawing effects.
+ *
+ * @param areas The list of rectangles to draw the effect on
+ * @param backgroundColor The background color for the effect
+ * @param tint The tint color for the effect
+ * @param blurRadius The blur radius for the effect
+ * @param density The density for drawing operations
  */
 internal actual class HazeNode actual constructor(
     private var areas: List<Rect>,
@@ -41,6 +45,15 @@ internal actual class HazeNode actual constructor(
     private val density: Density,
 ): Modifier.Node(),
     DrawModifierNode {
+    
+    /**
+     * Updates the HazeNode with new parameters.
+     *
+     * @param areas The list of rectangles to draw the effect on
+     * @param backgroundColor The background color for the effect
+     * @param tint The tint color for the effect
+     * @param blurRadius The blur radius for the effect
+     */
     actual fun update(
         areas: List<Rect>,
         backgroundColor: Color,
@@ -53,6 +66,11 @@ internal actual class HazeNode actual constructor(
         this.blurRadius = blurRadius
     }
 
+    /**
+     * Draws the haze effect on the content.
+     *
+     * @param drawContent The content to draw
+     */
     override fun ContentDrawScope.draw() {
         drawContent()
 
