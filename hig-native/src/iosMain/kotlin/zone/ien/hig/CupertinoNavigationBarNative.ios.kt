@@ -54,7 +54,7 @@ actual fun CupertinoNavigationBarNative(
             translatesAutoresizingMaskIntoConstraints = false
         }
     }
-    val isLiquidGlassEnabled = true // TODO: 파라미터화 고려
+    val isLiquidGlassEnabled = true // TODO: consider parameterize
 
     val onItemSelectedState by rememberUpdatedState(onTabSelected)
 
@@ -105,39 +105,24 @@ actual fun CupertinoNavigationBarNative(
     }
 
     LaunchedEffect(Unit) {
-        var tabBarHeightConsistencyCounter = 0
-
-        while (true) {
+        repeat(15) { // 최대 15프레임 동안 안정화 시도
             tabBarView.frame.useContents {
-                topLeft = DpOffset(
-                    x = origin.x.dp,
-                    y = origin.y.dp,
-                )
+                topLeft = DpOffset(x = origin.x.dp, y = origin.y.dp)
                 tabBarWidth = size.width.dp
-                val safeAreaBottom =
-                    if (isLiquidGlassEnabled)
-                        0.dp
-                    else
-                        viewController.view.safeAreaInsets.useContents { bottom.dp }
+
+                val safeAreaBottom = if (isLiquidGlassEnabled) 0.dp else viewController.view.safeAreaInsets.useContents { bottom.dp }
                 val newTabBarHeight = size.height.dp + safeAreaBottom
 
                 IosBarHeightCache.updateTabBarHeight(size.height.dp)
 
                 if (tabBarHeight != newTabBarHeight) {
                     tabBarHeight = newTabBarHeight
-                    tabBarHeightConsistencyCounter = 0
 
                     if (newTabBarHeight.value > 0f) {
                         iosTabBarPaddingState.value = PaddingValues(bottom = newTabBarHeight)
                     }
-                } else {
-                    tabBarHeightConsistencyCounter++
                 }
             }
-
-            if (tabBarHeight.value > 0f && tabBarHeightConsistencyCounter > 6)
-                break
-
             withFrameMillis { }
         }
     }
