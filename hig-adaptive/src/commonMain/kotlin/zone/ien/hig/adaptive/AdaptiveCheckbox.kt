@@ -142,9 +142,9 @@ fun AdaptiveTriStateCheckbox(
 
 @Stable
 /**
- * Material Design 체크박스에 대한 적응형 어댑테이션 클래스로, 체크박스 색상 속성을 관리합니다.
+ * An adaptive adaptation class for Material Design checkboxes that manages checkbox color properties.
  *
- * @param colors [CheckboxColors] - 체크박스의 색상 설정
+ * @param colors [CheckboxColors] - The color configuration for the checkbox
  * @see CheckboxColors
  * @see CheckboxDefaults
  */
