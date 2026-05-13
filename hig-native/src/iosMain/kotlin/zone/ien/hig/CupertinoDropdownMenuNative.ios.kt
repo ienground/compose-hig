@@ -200,8 +200,8 @@ private fun CupertinoMenuItemData.toUIAction(): UIAction {
     ) { _ -> onClick() }
 
     var attributes: ULong = 0u
-    if (isDestructive) attributes = attributes or platform.UIKit.UIMenuElementAttributesDestructive
-    if (!enabled) attributes = attributes or platform.UIKit.UIMenuElementAttributesDisabled
+    if (isDestructive) attributes = attributes or UIMenuElementAttributesDestructive
+    if (!enabled) attributes = attributes or UIMenuElementAttributesDisabled
     action.attributes = attributes
     return action
 }
