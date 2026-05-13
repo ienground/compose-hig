@@ -162,7 +162,7 @@ fun CupertinoNavigationBar(
             val itemWidthDp: Dp = with(density) { itemWidthPx.toDp() }
 
             // NavBar 전체 너비 = padding*2 + itemWidth*n + gap*(n-1)
-            val rowWidth = paddingPx * 2f + itemWidthPx * tabsCount + gapPx * (tabsCount - 1)
+            val rowWidth = (paddingPx * 2f + itemWidthPx * tabsCount + gapPx * (tabsCount - 1)).coerceAtLeast(1f)
 
             fun itemLeftX(index: Float): Float = paddingPx + (itemWidthPx + gapPx) * index
             fun itemCenterX(index: Float): Float = itemLeftX(index) + itemWidthPx / 2f
