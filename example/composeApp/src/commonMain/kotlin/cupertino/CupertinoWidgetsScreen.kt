@@ -43,6 +43,7 @@ import RootDetails
 import RootRoute
 import RootUiState
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -1813,12 +1814,16 @@ private fun DropdownExample(
         Spacer(Modifier.weight(1f))
         //Menu bar should be in the box with anchor to align correctly
         Box {
-            CupertinoLiquidButton(
-                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
-                backdrop = layerBackdrop,
-                onClick = { dropdownVisible = !dropdownVisible }
+            androidx.compose.animation.AnimatedVisibility(
+                visible = !dropdownVisible
             ) {
-                CupertinoText("Menu")
+                CupertinoLiquidButton(
+                    colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                    backdrop = layerBackdrop,
+                    onClick = { dropdownVisible = !dropdownVisible }
+                ) {
+                    CupertinoText("Menu")
+                }
             }
 
             val red = CupertinoColors.systemRed
@@ -1827,7 +1832,10 @@ private fun DropdownExample(
 
                 CupertinoDropdownMenuNative(
                     expanded = dropdownVisible,
-                    onDismissRequest = { dropdownVisible = false },
+                    onDismissRequest = {
+                        println("onDismissRequest on Screen");
+                        dropdownVisible = false
+                    },
                     backdrop = backdrop,
                     sections = listOf(
                         CupertinoMenuSectionData(

@@ -16,6 +16,9 @@
  * limitations under the License.
  */
 
+/**
+ * Contains the implementation of the Cupertino navigation bar.
+ */
 package zone.ien.hig
 
 import androidx.compose.animation.core.Animatable
@@ -101,13 +104,19 @@ import kotlin.math.sign
 
 private val NavBarPadding = 4.dp
 private val NavBarItemGap = 0.dp
-private val NavBarItemMinWidth = 90.dp  // 아이템이 소수일 때의 고정 너비
+private val NavBarItemMinWidth = 90.dp  // Fixed width when items are few
 
 /**
- * Cupertino 스타일의 리퀴드 네비게이션 바입니다.
+ * Cupertino bottom navigation tab bar.
  *
- * @param tabsCount 네비게이션 아이템의 총 개수입니다. [content] 내의 아이템 개수와 일치해야 합니다.
- * @param content 네비게이션 아이템들을 포함하는 블록입니다.
+ * [CupertinoNavigationBarItem]s should be used as navigation bar content.
+ *
+ * Note: navigation bar itself does not produce cupertino thin material glass effect.
+ * This effect works only inside [CupertinoScaffold], [CupertinoBottomSheetScaffold], [CupertinoBottomSheetContent].
+ * To achieve this effect with custom bottom bar use [cupertinoTranslucentTopBarColor]
+ * function that will communicate with scaffold and return either
+ * [Color.Transparent] if color was successfully applied to scaffold (and top bar itself
+ * should be transparent) or passed color if scaffold wasn't found.
  */
 @Composable
 @ExperimentalCupertinoApi
@@ -133,18 +142,18 @@ fun CupertinoNavigationBar(
             .wrapContentWidth()
             .windowInsetsPadding(windowInsets)
     ) {
-        // BoxWithConstraints로 windowInsets 적용 후 실제 가용 너비를 측정
-        BoxWithConstraints(
-            contentAlignment = Alignment.CenterStart,
-        ) {
+            // Calculate actual available width after applying windowInsets
+            BoxWithConstraints(
+                contentAlignment = Alignment.CenterStart,
+            ) {
             val density = LocalDensity.current
 
             val paddingPx = with(density) { NavBarPadding.toPx() }
             val gapPx = with(density) { NavBarItemGap.toPx() }
             val minItemWidthPx = with(density) { NavBarItemMinWidth.toPx() }
 
-            // 가용 너비 기준으로 균등 분할 시 아이템 너비 계산
-            // NavBar 전체 너비 = padding*2 + itemWidth*n + gap*(n-1)
+            // Calculate item width based on available width
+            // NavBar total width = padding*2 + itemWidth*n + gap*(n-1)
             // → itemWidth = (availableWidth - padding*2 - gap*(n-1)) / n
             val availableWidthPx = constraints.maxWidth.toFloat()
             val calculatedItemWidthPx = if (tabsCount > 0) {
@@ -153,7 +162,7 @@ fun CupertinoNavigationBar(
                 0f
             }
 
-            // 균등 분할 너비가 최솟값(90dp) 이상이면 고정, 미만이면 균등 분할
+            // If evenly distributed width is greater than or equal to minimum width (90dp), use fixed width, otherwise use evenly distributed width
             val itemWidthPx = if (calculatedItemWidthPx >= minItemWidthPx) {
                 minItemWidthPx
             } else {
@@ -161,7 +170,7 @@ fun CupertinoNavigationBar(
             }
             val itemWidthDp: Dp = with(density) { itemWidthPx.toDp() }
 
-            // NavBar 전체 너비 = padding*2 + itemWidth*n + gap*(n-1)
+            // NavBar total width = padding*2 + itemWidth*n + gap*(n-1)
             val rowWidth = (paddingPx * 2f + itemWidthPx * tabsCount + gapPx * (tabsCount - 1)).coerceAtLeast(1f)
 
             fun itemLeftX(index: Float): Float = paddingPx + (itemWidthPx + gapPx) * index
