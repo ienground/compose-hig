@@ -54,8 +54,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.kyant.shapes.RoundedRectangle
-import com.kyant.shapes.UnevenRoundedRectangle
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.LocalContentColor
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconDefaults
@@ -107,9 +106,9 @@ object CupertinoSectionDefaults {
 
     @Composable
     @ReadOnlyComposable
-    fun shape(style: SectionStyle = LocalSectionStyle.current): RoundedRectangle =
+    fun shape(style: SectionStyle = LocalSectionStyle.current): ContinuousRoundedRectangle =
         if (style.grouped && style.inset) CupertinoTheme.shapes.extraLarge
-        else RoundedRectangle(0.dp)
+        else ContinuousRoundedRectangle(0.dp)
 
     @Composable
     @ReadOnlyComposable

@@ -24,8 +24,7 @@ import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.dp
-import com.kyant.shapes.RoundedRectangle
-import com.kyant.shapes.UnevenRoundedRectangle
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.theme.Shapes as CupertinoShapes
 import androidx.compose.material3.Shapes as MaterialShapes
 
@@ -53,11 +52,11 @@ class Shapes(
     val medium: CornerBasedShape = RoundedCornerShape(12.dp),
     val large: CornerBasedShape = RoundedCornerShape(16.dp),
     val extraLarge: CornerBasedShape = RoundedCornerShape(28.dp),
-    val higExtraSmall: RoundedRectangle = RoundedRectangle(4.dp),
-    val higSmall: RoundedRectangle = RoundedRectangle(8.dp),
-    val higMedium: RoundedRectangle = RoundedRectangle(12.dp),
-    val higLarge: RoundedRectangle = RoundedRectangle(16.dp),
-    val higExtraLarge: RoundedRectangle = RoundedRectangle(24.dp)
+    val higExtraSmall: ContinuousRoundedRectangle = ContinuousRoundedRectangle(4.dp),
+    val higSmall: ContinuousRoundedRectangle = ContinuousRoundedRectangle(8.dp),
+    val higMedium: ContinuousRoundedRectangle = ContinuousRoundedRectangle(12.dp),
+    val higLarge: ContinuousRoundedRectangle = ContinuousRoundedRectangle(16.dp),
+    val higExtraLarge: ContinuousRoundedRectangle = ContinuousRoundedRectangle(24.dp)
 ) {
     /**
      * Creates a copy of this Shapes object with the specified values replaced.
@@ -80,11 +79,11 @@ class Shapes(
         medium: CornerBasedShape = this.medium,
         large: CornerBasedShape = this.large,
         extraLarge: CornerBasedShape = this.extraLarge,
-        higExtraSmall: RoundedRectangle = this.higExtraSmall,
-        higSmall: RoundedRectangle = this.higSmall,
-        higMedium: RoundedRectangle = this.higMedium,
-        higLarge: RoundedRectangle = this.higLarge,
-        higExtraLarge: RoundedRectangle = this.higExtraLarge
+        higExtraSmall: ContinuousRoundedRectangle = this.higExtraSmall,
+        higSmall: ContinuousRoundedRectangle = this.higSmall,
+        higMedium: ContinuousRoundedRectangle = this.higMedium,
+        higLarge: ContinuousRoundedRectangle = this.higLarge,
+        higExtraLarge: ContinuousRoundedRectangle = this.higExtraLarge
     ) = Shapes(
         extraSmall = extraSmall,
         small = small,

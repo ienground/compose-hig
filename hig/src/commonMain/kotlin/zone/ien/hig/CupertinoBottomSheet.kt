@@ -52,8 +52,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.kyant.shapes.copy
-import zone.ien.hig.theme.CupertinoTheme
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -62,6 +60,8 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
+import zone.ien.hig.CupertinoSheetState.Companion.Saver
+import zone.ien.hig.theme.CupertinoTheme
 import kotlin.jvm.JvmName
 
 /**
@@ -139,7 +139,7 @@ object CupertinoBottomSheetDefaults {
         @Composable
         @ReadOnlyComposable
         get() =
-            CupertinoTheme.shapes.large.copy(bottomStart = 0.dp, bottomEnd = 0.dp)
+            CupertinoTheme.shapes.large.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
 
     @Composable
     fun DragHandle(

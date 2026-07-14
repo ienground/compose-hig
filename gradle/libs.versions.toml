@@ -1,29 +1,29 @@
 [versions]
-agp = "9.0.0"
-kotlin = "2.3.21"
-lib-version-name = "1.1.0"
+agp = "9.1.1"
+kotlin = "2.4.10"
+lib-version-name = "1.2.0"
 
 # plugin
-compose-plugin = "1.11.0-rc01"
+compose-plugin = "1.11.1"
 compose-plugin-experimental = "1.11.0-alpha07"
 compose-navigation3 = "1.1.1"
 
 # ui
 activity-compose = "1.13.0"
-lifecycle = "2.10.0"
+lifecycle = "2.11.0"
 backdrop = "2.0.0-alpha06"
-capsule = "1.2.0"
+capsule = "2.1.4"
 haze = "1.7.2"
 
 # functionality
-datetime = "0.7.1"
-material-kolor = "4.1.1"
+datetime = "0.8.0"
+material-kolor = "5.0.0"
 
 # backend
 serialization = "1.11.0"
-vanniktech-mavenPublish = "0.36.0"
-atomicfu = "0.23.2"
-koin = "4.2.1"
+vanniktech-mavenPublish = "0.37.0"
+atomicfu = "0.33.0"
+koin = "4.2.2"
 
 [libraries]
 
@@ -46,7 +46,7 @@ compose-navigation3 = { group = "org.jetbrains.androidx.navigation3", name = "na
 backdrop = { group = "zone.ien.backdrop", name = "backdrop", version.ref = "backdrop"}
 #backdrop = { group = "io.github.kyant0", name = "backdrop", version.ref = "backdrop"}
 #capsule = { group = "io.github.kyant0", name = "shapes", version.ref = "capsule"}
-capsule = { group = "zone.ien.shapes", name = "shapes", version.ref = "capsule"}
+capsule = { group = "zone.ien.capsule", name = "capsule", version.ref = "capsule"}
 haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 
 # functionality

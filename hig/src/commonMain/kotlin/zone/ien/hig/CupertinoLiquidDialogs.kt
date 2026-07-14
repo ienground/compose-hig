@@ -75,7 +75,7 @@ import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.colorControls
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
-import com.kyant.shapes.RoundedRectangle
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.section.CupertinoSectionTokens
 import zone.ien.hig.theme.BrightSeparatorColor
 import zone.ien.hig.theme.CupertinoColors
@@ -177,10 +177,10 @@ object CupertinoLiquidDialogsDefaults {
         @Composable
         get() = CupertinoColors.systemGray7
 
-    val Shape: RoundedRectangle
+    val Shape: ContinuousRoundedRectangle
         @Composable
         @ReadOnlyComposable
-        get() = RoundedRectangle(48.dp)
+        get() = ContinuousRoundedRectangle(48.dp)
 }
 @Composable
 private fun AnimatedDialog(

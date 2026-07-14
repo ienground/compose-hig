@@ -26,8 +26,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.dp
-import com.kyant.shapes.RoundedRectangle
-import com.kyant.shapes.UnevenRoundedRectangle
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.InternalCupertinoApi
 
 /**
@@ -41,11 +40,11 @@ import zone.ien.hig.InternalCupertinoApi
  */
 @Stable
 class Shapes(
-    val extraSmall: RoundedRectangle = ShapeDefaults.ExtraSmall,
-    val small: RoundedRectangle = ShapeDefaults.Small,
-    val medium: RoundedRectangle = ShapeDefaults.Medium,
-    val large: RoundedRectangle = ShapeDefaults.Large,
-    val extraLarge: RoundedRectangle = ShapeDefaults.ExtraLarge,
+    val extraSmall: ContinuousRoundedRectangle = ShapeDefaults.ExtraSmall,
+    val small: ContinuousRoundedRectangle = ShapeDefaults.Small,
+    val medium: ContinuousRoundedRectangle = ShapeDefaults.Medium,
+    val large: ContinuousRoundedRectangle = ShapeDefaults.Large,
+    val extraLarge: ContinuousRoundedRectangle = ShapeDefaults.ExtraLarge,
 ) {
     /**
      * Creates a copy of this Shapes with the specified values replaced.
@@ -57,11 +56,11 @@ class Shapes(
      * @param extraLarge the new extra large corner shape
      */
     fun copy(
-        extraSmall: RoundedRectangle = this.extraSmall,
-        small: RoundedRectangle = this.small,
-        medium: RoundedRectangle = this.medium,
-        large: RoundedRectangle = this.large,
-        extraLarge: RoundedRectangle = this.extraLarge,
+        extraSmall: ContinuousRoundedRectangle = this.extraSmall,
+        small: ContinuousRoundedRectangle = this.small,
+        medium: ContinuousRoundedRectangle = this.medium,
+        large: ContinuousRoundedRectangle = this.large,
+        extraLarge: ContinuousRoundedRectangle = this.extraLarge,
     ) = Shapes(
         extraSmall = extraSmall,
         small = small,
@@ -80,17 +79,17 @@ val LocalShapes = staticCompositionLocalOf { Shapes() }
 @Immutable
 object ShapeDefaults {
     /** Extra small sized corner shape */
-    val ExtraSmall: RoundedRectangle = RoundedRectangle(4.dp)
+    val ExtraSmall: ContinuousRoundedRectangle = ContinuousRoundedRectangle(4.dp)
 
     /** Small sized corner shape */
-    val Small: RoundedRectangle = RoundedRectangle(8.dp)
+    val Small: ContinuousRoundedRectangle = ContinuousRoundedRectangle(8.dp)
 
     /** Medium sized corner shape */
-    val Medium: RoundedRectangle = RoundedRectangle(12.dp)
+    val Medium: ContinuousRoundedRectangle = ContinuousRoundedRectangle(12.dp)
 
     /** Large sized corner shape */
-    val Large: RoundedRectangle = RoundedRectangle(16.dp)
+    val Large: ContinuousRoundedRectangle = ContinuousRoundedRectangle(16.dp)
 
     /** Extra large sized corner shape */
-    val ExtraLarge: RoundedRectangle = RoundedRectangle(24.dp)
+    val ExtraLarge: ContinuousRoundedRectangle = ContinuousRoundedRectangle(24.dp)
 }

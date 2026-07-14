@@ -91,7 +91,7 @@ import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
-import com.kyant.shapes.Capsule
+import com.kyant.capsule.ContinuousCapsule
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
@@ -266,7 +266,7 @@ fun CupertinoNavigationBar(
                         }
                         .drawBackdrop(
                             backdrop = backdrop,
-                            shape = { Capsule() },
+                            shape = { ContinuousCapsule() },
                             effects = {
                                 vibrancy()
                                 blur(2.dp.toPx())
@@ -307,7 +307,7 @@ fun CupertinoNavigationBar(
                             }
                             .drawBackdrop(
                                 backdrop = backdrop,
-                                shape = { Capsule() },
+                                shape = { ContinuousCapsule() },
                                 effects = {
                                     val progress = dampedDragAnimation.pressProgress
                                     vibrancy()
@@ -349,7 +349,7 @@ fun CupertinoNavigationBar(
                         .then(dampedDragAnimation.modifier)
                         .drawBackdrop(
                             backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
-                            shape = { Capsule() },
+                            shape = { ContinuousCapsule() },
                             effects = {
                                 val progress = dampedDragAnimation.pressProgress
                                 lens(
@@ -415,7 +415,7 @@ fun RowScope.CupertinoNavigationBarItem(
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .clip(Capsule())
+            .clip(ContinuousCapsule())
             .clickable(
                 enabled = enabled,
                 interactionSource = interactionSource,

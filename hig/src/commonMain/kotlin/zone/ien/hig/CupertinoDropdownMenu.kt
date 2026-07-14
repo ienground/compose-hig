@@ -92,8 +92,7 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
-import com.kyant.shapes.RoundedRectangle
-import com.kyant.shapes.RoundedRectangularShape
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.Checkmark
 import zone.ien.hig.section.CupertinoSectionDefaults
@@ -422,7 +421,7 @@ private fun CupertinoMenuScope.ActionWithoutPadding(
                 .heightIn(min = CupertinoSectionTokens.MinHeight)
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp)
-                .clip(RoundedRectangle(24.dp))
+                .clip(ContinuousRoundedRectangle(24.dp))
                 .clickable(
                     enabled = enabled,
                     onClick = onClick,
@@ -569,7 +568,7 @@ private fun DropdownMenuContent(
                             effects = {
                                 vibrancy()
                                 blur(2.dp.toPx())
-                                if (shape is RoundedRectangularShape || shape is CornerBasedShape) {
+                                if (shape is ContinuousRoundedRectangle || shape is CornerBasedShape) {
                                     lens(12.dp.toPx(), 24.dp.toPx())
                                 }
                             },

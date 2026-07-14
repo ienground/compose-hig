@@ -43,7 +43,7 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
-import com.kyant.shapes.RoundedRectangularShape
+import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -171,7 +171,7 @@ fun CupertinoLiquidButton(
                     } else {
                         blur(2.dp.toPx())
                     }
-                    if (shape is RoundedRectangularShape || shape is CornerBasedShape) {
+                    if (shape is ContinuousRoundedRectangle || shape is CornerBasedShape) {
                         lens(12.dp.toPx(), 24.dp.toPx())
                     }
                 },
