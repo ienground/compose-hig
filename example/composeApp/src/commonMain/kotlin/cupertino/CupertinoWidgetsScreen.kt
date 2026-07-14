@@ -43,10 +43,8 @@ import RootDetails
 import RootRoute
 import RootUiState
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
@@ -100,7 +98,6 @@ import androidx.navigation3.runtime.NavKey
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
-import zone.ien.hig.utils.rememberDefaultBackdrop
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -133,8 +130,6 @@ import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoMenuItemData
 import zone.ien.hig.CupertinoMenuSectionData
-import zone.ien.hig.CupertinoNavigationBar
-import zone.ien.hig.CupertinoNavigationBarItem
 import zone.ien.hig.CupertinoNavigationBarItemData
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
@@ -166,8 +161,6 @@ import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.adaptive.icons.Add
-import zone.ien.hig.adaptive.icons.Menu
-import zone.ien.hig.adaptive.icons.Person
 import zone.ien.hig.adaptive.icons.Settings
 import zone.ien.hig.adaptive.icons.Share
 import zone.ien.hig.cancel
@@ -179,7 +172,6 @@ import zone.ien.hig.icons.filled.Archivebox
 import zone.ien.hig.icons.filled.Banknote
 import zone.ien.hig.icons.filled.Pin
 import zone.ien.hig.icons.filled.Trash
-import zone.ien.hig.icons.outlined.Book
 import zone.ien.hig.icons.outlined.Bookmark
 import zone.ien.hig.icons.outlined.FaceSmiling
 import zone.ien.hig.icons.outlined.Heart
@@ -224,6 +216,7 @@ import zone.ien.hig.theme.systemOrange
 import zone.ien.hig.theme.systemPurple
 import zone.ien.hig.theme.systemRed
 import zone.ien.hig.theme.systemYellow
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import kotlin.time.Instant
 
 private enum class PickerTab {

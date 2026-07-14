@@ -3,8 +3,6 @@ package zone.ien.hig
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 expect fun ImageBitmap.scale(width: Int, height: Int): ImageBitmap
 expect fun ImageBitmap.crop(x: Int, y: Int, width: Int, height: Int): ImageBitmap

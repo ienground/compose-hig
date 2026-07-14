@@ -33,7 +33,6 @@ import platform.UIKit.UIContextMenuInteraction
 import platform.UIKit.UIContextMenuInteractionAnimatingProtocol
 import platform.UIKit.UIContextMenuInteractionDelegateProtocol
 import platform.UIKit.UIControlStateNormal
-import platform.UIKit.UIDevice
 import platform.UIKit.UIEvent
 import platform.UIKit.UIGestureRecognizer
 import platform.UIKit.UIMenu

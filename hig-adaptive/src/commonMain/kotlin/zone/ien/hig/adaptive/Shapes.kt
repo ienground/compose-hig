@@ -25,8 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.dp
 import com.kyant.capsule.ContinuousRoundedRectangle
-import zone.ien.hig.theme.Shapes as CupertinoShapes
-import androidx.compose.material3.Shapes as MaterialShapes
 
 /**
  * A class that holds the shapes for different design systems.

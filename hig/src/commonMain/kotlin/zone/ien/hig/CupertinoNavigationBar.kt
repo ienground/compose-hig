@@ -24,7 +24,6 @@ package zone.ien.hig
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -38,11 +37,9 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
@@ -98,7 +95,6 @@ import kotlinx.coroutines.launch
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.DampedDragAnimation
 import zone.ien.hig.utils.InteractiveHighlight
-import zone.ien.hig.utils.rememberDefaultBackdrop
 import kotlin.math.abs
 import kotlin.math.sign
 
