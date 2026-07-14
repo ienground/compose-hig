@@ -52,7 +52,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import com.kyant.shapes.Capsule
+import com.kyant.capsule.ContinuousCapsule
 import zone.ien.hig.CupertinoButtonDefaults.filledButtonColors
 import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
 import zone.ien.hig.theme.CupertinoColors
@@ -82,12 +82,12 @@ enum class CupertinoButtonSize(
         contentPadding = PaddingValues(12.dp, 6.dp)
     ),
     Regular(
-        shape = { Capsule() },
+        shape = { ContinuousCapsule() },
         textStyle = { it.body },
         contentPadding = PaddingValues(16.dp, 10.dp)
     ),
     Large(
-        shape = { Capsule() },
+        shape = { ContinuousCapsule() },
         textStyle = { it.body },
         contentPadding = PaddingValues(24.dp, 18.dp)
     ),
@@ -136,7 +136,6 @@ fun CupertinoButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit
 ) {
-
     val pressed by interactionSource.collectIsPressedAsState()
 
     val animatedAlpha by animateFloatAsState(

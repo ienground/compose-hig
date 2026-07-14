@@ -37,7 +37,6 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -75,8 +74,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFirstOrNull
-import com.kyant.shapes.RoundedRectangle
-import com.kyant.shapes.UnevenRoundedRectangle
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.theme.CupertinoTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -510,7 +508,7 @@ internal object CupertinoPickerTokens {
             horizontal = 10.dp,
         )
 
-    val IndicatorShape: RoundedRectangle
+    val IndicatorShape: ContinuousRoundedRectangle
         @Composable get() = CupertinoTheme.shapes.small
 }
 

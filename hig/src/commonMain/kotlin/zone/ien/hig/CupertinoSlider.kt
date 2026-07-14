@@ -67,14 +67,13 @@ import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import zone.ien.hig.utils.rememberDefaultBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
-import com.kyant.shapes.Capsule
+import com.kyant.capsule.ContinuousCapsule
 import kotlinx.coroutines.flow.collectLatest
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
@@ -1252,7 +1251,7 @@ internal object SliderTokens {
     val ThumbInnerElevation = 4.dp
     val ThumbWidth = 40.0.dp
     val ThumbHeight = 24.0.dp
-    val ThumbShape = Capsule()
+    val ThumbShape = ContinuousCapsule()
     val InactiveTrackHeight = 6.0.dp
     val TickMarksContainerSize = 1.5.dp
 }

@@ -36,8 +36,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CornerBasedShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -54,11 +52,10 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.kyant.shapes.RoundedRectangle
-import com.kyant.shapes.UnevenRoundedRectangle
-import zone.ien.hig.LocalContentColor
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconDefaults
+import zone.ien.hig.LocalContentColor
 import zone.ien.hig.copy
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.filled.XmarkCircle
@@ -107,9 +104,9 @@ object CupertinoSectionDefaults {
 
     @Composable
     @ReadOnlyComposable
-    fun shape(style: SectionStyle = LocalSectionStyle.current): RoundedRectangle =
+    fun shape(style: SectionStyle = LocalSectionStyle.current): ContinuousRoundedRectangle =
         if (style.grouped && style.inset) CupertinoTheme.shapes.extraLarge
-        else RoundedRectangle(0.dp)
+        else ContinuousRoundedRectangle(0.dp)
 
     @Composable
     @ReadOnlyComposable

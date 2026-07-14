@@ -43,7 +43,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
 import zone.ien.hig.CupertinoDatePickerState
-import zone.ien.hig.CupertinoNavigateBackButton
 import zone.ien.hig.CupertinoNavigateBackLiquidButton
 import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoSegmentedControl
@@ -56,7 +55,6 @@ import zone.ien.hig.MenuDivider
 import zone.ien.hig.MenuPickerAction
 import zone.ien.hig.icons.CupertinoIcons
 import zone.ien.hig.icons.outlined.Heart
-import zone.ien.hig.isTopBarTransparent
 import zone.ien.hig.rememberCupertinoDatePickerState
 import zone.ien.hig.rememberCupertinoTimePickerState
 import zone.ien.hig.section.CupertinoLinkIcon

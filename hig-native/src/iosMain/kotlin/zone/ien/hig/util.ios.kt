@@ -21,34 +21,31 @@
 package zone.ien.hig
 
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asSkiaBitmap
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.addressOf
-import kotlinx.cinterop.usePinned
-import org.jetbrains.skia.Data
-import org.jetbrains.skia.EncodedImageFormat
-import org.jetbrains.skia.Image
-import platform.Foundation.NSData
-import platform.Foundation.dataWithBytes
-import platform.UIKit.UIImage
-import platform.UIKit.UIUserInterfaceStyle
-import platform.UIKit.UIView
-import platform.UIKit.UIViewController
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.useContents
+import kotlinx.cinterop.usePinned
+import org.jetbrains.skia.EncodedImageFormat
+import org.jetbrains.skia.Image
 import platform.CoreGraphics.CGRectMake
 import platform.CoreGraphics.CGSizeMake
+import platform.Foundation.NSData
+import platform.Foundation.dataWithBytes
 import platform.UIKit.UIGraphicsBeginImageContextWithOptions
 import platform.UIKit.UIGraphicsEndImageContext
 import platform.UIKit.UIGraphicsGetImageFromCurrentImageContext
+import platform.UIKit.UIImage
 import platform.UIKit.UIImageRenderingMode
-import kotlin.math.roundToInt
+import platform.UIKit.UIUserInterfaceStyle
+import platform.UIKit.UIView
+import platform.UIKit.UIViewController
 
 internal fun UIViewController.applyTheme(dark: Boolean) {
     overrideUserInterfaceStyle =

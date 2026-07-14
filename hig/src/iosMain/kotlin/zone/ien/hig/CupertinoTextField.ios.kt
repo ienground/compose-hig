@@ -20,7 +20,6 @@ package zone.ien.hig
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.text.input.PlatformImeOptions
 
 /**
  * Enables native input for keyboard options on iOS.

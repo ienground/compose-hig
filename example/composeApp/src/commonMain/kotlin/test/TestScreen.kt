@@ -35,7 +35,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import zone.ien.hig.utils.rememberDefaultBackdrop
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import zone.ien.hig.CupertinoDropdownMenu
@@ -45,7 +44,6 @@ import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoMenuItemData
-import zone.ien.hig.CupertinoMenuSectionData
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoText
@@ -63,6 +61,7 @@ import zone.ien.hig.icons.outlined.ChevronBackward
 import zone.ien.hig.icons.outlined.PersonCropCircle
 import zone.ien.hig.icons.outlined.Pin
 import zone.ien.hig.icons.outlined.SunMax
+import zone.ien.hig.utils.rememberDefaultBackdrop
 
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable

@@ -20,7 +20,11 @@
 
 @file:OptIn(ExperimentalFoundationApi::class)
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateTo
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.layout.offset
@@ -33,15 +37,13 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureResult
-import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.OnPlacedModifier
 import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.node.DelegatableNode
-import androidx.compose.ui.node.LayoutModifierNode
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.unit.toSize
 import kotlinx.coroutines.isActive
 import kotlin.coroutines.coroutineContext
 import kotlin.math.abs

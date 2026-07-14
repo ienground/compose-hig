@@ -24,7 +24,6 @@ package zone.ien.hig
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -38,11 +37,9 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
@@ -91,14 +88,13 @@ import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
-import com.kyant.shapes.Capsule
+import com.kyant.capsule.ContinuousCapsule
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.DampedDragAnimation
 import zone.ien.hig.utils.InteractiveHighlight
-import zone.ien.hig.utils.rememberDefaultBackdrop
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -266,7 +262,7 @@ fun CupertinoNavigationBar(
                         }
                         .drawBackdrop(
                             backdrop = backdrop,
-                            shape = { Capsule() },
+                            shape = { ContinuousCapsule() },
                             effects = {
                                 vibrancy()
                                 blur(2.dp.toPx())
@@ -307,7 +303,7 @@ fun CupertinoNavigationBar(
                             }
                             .drawBackdrop(
                                 backdrop = backdrop,
-                                shape = { Capsule() },
+                                shape = { ContinuousCapsule() },
                                 effects = {
                                     val progress = dampedDragAnimation.pressProgress
                                     vibrancy()
@@ -349,7 +345,7 @@ fun CupertinoNavigationBar(
                         .then(dampedDragAnimation.modifier)
                         .drawBackdrop(
                             backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
-                            shape = { Capsule() },
+                            shape = { ContinuousCapsule() },
                             effects = {
                                 val progress = dampedDragAnimation.pressProgress
                                 lens(
@@ -415,7 +411,7 @@ fun RowScope.CupertinoNavigationBarItem(
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .clip(Capsule())
+            .clip(ContinuousCapsule())
             .clickable(
                 enabled = enabled,
                 interactionSource = interactionSource,

@@ -72,7 +72,7 @@ import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
-import com.kyant.shapes.Capsule
+import com.kyant.capsule.ContinuousCapsule
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import zone.ien.hig.theme.CupertinoColors
@@ -189,7 +189,7 @@ fun CupertinoSwitch(
         Box(
             Modifier
                 .layerBackdrop(trackBackdrop)
-                .clip(Capsule())
+                .clip(ContinuousCapsule())
                 .drawBehind {
                     val fraction = dampedDragAnimation.value
                     drawRect(lerp(uncheckedTrackColor, checkedTrackColor, fraction))
@@ -223,7 +223,7 @@ fun CupertinoSwitch(
                             }
                         }
                     ),
-                    shape = { Capsule() },
+                    shape = { ContinuousCapsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
                         blur(8.dp.toPx() * (1f - progress))

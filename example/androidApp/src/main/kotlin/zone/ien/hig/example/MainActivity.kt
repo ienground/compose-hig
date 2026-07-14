@@ -19,16 +19,12 @@
 package zone.ien.hig.example
 
 import App
-import RootViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import koinInitialize
 import org.koin.core.context.GlobalContext
-import org.koin.core.context.startKoin
-import org.koin.core.module.dsl.viewModel
-import org.koin.dsl.module
 
 class MainActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
