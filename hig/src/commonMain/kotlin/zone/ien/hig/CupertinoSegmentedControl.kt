@@ -422,7 +422,8 @@ fun CupertinoSegmentedControlTab(
         }
 
     if (registry != null && !isOverlay) {
-        DisposableEffect(registry, token) {
+        DisposableEffect(registry, token, currentOnClick) {
+            registry.register(token, currentOnClick)
             onDispose {
                 registry.unregister(token)
             }
@@ -448,7 +449,8 @@ fun CupertinoSegmentedControlTab(
                     } else {
                         Modifier.clickable(
                             onClick = {
-                                registeredIndex?.let { index ->
+                                val index = registry?.tabs?.indexOf(token)
+                                if (index != null && index != -1) {
                                     dragAnimation?.animateToValue(index.toFloat())
                                 }
                                 currentOnClick()
