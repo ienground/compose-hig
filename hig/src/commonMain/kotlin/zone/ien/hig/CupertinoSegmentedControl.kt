@@ -47,6 +47,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -134,7 +135,7 @@ fun CupertinoSegmentedControl(
     tabs: @Composable () -> Unit,
 ) {
     val registry = remember { SegmentedTabRegistry() }
-    val tabCount = registry.callbacks.size
+    val tabCount = registry.tabs.size
     val animationScope = rememberCoroutineScope()
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
     var dragSettlingIndex by remember { mutableStateOf<Int?>(null) }
@@ -158,7 +159,10 @@ fun CupertinoSegmentedControl(
                                 targetValue.fastRoundToInt().fastCoerceIn(0, tabCount - 1)
                             dragSettlingIndex = targetIndex
                             animateToValue(targetIndex.toFloat())
-                            registry.callbacks[targetIndex]?.invoke()
+                            val token = registry.tabs.getOrNull(targetIndex)
+                            if (token != null) {
+                                registry.callbacks[token]?.invoke()
+                            }
                         }
                     },
                     onDrag = { size, dragAmount ->
@@ -447,20 +451,18 @@ fun CupertinoSegmentedControlTab(
     val currentOnClick by rememberUpdatedState(onClick)
     val registry = LocalSegmentedTabRegistry.current
     val dragAnimation = LocalSegmentedDragAnimation.current
+    val token = remember { Any() }
     val registeredIndex =
         if (isOverlay) {
             null
         } else {
-            remember(registry) { registry?.allocateIndex() }
+            registry?.register(token, currentOnClick)
         }
 
-    if (registry != null && registeredIndex != null) {
-        SideEffect {
-            registry.callbacks[registeredIndex] = currentOnClick
-        }
-        DisposableEffect(registry, registeredIndex) {
+    if (registry != null && !isOverlay) {
+        DisposableEffect(registry, token) {
             onDispose {
-                registry.callbacks.remove(registeredIndex)
+                registry.unregister(token)
             }
         }
     }
@@ -562,6 +564,7 @@ private fun Modifier.cupertinoTabIndicatorOffset(
                 value = tabPositions[selectedTabIndex]
             },
     ) {
+        if (tabPositions.isEmpty()) return@composed Modifier
         val safeSelectedIndex = selectedTabIndex.fastCoerceIn(0, tabPositions.lastIndex)
         val currentTabPosition = tabPositions[safeSelectedIndex]
         val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
@@ -597,10 +600,21 @@ private val LocalSelectedInteractionSource =
     }
 
 private class SegmentedTabRegistry {
-    val callbacks = mutableStateMapOf<Int, () -> Unit>()
-    private var nextIndex = 0
+    val tabs = mutableStateListOf<Any>()
+    val callbacks = mutableMapOf<Any, () -> Unit>()
 
-    fun allocateIndex(): Int = nextIndex++
+    fun register(token: Any, callback: () -> Unit): Int {
+        if (token !in tabs) {
+            tabs.add(token)
+        }
+        callbacks[token] = callback
+        return tabs.indexOf(token)
+    }
+
+    fun unregister(token: Any) {
+        tabs.remove(token)
+        callbacks.remove(token)
+    }
 }
 
 private val LocalSegmentedTabRegistry =
