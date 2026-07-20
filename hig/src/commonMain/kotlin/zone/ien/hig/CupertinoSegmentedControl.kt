@@ -53,7 +53,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -74,12 +73,9 @@ import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastRoundToInt
 import com.kyant.backdrop.backdrops.LayerBackdrop
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
-import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
@@ -205,14 +201,11 @@ fun CupertinoSegmentedControl(
         }
     }
 
-    val tabsBackdrop = rememberLayerBackdrop()
-
     CompositionLocalProvider(
         LocalContentColor provides colors.contentColor,
         LocalSelectedInteractionSource provides mutableStateOf(null),
         LocalSegmentedTabRegistry provides registry,
         LocalSegmentedDragAnimation provides dampedDragAnimation,
-        LocalSegmentedTabsBackdrop provides tabsBackdrop,
     ) {
         BoxWithConstraints(
             modifier =
@@ -250,43 +243,6 @@ fun CupertinoSegmentedControl(
             )
 
             if (tabCount > 0 && dampedDragAnimation != null) {
-                CompositionLocalProvider(
-                    LocalSegmentedTabWidth provides itemWidth,
-                    LocalSegmentedOverlay provides true,
-                ) {
-                    Row(
-                        modifier =
-                            Modifier
-                                .clearAndSetSemantics {}
-                                .alpha(0f)
-                                .layerBackdrop(tabsBackdrop)
-                                .drawBackdrop(
-                                    backdrop = backdrop,
-                                    shape = { shape },
-                                    effects = {
-                                        val progress = dampedDragAnimation.pressProgress
-                                        vibrancy()
-                                        blur(8.dp.toPx())
-                                        lens(
-                                            24.dp.toPx() * progress,
-                                            24.dp.toPx() * progress,
-                                        )
-                                    },
-                                    highlight = {
-                                        Highlight.Default.copy(
-                                            alpha = dampedDragAnimation.pressProgress,
-                                        )
-                                    },
-                                    onDrawSurface = {},
-                                )
-                                .then(interactiveHighlight?.modifier ?: Modifier)
-                                .fillMaxWidth()
-                                .height(CupertinoSegmentedControlTokens.MinHeight),
-                        verticalAlignment = Alignment.CenterVertically,
-                        content = { tabs() },
-                    )
-                }
-
                 indicator(tabPositions)
             }
 
@@ -628,9 +584,6 @@ private val LocalSegmentedTabRegistry =
 
 private val LocalSegmentedDragAnimation =
     compositionLocalOf<DampedDragAnimation?> { null }
-
-private val LocalSegmentedTabsBackdrop =
-    compositionLocalOf<LayerBackdrop?> { null }
 
 private val LocalSegmentedTabWidth =
     compositionLocalOf { 0.dp }

@@ -28,6 +28,8 @@ Forked and expanded from [alexzhirkevich/compose-cupertino](https://github.com/a
 
 https://github.com/user-attachments/assets/107fbb68-8604-4621-8037-d373c835406e
 
+> ⚠️ **Note**: There is a known flickering issue in the iOS sample app.
+
 ---
 
 ## 🚀 Live Demo
