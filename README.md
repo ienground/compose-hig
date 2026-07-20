@@ -142,6 +142,18 @@ LazyColumn {
 
 ---
 
+## 📝 To-do
+
+Compared to the previous library, we have made efforts to update many components from the Human Interface Guidelines to match the latest design, but there is still work in progress. Please help complete the library with your contributions!
+
+- [ ] BottomBar
+- [ ] Search Bar
+- [ ] Dropdown Native
+- [ ] Dialog (Non-native)
+- [x] Segmented Control
+
+---
+
 ## 📄 License
 
 ```
