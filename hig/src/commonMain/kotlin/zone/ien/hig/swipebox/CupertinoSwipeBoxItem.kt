@@ -86,7 +86,7 @@ fun RowScope.CupertinoSwipeBoxItem(
     icon: ImageVector? = null,
     label: String? = null,
     weight: Float = 1f,
-    shape: Shape = ContinuousRoundedRectangle(1_000.dp),
+    shape: Shape = ContinuousCapsule(),
 ) {
     val state = LocalSwipeBoxState.current
     val actionPosition = LocalSwipeActionPosition.current
