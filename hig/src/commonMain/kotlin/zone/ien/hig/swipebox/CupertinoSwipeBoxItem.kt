@@ -211,7 +211,7 @@ fun RowScope.CupertinoSwipeBoxItem(
                             role = Role.Button,
                         )
                         .padding(horizontal = 10.dp),
-                // TODO hardcore removal
+                // TODO: hardcoded removal
                 contentAlignment =
                     BiasAlignment(
                         verticalBias = 0f,
