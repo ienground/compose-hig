@@ -90,28 +90,29 @@ internal fun HapticFeedbackEffect(
     onHapticFeedbackTriggered: (Boolean) -> Unit,
 ) {
     LaunchedEffect(swipeBoxState.currentValue, swipeBoxState.targetValue) {
-        if (fullExpansionStart) {
-            if ((swipeBoxState.targetValue == SwipeBoxStates.StartFullyExpanded) && !hasTriggeredHapticFeedback) {
+        val isStartFullSwipeTarget =
+            fullExpansionStart && swipeBoxState.targetValue == SwipeBoxStates.StartFullyExpanded
+        val isEndFullSwipeTarget =
+            fullExpansionEnd && swipeBoxState.targetValue == SwipeBoxStates.EndFullyExpanded
+
+        when {
+            isStartFullSwipeTarget && !hasTriggeredHapticFeedback -> {
                 hapticFeedback.performHapticFeedback(CupertinoHapticFeedback.ImpactLight)
                 onHapticFeedbackTriggered(true)
+                isFullyExpandedStart.value = true
+                isFullyExpandedEnd.value = false
+            }
+
+            isEndFullSwipeTarget && !hasTriggeredHapticFeedback -> {
+                hapticFeedback.performHapticFeedback(CupertinoHapticFeedback.ImpactLight)
+                onHapticFeedbackTriggered(true)
+                isFullyExpandedStart.value = false
                 isFullyExpandedEnd.value = true
             }
 
-            if (swipeBoxState.targetValue != SwipeBoxStates.StartFullyExpanded) {
+            !isStartFullSwipeTarget && !isEndFullSwipeTarget -> {
                 onHapticFeedbackTriggered(false)
                 isFullyExpandedStart.value = false
-            }
-        }
-
-        if (fullExpansionEnd) {
-            if ((swipeBoxState.targetValue == SwipeBoxStates.EndFullyExpanded) && !hasTriggeredHapticFeedback) {
-                hapticFeedback.performHapticFeedback(CupertinoHapticFeedback.ImpactLight)
-                onHapticFeedbackTriggered(true)
-                isFullyExpandedEnd.value = true
-            }
-
-            if (swipeBoxState.targetValue != SwipeBoxStates.EndFullyExpanded) {
-                onHapticFeedbackTriggered(false)
                 isFullyExpandedEnd.value = false
             }
         }

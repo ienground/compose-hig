@@ -45,6 +45,7 @@ import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
@@ -67,6 +68,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -79,19 +81,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
@@ -122,6 +128,7 @@ import zone.ien.hig.CupertinoDateTimePickerNative
 import zone.ien.hig.CupertinoDateTimePickerState
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoDropdownMenuNative
+import zone.ien.hig.CupertinoHorizontalDivider
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconButton
 import zone.ien.hig.CupertinoLiquidAlertDialog
@@ -218,10 +225,20 @@ import zone.ien.hig.theme.systemRed
 import zone.ien.hig.theme.systemYellow
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import kotlin.time.Instant
+import kotlin.math.abs
 
 private enum class PickerTab {
     Picker, Time, Date, DateTime
 }
+
+private data class RecentCall(
+    val id: Int,
+    val initials: String,
+    val name: String,
+    val detail: String,
+    val date: String,
+    val avatarColor: Color,
+)
 
 @OptIn(ExperimentalCupertinoApi::class)
 @Composable
@@ -348,6 +365,31 @@ private fun Body(
                 paddingValues = CupertinoSearchTextFieldDefaults.PaddingValues +
                         PaddingValues(bottom = 12.dp)
             )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(CupertinoTheme.colorScheme.systemBackground)
+                    .padding(vertical = 12.dp),
+            ) {
+                CupertinoText(
+                    text = "iOS 26 Swipe Actions",
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = CupertinoTheme.colorScheme.label,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                CupertinoText(
+                    text = "왼쪽으로 끝까지 밀어 전체 스와이프 전환과 햅틱을 확인하세요.",
+                    modifier = Modifier.padding(
+                        start = 16.dp,
+                        top = 4.dp,
+                        end = 16.dp,
+                        bottom = 8.dp,
+                    ),
+                    color = CupertinoTheme.colorScheme.secondaryLabel,
+                )
+                RecentCallsSwipeChapter(scrollState)
+            }
 //            /*
 
             CupertinoSection {
@@ -567,6 +609,151 @@ private fun PickersSection(
             }
         }
 
+    }
+}
+
+@OptIn(ExperimentalCupertinoApi::class, ExperimentalFoundationApi::class)
+@Composable
+private fun RecentCallsSwipeChapter(scrollableState: ScrollableState) {
+    val yellow = CupertinoColors.systemYellow
+    val indigo = CupertinoColors.systemIndigo
+    val blue = CupertinoColors.systemBlue
+    val calls = remember(yellow, indigo, blue) {
+        mutableStateListOf(
+            RecentCall(
+                id = 1,
+                initials = "밍",
+                name = "밍님 🧸",
+                detail = "↙ 메인 전화번호",
+                date = "수요일",
+                avatarColor = yellow,
+            ),
+            RecentCall(
+                id = 2,
+                initials = "아",
+                name = "아이엔_픽셀 (2858)",
+                detail = "↗ 메인 전화번호",
+                date = "2026. 7. 10.",
+                avatarColor = indigo,
+            ),
+            RecentCall(
+                id = 3,
+                initials = "허",
+                name = "허진혁형 포스텍",
+                detail = "↙ 메인 휴대전화",
+                date = "2026. 7. 8.",
+                avatarColor = blue,
+            ),
+        )
+    }
+    val scope = rememberCoroutineScope()
+    var activeCallId by remember { mutableStateOf<Int?>(null) }
+    val openSwipeBoxState =
+        remember { mutableStateOf<AnchoredDraggableState<SwipeBoxStates>?>(null) }
+
+    calls.forEachIndexed { index, call ->
+        val state = rememberCupertinoSwipeBoxState(
+            key = "recent-call-${call.id}",
+            scrollableState = scrollableState,
+            openSwipeBoxState = openSwipeBoxState,
+            coroutineScope = scope,
+        )
+        LaunchedEffect(state, call.id) {
+            snapshotFlow { state.offset }
+                .collect { offset ->
+                    if (offset.isFinite() && abs(offset) > 0.5f) {
+                        activeCallId = call.id
+                    } else if (activeCallId == call.id) {
+                        activeCallId = null
+                    }
+                }
+        }
+
+        CupertinoSwipeBox(
+            state = state,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp),
+            itemWidth = 60.dp,
+            height = 80.dp,
+            startToEndFullSwipeEnabled = false,
+            actionItemBuilder = {
+                end {
+                    CupertinoSwipeBoxItem(
+                        color = CupertinoColors.systemBlue,
+                        onClick = {},
+                        icon = CupertinoIcons.Filled.Alarm,
+                        onClickLabel = "미리 알림",
+                    )
+                }
+                end(onClick = { calls.remove(call) }) {
+                    CupertinoSwipeBoxItem(
+                        color = CupertinoColors.systemRed,
+                        onClick = { calls.remove(call) },
+                        icon = CupertinoIcons.Filled.Trash,
+                        onClickLabel = "삭제",
+                    )
+                }
+            },
+        ) {
+            RecentCallRow(call)
+        }
+
+        if (index != calls.lastIndex) {
+            val nextCallId = calls.getOrNull(index + 1)?.id
+            val isAdjacentToActiveCall =
+                activeCallId == call.id || activeCallId == nextCallId
+            CupertinoHorizontalDivider(
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .alpha(if (isAdjacentToActiveCall) 0f else 1f),
+                color = CupertinoTheme.colorScheme.separator,
+            )
+        }
+    }
+}
+
+@Composable
+private fun RecentCallRow(call: RecentCall) {
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .background(call.avatarColor, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            CupertinoText(
+                text = call.initials,
+                color = Color.White,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+
+        Column(
+            modifier = Modifier.weight(1f),
+        ) {
+            CupertinoText(
+                text = call.name,
+                color = CupertinoTheme.colorScheme.label,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+            )
+            CupertinoText(
+                text = call.detail,
+                color = CupertinoTheme.colorScheme.secondaryLabel,
+                maxLines = 1,
+            )
+        }
+
+        CupertinoText(
+            text = call.date,
+            color = CupertinoTheme.colorScheme.secondaryLabel,
+            maxLines = 1,
+        )
     }
 }
 

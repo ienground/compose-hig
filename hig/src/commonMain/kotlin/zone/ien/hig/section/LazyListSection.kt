@@ -33,8 +33,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.CornerBasedShape
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -44,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.CupertinoHorizontalDivider
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.LocalContainerColor
@@ -71,7 +70,7 @@ fun LazyListScope.section(
     state: SectionState? = null,
     enterTransition: EnterTransition = CupertinoSectionDefaults.EnterTransition,
     exitTransition: ExitTransition = CupertinoSectionDefaults.ExitTransition,
-    shape: CornerBasedShape? = null,
+    shape: ContinuousRoundedRectangle? = null,
     color: Color = Color.Unspecified,
     title: @Composable (LazyItemScope.() -> Unit)? = null,
     caption: @Composable (LazyItemScope.() -> Unit)? = null,
@@ -145,7 +144,7 @@ fun LazyListScope.stickySection(
     state: SectionState? = null,
     enterTransition: EnterTransition = CupertinoSectionDefaults.EnterTransition,
     exitTransition: ExitTransition = CupertinoSectionDefaults.ExitTransition,
-    shape: CornerBasedShape? = null,
+    shape: ContinuousRoundedRectangle? = null,
     color: Color = Color.Unspecified,
     title: @Composable (LazyItemScope.(PaddingValues) -> Unit)? = null,
     caption: @Composable (LazyItemScope.() -> Unit)? = null,
@@ -236,7 +235,7 @@ private fun LazyListScope.itemsAndCaption(
     enterTransition: EnterTransition,
     exitTransition: ExitTransition,
     state: SectionState?,
-    shape: CornerBasedShape?,
+    shape: ContinuousRoundedRectangle?,
     itemsPadding: PaddingValues,
     caption: (@Composable LazyItemScope.() -> Unit)?,
     content: LazySectionScope.() -> Unit,
@@ -258,13 +257,7 @@ private fun LazyListScope.itemsAndCaption(
                         !resolvedStyle().inset || !resolvedStyle().grouped -> null
 
                         else ->
-                            resolvedShape // todo
-//                            RoundedCornerShape(
-//                                topStart = if (index == 0) resolvedShape.topStart else CornerSizeZero,
-//                                topEnd = if (index == 0) resolvedShape.topEnd else CornerSizeZero,
-//                                bottomStart = if (index == items.lastIndex) resolvedShape.bottomStart else CornerSizeZero,
-//                                bottomEnd = if (index == items.lastIndex) resolvedShape.bottomEnd else CornerSizeZero,
-//                            )
+                            resolvedShape
                     }
 
                 val clipModifier = clipShape?.let { Modifier.clip(it) } ?: Modifier
@@ -359,4 +352,4 @@ private object SectionTitleContentType
 
 private object SectionCaptionContentType
 
-private val CornerSizeZero = CornerSize(0)
+

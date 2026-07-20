@@ -18,6 +18,7 @@
 
 package zone.ien.hig.swipebox
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
@@ -25,12 +26,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -40,16 +45,22 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import zone.ien.hig.LocalContentColor
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.CupertinoIcon
+import zone.ien.hig.CupertinoSwipeBoxDefaults
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.LocalContentColor
 import zone.ien.hig.ProvideTextStyle
 import zone.ien.hig.cupertinoTween
 import zone.ien.hig.theme.CupertinoColors
@@ -74,32 +85,39 @@ fun RowScope.CupertinoSwipeBoxItem(
     icon: ImageVector? = null,
     label: String? = null,
     weight: Float = 1f,
+    shape: Shape = ContinuousRoundedRectangle(1_000.dp),
 ) {
     val state = LocalSwipeBoxState.current
     val actionPosition = LocalSwipeActionPosition.current
     val isFullSwipeActionItem = LocalSwipeBoxItemFullSwipe.current
+    val itemWidth = LocalSwipeBoxItemWidth.current
+    val revealScale = LocalSwipeBoxItemRevealScale.current
+    val isExpanding = LocalSwipeBoxItemExpanding.current
+    val collapsedItemSize =
+        (itemWidth - CupertinoSwipeBoxDefaults.actionItemHorizontalPadding * 2)
+            .coerceAtLeast(0.dp)
+    val isFullSwipeTarget =
+        state.targetValue == SwipeBoxStates.EndFullyExpanded ||
+            state.targetValue == SwipeBoxStates.StartFullyExpanded
     val shouldRenderItem =
-        !(state.currentValue == SwipeBoxStates.EndFullyExpanded || state.currentValue == SwipeBoxStates.StartFullyExpanded) ||
-            isFullSwipeActionItem
+        !isFullSwipeTarget || isFullSwipeActionItem
 
     val zIndex = if (isFullSwipeActionItem) 1f else 0f
 
     val coroutineScope = rememberCoroutineScope()
     val currentOnClick by rememberUpdatedState(onClick)
 
-    // TODO use widths directly instead of weights
-    // We can't have negative weights, so make it as small as possible
-    val animatedWeight by animateFloatAsState(
-        targetValue = if (shouldRenderItem) weight else 0.000000001f,
+    val animatedItemWidth by animateDpAsState(
+        targetValue = if (shouldRenderItem) itemWidth * weight else 0.dp,
         animationSpec = cupertinoTween(),
     )
 
     val animHorizontalBias by animateFloatAsState(
         when {
-            (state.currentValue == SwipeBoxStates.EndFullyExpanded) && (actionPosition == CupertinoSwipeActionPosition.End) -> -1f // Start
-            (state.currentValue == SwipeBoxStates.StartFullyExpanded) && (actionPosition == CupertinoSwipeActionPosition.Start) -> 1f
-            (state.currentValue == SwipeBoxStates.Resting) && (actionPosition == CupertinoSwipeActionPosition.End) -> 1f
-            (state.currentValue == SwipeBoxStates.Resting) && (actionPosition == CupertinoSwipeActionPosition.Start) -> -1f // Start
+            (state.targetValue == SwipeBoxStates.EndFullyExpanded) && (actionPosition == CupertinoSwipeActionPosition.End) -> -1f
+            (state.targetValue == SwipeBoxStates.StartFullyExpanded) && (actionPosition == CupertinoSwipeActionPosition.Start) -> 1f
+            (state.targetValue == SwipeBoxStates.Resting) && (actionPosition == CupertinoSwipeActionPosition.End) -> 1f
+            (state.targetValue == SwipeBoxStates.Resting) && (actionPosition == CupertinoSwipeActionPosition.Start) -> -1f
             else -> 0f
         },
         animationSpec = cupertinoTween(),
@@ -111,11 +129,47 @@ fun RowScope.CupertinoSwipeBoxItem(
             Box(
                 modifier =
                     modifier
-                        .weight(animatedWeight)
+                        .then(
+                            if (isFullSwipeActionItem) {
+                                Modifier.weight(weight)
+                            } else {
+                                Modifier.width(animatedItemWidth)
+                            }
+                        )
                         .zIndex(zIndex)
-                        .fillMaxSize()
+                        .fillMaxHeight()
+                        .padding(
+                            horizontal = CupertinoSwipeBoxDefaults.actionItemHorizontalPadding,
+                            vertical = CupertinoSwipeBoxDefaults.actionItemVerticalPadding,
+                        ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .then(
+                            if (isExpanding) {
+                                Modifier
+                                    .fillMaxWidth()
+                                    .requiredHeight(collapsedItemSize)
+                            } else {
+                                Modifier.requiredSize(collapsedItemSize)
+                            }
+                        )
+                        .graphicsLayer {
+                            scaleX = revealScale
+                            scaleY = revealScale
+                            transformOrigin = TransformOrigin(
+                                pivotFractionX =
+                                    if (actionPosition == CupertinoSwipeActionPosition.End) {
+                                        1f
+                                    } else {
+                                        0f
+                                    },
+                                pivotFractionY = 0.5f,
+                            )
+                        }
+                        .clip(shape)
                         .background(color)
-                        .align(Alignment.CenterVertically)
                         .clickable(
                             enabled = enabled,
                             indication = LocalIndication.current,
@@ -130,7 +184,8 @@ fun RowScope.CupertinoSwipeBoxItem(
                             },
                             onClickLabel = onClickLabel,
                             role = Role.Button,
-                        ).padding(horizontal = 8.dp),
+                        )
+                        .padding(horizontal = 10.dp),
                 // TODO hardcore removal
                 contentAlignment =
                     BiasAlignment(
@@ -138,15 +193,16 @@ fun RowScope.CupertinoSwipeBoxItem(
                         horizontalBias = animHorizontalBias,
                     ),
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     icon?.let {
                         CupertinoIcon(
                             imageVector = it,
                             contentDescription = onClickLabel,
                             tint = CupertinoColors.White,
-                            modifier = Modifier.requiredSize(20.dp),
+                            modifier = Modifier.requiredSize(16.dp),
                         )
                     }
 
@@ -158,6 +214,7 @@ fun RowScope.CupertinoSwipeBoxItem(
                         )
                     }
                 }
+            }
             }
         }
     }
