@@ -138,6 +138,7 @@ fun CupertinoSegmentedControl(
     val animationScope = rememberCoroutineScope()
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
     var dragSettlingIndex by remember { mutableStateOf<Int?>(null) }
+    val didDrag = remember { mutableStateOf(false) }
     val dampedDragAnimation =
         if (tabCount > 0) {
             remember(animationScope, tabCount, isLtr) {
@@ -148,15 +149,22 @@ fun CupertinoSegmentedControl(
                     visibilityThreshold = 0.001f,
                     initialScale = 1f,
                     pressedScale = 78f / 56f,
-                    onDragStarted = {},
+                    onDragStarted = {
+                        didDrag.value = false
+                    },
                     onDragStopped = {
-                        val targetIndex =
-                            targetValue.fastRoundToInt().fastCoerceIn(0, tabCount - 1)
-                        dragSettlingIndex = targetIndex
-                        animateToValue(targetIndex.toFloat())
-                        registry.callbacks[targetIndex]?.invoke()
+                        if (didDrag.value) {
+                            val targetIndex =
+                                targetValue.fastRoundToInt().fastCoerceIn(0, tabCount - 1)
+                            dragSettlingIndex = targetIndex
+                            animateToValue(targetIndex.toFloat())
+                            registry.callbacks[targetIndex]?.invoke()
+                        }
                     },
                     onDrag = { size, dragAmount ->
+                        if (dragAmount != Offset.Zero) {
+                            didDrag.value = true
+                        }
                         val itemStep = size.width.toFloat() / tabCount
                         if (itemStep > 0f) {
                             updateValue(
@@ -438,6 +446,7 @@ fun CupertinoSegmentedControlTab(
     val tabWidth = LocalSegmentedTabWidth.current
     val currentOnClick by rememberUpdatedState(onClick)
     val registry = LocalSegmentedTabRegistry.current
+    val dragAnimation = LocalSegmentedDragAnimation.current
     val registeredIndex =
         if (isOverlay) {
             null
@@ -474,7 +483,12 @@ fun CupertinoSegmentedControlTab(
                         Modifier.clearAndSetSemantics {}
                     } else {
                         Modifier.clickable(
-                            onClick = onClick,
+                            onClick = {
+                                registeredIndex?.let { index ->
+                                    dragAnimation?.animateToValue(index.toFloat())
+                                }
+                                currentOnClick()
+                            },
                             indication = null,
                             interactionSource = interactionSource,
                             role = Role.Tab,
