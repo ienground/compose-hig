@@ -214,7 +214,7 @@ internal class LegacyCalendarModelImpl: CalendarModel {
      */
     private fun dayInISO8601(day: Int): Int {
         val shiftedDay = (day + 6) % 7
-        return if (shiftedDay == 0) return /* Sunday */ 7 else shiftedDay
+        return if (shiftedDay == 0) /* Sunday */ 7 else shiftedDay
     }
 
     private fun getMonth(firstDayCalendar: Calendar): CalendarMonth {

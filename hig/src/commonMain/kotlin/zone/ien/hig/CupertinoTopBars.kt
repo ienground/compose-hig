@@ -104,6 +104,7 @@ import zone.ien.hig.theme.darkColorScheme
 import zone.ien.hig.theme.lightColorScheme
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Return true if container can't scroll backward
@@ -477,7 +478,7 @@ private fun InlineTopAppBar(
                     }
                 }
 
-                delay(300)
+                delay(300.milliseconds)
             }
         }
     }

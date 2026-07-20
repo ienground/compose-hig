@@ -24,5 +24,4 @@ package zone.ien.hig.adaptive
  * This file defines the default theme for non-iOS platforms (such as Android) to use Material 3 design.
  * It ensures consistent theming across Android applications using this library.
  */
-internal actual val DefaultTheme: Theme
-    get() = Theme.Material3
+internal actual val DefaultTheme: Theme get() = Theme.Material3

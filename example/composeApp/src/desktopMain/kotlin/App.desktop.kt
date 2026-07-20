@@ -16,5 +16,4 @@
  * limitations under the License.
  */
 
-actual val IsIos: Boolean
-    get() = false // probably???
+actual val IsIos: Boolean get() = false // probably???

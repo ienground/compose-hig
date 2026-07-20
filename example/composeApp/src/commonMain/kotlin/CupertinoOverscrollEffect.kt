@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlin.coroutines.coroutineContext
 import kotlin.math.abs
@@ -393,7 +394,7 @@ class CupertinoOverscrollEffect(
             }
         }
 
-        if (coroutineContext.isActive) {
+        if (currentCoroutineContext().isActive) {
             // The spring is critically damped, so in case spring-fling-spring sequence
             // is slightly offset and velocity is of the opposite sign, it will end up with no animation
             overscrollOffset = Offset.Zero

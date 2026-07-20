@@ -22,5 +22,4 @@ import androidx.compose.runtime.Composable
 
 @Composable
 @InternalCupertinoApi
-actual fun SystemBarAppearance(dark: Boolean) {
-}
+actual fun SystemBarAppearance(dark: Boolean) {}
