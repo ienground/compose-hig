@@ -253,7 +253,7 @@ fun CupertinoSwipeBox(
                                     LocalSwipeBoxItemRevealScale provides revealScale,
                                 ) {
                                     key(swipeAction.key) {
-                                        swipeAction.content.let { it() }
+                                        swipeAction.content(this)
                                     }
                                 }
                             }
@@ -310,7 +310,7 @@ fun CupertinoSwipeBox(
                                     LocalSwipeBoxItemRevealScale provides revealScale,
                                 ) {
                                     key(swipeAction.key) {
-                                        swipeAction.content.let { it() }
+                                        swipeAction.content(this)
                                     }
                                 }
                             }

@@ -69,7 +69,6 @@ internal actual fun currentLocale(): CalendarLocale = Locale.getDefault()
  * @property firstDayOfWeek The first day of the week for the default locale
  * @property weekdayNames The weekday names for the default locale
  */
-@RequiresApi(Build.VERSION_CODES.O)
 internal class AndroidCalendarModelImpl: CalendarModel {
     /**
      * Gets the current date.

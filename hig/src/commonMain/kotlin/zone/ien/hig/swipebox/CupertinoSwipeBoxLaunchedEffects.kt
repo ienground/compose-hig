@@ -36,6 +36,7 @@ import zone.ien.hig.InternalCupertinoApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalFoundationApi::class)
 @InternalCupertinoApi
@@ -190,6 +191,6 @@ internal fun ObserverGlobalSwipeBoxListenerEffect(
 
 @OptIn(ExperimentalFoundationApi::class)
 private suspend fun dismissAndAnimate(swipeBoxState: AnchoredDraggableState<SwipeBoxStates>) {
-    delay(10)
+    delay(10.milliseconds)
     swipeBoxState.animateTo(SwipeBoxStates.Resting)
 }

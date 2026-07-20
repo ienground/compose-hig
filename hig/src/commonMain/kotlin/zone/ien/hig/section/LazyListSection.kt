@@ -33,8 +33,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
@@ -251,14 +253,30 @@ private fun LazyListScope.itemsAndCaption(
                 exitTransition = exitTransition,
             ) {
                 val resolvedShape = shape ?: CupertinoSectionDefaults.shape(resolvedStyle())
-
-                val clipShape =
+                val style = resolvedStyle()
+                val clipShape = remember(style, resolvedShape, index, items.size) {
                     when {
-                        !resolvedStyle().inset || !resolvedStyle().grouped -> null
-
+                        !style.inset || !style.grouped -> null
+                        items.size == 1 -> resolvedShape
+                        index == 0 ->
+                            resolvedShape.copy(
+                                bottomStart = CornerSize(0.dp),
+                                bottomEnd = CornerSize(0.dp),
+                            )
+                        index == items.lastIndex ->
+                            resolvedShape.copy(
+                                topStart = CornerSize(0.dp),
+                                topEnd = CornerSize(0.dp),
+                            )
                         else ->
-                            resolvedShape
+                            resolvedShape.copy(
+                                topStart = CornerSize(0.dp),
+                                topEnd = CornerSize(0.dp),
+                                bottomStart = CornerSize(0.dp),
+                                bottomEnd = CornerSize(0.dp),
+                            )
                     }
+                }
 
                 val clipModifier = clipShape?.let { Modifier.clip(it) } ?: Modifier
 
@@ -351,5 +369,4 @@ private object SplitPaddingContentType
 private object SectionTitleContentType
 
 private object SectionCaptionContentType
-
 

@@ -30,9 +30,7 @@ internal actual object PlatformDateFormat {
      * For API level 26 and above, uses AndroidCalendarModelImpl; otherwise, throws an error.
      */
     private val delegate by lazy {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            AndroidCalendarModelImpl()
-        } else error("should not be used for api < 26")
+        AndroidCalendarModelImpl()
     }
 
     /**
@@ -172,6 +170,5 @@ internal actual object PlatformDateFormat {
  */
 @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O, lambda = 2)
 private fun <T> apiCheck(old: () -> T, new: () -> T): T {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-        new() else old()
+    return new()
 }

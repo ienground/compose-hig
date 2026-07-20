@@ -58,6 +58,7 @@ import kotlin.math.cos
 import kotlin.math.sign
 import kotlin.math.sin
 import kotlin.math.tanh
+import kotlin.time.Duration.Companion.milliseconds
 import androidx.compose.animation.Animatable as ColorAnimatable
 import androidx.compose.animation.core.Animatable as FloatAnimatable
 
@@ -150,7 +151,7 @@ fun CupertinoLiquidButton(
                     }
                 }
 
-                delay(300)
+                delay(300.milliseconds)
             }
         }
     }

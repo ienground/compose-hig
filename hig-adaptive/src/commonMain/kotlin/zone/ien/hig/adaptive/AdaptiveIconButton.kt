@@ -34,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoLiquidButtonColors
 import zone.ien.hig.CupertinoLiquidButtonDefaults
 import zone.ien.hig.CupertinoLiquidIconButton

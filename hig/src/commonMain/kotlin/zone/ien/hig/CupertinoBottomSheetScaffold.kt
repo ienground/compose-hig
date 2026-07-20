@@ -622,7 +622,7 @@ private fun BottomSheetScaffoldAnchorChangeHandler(
     state: CupertinoSheetState,
     animateTo: (target: CupertinoSheetValue, velocity: Float) -> Unit,
     snapTo: (target: CupertinoSheetValue) -> Unit,
-) = AnchorChangeHandler<CupertinoSheetValue> { previousTarget, previousAnchors, newAnchors ->
+) = AnchorChangeHandler { previousTarget, previousAnchors, newAnchors ->
 
     val previousTargetOffset = previousAnchors[previousTarget]
 

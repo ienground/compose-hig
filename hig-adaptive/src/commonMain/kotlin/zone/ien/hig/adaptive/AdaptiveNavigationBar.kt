@@ -42,7 +42,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoNavigationBar
 import zone.ien.hig.CupertinoNavigationBarColors
 import zone.ien.hig.CupertinoNavigationBarDefaults

@@ -15,6 +15,6 @@ import androidx.compose.runtime.mutableStateOf
  * passed to the `content` lambda, so consumers don't need to handle iOS tab bar
  * insets manually.
  */
-internal val LocalIosTabBarPadding = compositionLocalOf<MutableState<PaddingValues>> {
+internal val LocalIosTabBarPadding = compositionLocalOf {
     mutableStateOf(PaddingValues())
 }
