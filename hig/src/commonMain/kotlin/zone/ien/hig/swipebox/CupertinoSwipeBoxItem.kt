@@ -56,6 +56,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.kyant.capsule.ContinuousCapsule
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoSwipeBoxDefaults

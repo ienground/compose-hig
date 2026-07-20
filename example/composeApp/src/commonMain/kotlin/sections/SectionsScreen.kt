@@ -123,6 +123,7 @@ fun SectionsScreen(
                 title = {
                     CupertinoSegmentedControl(
                         selectedTabIndex = if (isLazy) 0 else 1,
+                        backdrop = backdrop,
                         modifier =
                             Modifier
                                 .width(200.dp),

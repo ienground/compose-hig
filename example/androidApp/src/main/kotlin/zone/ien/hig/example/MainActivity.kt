@@ -19,6 +19,7 @@
 package zone.ien.hig.example
 
 import App
+import AppRenderStage
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -27,6 +28,8 @@ import koinInitialize
 import org.koin.core.context.GlobalContext
 
 class MainActivity: ComponentActivity() {
+    private val renderStage = AppRenderStage.RootScreen
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -37,7 +40,7 @@ class MainActivity: ComponentActivity() {
         }
 
         setContent {
-            App()
+            App(renderStage = renderStage)
         }
     }
 }

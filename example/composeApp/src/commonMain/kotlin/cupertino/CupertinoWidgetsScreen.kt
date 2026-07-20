@@ -38,7 +38,6 @@
 
 package cupertino
 
-import GeneratedAdaptiveTheme
 import RootDetails
 import RootRoute
 import RootUiState
@@ -81,12 +80,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -98,7 +97,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.kyant.backdrop.Backdrop
@@ -165,7 +163,6 @@ import zone.ien.hig.adaptive.AdaptiveNavigationBar
 import zone.ien.hig.adaptive.AdaptiveNavigationBarItem
 import zone.ien.hig.adaptive.AdaptiveNavigationBarNative
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
-import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.adaptive.icons.Add
 import zone.ien.hig.adaptive.icons.Settings
@@ -318,7 +315,7 @@ fun CupertinoWidgetsScreen(
 }
 
 @Composable
-private fun Body(
+internal fun Body(
     modifier: Modifier = Modifier,
     uiState: RootUiState,
     onItemValueChanged: (RootDetails) -> Unit,
@@ -453,6 +450,8 @@ private fun Body(
             // TODO broken on web and desktop
             PickersSection(nativePickers)
 
+            Ios26SegmentedControlChapter()
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -483,31 +482,9 @@ private fun Body(
     }
 }
 
-@OptIn(ExperimentalAdaptiveApi::class)
-@Preview(showBackground = true)
-@Composable
-private fun ScreenPreview() {
-    GeneratedAdaptiveTheme(
-        target = Theme.Cupertino,
-        primaryColor = CupertinoColors.systemBlue
-    ) {
-
-        Body(
-            uiState = RootUiState(),
-            onItemValueChanged = {},
-            paddingValues = PaddingValues.Zero,
-            scrollState = rememberScrollState(),
-            scaffoldState = rememberCupertinoBottomSheetScaffoldState(),
-            nativePickers = rememberSaveable { mutableStateOf(false) },
-            onNavigate = {},
-            backdrop = rememberDefaultBackdrop()
-        )
-    }
-}
-
 @Composable
 private fun PickersSection(
-    nativePickers: MutableState<Boolean>
+    nativePickers: MutableState<Boolean>,
 ) {
 
     var selectedPickerTab by remember {
@@ -613,9 +590,45 @@ private fun PickersSection(
     }
 }
 
+@OptIn(ExperimentalCupertinoApi::class)
+@Composable
+internal fun Ios26SegmentedControlChapter() {
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val tabs = remember { listOf("이벤트", "미리 알림") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+    ) {
+        CupertinoText(
+            text = "iOS 26 Segmented Control",
+            modifier = Modifier.padding(
+                start = 16.dp,
+                end = 16.dp,
+                bottom = 8.dp,
+            ),
+            color = CupertinoTheme.colorScheme.label,
+            fontWeight = FontWeight.SemiBold,
+        )
+        CupertinoSegmentedControl(
+            selectedTabIndex = selectedTabIndex,
+        ) {
+            tabs.forEachIndexed { index, title ->
+                CupertinoSegmentedControlTab(
+                    isSelected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                ) {
+                    CupertinoText(title)
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalFoundationApi::class)
 @Composable
-private fun RecentCallsSwipeChapter(scrollableState: ScrollableState) {
+internal fun RecentCallsSwipeChapter(scrollableState: ScrollableState) {
     val yellow = CupertinoColors.systemYellow
     val indigo = CupertinoColors.systemIndigo
     val blue = CupertinoColors.systemBlue
@@ -660,7 +673,10 @@ private fun RecentCallsSwipeChapter(scrollableState: ScrollableState) {
             coroutineScope = scope,
         )
         LaunchedEffect(state, call.id) {
-            snapshotFlow { state.offset }
+            snapshotFlow {
+                runCatching { state.offset }
+                    .getOrDefault(0f)
+            }
                 .collect { offset ->
                     if (offset.isFinite() && abs(offset) > 0.5f) {
                         activeCallId = call.id
