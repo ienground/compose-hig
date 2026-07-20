@@ -21,8 +21,10 @@
 package zone.ien.hig
 
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableState
@@ -32,6 +34,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -48,32 +51,44 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.section.CupertinoSectionDefaults
 import zone.ien.hig.swipebox.AnchorsEffect
+import zone.ien.hig.swipebox.CupertinoSwipeActionPosition
+import zone.ien.hig.swipebox.CupertinoSwipeBoxActionsBuilder
 import zone.ien.hig.swipebox.DismissFullyExpandedEffect
 import zone.ien.hig.swipebox.HapticFeedbackEffect
 import zone.ien.hig.swipebox.LocalSwipeActionPosition
-import zone.ien.hig.swipebox.LocalSwipeBoxState
-import zone.ien.hig.swipebox.CupertinoSwipeActionPosition
-import zone.ien.hig.swipebox.CupertinoSwipeBoxActionsBuilder
+import zone.ien.hig.swipebox.LocalSwipeBoxItemExpanding
 import zone.ien.hig.swipebox.LocalSwipeBoxItemFullSwipe
+import zone.ien.hig.swipebox.LocalSwipeBoxItemRevealScale
+import zone.ien.hig.swipebox.LocalSwipeBoxItemWidth
+import zone.ien.hig.swipebox.LocalSwipeBoxState
 import zone.ien.hig.swipebox.SwipeBoxStates
 import zone.ien.hig.swipebox.rememberCupertinoSwipeBoxState
+import zone.ien.hig.theme.CupertinoTheme
 import kotlin.math.roundToInt
 
 // TODO clean this up
 object CupertinoSwipeBoxDefaults {
     val allowFullSwipe = true
     val velocityThreshold = Float.POSITIVE_INFINITY
-    val actionItemWidth = 84.dp
-    val actionItemHeight = 72.dp
+    val actionItemHorizontalPadding = 4.dp
+    val actionItemVerticalPadding = 10.dp
+    val actionItemSize = 52.dp
+    val actionItemWidth = actionItemHorizontalPadding + actionItemSize + actionItemHorizontalPadding
+    val actionItemHeight = actionItemVerticalPadding + actionItemSize + actionItemVerticalPadding
     val animationSpec: SpringSpec<Float> = SpringSpec(
         stiffness = Spring.StiffnessMedium,
         dampingRatio = Spring.DampingRatioNoBouncy
@@ -136,7 +151,8 @@ fun CupertinoSwipeBox(
         density = density,
         amountOfStartActionItems = startActionsSize,
         amountOfEndActionItems = endActionsSize,
-        actionItemWidth = itemWidth
+        actionItemWidth = itemWidth,
+        actionRowOuterPadding = CupertinoSwipeBoxDefaults.actionItemHorizontalPadding * 2,
     ) { anchorsInitialized = it }
 
     HapticFeedbackEffect(
@@ -176,6 +192,20 @@ fun CupertinoSwipeBox(
                     if (anchorsInitialized) state.offset else 0f
                 }
             }
+            val revealedWidth = with(density) { kotlin.math.abs(offset).toDp() }
+            val isSwiping = offset != 0f
+            val foregroundColor by animateColorAsState(
+                targetValue = if (isSwiping) {
+                    CupertinoTheme.colorScheme.secondarySystemFill
+                } else {
+                    LocalContainerColor.current
+                },
+                animationSpec = cupertinoTween(),
+            )
+            val foregroundCornerRadius by animateDpAsState(
+                targetValue = if (isSwiping) 18.dp else 0.dp,
+                animationSpec = cupertinoTween(),
+            )
 
             if (offset > 0 && isStartActionItemSupplied) {
                 CompositionLocalProvider(
@@ -184,17 +214,43 @@ fun CupertinoSwipeBox(
                     Box(
                         modifier = Modifier
                             .height(height)
-                            .width(with(density) { offset.toDp() })
+                            .width(revealedWidth)
+                            .clipToBounds()
                             .align(Alignment.CenterStart)
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically
+                        val actionRowOuterPadding =
+                            CupertinoSwipeBoxDefaults.actionItemHorizontalPadding * 2
+                        val revealedActionContentWidth =
+                            (revealedWidth - actionRowOuterPadding).coerceAtLeast(0.dp)
+                        val normalActionRowWidth =
+                            itemWidth * startActionsSize + actionRowOuterPadding
+                        val actionRowWidth =
+                            if (revealedWidth > normalActionRowWidth) {
+                                revealedWidth
+                            } else {
+                                normalActionRowWidth
+                            }
+                        SwipeActionRow(
+                            width = actionRowWidth,
+                            alignToEnd = false,
                         ) {
                             actionItems.startActions.forEachIndexed { index, swipeAction ->
+                                val revealScale =
+                                    ((revealedActionContentWidth - itemWidth * index) / itemWidth)
+                                        .coerceIn(0f, 1f)
                                 CompositionLocalProvider(
-                                    LocalSwipeBoxItemFullSwipe provides (index == 0)
+                                    LocalSwipeBoxItemFullSwipe provides (index == 0),
+                                    LocalSwipeBoxItemExpanding provides
+                                        (
+                                            index == 0 &&
+                                                (
+                                                    revealedWidth > normalActionRowWidth ||
+                                                        state.targetValue ==
+                                                        SwipeBoxStates.StartFullyExpanded
+                                                    )
+                                            ),
+                                    LocalSwipeBoxItemWidth provides itemWidth,
+                                    LocalSwipeBoxItemRevealScale provides revealScale,
                                 ) {
                                     key(swipeAction.key) {
                                         swipeAction.content.let { it() }
@@ -213,18 +269,45 @@ fun CupertinoSwipeBox(
                     Box(
                         modifier = Modifier
                             .height(height)
-                            .width(with(density) { -offset.toDp() })
+                            .width(revealedWidth)
+                            .clipToBounds()
                             .align(Alignment.CenterEnd)
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.End
+                        val actionRowOuterPadding =
+                            CupertinoSwipeBoxDefaults.actionItemHorizontalPadding * 2
+                        val revealedActionContentWidth =
+                            (revealedWidth - actionRowOuterPadding).coerceAtLeast(0.dp)
+                        val normalActionRowWidth =
+                            itemWidth * endActionsSize + actionRowOuterPadding
+                        val actionRowWidth =
+                            if (revealedWidth > normalActionRowWidth) {
+                                revealedWidth
+                            } else {
+                                normalActionRowWidth
+                            }
+                        SwipeActionRow(
+                            width = actionRowWidth,
+                            alignToEnd = true,
                         ) {
                             actionItems.endActions.forEachIndexed { index, swipeAction ->
+                                val revealOrder = actionItems.endActions.lastIndex - index
+                                val revealScale =
+                                    ((revealedActionContentWidth - itemWidth * revealOrder) / itemWidth)
+                                        .coerceIn(0f, 1f)
                                 CompositionLocalProvider(
-                                    LocalSwipeBoxItemFullSwipe provides (index == actionItems.endActions.lastIndex)
+                                    LocalSwipeBoxItemFullSwipe provides
+                                        (index == actionItems.endActions.lastIndex),
+                                    LocalSwipeBoxItemExpanding provides
+                                        (
+                                            index == actionItems.endActions.lastIndex &&
+                                                (
+                                                    revealedWidth > normalActionRowWidth ||
+                                                        state.targetValue ==
+                                                        SwipeBoxStates.EndFullyExpanded
+                                                    )
+                                        ),
+                                    LocalSwipeBoxItemWidth provides itemWidth,
+                                    LocalSwipeBoxItemRevealScale provides revealScale,
                                 ) {
                                     key(swipeAction.key) {
                                         swipeAction.content.let { it() }
@@ -249,7 +332,8 @@ fun CupertinoSwipeBox(
                         modifier = Modifier
                             .fillMaxSize()
                             .height(height)
-                            .background(LocalContainerColor.current)
+                            .clip(ContinuousRoundedRectangle(foregroundCornerRadius))
+                            .background(foregroundColor)
                             .padding(
                                 start = CupertinoSectionDefaults.PaddingValues
                                     .calculateStartPadding(LocalLayoutDirection.current),
@@ -261,6 +345,38 @@ fun CupertinoSwipeBox(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun SwipeActionRow(
+    width: Dp,
+    alignToEnd: Boolean,
+    content: @Composable RowScope.() -> Unit,
+) {
+    Layout(
+        modifier = Modifier.fillMaxSize(),
+        content = {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = CupertinoSwipeBoxDefaults.actionItemHorizontalPadding),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = if (alignToEnd) Arrangement.End else Arrangement.Start,
+                content = content,
+            )
+        },
+    ) { measurables, constraints ->
+        val rowWidth = width.roundToPx()
+        val rowHeight = constraints.maxHeight
+        val placeable = measurables.single().measure(
+            Constraints.fixed(rowWidth, rowHeight),
+        )
+
+        layout(constraints.maxWidth, rowHeight) {
+            val x = if (alignToEnd) constraints.maxWidth - rowWidth else 0
+            placeable.placeRelative(x, 0)
         }
     }
 }

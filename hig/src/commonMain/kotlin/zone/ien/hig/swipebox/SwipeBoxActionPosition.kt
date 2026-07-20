@@ -21,6 +21,7 @@ package zone.ien.hig.swipebox
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.unit.dp
 
 /**
  * Provides context to `SimpleCupertinoSwipeBoxItem` about the positioning of the current action item.
@@ -31,6 +32,12 @@ internal enum class CupertinoSwipeActionPosition {
 }
 
 internal val LocalSwipeBoxItemFullSwipe = compositionLocalOf { false }
+
+internal val LocalSwipeBoxItemWidth = compositionLocalOf { 0.dp }
+
+internal val LocalSwipeBoxItemRevealScale = compositionLocalOf { 1f }
+
+internal val LocalSwipeBoxItemExpanding = compositionLocalOf { false }
 
 internal val LocalSwipeActionPosition = compositionLocalOf { CupertinoSwipeActionPosition.Start }
 

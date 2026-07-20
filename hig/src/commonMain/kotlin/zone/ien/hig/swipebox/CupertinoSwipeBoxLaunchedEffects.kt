@@ -51,13 +51,16 @@ internal fun AnchorsEffect(
     amountOfStartActionItems: Int,
     amountOfEndActionItems: Int,
     actionItemWidth: Dp,
+    actionRowOuterPadding: Dp,
     onAnchorsInitialized: (Boolean) -> Unit,
 ) {
-    val totalStartActionItemWidth = actionItemWidth * amountOfStartActionItems
-    val totalEndActionItemWidth = actionItemWidth * amountOfEndActionItems
+    val totalStartActionItemWidth =
+        actionItemWidth * amountOfStartActionItems + actionRowOuterPadding
+    val totalEndActionItemWidth =
+        actionItemWidth * amountOfEndActionItems + actionRowOuterPadding
     val startSwipeOffset = with(density) { totalStartActionItemWidth.toPx() }
     val endSwipeOffset = with(density) { totalEndActionItemWidth.toPx() }
-    LaunchedEffect(parentWidth) {
+    LaunchedEffect(parentWidth, totalStartActionItemWidth, totalEndActionItemWidth) {
         if (parentWidth > 0) {
             // If there's 1 action item, the fullSwipeOffset should be 50%, if there's 2 or more it should be 90%
             val fullSwipeStartOffset = parentWidth * (if (amountOfStartActionItems >= 2) 0.85f else 0.5f) // TODO test this
@@ -90,28 +93,29 @@ internal fun HapticFeedbackEffect(
     onHapticFeedbackTriggered: (Boolean) -> Unit,
 ) {
     LaunchedEffect(swipeBoxState.currentValue, swipeBoxState.targetValue) {
-        if (fullExpansionStart) {
-            if ((swipeBoxState.targetValue == SwipeBoxStates.StartFullyExpanded) && !hasTriggeredHapticFeedback) {
+        val isStartFullSwipeTarget =
+            fullExpansionStart && swipeBoxState.targetValue == SwipeBoxStates.StartFullyExpanded
+        val isEndFullSwipeTarget =
+            fullExpansionEnd && swipeBoxState.targetValue == SwipeBoxStates.EndFullyExpanded
+
+        when {
+            isStartFullSwipeTarget && !hasTriggeredHapticFeedback -> {
                 hapticFeedback.performHapticFeedback(CupertinoHapticFeedback.ImpactLight)
                 onHapticFeedbackTriggered(true)
+                isFullyExpandedStart.value = true
+                isFullyExpandedEnd.value = false
+            }
+
+            isEndFullSwipeTarget && !hasTriggeredHapticFeedback -> {
+                hapticFeedback.performHapticFeedback(CupertinoHapticFeedback.ImpactLight)
+                onHapticFeedbackTriggered(true)
+                isFullyExpandedStart.value = false
                 isFullyExpandedEnd.value = true
             }
 
-            if (swipeBoxState.targetValue != SwipeBoxStates.StartFullyExpanded) {
+            !isStartFullSwipeTarget && !isEndFullSwipeTarget -> {
                 onHapticFeedbackTriggered(false)
                 isFullyExpandedStart.value = false
-            }
-        }
-
-        if (fullExpansionEnd) {
-            if ((swipeBoxState.targetValue == SwipeBoxStates.EndFullyExpanded) && !hasTriggeredHapticFeedback) {
-                hapticFeedback.performHapticFeedback(CupertinoHapticFeedback.ImpactLight)
-                onHapticFeedbackTriggered(true)
-                isFullyExpandedEnd.value = true
-            }
-
-            if (swipeBoxState.targetValue != SwipeBoxStates.EndFullyExpanded) {
-                onHapticFeedbackTriggered(false)
                 isFullyExpandedEnd.value = false
             }
         }
