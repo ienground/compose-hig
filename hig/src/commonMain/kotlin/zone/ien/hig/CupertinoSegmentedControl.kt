@@ -20,7 +20,6 @@
 
 package zone.ien.hig
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -79,7 +78,6 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastRoundToInt
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
@@ -240,7 +238,18 @@ fun CupertinoSegmentedControl(
                     Modifier
                         .fillMaxWidth()
                         .height(CupertinoSegmentedControlTokens.MinHeight)
-                        .background(colors.containerColor, shape),
+                        .drawBackdrop(
+                            backdrop = backdrop,
+                            shape = { shape },
+                            effects = {
+                                blur(8.dp.toPx())
+                            },
+                            highlight = null,
+                            shadow = null,
+                            onDrawSurface = {
+                                drawRect(colors.containerColor)
+                            },
+                        ),
             )
 
             if (tabCount > 0 && dampedDragAnimation != null) {
@@ -382,8 +391,18 @@ fun CupertinoSegmentedControlIndicator(
                 ).padding(CupertinoSegmentedControlTokens.IndicatorPadding)
                 .fillMaxWidth()
                 .fillMaxHeight()
+                .graphicsLayer {
+                    clip = false
+                    scaleX = dampedDragAnimation.scaleX
+                    scaleY = dampedDragAnimation.scaleY
+                    val velocity = dampedDragAnimation.velocity / 10f
+                    scaleX /= 1f -
+                        (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
+                    scaleY *= 1f -
+                        (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
+                }
                 .drawBackdrop(
-                    backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
+                    backdrop = backdrop,
                     shape = { shape },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
@@ -405,15 +424,6 @@ fun CupertinoSegmentedControlIndicator(
                             radius = 8.dp * progress,
                             alpha = progress,
                         )
-                    },
-                    layerBlock = {
-                        scaleX = dampedDragAnimation.scaleX
-                        scaleY = dampedDragAnimation.scaleY
-                        val velocity = dampedDragAnimation.velocity / 10f
-                        scaleX /= 1f -
-                            (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
-                        scaleY *= 1f -
-                            (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
                     },
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
