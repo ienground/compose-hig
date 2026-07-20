@@ -1,10 +1,13 @@
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -22,9 +25,22 @@ import zone.ien.hig.theme.lightColorScheme
 
 expect val IsIos: Boolean
 
+enum class AppRenderStage {
+    EmptyBox,
+    ThemeWithEmptyBox,
+    RootScreen,
+}
+
 @OptIn(ExperimentalAdaptiveApi::class)
 @Composable
-fun App() {
+fun App(
+    renderStage: AppRenderStage = AppRenderStage.RootScreen,
+) {
+    if (renderStage == AppRenderStage.EmptyBox) {
+        Box(Modifier.fillMaxSize())
+        return
+    }
+
     val backStack = rememberNavBackStack(rootConfig, RootRoute.Cupertino)
 
     val viewModel: RootViewModel = koinViewModel()
@@ -59,11 +75,15 @@ fun App() {
                 lightAccent else darkAccent,
             useDarkTheme = isDark
         ) {
-//            TestScreen()
-            RootNavigationGraph(
-                backStack = backStack,
-                viewModel = viewModel
-            )
+            when (renderStage) {
+                AppRenderStage.EmptyBox -> Unit
+                AppRenderStage.ThemeWithEmptyBox -> Box(Modifier.fillMaxSize())
+                AppRenderStage.RootScreen ->
+                    RootNavigationGraph(
+                        backStack = backStack,
+                        viewModel = viewModel
+                    )
+            }
         }
     }
 }

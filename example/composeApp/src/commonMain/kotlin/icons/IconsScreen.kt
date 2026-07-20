@@ -931,7 +931,8 @@ fun IconsScreen(
                     CupertinoSegmentedControl(
                         modifier = Modifier
                             .width(200.dp),
-                        selectedTabIndex = if (isOutlined) 0 else 1
+                        selectedTabIndex = if (isOutlined) 0 else 1,
+                        backdrop = backdrop,
                     ) {
                         CupertinoSegmentedControlTab(
                             isSelected = isOutlined,
