@@ -101,7 +101,7 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
  * @param modifier control modifier
  * @param colors segmented control colors
  * @param shape shape of the segmented control and its indicator
- * @param backdrop 주변 콘텐츠가 기록된 외부 백드롭
+ * @param backdrop external backdrop recorded from surrounding content
  * @param paddingValues outer paddings. Default values are equal to section paddings
  * @param indicator sliding indicator
  * @param tabs segmented control tabs. Usually [CupertinoSegmentedControlTab]
@@ -314,7 +314,7 @@ fun CupertinoSegmentedControl(
  * @param tabPositions positions of the [CupertinoSegmentedControl] tabs
  * @param shape indicator shape. Should be the same as [CupertinoSegmentedControl] shape.
  * @param color indicator color
- * @param backdrop 주변 콘텐츠가 기록된 외부 백드롭
+ * @param backdrop external backdrop recorded from surrounding content
  * @param separatorColor color of the divider between tabs
  * */
 @Composable

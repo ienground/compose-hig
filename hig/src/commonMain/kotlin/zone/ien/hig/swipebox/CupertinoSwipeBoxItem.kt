@@ -70,7 +70,22 @@ import zone.ien.hig.theme.White
 import kotlinx.coroutines.launch
 
 /**
- * TODO javadocs
+ * Action item composable for [CupertinoSwipeBox].
+ *
+ * Displays an action button with optional icon and text label inside the swipe actions area.
+ * Supports smooth expanding and revealing animations as well as full-swipe trigger responses.
+ *
+ * @param color Background color of the action item.
+ * @param onClick Action callback executed when the item is tapped or triggered via full swipe.
+ * @param modifier Modifier applied to the action item container.
+ * @param enabled Controls whether the action item responds to user interactions.
+ * @param restoreOnClick Controls whether the swipe box automatically collapses back to its default state after invocation.
+ * @param onClickLabel Accessibility label for the click action.
+ * @param interactionSource Interaction source for tracking gesture states.
+ * @param icon Optional icon displayed inside the action item.
+ * @param label Optional text description displayed inside the action item.
+ * @param weight Relative weight ratio when laid out alongside other action items.
+ * @param shape Custom shape used to clip the action item surface.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

@@ -80,7 +80,9 @@ import zone.ien.hig.swipebox.rememberCupertinoSwipeBoxState
 import zone.ien.hig.theme.CupertinoTheme
 import kotlin.math.roundToInt
 
-// TODO clean this up
+/**
+ * Default parameters and constants used by [CupertinoSwipeBox].
+ */
 object CupertinoSwipeBoxDefaults {
     val allowFullSwipe = true
     val velocityThreshold = Float.POSITIVE_INFINITY
@@ -96,18 +98,19 @@ object CupertinoSwipeBoxDefaults {
 }
 
 /**
- * Swipe box that can display multiple actions for list item and perform dismiss operations.
+ * Swipe box container that displays actions for a list item with iOS HIG swipe gestures and haptic feedback.
  *
- * @param state swipe box state. See [rememberCupertinoSwipeBoxState]
- * @param items action items. Use [CupertinoSwipeBoxState.dismissDirection] to display start or end items.
- * [CupertinoSwipeBoxItem] should be used as an item.
- * Items are displayed in a row with parallax and bound effect. Display direction for end items is reversed.
- * @param modifier box container modifier.
- * Any other tap gestures will be consumed.
- * @param itemWidth width of the actions items.
- * @param startToEndFullSwipeEnabled if start to end expansion/dismissal is enabled.
- * @param endToStartFullSwipeEnabled if end to start expansion/dismissal is enabled.
- * @param content foreground content. Should have a non-transparent background
+ * Actions are defined using the [actionItemBuilder] DSL block where start and end actions can be declared
+ * via [CupertinoSwipeBoxActionsBuilder.startActions] and [CupertinoSwipeBoxActionsBuilder.endActions].
+ *
+ * @param state Swipe box state controlling drag offsets and anchors. See [rememberCupertinoSwipeBoxState].
+ * @param modifier Modifier applied to the outer container.
+ * @param itemWidth Base width of individual action items when revealed.
+ * @param height Height of the action item area.
+ * @param startToEndFullSwipeEnabled Whether swiping fully from start to end automatically triggers the primary start action.
+ * @param endToStartFullSwipeEnabled Whether swiping fully from end to start automatically triggers the primary end action.
+ * @param actionItemBuilder DSL builder for configuring start and end action items using [CupertinoSwipeBoxItem].
+ * @param content Foreground content of the swipe box (e.g. list item row).
  *
  * @see CupertinoSwipeBoxItem
  * */

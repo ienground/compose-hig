@@ -51,15 +51,13 @@ import androidx.compose.ui.unit.dp
 import zone.ien.hig.theme.CupertinoTheme
 
 /**
- * Creates a [CupertinoTimePickerState] for a time picker that is remembered across compositions
- * and configuration changes.
+ * Creates a [CupertinoDateTimePickerState] that is remembered across compositions and configuration changes.
  *
- * @param initialHour starting hour for this state, will be displayed in the time picker when launched
- * Ranges from 0 to 23
- * @param initialMinute starting minute for this state, will be displayed in the time picker when
- * launched. Ranges from 0 to 59
- * @param is24Hour The format for this time picker. `false` for 12 hour format with an AM/PM toggle
- * or `true` for 24 hour format without toggle. Defaults to follow system setting.
+ * @param initialSelectedDateMillis Initial date selected in UTC milliseconds.
+ * @param initialHour Initial hour selected (0-23).
+ * @param initialMinute Initial minute selected (0-59).
+ * @param is24Hour Format flag. `true` for 24-hour format; `false` for 12-hour AM/PM format.
+ * @param yearRange Allowed range of selectable years.
  */
 @Composable
 @ExperimentalCupertinoApi
@@ -84,7 +82,12 @@ fun rememberCupertinoDateTimePickerState(
     }
 
 /**
- * Date and time picker
+ * Cupertino date and time picker component supporting wheel and popover/inline presentation styles.
+ *
+ * @param state State holder managing date and time selections. See [rememberCupertinoDateTimePickerState].
+ * @param style Visual presentation style ([DatePickerStyle.Wheel] or [DatePickerStyle.Pager]).
+ * @param containerColor Background container color of the picker.
+ * @param modifier Modifier applied to the date-time picker container.
  * */
 @Composable
 @ExperimentalCupertinoApi

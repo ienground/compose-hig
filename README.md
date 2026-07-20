@@ -1,56 +1,149 @@
 [![Maven Central](https://maven-badges.sml.io/sonatype-central/zone.ien.hig/hig/badge.svg?style=flat&subject=Sonatype%20Central&color=blue)](https://maven-badges.sml.io/sonatype-central/zone.ien.hig/hig)
-
 [![Main Workflow](https://github.com/ienground/compose-hig/actions/workflows/publish.yml/badge.svg)](https://github.com/ienground/compose-hig/actions/workflows/publish.yml)
 
 # Compose-HIG
 
-This is a fork of [alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino) and [slanos/compose-cupertino](https://github.com/slanos/compose-cupertino).
+A modern, highly customizable **Compose Multiplatform** library implementing Apple's **Human Interface Guidelines (HIG)** with **Liquid Glass** visuals, native haptic feedback dynamics, and smooth spring physics.
 
-Additionally, this repo has automated builds to enable faster releases, to take advantage of new compose multiplatform features as they become available.
+Forked and expanded from [alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino) and [slanos/compose-cupertino](https://github.com/slanos/compose-cupertino).
 
-## New features (compared to the OG `compose-cupertino`)
+---
 
-- Reflect the Human Interface Guidelines for iOS 26 and later, incorporating Liquid Glass
-- Add a Backdrop using [Kyant0/AndroidLiquidGlass](https://github.com/Kyant0/AndroidLiquidGlass)
--  Attempting to remove `icons-extended`.
+## 🌟 Key Features
 
-## Preview Video
+- **iOS 26 HIG Liquid Glass Aesthetic**: Advanced backdrop rendering with interactive lens refraction, chromatic aberration, vibrancy, and dynamic luminance tinting.
+- **Enhanced Component Suite**:
+  - 💧 **Liquid Glass Components**: `CupertinoLiquidButton`, `CupertinoLiquidAlertDialog`
+  - 🎛️ **Segmented Control**: `CupertinoSegmentedControl` with spring drag animations, dynamic indicator width, and haptic feedback.
+  - 👆 **SwipeBox**: `CupertinoSwipeBox` with DSL action builders (`start` & `end`), full-swipe auto-trigger, and spring response.
+  - 📋 **Grouped Sections & Lazy Lists**: `CupertinoSection`, `LazyListScope.section`, and `stickySection` with iOS grouped inset styling.
+  - 📅 **Pickers**: `CupertinoPicker`, `CupertinoDatePicker`, `CupertinoTimePicker`, and `CupertinoDateTimePicker`.
+  - 🧭 **Navigation & Structure**: `CupertinoTopAppBar`, `CupertinoNavigationBar`, `CupertinoBottomSheet`, `CupertinoBottomSheetScaffold`, `CupertinoScaffold`.
+  - 🔘 **Inputs & Switches**: `CupertinoSwitch`, `CupertinoCheckbox`, `CupertinoTextField`, `CupertinoSearchTextField`.
+  - 🎨 **Standalone Cupertino Icons**: Lightweight vector `CupertinoIcons` (Outlined & Filled) removing unnecessary dependencies on heavy icon packs.
+
+---
+
+## 🎬 Preview Video
+
 https://github.com/user-attachments/assets/107fbb68-8604-4621-8037-d373c835406e
 
+---
 
+## 🚀 Live Demo
 
-# Usage
+Try the WasmJS interactive web showcase deployed via GitHub Pages:  
+👉 **[https://ienground.github.io/compose-hig/](https://ienground.github.io/compose-hig/)**
 
-This package is published to Maven Central Repository: [cupertino-core on Maven Central](https://central.sonatype.com/artifact/zone.ien.hig/hig-core)
+---
 
-Depend on the [latest version](https://github.com/ienground/compose-hig/releases) by declaring this in libs.versions.toml:
+## 📦 Installation
 
-```
-hig = "$latestVersion"
+This package is published to Maven Central Repository.
 
+Declare the dependency in `libs.versions.toml`:
+
+```toml
+[versions]
+hig = "1.3.0"
+
+[libraries]
 hig = { group = "zone.ien.hig", name = "hig", version.ref = "hig" }
 hig-adaptive = { group = "zone.ien.hig", name = "hig-adaptive", version.ref = "hig" }
 hig-native = { group = "zone.ien.hig", name = "hig-native", version.ref = "hig" }
 ```
 
-## Try it
+In `build.gradle.kts`:
 
-Wanna see what the library feels like? The latest version builds and deploys the Kotlin/WasmJS target to github pages: https://ienground.github.io/compose-hig/
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.hig)
+            // Optional adaptive / native extensions
+            implementation(libs.hig.adaptive)
+        }
+    }
+}
+```
 
-# To-do
-Compared to the previous library, we have made efforts to update many components from the Human Interface Guidelines to match the latest design, but there is still much left to be done. Please help complete the library with your contributions.
+---
 
-- [ ] BottomBar
-- [ ] Search Bar
-- [ ] Dropdown Native
-- [ ] Dialog
-- [ ] Segmented Control
+## 💡 Quick Code Examples
 
-...
+### 1. Liquid Glass Button
+```kotlin
+val backdrop = rememberDefaultBackdrop()
 
-Additionally, some comments remain unchanged from the previous library. We are doing our best to revise them, but we need your help.
+CupertinoLiquidButton(
+    onClick = { /* handle action */ },
+    backdrop = backdrop,
+) {
+    Text("Liquid Glass Button")
+}
+```
 
-# License
+### 2. Segmented Control
+```kotlin
+var selectedIndex by remember { mutableStateOf(0) }
+
+CupertinoSegmentedControl(
+    selectedTabIndex = selectedIndex,
+) {
+    CupertinoSegmentedControlTab(
+        isSelected = selectedIndex == 0,
+        onClick = { selectedIndex = 0 }
+    ) {
+        Text("First")
+    }
+    CupertinoSegmentedControlTab(
+        isSelected = selectedIndex == 1,
+        onClick = { selectedIndex = 1 }
+    ) {
+        Text("Second")
+    }
+}
+```
+
+### 3. SwipeBox for List Items
+```kotlin
+CupertinoSwipeBox(
+    actionItemBuilder = {
+        end {
+            CupertinoSwipeBoxItem(
+                color = CupertinoColors.systemRed,
+                icon = CupertinoIcons.Default.Trash,
+                label = "Delete",
+                onClick = { /* handle delete */ }
+            )
+        }
+    }
+) {
+    Text("Swipe left to reveal actions", modifier = Modifier.padding(16.dp))
+}
+```
+
+### 4. Lazy List Section
+```kotlin
+LazyColumn {
+    section(
+        title = { Text("SECTION HEADER") },
+        caption = { Text("Section description footer text.") }
+    ) {
+        item {
+            Text("Row Item 1", modifier = Modifier.padding(16.dp))
+        }
+        item {
+            Text("Row Item 2", modifier = Modifier.padding(16.dp))
+        }
+    }
+}
+```
+
+---
+
+## 📄 License
+
 ```
 Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
 Copyright (c) 2025. Scott Lanoue.
@@ -69,30 +162,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
-# Contributions
+---
 
-Contributions are always appreciated! Since builds to maven central go through GitHub Actions, we can get your changes in quickly.
+## 🤝 Contributions
 
-Ensure that the copyright information is included in your file(s):
-
-```
-/*
- * Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
- * Copyright (c) 2025. Scott Lanoue.
- * Copyright (c) 2026. IENGROUND of IENLAB.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-```
-
-Ideally you set up Android Studio / IDE to handle copyright notices for you: https://stackoverflow.com/a/48718711/1730421
+Contributions are welcome! Please ensure copyright headers are included when submitting Pull Requests.
