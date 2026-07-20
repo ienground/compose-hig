@@ -151,7 +151,8 @@ fun CupertinoSwipeBox(
         density = density,
         amountOfStartActionItems = startActionsSize,
         amountOfEndActionItems = endActionsSize,
-        actionItemWidth = itemWidth
+        actionItemWidth = itemWidth,
+        actionRowOuterPadding = CupertinoSwipeBoxDefaults.actionItemHorizontalPadding * 2,
     ) { anchorsInitialized = it }
 
     HapticFeedbackEffect(

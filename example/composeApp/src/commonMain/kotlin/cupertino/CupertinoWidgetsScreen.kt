@@ -366,30 +366,6 @@ private fun Body(
                         PaddingValues(bottom = 12.dp)
             )
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(CupertinoTheme.colorScheme.systemBackground)
-                    .padding(vertical = 12.dp),
-            ) {
-                CupertinoText(
-                    text = "iOS 26 Swipe Actions",
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    color = CupertinoTheme.colorScheme.label,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                CupertinoText(
-                    text = "왼쪽으로 끝까지 밀어 전체 스와이프 전환과 햅틱을 확인하세요.",
-                    modifier = Modifier.padding(
-                        start = 16.dp,
-                        top = 4.dp,
-                        end = 16.dp,
-                        bottom = 8.dp,
-                    ),
-                    color = CupertinoTheme.colorScheme.secondaryLabel,
-                )
-                RecentCallsSwipeChapter(scrollState)
-            }
 //            /*
 
             CupertinoSection {
@@ -476,6 +452,31 @@ private fun Body(
 
             // TODO broken on web and desktop
             PickersSection(nativePickers)
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(CupertinoTheme.colorScheme.systemBackground)
+                    .padding(vertical = 12.dp),
+            ) {
+                CupertinoText(
+                    text = "iOS 26 Swipe Actions",
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = CupertinoTheme.colorScheme.label,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                CupertinoText(
+                    text = "왼쪽으로 끝까지 밀어 전체 스와이프 전환과 햅틱을 확인하세요.",
+                    modifier = Modifier.padding(
+                        start = 16.dp,
+                        top = 4.dp,
+                        end = 16.dp,
+                        bottom = 8.dp,
+                    ),
+                    color = CupertinoTheme.colorScheme.secondaryLabel,
+                )
+                RecentCallsSwipeChapter(scrollState)
+            }
 
             Spacer(Modifier.imePadding())
         }
@@ -622,25 +623,25 @@ private fun RecentCallsSwipeChapter(scrollableState: ScrollableState) {
         mutableStateListOf(
             RecentCall(
                 id = 1,
-                initials = "밍",
-                name = "밍님 🧸",
-                detail = "↙ 메인 전화번호",
+                initials = "A",
+                name = "샘플 연락처 A",
+                detail = "↙ 휴대전화",
                 date = "수요일",
                 avatarColor = yellow,
             ),
             RecentCall(
                 id = 2,
-                initials = "아",
-                name = "아이엔_픽셀 (2858)",
-                detail = "↗ 메인 전화번호",
+                initials = "B",
+                name = "샘플 연락처 B",
+                detail = "↗ 업무 전화",
                 date = "2026. 7. 10.",
                 avatarColor = indigo,
             ),
             RecentCall(
                 id = 3,
-                initials = "허",
-                name = "허진혁형 포스텍",
-                detail = "↙ 메인 휴대전화",
+                initials = "C",
+                name = "샘플 연락처 C",
+                detail = "↙ 휴대전화",
                 date = "2026. 7. 8.",
                 avatarColor = blue,
             ),

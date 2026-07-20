@@ -20,6 +20,7 @@ package zone.ien.hig.swipebox
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
@@ -96,11 +97,14 @@ fun RowScope.CupertinoSwipeBoxItem(
     val collapsedItemSize =
         (itemWidth - CupertinoSwipeBoxDefaults.actionItemHorizontalPadding * 2)
             .coerceAtLeast(0.dp)
+    val isFullSwipeSettled =
+        state.settledValue == SwipeBoxStates.EndFullyExpanded ||
+            state.settledValue == SwipeBoxStates.StartFullyExpanded
     val isFullSwipeTarget =
         state.targetValue == SwipeBoxStates.EndFullyExpanded ||
             state.targetValue == SwipeBoxStates.StartFullyExpanded
     val shouldRenderItem =
-        !isFullSwipeTarget || isFullSwipeActionItem
+        !isFullSwipeSettled || isFullSwipeActionItem
 
     val zIndex = if (isFullSwipeActionItem) 1f else 0f
 
@@ -111,13 +115,31 @@ fun RowScope.CupertinoSwipeBoxItem(
         targetValue = if (shouldRenderItem) itemWidth * weight else 0.dp,
         animationSpec = cupertinoTween(),
     )
+    val animatedRevealScale by animateFloatAsState(
+        targetValue = revealScale,
+        animationSpec = spring(
+            dampingRatio = 0.68f,
+            stiffness = 500f,
+        ),
+    )
+    val animatedItemAlpha by animateFloatAsState(
+        targetValue =
+            if (isFullSwipeTarget && !isFullSwipeActionItem) {
+                0.35f
+            } else {
+                revealScale
+            },
+        animationSpec = cupertinoTween(),
+    )
 
     val animHorizontalBias by animateFloatAsState(
         when {
-            (state.targetValue == SwipeBoxStates.EndFullyExpanded) && (actionPosition == CupertinoSwipeActionPosition.End) -> -1f
-            (state.targetValue == SwipeBoxStates.StartFullyExpanded) && (actionPosition == CupertinoSwipeActionPosition.Start) -> 1f
-            (state.targetValue == SwipeBoxStates.Resting) && (actionPosition == CupertinoSwipeActionPosition.End) -> 1f
-            (state.targetValue == SwipeBoxStates.Resting) && (actionPosition == CupertinoSwipeActionPosition.Start) -> -1f
+            isFullSwipeActionItem &&
+                (state.targetValue == SwipeBoxStates.EndFullyExpanded) &&
+                (actionPosition == CupertinoSwipeActionPosition.End) -> -1f
+            isFullSwipeActionItem &&
+                (state.targetValue == SwipeBoxStates.StartFullyExpanded) &&
+                (actionPosition == CupertinoSwipeActionPosition.Start) -> 1f
             else -> 0f
         },
         animationSpec = cupertinoTween(),
@@ -156,8 +178,11 @@ fun RowScope.CupertinoSwipeBoxItem(
                             }
                         )
                         .graphicsLayer {
-                            scaleX = revealScale
-                            scaleY = revealScale
+                            val buttonScale =
+                                maxOf(revealScale, animatedRevealScale).coerceIn(0f, 1f)
+                            scaleX = buttonScale
+                            scaleY = buttonScale
+                            alpha = animatedItemAlpha
                             transformOrigin = TransformOrigin(
                                 pivotFractionX =
                                     if (actionPosition == CupertinoSwipeActionPosition.End) {
