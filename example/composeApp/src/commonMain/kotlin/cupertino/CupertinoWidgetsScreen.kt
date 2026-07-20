@@ -38,13 +38,12 @@
 
 package cupertino
 
-import GeneratedAdaptiveTheme
 import RootDetails
 import RootRoute
 import RootUiState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
@@ -66,8 +65,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Save
@@ -79,25 +77,29 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -122,6 +124,7 @@ import zone.ien.hig.CupertinoDateTimePickerNative
 import zone.ien.hig.CupertinoDateTimePickerState
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoDropdownMenuNative
+import zone.ien.hig.CupertinoHorizontalDivider
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconButton
 import zone.ien.hig.CupertinoLiquidAlertDialog
@@ -158,7 +161,6 @@ import zone.ien.hig.adaptive.AdaptiveNavigationBar
 import zone.ien.hig.adaptive.AdaptiveNavigationBarItem
 import zone.ien.hig.adaptive.AdaptiveNavigationBarNative
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
-import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.adaptive.icons.Add
 import zone.ien.hig.adaptive.icons.Settings
@@ -216,12 +218,21 @@ import zone.ien.hig.theme.systemOrange
 import zone.ien.hig.theme.systemPurple
 import zone.ien.hig.theme.systemRed
 import zone.ien.hig.theme.systemYellow
-import zone.ien.hig.utils.rememberDefaultBackdrop
 import kotlin.time.Instant
+import kotlin.math.abs
 
 private enum class PickerTab {
     Picker, Time, Date, DateTime
 }
+
+private data class RecentCall(
+    val id: Int,
+    val initials: String,
+    val name: String,
+    val detail: String,
+    val date: String,
+    val avatarColor: Color,
+)
 
 @OptIn(ExperimentalCupertinoApi::class)
 @Composable
@@ -231,11 +242,8 @@ fun CupertinoWidgetsScreen(
     onNavigate: (NavKey) -> Unit,
 ) {
 
-    val scrollState = rememberScrollState()
+    val scrollState = rememberLazyListState()
     val sheetListState = rememberLazyListState()
-
-    val backdrop = rememberDefaultBackdrop()
-    val globalBackdrop = rememberDefaultBackdrop()
 
     val scaffoldState = rememberCupertinoBottomSheetScaffoldState(
         rememberCupertinoSheetState(
@@ -244,6 +252,12 @@ fun CupertinoWidgetsScreen(
     )
 
     val sheetSectionColor = CupertinoTheme.colorScheme.tertiarySystemBackground
+    val backdropColor = CupertinoTheme.colorScheme.secondarySystemBackground
+    val backdrop = rememberLayerBackdrop(
+        onDraw = remember(backdropColor) {
+            { drawRect(backdropColor) }
+        }
+    )
 
     val focusManager = LocalFocusManager.current
 
@@ -267,7 +281,8 @@ fun CupertinoWidgetsScreen(
             SheetSample(
                 scaffoldState = scaffoldState,
                 sheetListState = sheetListState,
-                sheetSectionColor = sheetSectionColor
+                sheetSectionColor = sheetSectionColor,
+                backdrop = backdrop,
             )
         },
         scaffoldState = scaffoldState,
@@ -275,7 +290,6 @@ fun CupertinoWidgetsScreen(
             TopBarSample(
                 uiState = uiState,
                 onItemValueChanged = onItemValueChanged,
-                scrollState = scrollState,
                 backdrop = backdrop
             )
         },
@@ -295,21 +309,21 @@ fun CupertinoWidgetsScreen(
             nativePickers = nativePickers,
             backdrop = backdrop,
             onNavigate = onNavigate,
-            modifier = Modifier.layerBackdrop(backdrop)
+            modifier = Modifier.layerBackdrop(backdrop),
         )
     }
 }
 
 @Composable
-private fun Body(
+internal fun Body(
     modifier: Modifier = Modifier,
     uiState: RootUiState,
     onItemValueChanged: (RootDetails) -> Unit,
     paddingValues: PaddingValues,
-    scrollState: ScrollState,
+    scrollState: LazyListState,
     scaffoldState: CupertinoBottomSheetScaffoldState,
     nativePickers: MutableState<Boolean>,
-    backdrop: Backdrop,
+    backdrop: LayerBackdrop,
     onNavigate: (NavKey) -> Unit
 ) {
 
@@ -323,148 +337,150 @@ private fun Body(
     ProvideSectionStyle(
         SectionStyle.Sidebar
     ) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .sectionContainerBackground()
-                .nestedScroll(searchState.nestedScrollConnection)
-                .verticalScroll(scrollState)
-                .padding(paddingValues)
-                .padding(top = 10.dp)
-        ) {
+        var searchValue by remember {
+            mutableStateOf("")
+        }
 
-            CupertinoNavigationTitle {
-                Text("Cupertino")
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(modifier)
+                .sectionContainerBackground()
+                .nestedScroll(searchState.nestedScrollConnection),
+            state = scrollState,
+            contentPadding = paddingValues + PaddingValues(top = 10.dp),
+        ) {
+            item(key = "navigation-title") {
+                CupertinoNavigationTitle {
+                    Text("HIG")
+                }
             }
-            var searchValue by remember {
-                mutableStateOf("")
+
+            item(key = "search-field") {
+                CupertinoSearchTextField(
+                    value = searchValue,
+                    onValueChange = {
+                        searchValue = it
+                    },
+                    state = searchState,
+                    paddingValues = CupertinoSearchTextFieldDefaults.PaddingValues +
+                            PaddingValues(bottom = 12.dp)
+                )
             }
-            CupertinoSearchTextField(
-                value = searchValue,
-                onValueChange = {
-                    searchValue = it
-                },
-                state = searchState,
-                paddingValues = CupertinoSearchTextFieldDefaults.PaddingValues +
-                        PaddingValues(bottom = 12.dp)
-            )
+
 //            /*
 
-            CupertinoSection {
-                SectionItem(
-                    trailingContent = {
-                        CupertinoSwitch(
-                            checked = uiState.item.invertLayoutDirection,
-                            onCheckedChange = { onItemValueChanged(uiState.item.copy(invertLayoutDirection = it)) },
+            item(key = "appearance") {
+                CupertinoSection {
+                    SectionItem(
+                        trailingContent = {
+                            CupertinoSwitch(
+                                checked = uiState.item.invertLayoutDirection,
+                                onCheckedChange = { onItemValueChanged(uiState.item.copy(invertLayoutDirection = it)) },
+                                backdrop = backdrop,
+                            )
+                        }
+                    ) {
+                        Text("Toggle layout direction")
+                    }
+
+                    SectionItem {
+                        ColorButtons(
+                            onColorsChanged = { light, dark ->
+                                onItemValueChanged(uiState.item.copy(accentColors = Pair(light, dark)))
+                            }
+                        )
+                    }
+                }
+            }
+
+            item(key = "links") {
+                LinksWithIcons(
+                    onSheetClicked = {
+                        coroutineScope.launch {
+                            scaffoldState.bottomSheetState.show()
+                        }
+                    },
+                    onNavigate = onNavigate,
+                )
+            }
+
+            item(key = "swipe-box") {
+                CupertinoSection {
+                    SwipeBoxExample(scrollState)
+                }
+            }
+
+            item(key = "controls") {
+                CupertinoSection(
+                    title = {
+                        CupertinoText(
+                            text = "Controls".sectionTitle(),
                         )
                     }
                 ) {
-                    Text("Toggle layout direction")
+                    ButtonsExample(backdrop)
+                    SwitchAndProgressBar(backdrop)
                 }
-
-                SectionItem {
-                    ColorButtons(
-                        onColorsChanged = { light, dark ->
-                            onItemValueChanged(uiState.item.copy(accentColors = Pair(light, dark)))
-                        }
-                    )
-                }
-            }
-
-            LinksWithIcons(
-                onSheetClicked = {
-                    coroutineScope.launch {
-                        scaffoldState.bottomSheetState.show()
-                    }
-                },
-                onNavigate = onNavigate,
-            )
-
-            CupertinoSection {
-                SwipeBoxExample(scrollState)
-            }
-
-
-            CupertinoSection(
-                title = {
-                    CupertinoText(
-                        text = "Controls".sectionTitle(),
-                    )
-                }
-            ) {
-                ButtonsExample()
-                SwitchAndProgressBar()
             }
 
 //             */
 
-            CupertinoSection(
-                title = {
-                    CupertinoText(
-                        text = "Popups".sectionTitle(),
-                    )
-                },
-                caption = {
-                    CupertinoText(
-                        text = "Native dialogs will use UIAlertController on iOS and Compose Cupertino analogs on other platforms",
-                    )
-                }
-            ) {
-                SectionItem {
-                    DialogsExample(
-                        backdrop = backdrop
-                    )
-                }
-                SectionItem {
-                    SheetsExamples()
-                }
-                SectionItem {
-                    DropdownExample(
-                        backdrop = backdrop,
-                        isNative = nativePickers.value
-                    )
-                }
-                SectionItem {
-                    DropdownExample2(
-                        backdrop = backdrop,
-                        isNative = nativePickers.value
-                    )
+            item(key = "popups") {
+                CupertinoSection(
+                    title = {
+                        CupertinoText(
+                            text = "Popups".sectionTitle(),
+                        )
+                    },
+                    caption = {
+                        CupertinoText(
+                            text = "Native dialogs will use UIAlertController on iOS and Compose Cupertino analogs on other platforms",
+                        )
+                    }
+                ) {
+                    SectionItem {
+                        DialogsExample(
+                            backdrop = backdrop
+                        )
+                    }
+                    SectionItem {
+                        SheetsExamples()
+                    }
+                    SectionItem {
+                        DropdownExample(
+                            backdrop = backdrop,
+                            isNative = nativePickers.value
+                        )
+                    }
+                    SectionItem {
+                        DropdownExample2(
+                            backdrop = backdrop,
+                            isNative = nativePickers.value
+                        )
+                    }
                 }
             }
 
             // TODO broken on web and desktop
-            PickersSection(nativePickers)
+            item(key = "pickers") {
+                PickersSection(
+                    nativePickers = nativePickers,
+                    backdrop = backdrop,
+                )
+            }
 
-            Spacer(Modifier.imePadding())
+            item(key = "ime-spacer") {
+                Spacer(Modifier.imePadding())
+            }
         }
-    }
-}
-
-@OptIn(ExperimentalAdaptiveApi::class)
-@Preview(showBackground = true)
-@Composable
-private fun ScreenPreview() {
-    GeneratedAdaptiveTheme(
-        target = Theme.Cupertino,
-        primaryColor = CupertinoColors.systemBlue
-    ) {
-
-        Body(
-            uiState = RootUiState(),
-            onItemValueChanged = {},
-            paddingValues = PaddingValues.Zero,
-            scrollState = rememberScrollState(),
-            scaffoldState = rememberCupertinoBottomSheetScaffoldState(),
-            nativePickers = rememberSaveable { mutableStateOf(false) },
-            onNavigate = {},
-            backdrop = rememberDefaultBackdrop()
-        )
     }
 }
 
 @Composable
 private fun PickersSection(
-    nativePickers: MutableState<Boolean>
+    nativePickers: MutableState<Boolean>,
+    backdrop: LayerBackdrop,
 ) {
 
     var selectedPickerTab by remember {
@@ -528,6 +544,7 @@ private fun PickersSection(
             CupertinoSegmentedControl(
                 paddingValues = PaddingValues(0.dp),
                 selectedTabIndex = PickerTab.entries.indexOf(selectedPickerTab),
+                backdrop = backdrop,
             ) {
                 val tabs = PickerTab.entries
 
@@ -550,7 +567,8 @@ private fun PickersSection(
                     checked = nativePickers.value,
                     onCheckedChange = {
                         nativePickers.value = it
-                    }
+                    },
+                    backdrop = backdrop,
                 )
             }
         ) {
@@ -567,6 +585,190 @@ private fun PickersSection(
             }
         }
 
+    }
+}
+
+@OptIn(ExperimentalCupertinoApi::class)
+@Composable
+internal fun Ios26SegmentedControlChapter() {
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val tabs = remember { listOf("이벤트", "미리 알림") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+    ) {
+        CupertinoText(
+            text = "iOS 26 Segmented Control",
+            modifier = Modifier.padding(
+                start = 16.dp,
+                end = 16.dp,
+                bottom = 8.dp,
+            ),
+            color = CupertinoTheme.colorScheme.label,
+            fontWeight = FontWeight.SemiBold,
+        )
+        CupertinoSegmentedControl(
+            selectedTabIndex = selectedTabIndex,
+        ) {
+            tabs.forEachIndexed { index, title ->
+                CupertinoSegmentedControlTab(
+                    isSelected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                ) {
+                    CupertinoText(title)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalCupertinoApi::class, ExperimentalFoundationApi::class)
+@Composable
+internal fun RecentCallsSwipeChapter(scrollableState: ScrollableState) {
+    val yellow = CupertinoColors.systemYellow
+    val indigo = CupertinoColors.systemIndigo
+    val blue = CupertinoColors.systemBlue
+    val calls = remember(yellow, indigo, blue) {
+        mutableStateListOf(
+            RecentCall(
+                id = 1,
+                initials = "A",
+                name = "샘플 연락처 A",
+                detail = "↙ 휴대전화",
+                date = "수요일",
+                avatarColor = yellow,
+            ),
+            RecentCall(
+                id = 2,
+                initials = "B",
+                name = "샘플 연락처 B",
+                detail = "↗ 업무 전화",
+                date = "2026. 7. 10.",
+                avatarColor = indigo,
+            ),
+            RecentCall(
+                id = 3,
+                initials = "C",
+                name = "샘플 연락처 C",
+                detail = "↙ 휴대전화",
+                date = "2026. 7. 8.",
+                avatarColor = blue,
+            ),
+        )
+    }
+    val scope = rememberCoroutineScope()
+    var activeCallId by remember { mutableStateOf<Int?>(null) }
+    val openSwipeBoxState =
+        remember { mutableStateOf<AnchoredDraggableState<SwipeBoxStates>?>(null) }
+
+    calls.forEachIndexed { index, call ->
+        val state = rememberCupertinoSwipeBoxState(
+            key = "recent-call-${call.id}",
+            scrollableState = scrollableState,
+            openSwipeBoxState = openSwipeBoxState,
+            coroutineScope = scope,
+        )
+        LaunchedEffect(state, call.id) {
+            snapshotFlow {
+                runCatching { state.offset }
+                    .getOrDefault(0f)
+            }
+                .collect { offset ->
+                    if (offset.isFinite() && abs(offset) > 0.5f) {
+                        activeCallId = call.id
+                    } else if (activeCallId == call.id) {
+                        activeCallId = null
+                    }
+                }
+        }
+
+        CupertinoSwipeBox(
+            state = state,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp),
+            itemWidth = 60.dp,
+            height = 80.dp,
+            startToEndFullSwipeEnabled = false,
+            actionItemBuilder = {
+                end {
+                    CupertinoSwipeBoxItem(
+                        color = CupertinoColors.systemBlue,
+                        onClick = {},
+                        icon = CupertinoIcons.Filled.Alarm,
+                        onClickLabel = "미리 알림",
+                    )
+                }
+                end(onClick = { calls.remove(call) }) {
+                    CupertinoSwipeBoxItem(
+                        color = CupertinoColors.systemRed,
+                        onClick = { calls.remove(call) },
+                        icon = CupertinoIcons.Filled.Trash,
+                        onClickLabel = "삭제",
+                    )
+                }
+            },
+        ) {
+            RecentCallRow(call)
+        }
+
+        if (index != calls.lastIndex) {
+            val nextCallId = calls.getOrNull(index + 1)?.id
+            val isAdjacentToActiveCall =
+                activeCallId == call.id || activeCallId == nextCallId
+            CupertinoHorizontalDivider(
+                modifier = Modifier
+                    .padding(start = 72.dp)
+                    .alpha(if (isAdjacentToActiveCall) 0f else 1f),
+                color = CupertinoTheme.colorScheme.separator,
+            )
+        }
+    }
+}
+
+@Composable
+private fun RecentCallRow(call: RecentCall) {
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .background(call.avatarColor, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            CupertinoText(
+                text = call.initials,
+                color = Color.White,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+
+        Column(
+            modifier = Modifier.weight(1f),
+        ) {
+            CupertinoText(
+                text = call.name,
+                color = CupertinoTheme.colorScheme.label,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+            )
+            CupertinoText(
+                text = call.detail,
+                color = CupertinoTheme.colorScheme.secondaryLabel,
+                maxLines = 1,
+            )
+        }
+
+        CupertinoText(
+            text = call.date,
+            color = CupertinoTheme.colorScheme.secondaryLabel,
+            maxLines = 1,
+        )
     }
 }
 
@@ -805,7 +1007,6 @@ private fun SwipeBoxExample(scrollableState: ScrollableState) {
 private fun TopBarSample(
     uiState: RootUiState,
     onItemValueChanged: (RootDetails) -> Unit,
-    scrollState: ScrollState,
     backdrop: LayerBackdrop
 ) {
     CupertinoTopAppBar(
@@ -849,7 +1050,7 @@ private fun TopBarSample(
             }
         },
         title = {
-            CupertinoText("Cupertino")
+            CupertinoText("HIG")
         }
     )
 }
@@ -914,7 +1115,8 @@ private fun BottomBarSample(
 private fun SheetSample(
     scaffoldState: CupertinoBottomSheetScaffoldState,
     sheetListState: LazyListState,
-    sheetSectionColor: Color
+    sheetSectionColor: Color,
+    backdrop: LayerBackdrop,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -922,6 +1124,7 @@ private fun SheetSample(
     CupertinoBottomSheetContent(
         topBar = {
             CupertinoTopAppBar(
+                backdrop = backdrop,
                 title = {
                     CupertinoText("Bottom Sheet")
                 },
@@ -1046,9 +1249,9 @@ fun DateTimePicker(
 
 
 @Composable
-private fun SectionScope.SwitchAndProgressBar() {
-    val backdrop = rememberDefaultBackdrop()
-
+private fun SectionScope.SwitchAndProgressBar(
+    backdrop: Backdrop,
+) {
     SectionItem {
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -1064,23 +1267,27 @@ private fun SectionScope.SwitchAndProgressBar() {
                 checked = active1,
                 onCheckedChange = {
                     active1 = it
-                }
+                },
+                backdrop = backdrop,
             )
             CupertinoSwitch(
                 checked = active2,
                 onCheckedChange = {
                     active2 = it
-                }
+                },
+                backdrop = backdrop,
             )
             CupertinoSwitch(
                 checked = active1,
                 enabled = false,
-                onCheckedChange = {}
+                onCheckedChange = {},
+                backdrop = backdrop,
             )
             CupertinoSwitch(
                 checked = active2,
                 enabled = false,
-                onCheckedChange = {}
+                onCheckedChange = {},
+                backdrop = backdrop,
             )
 
             CupertinoActivityIndicator()
@@ -1343,8 +1550,9 @@ private fun ColorButtons(
 }
 
 @Composable
-private fun SectionScope.ButtonsExample() {
-    val backdrop = rememberDefaultBackdrop()
+private fun SectionScope.ButtonsExample(
+    backdrop: Backdrop,
+) {
     SectionItem {
         Row(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -1753,7 +1961,6 @@ private fun DropdownExample(
 ) {
     var dropdownVisible by remember { mutableStateOf(false) }
     var pickerSheetVisible by remember { mutableStateOf(false) }
-    val layerBackdrop = rememberDefaultBackdrop()
 
     CupertinoActionSheet(
         visible = pickerSheetVisible,
@@ -1796,7 +2003,7 @@ private fun DropdownExample(
 
         CupertinoLiquidButton(
             colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
-            backdrop = layerBackdrop,
+            backdrop = backdrop,
             onClick = {
                 pickerSheetVisible = true
             }
@@ -1807,16 +2014,12 @@ private fun DropdownExample(
         Spacer(Modifier.weight(1f))
         //Menu bar should be in the box with anchor to align correctly
         Box {
-            androidx.compose.animation.AnimatedVisibility(
-                visible = !dropdownVisible
+            CupertinoLiquidButton(
+                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
+                backdrop = backdrop,
+                onClick = { dropdownVisible = !dropdownVisible }
             ) {
-                CupertinoLiquidButton(
-                    colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
-                    backdrop = layerBackdrop,
-                    onClick = { dropdownVisible = !dropdownVisible }
-                ) {
-                    CupertinoText("Menu")
-                }
+                CupertinoText("Menu")
             }
 
             val red = CupertinoColors.systemRed
@@ -1935,7 +2138,6 @@ private fun DropdownExample2(
     isNative: Boolean
 ) {
     var dropdownVisible by remember { mutableStateOf(false) }
-    val layerBackdrop = rememberDefaultBackdrop()
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -1944,7 +2146,7 @@ private fun DropdownExample2(
         Box {
             CupertinoLiquidButton(
                 colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors(),
-                backdrop = layerBackdrop,
+                backdrop = backdrop,
                 onClick = { dropdownVisible = !dropdownVisible }
             ) {
                 CupertinoText("Menu")

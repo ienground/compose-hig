@@ -32,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoSwitch
 import zone.ien.hig.CupertinoSwitchColors
 import zone.ien.hig.CupertinoSwitchDefaults

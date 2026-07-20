@@ -35,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.CupertinoTopAppBarColors
 import zone.ien.hig.CupertinoTopAppBarDefaults

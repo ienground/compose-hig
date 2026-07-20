@@ -781,7 +781,7 @@ private fun computeTarget(
             if (lastValue <= offset) {
                 // Swiping from lower to upper (positive).
                 if (velocity >= velocityThreshold) {
-                    return upper
+                    upper
                 } else {
                     val threshold = thresholds(lower, upper)
                     if (offset < threshold) lower else upper
@@ -789,7 +789,7 @@ private fun computeTarget(
             } else {
                 // Swiping from upper to lower (negative).
                 if (velocity <= -velocityThreshold) {
-                    return lower
+                    lower
                 } else {
                     val threshold = thresholds(upper, lower)
                     if (offset > threshold) upper else lower

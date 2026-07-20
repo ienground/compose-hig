@@ -123,6 +123,7 @@ fun SectionsScreen(
                 title = {
                     CupertinoSegmentedControl(
                         selectedTabIndex = if (isLazy) 0 else 1,
+                        backdrop = backdrop,
                         modifier =
                             Modifier
                                 .width(200.dp),
@@ -211,15 +212,17 @@ fun SectionsScreen(
                             Caption()
                         },
                     ) {
-                        SectionItem(
-                            leadingContent = {
-                                CupertinoLinkIcon(imageVector = CupertinoIcons.Default.Heart)
-                            },
-                            trailingContent = {
-                                Text("Trailing")
-                            },
-                        ) {
-                            Text("Section item")
+                        repeat(4) { index ->
+                            SectionItem(
+                                leadingContent = {
+                                    CupertinoLinkIcon(imageVector = CupertinoIcons.Default.Heart)
+                                },
+                                trailingContent = {
+                                    Text("Trailing ${index + 1}")
+                                },
+                            ) {
+                                Text("Section item ${index + 1}")
+                            }
                         }
                     }
                 }

@@ -81,7 +81,7 @@ fun TestScreen(
             CupertinoTopAppBar(
 //                isBackgroundGradient = true,
                 title = {
-                    CupertinoText("Cupertino")
+                    CupertinoText("HIG")
                 },
                 subtitle = {
                     CupertinoText("sub title")

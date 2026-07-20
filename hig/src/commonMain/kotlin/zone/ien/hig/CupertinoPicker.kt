@@ -79,6 +79,7 @@ import zone.ien.hig.theme.CupertinoTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
+import kotlin.time.Duration.Companion.milliseconds
 
 @Stable
 @ExperimentalCupertinoApi
@@ -289,7 +290,7 @@ fun <T: Any> CupertinoWheelPicker(
     }
 
     LaunchedEffect(0) {
-        delay(100)
+        delay(100.milliseconds)
         isInitial = false
     }
 

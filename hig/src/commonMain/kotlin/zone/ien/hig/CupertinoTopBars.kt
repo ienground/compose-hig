@@ -64,6 +64,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.geometry.Rect
@@ -103,6 +104,7 @@ import zone.ien.hig.theme.darkColorScheme
 import zone.ien.hig.theme.lightColorScheme
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Return true if container can't scroll backward
@@ -476,7 +478,7 @@ private fun InlineTopAppBar(
                     }
                 }
 
-                delay(300)
+                delay(300.milliseconds)
             }
         }
     }
@@ -539,7 +541,10 @@ private fun InlineTopAppBar(
                     Column(
                         horizontalAlignment = if (isCenterAligned) Alignment.CenterHorizontally else Alignment.Start,
                         modifier = Modifier
-                            .blur(radius = blurRadius.dp)
+                            .blur(
+                                radius = blurRadius.dp,
+                                edgeTreatment = BlurredEdgeTreatment.Unbounded,
+                            )
                             .onGloballyPositioned {
                                 val position = it.positionInRoot()
                                 val size = it.size
