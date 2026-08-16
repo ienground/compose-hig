@@ -5,38 +5,36 @@
 
 # Compose-HIG
 
-A modern, highly customizable **Compose Multiplatform** library implementing Apple's **Human Interface Guidelines (HIG)** with **Liquid Glass** visuals, native haptic feedback dynamics, and smooth spring physics.
+Apple **Human Interface Guidelines(HIG)**를 **Liquid Glass** 비주얼, 네이티브 햅틱 피드백, 부드러운 스프링 물리를 활용해 구현한 현대적이고 높은 수준으로 커스터마이징할 수 있는 **Compose Multiplatform** 라이브러리입니다.
 
-Forked and expanded from [alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino) and [slanos/compose-cupertino](https://github.com/slanos/compose-cupertino).
-
----
-
-## 🌟 Key Features
-
-- **iOS 26 HIG Liquid Glass Aesthetic**: Advanced backdrop rendering with interactive lens refraction, chromatic aberration, vibrancy, and dynamic luminance tinting.
-- **Enhanced Component Suite**:
-  - 💧 **Liquid Glass Components**: `CupertinoLiquidButton`, `CupertinoLiquidAlertDialog`
-  - 🎛️ **Segmented Control**: `CupertinoSegmentedControl` with spring drag animations, dynamic indicator width, and haptic feedback.
-  - 👆 **SwipeBox**: `CupertinoSwipeBox` with DSL action builders (`start` & `end`), full-swipe auto-trigger, and spring response.
-  - 📋 **Grouped Sections & Lazy Lists**: `CupertinoSection`, `LazyListScope.section`, and `stickySection` with iOS grouped inset styling.
-  - 📅 **Pickers**: `CupertinoPicker`, `CupertinoDatePicker`, `CupertinoTimePicker`, and `CupertinoDateTimePicker`.
-  - 🧭 **Navigation & Structure**: `CupertinoTopAppBar`, `CupertinoNavigationBar`, `CupertinoBottomSheet`, `CupertinoBottomSheetScaffold`, `CupertinoScaffold`.
-  - 🔘 **Inputs & Switches**: `CupertinoSwitch`, `CupertinoCheckbox`, `CupertinoTextField`, `CupertinoSearchTextField`.
-  - 🎨 **Standalone Cupertino Icons**: Lightweight vector `CupertinoIcons` (Outlined & Filled) removing unnecessary dependencies on heavy icon packs.
+[alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino)와 [slanos/compose-cupertino](https://github.com/slanos/compose-cupertino)를 기반으로 확장했습니다.
 
 ---
 
-## 🎬 Preview Video
+## 🌟 주요 기능
+
+- **iOS 26 HIG Liquid Glass 스타일**: 인터랙티브 렌즈 굴절, 색수차, 생동감, 동적 밝기 틴트를 지원하는 고급 배경 렌더링.
+- **확장된 컴포넌트 구성**:
+  - 💧 **Liquid Glass 컴포넌트**: `CupertinoLiquidButton`, `CupertinoLiquidAlertDialog`
+  - 🎛️ **세그먼트 컨트롤**: 스프링 드래그 애니메이션, 동적 인디케이터 너비, 햅틱 피드백을 지원하는 `CupertinoSegmentedControl`.
+  - 👆 **SwipeBox**: DSL 액션 빌더(`start` 및 `end`), 전체 스와이프 자동 실행, 스프링 응답을 지원하는 `CupertinoSwipeBox`.
+  - 📋 **그룹 섹션 및 지연 리스트**: iOS 그룹 인셋 스타일을 지원하는 `CupertinoSection`, `LazyListScope.section`, `stickySection`.
+  - 📅 **피커**: `CupertinoPicker`, `CupertinoDatePicker`, `CupertinoTimePicker`, `CupertinoDateTimePicker`.
+  - 🧭 **내비게이션 및 구조**: `CupertinoTopAppBar`, `CupertinoNavigationBar`, `CupertinoBottomSheet`, `CupertinoBottomSheetScaffold`, `CupertinoScaffold`.
+  - 🔘 **입력 및 스위치**: `CupertinoSwitch`, `CupertinoCheckbox`, `CupertinoTextField`, `CupertinoSearchTextField`.
+  - 🎨 **독립형 Cupertino 아이콘**: 무거운 아이콘 팩 의존성을 줄인 경량 벡터 `CupertinoIcons`(Outlined 및 Filled).
+
+---
+
+## 🎬 미리보기 동영상
 
 https://github.com/user-attachments/assets/ef0b2afd-030b-4aae-aa70-e0dfa2bfdd03
 
 
 
-### iOS Native UI Flickering
+### iOS 네이티브 UI 깜빡임
 
-If Compose content briefly disappears or flickers while presenting native iOS UI such as a
-dropdown menu, alert, or action sheet, disable parallel rendering in the root
-`ComposeUIViewController`:
+dropdown 메뉴, alert, action sheet와 같은 iOS 네이티브 UI를 표시할 때 Compose 콘텐츠가 잠시 사라지거나 깜빡이면 루트 `ComposeUIViewController`에서 병렬 렌더링을 비활성화하세요.
 
 ```kotlin
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -52,24 +50,22 @@ fun MainViewController() = ComposeUIViewController(
 }
 ```
 
-This keeps Compose rendering synchronized with UIKit presentation transitions. It may reduce some
-rendering performance because Compose no longer encodes rendering commands on a dedicated thread,
-so apply it when native UI transitions exhibit flickering.
+이 설정은 Compose 렌더링을 UIKit의 화면 표시 전환과 동기화합니다. Compose가 더 이상 전용 스레드에서 렌더링 명령을 인코딩하지 않으므로 렌더링 성능이 일부 낮아질 수 있습니다. 네이티브 UI 전환 중 깜빡임이 발생할 때 적용하세요.
 
 ---
 
-## 🚀 Live Demo
+## 🚀 라이브 데모
 
-Try the WasmJS interactive web showcase deployed via GitHub Pages:  
+GitHub Pages에 배포된 WasmJS 인터랙티브 웹 쇼케이스를 확인해 보세요.
 👉 **[https://ienground.github.io/compose-hig/](https://ienground.github.io/compose-hig/)**
 
 ---
 
-## 📦 Installation
+## 📦 설치
 
-This package is published to Maven Central Repository.
+이 패키지는 Maven Central Repository에 배포되어 있습니다.
 
-Declare the dependency in `libs.versions.toml`:
+`libs.versions.toml`에 의존성을 선언하세요.
 
 ```toml
 [versions]
@@ -81,7 +77,7 @@ hig-adaptive = { group = "zone.ien.hig", name = "hig-adaptive", version.ref = "h
 hig-native = { group = "zone.ien.hig", name = "hig-native", version.ref = "hig" }
 ```
 
-In `build.gradle.kts`:
+`build.gradle.kts`에서는 다음과 같이 설정하세요.
 
 ```kotlin
 kotlin {
@@ -97,9 +93,10 @@ kotlin {
 
 ---
 
-## 💡 Quick Code Examples
+## 💡 빠른 코드 예제
 
-### 1. Liquid Glass Button
+### 1. Liquid Glass 버튼
+
 ```kotlin
 val backdrop = rememberDefaultBackdrop()
 
@@ -111,7 +108,8 @@ CupertinoLiquidButton(
 }
 ```
 
-### 2. Segmented Control
+### 2. 세그먼트 컨트롤
+
 ```kotlin
 var selectedIndex by remember { mutableStateOf(0) }
 
@@ -133,7 +131,8 @@ CupertinoSegmentedControl(
 }
 ```
 
-### 3. SwipeBox for List Items
+### 3. 리스트 항목용 SwipeBox
+
 ```kotlin
 CupertinoSwipeBox(
     actionItemBuilder = {
@@ -151,7 +150,8 @@ CupertinoSwipeBox(
 }
 ```
 
-### 4. Lazy List Section
+### 4. 지연 리스트 섹션
+
 ```kotlin
 LazyColumn {
     section(
@@ -170,9 +170,9 @@ LazyColumn {
 
 ---
 
-## 📝 To-do
+## 📝 할 일
 
-Compared to the previous library, we have made efforts to update many components from the Human Interface Guidelines to match the latest design, but there is still work in progress. Please help complete the library with your contributions!
+이전 라이브러리와 비교해 Human Interface Guidelines에 맞도록 많은 컴포넌트를 최신 디자인으로 업데이트했지만, 아직 작업이 진행 중입니다. 기여를 통해 라이브러리 완성에 함께해 주세요.
 
 - [ ] BottomBar
 - [ ] Search Bar
@@ -182,7 +182,7 @@ Compared to the previous library, we have made efforts to update many components
 
 ---
 
-## 📄 License
+## 📄 라이선스
 
 ```
 Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
@@ -204,6 +204,6 @@ limitations under the License.
 
 ---
 
-## 🤝 Contributions
+## 🤝 기여
 
-Contributions are welcome! Please ensure copyright headers are included when submitting Pull Requests.
+기여를 환영합니다. Pull Request를 제출할 때 저작권 헤더를 포함해 주세요.
