@@ -42,6 +42,7 @@ import platform.UIKit.UIMenuOptionsDestructive
 import platform.UIKit.UIMenuOptionsDisplayAsPalette
 import platform.UIKit.UIMenuOptionsDisplayInline
 import platform.UIKit.UIMenuOptionsSingleSelection
+import platform.UIKit.addInteraction
 import platform.UIKit.touchesBegan
 import platform.darwin.NSObject
 
@@ -84,6 +85,7 @@ actual fun CupertinoDropdownMenuNative(
             setTitle("", forState = UIControlStateNormal)
             showsMenuAsPrimaryAction = true
             preferredMenuElementOrder = UIContextMenuConfigurationElementOrderFixed
+            addInteraction(UIContextMenuInteraction(this))
         }
         viewController.view.insertSubview(button, atIndex = 0)
         delegate.button = button
