@@ -69,7 +69,7 @@ GitHub Pages에 배포된 WasmJS 인터랙티브 웹 쇼케이스를 확인해 �
 
 ```toml
 [versions]
-hig = "1.3.0"
+hig = "1.3.1"
 
 [libraries]
 hig = { group = "zone.ien.hig", name = "hig", version.ref = "hig" }
