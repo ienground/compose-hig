@@ -83,6 +83,7 @@ kotlin {
 
     js(IR) {
         browser()
+        binaries.executable()
     }
 
     @Suppress("OPT_IN_USAGE")

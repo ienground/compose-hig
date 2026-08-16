@@ -25,7 +25,6 @@ import platform.CoreGraphics.CGPoint
 import platform.CoreGraphics.CGRectMake
 import platform.UIKit.UIAction
 import platform.UIKit.UIButton
-import platform.UIKit.UIButtonTypePlain
 import platform.UIKit.UIColor
 import platform.UIKit.UIContextMenuConfiguration
 import platform.UIKit.UIContextMenuConfigurationElementOrderFixed
@@ -81,17 +80,22 @@ actual fun CupertinoDropdownMenuNative(
 
     // Insert UIButton at the bottom of the view hierarchy
     DisposableEffect(viewController) {
-        val button = UIButton.buttonWithType(UIButtonTypePlain).apply {
+        val button = CupertinoDropdownMenuButton().apply {
             backgroundColor = UIColor.clearColor
             setTitle("", forState = UIControlStateNormal)
             showsMenuAsPrimaryAction = true
             preferredMenuElementOrder = UIContextMenuConfigurationElementOrderFixed
-            addInteraction(UIContextMenuInteraction(delegate))
+            addInteraction(UIContextMenuInteraction(this))
         }
         viewController.view.insertSubview(button, atIndex = 0)
         delegate.button = button
+        button.onMenuWillEnd = {
+            delegate.isMenuVisible = false
+            delegate.onDismissRequest()
+        }
 
         onDispose {
+            button.onMenuWillEnd = null
             button.removeFromSuperview()
             delegate.button = null
         }
@@ -150,26 +154,41 @@ actual fun CupertinoDropdownMenuNative(
 }
 
 @OptIn(ExperimentalForeignApi::class)
-internal class CupertinoDropdownMenuDelegate : NSObject(), UIContextMenuInteractionDelegateProtocol {
-    var items: List<CupertinoMenuItemData> = emptyList()
-    var sections: List<CupertinoMenuSectionData> = emptyList()
-    var onDismissRequest: () -> Unit = {}
-    var button: UIButton? = null
-    var isMenuVisible: Boolean = false
+private class CupertinoDropdownMenuButton :
+    UIButton(frame = CGRectMake(0.0, 0.0, 0.0, 0.0)),
+    UIContextMenuInteractionDelegateProtocol {
+    var onMenuWillEnd: (() -> Unit)? = null
 
     override fun contextMenuInteraction(
         interaction: UIContextMenuInteraction,
         configurationForMenuAtLocation: CValue<CGPoint>
-    ): UIContextMenuConfiguration? = null
+    ): UIContextMenuConfiguration? {
+        val buttonMenu = menu ?: return null
+        return UIContextMenuConfiguration.configurationWithIdentifier(
+            identifier = null,
+            previewProvider = null,
+            actionProvider = { buttonMenu }
+        ).also { configuration ->
+            configuration.preferredMenuElementOrder = preferredMenuElementOrder
+        }
+    }
 
     override fun contextMenuInteraction(
         interaction: UIContextMenuInteraction,
         willEndForConfiguration: UIContextMenuConfiguration,
         animator: UIContextMenuInteractionAnimatingProtocol?
     ) {
-        isMenuVisible = false
-        onDismissRequest()
+        onMenuWillEnd?.invoke()
     }
+}
+
+@OptIn(ExperimentalForeignApi::class)
+internal class CupertinoDropdownMenuDelegate : NSObject() {
+    var items: List<CupertinoMenuItemData> = emptyList()
+    var sections: List<CupertinoMenuSectionData> = emptyList()
+    var onDismissRequest: () -> Unit = {}
+    var button: UIButton? = null
+    var isMenuVisible: Boolean = false
 
     fun buildMenu(): UIMenu {
         val topActions: List<UIMenuElement> = items.map { it.toUIAction() }

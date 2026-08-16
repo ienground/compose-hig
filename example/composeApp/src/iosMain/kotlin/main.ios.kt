@@ -18,6 +18,7 @@
 
 
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.window.ComposeUIViewController
 import platform.UIKit.UIViewController
@@ -25,10 +26,12 @@ import platform.UIKit.UIViewController
 actual val IsIos: Boolean
     get() = true
 
+@OptIn(ExperimentalComposeUiApi::class)
 fun MainViewController(): UIViewController =
     ComposeUIViewController(
         configure = {
             onFocusBehavior = OnFocusBehavior.DoNothing
+            parallelRendering = false
         },
     ) {
         App()
