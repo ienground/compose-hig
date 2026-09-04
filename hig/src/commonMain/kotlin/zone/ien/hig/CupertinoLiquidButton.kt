@@ -28,11 +28,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -121,6 +123,7 @@ fun CupertinoLiquidButton(
 
     val isLightTheme = !isSystemInDarkTheme()
     val graphicsLayer = rememberGraphicsLayer()
+    val targetGraphicsLayer = rememberGraphicsLayer()
 
     val luminanceAnimation = remember(enabled) { FloatAnimatable(if (isLightTheme) 1f else 0f) }
     val tintColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightTintColor else darkTintColor) }
@@ -157,7 +160,13 @@ fun CupertinoLiquidButton(
     }
 
     Row(
-        modifier
+        modifier = modifier
+            .drawWithContent {
+                targetGraphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                }
+                drawLayer(targetGraphicsLayer)
+            }
             .drawBackdrop(
                 backdrop = backdrop,
                 shape = { shape },
@@ -249,7 +258,7 @@ fun CupertinoLiquidButton(
             CompositionLocalProvider(
                 LocalContentColor provides if (isBackgroundAdaptive) contentColorAnimation.value else contentColor,
             ) {
-               content()
+                content()
             }
         }
     )
