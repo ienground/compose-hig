@@ -1,6 +1,7 @@
 package zone.ien.hig
 
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -159,109 +159,114 @@ fun CupertinoLiquidButton(
         }
     }
 
-    Row(
-        modifier = modifier
-            .drawWithContent {
-                targetGraphicsLayer.record {
-                    this@drawWithContent.drawContent()
+    Box(modifier = modifier) {
+        Row(
+            modifier = Modifier
+                .drawWithContent {
+                    targetGraphicsLayer.record {
+                        this@drawWithContent.drawContent()
+                    }
                 }
-                drawLayer(targetGraphicsLayer)
-            }
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { shape },
-                effects = {
-                    val l = (luminanceAnimation.value * 2f - 1f).let { sign(it) * it * it }
-                    vibrancy()
-                    if (isBackgroundAdaptive) {
-                        blur(
-                            if (l > 0f) lerp(8.dp.toPx(), 16.dp.toPx(), l)
-                            else lerp(8.dp.toPx(), 2.dp.toPx(), -l)
-                        )
-                    } else {
-                        blur(2.dp.toPx())
-                    }
-                    if (shape is ContinuousRoundedRectangle || shape is CornerBasedShape) {
-                        lens(12.dp.toPx(), 24.dp.toPx())
-                    }
-                },
-                layerBlock = if (enabled && isInteractive) {
-                    {
-                        val width = this.size.width
-                        val height = this.size.height
-
-                        val progress = interactiveHighlight.pressProgress
-                        val scale = lerp(1f, 1f + 4.dp.toPx() / height, progress)
-
-                        val maxOffset = this.size.minDimension
-                        val initialDerivative = 0.05f
-                        val offset = interactiveHighlight.offset
-
-                        translationX = maxOffset * tanh(initialDerivative * offset.x / maxOffset)
-                        translationY = maxOffset * tanh(initialDerivative * offset.y / maxOffset)
-
-                        val maxDragScale = 4.dp.toPx() / height
-                        val offsetAngle = atan2(offset.y, offset.x)
-
-                        scaleX = scale + maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension) * (width / height).fastCoerceAtMost(1f)
-                        scaleY = scale + maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension) * (height / width).fastCoerceAtMost(1f)
-
-                    }
-                } else {
-                    null
-                },
-                onDrawSurface = {
-                    if (isBackgroundAdaptive) {
-                        if (tintColorAnimation.value.isSpecified) {
-                            drawRect(tintColorAnimation.value, blendMode = BlendMode.Hue)
-                            drawRect(tintColorAnimation.value.copy(alpha = 0.75f))
+                .drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { shape },
+                    effects = {
+                        val l = (luminanceAnimation.value * 2f - 1f).let { sign(it) * it * it }
+                        vibrancy()
+                        if (isBackgroundAdaptive) {
+                            blur(
+                                if (l > 0f) lerp(8.dp.toPx(), 16.dp.toPx(), l)
+                                else lerp(8.dp.toPx(), 2.dp.toPx(), -l)
+                            )
+                        } else {
+                            blur(2.dp.toPx())
                         }
-                        if (surfaceColorAnimation.value.isSpecified) {
-                            drawRect(surfaceColorAnimation.value)
+                        if (shape is ContinuousRoundedRectangle || shape is CornerBasedShape) {
+                            lens(12.dp.toPx(), 24.dp.toPx())
+                        }
+                    },
+                    layerBlock = if (enabled && isInteractive) {
+                        {
+                            val width = this.size.width
+                            val height = this.size.height
+
+                            val progress = interactiveHighlight.pressProgress
+                            val scale = lerp(1f, 1f + 4.dp.toPx() / height, progress)
+
+                            val maxOffset = this.size.minDimension
+                            val initialDerivative = 0.05f
+                            val offset = interactiveHighlight.offset
+
+                            translationX = maxOffset * tanh(initialDerivative * offset.x / maxOffset)
+                            translationY = maxOffset * tanh(initialDerivative * offset.y / maxOffset)
+
+                            val maxDragScale = 4.dp.toPx() / height
+                            val offsetAngle = atan2(offset.y, offset.x)
+
+                            scaleX = scale + maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension) * (width / height).fastCoerceAtMost(1f)
+                            scaleY = scale + maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension) * (height / width).fastCoerceAtMost(1f)
+
                         }
                     } else {
-                        if (tintColor.isSpecified) {
-                            drawRect(tintColor, blendMode = BlendMode.Hue)
-                            drawRect(tintColor.copy(alpha = 0.75f))
+                        null
+                    },
+                    onDrawSurface = {
+                        if (isBackgroundAdaptive) {
+                            if (tintColorAnimation.value.isSpecified) {
+                                drawRect(tintColorAnimation.value, blendMode = BlendMode.Hue)
+                                drawRect(tintColorAnimation.value.copy(alpha = 0.75f))
+                            }
+                            if (surfaceColorAnimation.value.isSpecified) {
+                                drawRect(surfaceColorAnimation.value)
+                            }
+                        } else {
+                            if (tintColor.isSpecified) {
+                                drawRect(tintColor, blendMode = BlendMode.Hue)
+                                drawRect(tintColor.copy(alpha = 0.75f))
+                            }
+                            if (surfaceColor.isSpecified) {
+                                drawRect(surfaceColor)
+                            }
                         }
-                        if (surfaceColor.isSpecified) {
-                            drawRect(surfaceColor)
-                        }
+                    },
+                    onDrawBackdrop = { drawBackdrop ->
+                        drawBackdrop()
+                        graphicsLayer.record { drawBackdrop() }
                     }
-                },
-                onDrawBackdrop = { drawBackdrop ->
-                    drawBackdrop()
-                    graphicsLayer.record { drawBackdrop() }
+                )
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = if (enabled) LocalIndication.current else null,
+                    enabled = enabled,
+                    role = Role.Button,
+                    onClick = onClick
+                )
+                .then(
+                    if (enabled) {
+                        Modifier
+                            .then(interactiveHighlight.modifier)
+                            .then(interactiveHighlight.gestureModifier)
+                    } else {
+                        Modifier
+                    }
+                )
+                .height(48.dp)
+                .padding(contentPadding),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+            content = {
+                CompositionLocalProvider(
+                    LocalContentColor provides if (isBackgroundAdaptive) contentColorAnimation.value else contentColor,
+                ) {
+                    content()
                 }
-            )
-            .clickable(
-                interactionSource = interactionSource,
-                indication = if (enabled) LocalIndication.current else null,
-                enabled = enabled,
-                role = Role.Button,
-                onClick = onClick
-            )
-            .then(
-                if (enabled) {
-                    Modifier
-                        .then(interactiveHighlight.modifier)
-                        .then(interactiveHighlight.gestureModifier)
-                } else {
-                    Modifier
-                }
-            )
-            .height(48.dp)
-            .padding(contentPadding),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically,
-        content = {
-            CompositionLocalProvider(
-                LocalContentColor provides if (isBackgroundAdaptive) contentColorAnimation.value else contentColor,
-            ) {
-                content()
             }
+        )
+
+        Canvas(Modifier.matchParentSize()) {
+            drawLayer(targetGraphicsLayer)
         }
-    )
+    }
 }
 
 @ExperimentalCupertinoApi
@@ -291,7 +296,7 @@ fun CupertinoLiquidIconButton(
         isInteractive = isInteractive,
         content = {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.size(32.dp),
                 contentAlignment = Alignment.Center
             ) {
                 content()
