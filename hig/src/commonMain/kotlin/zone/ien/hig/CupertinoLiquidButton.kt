@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -160,20 +159,13 @@ fun CupertinoLiquidButton(
         }
     }
 
-    Box {
-        Box(modifier = modifier.height(48.dp)) {
-            Canvas(Modifier.fillMaxSize()) {
-                drawLayer(targetGraphicsLayer)
-            }
-        }
-
+    Box(modifier = modifier) {
         Row(
             modifier = Modifier
                 .drawWithContent {
                     targetGraphicsLayer.record {
                         this@drawWithContent.drawContent()
                     }
-                    drawContent()
                 }
                 .drawBackdrop(
                     backdrop = backdrop,
@@ -270,6 +262,10 @@ fun CupertinoLiquidButton(
                 }
             }
         )
+
+        Canvas(Modifier.matchParentSize()) {
+            drawLayer(targetGraphicsLayer)
+        }
     }
 }
 
