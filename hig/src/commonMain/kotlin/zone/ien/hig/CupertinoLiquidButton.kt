@@ -300,7 +300,7 @@ fun CupertinoLiquidIconButton(
         isInteractive = isInteractive,
         content = {
             Box(
-                modifier = Modifier.size(CupertinoLiquidButtonTokens.IconButtonSize),
+                modifier = Modifier.size(32.dp),
                 contentAlignment = Alignment.Center
             ) {
                 content()
