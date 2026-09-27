@@ -38,5 +38,7 @@ data class RootDetails(
     val accentColors: Pair<Color, Color> = CupertinoColors.systemBlue(false) to CupertinoColors.systemBlue(true),
     val invertLayoutDirection: Boolean = false,
     val isDark: Boolean = false,
-    val isMaterial: Boolean = false
+    val isMaterial: Boolean = false,
+    val isOutlined: Boolean = true,
+    val isLazySections: Boolean = true,
 )

@@ -34,12 +34,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
@@ -521,7 +525,11 @@ object CupertinoNavigationBarDefaults {
         disabledTextColor = disabledTextColor,
     )
 
-    val windowInsets = WindowInsets(left = 36.dp, right = 36.dp)
+    val windowInsets: WindowInsets
+        @Composable
+        get() = WindowInsets.systemBars
+            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+            .union(WindowInsets(left = 36.dp, right = 36.dp))
     val BottomPadding = 24.dp
 }
 

@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-
-
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.window.ComposeUIViewController
@@ -34,5 +32,5 @@ fun MainViewController(): UIViewController =
             parallelRendering = false
         },
     ) {
-        App()
+        App(composeSystemBars = true)
     }

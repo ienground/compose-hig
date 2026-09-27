@@ -27,9 +27,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -112,7 +114,7 @@ fun CupertinoBottomAppBar(
     containerColor: Color = CupertinoNavigationBarDefaults.containerColor,
     contentColor: Color = CupertinoTheme.colorScheme.accent,
     contentPadding: PaddingValues = CupertinoSectionDefaults.PaddingValues,
-    windowInsets: WindowInsets = WindowInsets.navigationBars,
+    windowInsets: WindowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
     content: @Composable RowScope.() -> Unit,
 ) {
     val actualContainerColor =

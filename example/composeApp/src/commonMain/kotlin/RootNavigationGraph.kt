@@ -38,7 +38,9 @@ val rootConfig = SavedStateConfiguration {
 fun RootNavigationGraph(
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey>,
-    viewModel: RootViewModel
+    viewModel: RootViewModel,
+    systemBarRailVisible: Boolean = false,
+    onSystemBarOverrideChanged: (RootSystemBarConfiguration?) -> Unit = {},
 ) {
     NavDisplay(
         backStack = backStack,
@@ -52,24 +54,37 @@ fun RootNavigationGraph(
                 CupertinoWidgetsScreen(
                     uiState = viewModel.uiState,
                     onItemValueChanged = viewModel::updateUiState,
-                    onNavigate = { backStack.add(it) }
+                    onNavigate = { backStack.add(it) },
+                    systemBarRailVisible = systemBarRailVisible,
+                    onSystemBarOverrideChanged = onSystemBarOverrideChanged,
                 )
             }
             entry<RootRoute.Adaptive> {
                 AdaptiveWidgetsScreen(
                     uiState = viewModel.uiState,
                     onItemValueChanged = viewModel::updateUiState,
-                    navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                    navigateBack = { backStack.removeAt(backStack.lastIndex) },
+                    systemBarRailVisible = systemBarRailVisible,
                 )
             }
             entry<RootRoute.Icons> {
                 IconsScreen(
-                    navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                    navigateBack = { backStack.removeAt(backStack.lastIndex) },
+                    systemBarRailVisible = systemBarRailVisible,
+                    isOutlined = viewModel.uiState.item.isOutlined,
+                    onIsOutlinedChange = { isOutlined ->
+                        viewModel.updateUiState(viewModel.uiState.item.copy(isOutlined = isOutlined))
+                    },
                 )
             }
             entry<RootRoute.Sections> {
                 SectionsScreen(
-                    navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                    navigateBack = { backStack.removeAt(backStack.lastIndex) },
+                    systemBarRailVisible = systemBarRailVisible,
+                    isLazy = viewModel.uiState.item.isLazySections,
+                    onIsLazyChange = { isLazy ->
+                        viewModel.updateUiState(viewModel.uiState.item.copy(isLazySections = isLazy))
+                    },
                 )
             }
         }

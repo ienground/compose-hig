@@ -77,10 +77,12 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 @OptIn(ExperimentalCupertinoApi::class)
 @Composable
 fun SectionsScreen(
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    systemBarRailVisible: Boolean = false,
+    isLazy: Boolean = true,
+    onIsLazyChange: (Boolean) -> Unit = {},
 ) {
     val backdrop = rememberDefaultBackdrop()
-    var isLazy by remember { mutableStateOf(true) }
     val pagerState = rememberPagerState { 2 }
     val toggleState = remember { mutableStateOf(false) }
 
@@ -112,7 +114,7 @@ fun SectionsScreen(
 
     CupertinoScaffold(
         topBar = {
-            CupertinoTopAppBar(
+            if (!systemBarRailVisible) CupertinoTopAppBar(
                 navigationIcon = {
                     CupertinoNavigateBackLiquidButton(
                         onClick = navigateBack,
@@ -131,7 +133,7 @@ fun SectionsScreen(
                         CupertinoSegmentedControlTab(
                             isSelected = isLazy,
                             onClick = {
-                                isLazy = true
+                                onIsLazyChange(true)
                             },
                         ) {
                             CupertinoText("Lazy")
@@ -139,7 +141,7 @@ fun SectionsScreen(
                         CupertinoSegmentedControlTab(
                             isSelected = !isLazy,
                             onClick = {
-                                isLazy = false
+                                onIsLazyChange(false)
                             },
                         ) {
                             CupertinoText("Default")

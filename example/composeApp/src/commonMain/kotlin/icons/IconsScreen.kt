@@ -893,10 +893,12 @@ import zone.ien.hig.utils.rememberDefaultBackdrop
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun IconsScreen(
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    systemBarRailVisible: Boolean = false,
+    isOutlined: Boolean = true,
+    onIsOutlinedChange: (Boolean) -> Unit = {},
 ) {
     val backdrop = rememberDefaultBackdrop()
-    var isOutlined by remember { mutableStateOf(true) }
     val pagerState = rememberPagerState { 2 }
 
     LaunchedEffect(isOutlined){
@@ -905,7 +907,7 @@ fun IconsScreen(
 
     CupertinoScaffold(
         topBar = {
-            CupertinoTopAppBar(
+            if (!systemBarRailVisible) CupertinoTopAppBar(
                 navigationIcon = {
                     AdaptiveWidget(
                         cupertino = {
@@ -937,7 +939,7 @@ fun IconsScreen(
                         CupertinoSegmentedControlTab(
                             isSelected = isOutlined,
                             onClick = {
-                                isOutlined = true
+                                onIsOutlinedChange(true)
                             }
                         ) {
                             CupertinoText("Outlined")
@@ -945,7 +947,7 @@ fun IconsScreen(
                         CupertinoSegmentedControlTab(
                             isSelected = !isOutlined,
                             onClick = {
-                                isOutlined = false
+                                onIsOutlinedChange(false)
 
                             }
                         ) {

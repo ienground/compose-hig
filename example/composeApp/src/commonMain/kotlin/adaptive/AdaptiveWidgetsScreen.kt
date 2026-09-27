@@ -100,12 +100,13 @@ fun AdaptiveWidgetsScreen(
     uiState: RootUiState,
     onItemValueChanged: (RootDetails) -> Unit,
     navigateBack: () -> Unit,
+    systemBarRailVisible: Boolean = false,
 ) {
     val backdrop = rememberDefaultBackdrop()
 
     AdaptiveScaffold(
         topBar = {
-            AdaptiveTopAppBar(
+            if (!systemBarRailVisible) AdaptiveTopAppBar(
                 navigationIcon = {
                     AdaptiveWidget(
                         cupertino = {
@@ -154,35 +155,37 @@ fun AdaptiveWidgetsScreen(
             )
         },
         bottomBar = {
-            var selected by rememberSaveable { mutableStateOf(0) }
-            val content = listOf(
-                "Profile" to AdaptiveIcons.Outlined.Person,
-                "Menu" to AdaptiveIcons.Outlined.Menu,
-                "Settings" to AdaptiveIcons.Outlined.Settings,
-            )
+            if (!systemBarRailVisible) {
+                var selected by rememberSaveable { mutableStateOf(0) }
+                val content = listOf(
+                    "Profile" to AdaptiveIcons.Outlined.Person,
+                    "Menu" to AdaptiveIcons.Outlined.Menu,
+                    "Settings" to AdaptiveIcons.Outlined.Settings,
+                )
 
-            AdaptiveNavigationBar(
-                selectedTabIndex = { selected },
-                onTabSelected = { selected = it },
-                tabsCount = content.size,
-                adaptation = {
-                    cupertino { this.backdrop = backdrop }
-                }
-            ) {
-                content.forEachIndexed { index, pair ->
-                    AdaptiveNavigationBarItem(
-                        index = index,
-                        onClick = { selected = index },
-                        icon = {
-                            CupertinoIcon(
-                                imageVector = pair.second,
-                                contentDescription = pair.first,
-                            )
-                        },
-                        label = {
-                            Text(pair.first)
-                        },
-                    )
+                AdaptiveNavigationBar(
+                    selectedTabIndex = { selected },
+                    onTabSelected = { selected = it },
+                    tabsCount = content.size,
+                    adaptation = {
+                        cupertino { this.backdrop = backdrop }
+                    }
+                ) {
+                    content.forEachIndexed { index, pair ->
+                        AdaptiveNavigationBarItem(
+                            index = index,
+                            onClick = { selected = index },
+                            icon = {
+                                CupertinoIcon(
+                                    imageVector = pair.second,
+                                    contentDescription = pair.first,
+                                )
+                            },
+                            label = {
+                                Text(pair.first)
+                            },
+                        )
+                    }
                 }
             }
         },

@@ -39,6 +39,8 @@
 package cupertino
 
 import RootDetails
+import RootSystemBarAction
+import RootSystemBarConfiguration
 import RootRoute
 import RootUiState
 import androidx.compose.animation.AnimatedContent
@@ -67,6 +69,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
@@ -240,6 +243,8 @@ fun CupertinoWidgetsScreen(
     uiState: RootUiState,
     onItemValueChanged: (RootDetails) -> Unit,
     onNavigate: (NavKey) -> Unit,
+    systemBarRailVisible: Boolean = false,
+    onSystemBarOverrideChanged: (RootSystemBarConfiguration?) -> Unit = {},
 ) {
 
     val scrollState = rememberLazyListState()
@@ -260,6 +265,28 @@ fun CupertinoWidgetsScreen(
     )
 
     val focusManager = LocalFocusManager.current
+    val coroutineScope = rememberCoroutineScope()
+    val sheetVisible = scaffoldState.bottomSheetState.isVisible
+
+    LaunchedEffect(sheetVisible, systemBarRailVisible) {
+        onSystemBarOverrideChanged(
+            if (systemBarRailVisible && sheetVisible) {
+                RootSystemBarConfiguration(
+                    title = "Bottom Sheet",
+                    leadingActions = emptyList(),
+                    trailingActions = listOf(
+                        RootSystemBarAction("완료", Icons.Default.Check) {
+                            coroutineScope.launch {
+                                scaffoldState.bottomSheetState.hide()
+                            }
+                        }
+                    ),
+                )
+            } else {
+                null
+            }
+        )
+    }
 
     val nativePickers = remember {
         mutableStateOf(false)
@@ -283,21 +310,26 @@ fun CupertinoWidgetsScreen(
                 sheetListState = sheetListState,
                 sheetSectionColor = sheetSectionColor,
                 backdrop = backdrop,
+                systemBarRailVisible = systemBarRailVisible,
             )
         },
         scaffoldState = scaffoldState,
         topBar = {
-            TopBarSample(
-                uiState = uiState,
-                onItemValueChanged = onItemValueChanged,
-                backdrop = backdrop
-            )
+            if (!systemBarRailVisible) {
+                TopBarSample(
+                    uiState = uiState,
+                    onItemValueChanged = onItemValueChanged,
+                    backdrop = backdrop
+                )
+            }
         },
         bottomBar = {
-            BottomBarSample(
-                backdrop = backdrop,
-                isNative = nativePickers.value
-            )
+            if (!systemBarRailVisible) {
+                BottomBarSample(
+                    backdrop = backdrop,
+                    isNative = nativePickers.value
+                )
+            }
         },
     ) { pv ->
         Body(
@@ -1117,30 +1149,33 @@ private fun SheetSample(
     sheetListState: LazyListState,
     sheetSectionColor: Color,
     backdrop: LayerBackdrop,
+    systemBarRailVisible: Boolean,
 ) {
 
     val coroutineScope = rememberCoroutineScope()
 
     CupertinoBottomSheetContent(
         topBar = {
-            CupertinoTopAppBar(
-                backdrop = backdrop,
-                title = {
-                    CupertinoText("Bottom Sheet")
-                },
-                actions = {
-                    CupertinoButton(
-                        colors = CupertinoButtonDefaults.plainButtonColors(),
-                        onClick = {
-                            coroutineScope.launch {
-                                scaffoldState.bottomSheetState.hide()
+            if (!systemBarRailVisible) {
+                CupertinoTopAppBar(
+                    backdrop = backdrop,
+                    title = {
+                        CupertinoText("Bottom Sheet")
+                    },
+                    actions = {
+                        CupertinoButton(
+                            colors = CupertinoButtonDefaults.plainButtonColors(),
+                            onClick = {
+                                coroutineScope.launch {
+                                    scaffoldState.bottomSheetState.hide()
+                                }
                             }
+                        ) {
+                            CupertinoText("Done")
                         }
-                    ) {
-                        CupertinoText("Done")
-                    }
-                },
-            )
+                    },
+                )
+            }
         }
     ) { pv ->
         LazyColumn(

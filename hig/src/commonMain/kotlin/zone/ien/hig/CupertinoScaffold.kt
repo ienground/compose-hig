@@ -235,9 +235,11 @@ private fun ScaffoldLayout(
                     val fabLeftOffset =
                         if (fabPosition == FabPosition.End) {
                             if (layoutDirection == LayoutDirection.Ltr) {
-                                layoutWidth - FabSpacing.roundToPx() - fabWidth
+                                layoutWidth - contentWindowInsets.getRight(this@SubcomposeLayout, layoutDirection) -
+                                    FabSpacing.roundToPx() - fabWidth
                             } else {
-                                FabSpacing.roundToPx()
+                                contentWindowInsets.getLeft(this@SubcomposeLayout, layoutDirection) +
+                                    FabSpacing.roundToPx()
                             }
                         } else {
                             (layoutWidth - fabWidth) / 2
@@ -406,8 +408,9 @@ private fun ScaffoldLayout(
             }
             snackbarPlaceables.fastForEach {
                 it.place(
-                    (layoutWidth - snackbarWidth) / 2 +
-                        contentWindowInsets.getLeft(this@SubcomposeLayout, layoutDirection),
+                    (layoutWidth - snackbarWidth +
+                        contentWindowInsets.getLeft(this@SubcomposeLayout, layoutDirection) -
+                        contentWindowInsets.getRight(this@SubcomposeLayout, layoutDirection)) / 2,
                     layoutHeight - snackbarOffsetFromBottom,
                 )
             }
