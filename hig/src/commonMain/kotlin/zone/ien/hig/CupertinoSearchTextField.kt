@@ -21,6 +21,14 @@
 
 package zone.ien.hig
 
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.highlight.Highlight
+import zone.ien.hig.utils.LocalCupertinoBackdrop
+import zone.ien.hig.utils.InteractiveHighlight
+import zone.ien.hig.utils.cupertinoGlassEffects
+import zone.ien.hig.utils.glassEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.expandHorizontally
@@ -239,6 +247,14 @@ fun CupertinoSearchTextField(
     }
 
     val focused by interactionSource.collectIsFocusedAsState()
+    val pressed by interactionSource.collectIsPressedAsState()
+    val animationScope = rememberCoroutineScope()
+    val glassInteraction = remember(animationScope) { InteractiveHighlight(animationScope) }
+    val backdrop = LocalCupertinoBackdrop.current
+    val glassTint = CupertinoGlassDefaults.tint
+    LaunchedEffect(pressed, enabled) {
+        if (pressed && enabled) glassInteraction.press() else glassInteraction.release()
+    }
 
     // free focus when text field starts collapsing
     LaunchedEffect(state) {
@@ -298,6 +314,17 @@ fun CupertinoSearchTextField(
             modifier =
                 Modifier
                     .weight(1f)
+                    .graphicsLayer {
+                        scaleX = 1f + glassInteraction.pressProgress * 0.01f
+                        scaleY = 1f + glassInteraction.pressProgress * 0.015f
+                    }
+                    .then(if (backdrop != null) Modifier.drawBackdrop(
+                        backdrop = backdrop,
+                        shape = { shape },
+                        effects = { cupertinoGlassEffects(12.dp.toPx(), 4.dp.toPx(), 8.dp.toPx()) },
+                        highlight = { Highlight.Plain },
+                        onDrawSurface = { drawRect(glassTint) },
+                    ).glassEdge(shape) else Modifier)
                     .focusable(),
             value = value,
             onValueChange = onValueChange,
@@ -460,11 +487,7 @@ object CupertinoSearchTextFieldDefaults {
         disabledTextColor: Color = CupertinoTheme.colorScheme.secondaryLabel,
         errorTextColor: Color = CupertinoColors.systemRed,
         focusedContainerColor: Color =
-            if (isDark()) {
-                CupertinoTheme.colorScheme.tertiarySystemFill
-            } else {
-                CupertinoTheme.colorScheme.quaternarySystemFill
-            },
+            if (LocalCupertinoBackdrop.current != null) Color.Transparent else CupertinoGlassDefaults.tint,
         unfocusedContainerColor: Color = focusedContainerColor,
         disabledContainerColor: Color = unfocusedContainerColor.copy(alpha = unfocusedContainerColor.alpha * .65f),
         errorContainerColor: Color = disabledContainerColor,
@@ -472,11 +495,11 @@ object CupertinoSearchTextFieldDefaults {
         errorCursorColor: Color = errorTextColor,
         selectionColors: TextSelectionColors =
             TextSelectionColors(cursorColor, cursorColor.copy(alpha = .25f)),
-        focusedBorderColor: Color = CupertinoTheme.colorScheme.accent.copy(alpha = .72f),
-        unfocusedBorderColor: Color = CupertinoGlassDefaults.border,
+        focusedBorderColor: Color = if (LocalCupertinoBackdrop.current != null) Color.Transparent else CupertinoGlassDefaults.border,
+        unfocusedBorderColor: Color = focusedBorderColor,
         disabledBorderColor: Color = unfocusedBorderColor.copy(alpha = unfocusedBorderColor.alpha * .65f),
         errorBorderColor: Color = errorTextColor,
-        focusedLeadingIconColor: Color = CupertinoTheme.colorScheme.secondaryLabel,
+        focusedLeadingIconColor: Color = CupertinoTheme.colorScheme.label,
         unfocusedLeadingIconColor: Color = focusedLeadingIconColor,
         disabledLeadingIconColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
         errorLeadingIconColor: Color = focusedLeadingIconColor,
@@ -521,9 +544,9 @@ object CupertinoSearchTextFieldDefaults {
 }
 
 internal object CupertinoSearchTextFieldTokens {
-    val MaxHeight = 48.dp
+    val MaxHeight = 44.dp
 
-    val LeadingIconSize = 16.dp
+    val LeadingIconSize = 20.dp
 }
 
 class CupertinoSearchTextFieldState internal constructor(

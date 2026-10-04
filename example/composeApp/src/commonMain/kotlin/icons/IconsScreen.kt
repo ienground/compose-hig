@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -42,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
+import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.CupertinoAlertDialog
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconButton
@@ -988,8 +990,12 @@ fun IconsScreen(
             userScrollEnabled = false,
             modifier = Modifier.layerBackdrop(backdrop)
         ) { page ->
+            val gridState = rememberLazyGridState()
             LazyVerticalGrid(
-                modifier = Modifier.fillMaxSize(),
+                state = gridState,
+                modifier = Modifier.fillMaxSize().then(
+                    if (page == pagerState.currentPage) Modifier.cupertinoScrollEdge(gridState) else Modifier,
+                ),
                 columns = GridCells.Adaptive(48.dp),
                 contentPadding = pv
             ) {

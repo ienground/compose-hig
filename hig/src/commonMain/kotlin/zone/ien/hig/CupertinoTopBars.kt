@@ -226,6 +226,7 @@ fun CupertinoTopAppBar(
 }
 
 internal val LocalNavigationTitleVisible = compositionLocalOf { mutableStateOf(false) }
+internal val LocalTopScrollEdgeProgress = compositionLocalOf { 0f }
 internal val LocalNavigationTitleProgress = compositionLocalOf { mutableStateOf(1f) }
 
 private class ClipShape(
@@ -438,13 +439,15 @@ private fun InlineTopAppBar(
     backdrop: LayerBackdrop
 ) {
     val navTitleVisible by LocalNavigationTitleVisible.current
-    val navigationTitleProgress by LocalNavigationTitleProgress.current
+    val scrollEdgeProgress = LocalTopScrollEdgeProgress.current
     val isLightTheme = !CupertinoTheme.colorScheme.isDark
 //    val layer = backdrop.graphicsLayer
     val layer = rememberGraphicsLayer()
     var titleX by remember { mutableStateOf(0) }
     var titleWidth by remember { mutableStateOf(0) }
-    val topAppBarHeightPx = LocalDensity.current.run { TopAppBarHeight.toPx() }
+    val topAppBarHeightPx = LocalDensity.current.run {
+        (if (LocalCupertinoSheetSurfaceDrawn.current) 56.dp else TopAppBarHeight).toPx()
+    }
 
     val lightGradientColor by colors.gradientColor(isDark = false)
     val darkGradientColor by colors.gradientColor(isDark = true)
@@ -466,7 +469,7 @@ private fun InlineTopAppBar(
     val gradientColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightGradientColor else darkGradientColor) }
     val titleColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightTitleColor else darkTitleColor) }
     val subtitleColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightSubtitleColor else darkSubtitleColor) }
-    val backgroundOpacity = 0.48f * navigationTitleProgress
+    val backgroundOpacity = 0.48f * scrollEdgeProgress
     val backgroundTint = if (isBackgroundGradient) {
         gradientColorAnimation.value
     } else {
@@ -522,7 +525,7 @@ private fun InlineTopAppBar(
                     backdrop = backdrop,
                     shape = { RectangleShape },
                     effects = {
-                        blur(CupertinoGlassDefaults.blurRadius.toPx() * navigationTitleProgress)
+                        blur(CupertinoGlassDefaults.blurRadius.toPx() * scrollEdgeProgress)
                         runtimeShaderEffect(
                             "MaterialTint",
                             """
@@ -616,7 +619,7 @@ private fun InlineTopAppBar(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .height(1.dp)
-                .alpha(navigationTitleProgress)
+                .alpha(scrollEdgeProgress)
                 .background(CupertinoGlassDefaults.border),
         )
     }
@@ -691,10 +694,9 @@ private fun TopAppBarLayout(
 
         val layoutHeight = maxOf(
             heightPx.roundToInt(),
-            TopAppBarHeight.roundToPx(),
             titlePlaceable.height,
-            navigationIconPlaceable.height + TopAppBarVerticalPadding.roundToPx() * 2,
-            actionIconsPlaceable.height + TopAppBarVerticalPadding.roundToPx() * 2,
+            navigationIconPlaceable.height + (if (heightPx < TopAppBarHeight.toPx()) 6.dp else TopAppBarVerticalPadding).roundToPx() * 2,
+            actionIconsPlaceable.height + (if (heightPx < TopAppBarHeight.toPx()) 6.dp else TopAppBarVerticalPadding).roundToPx() * 2,
         ).coerceIn(constraints.minHeight, constraints.maxHeight)
 
         // Locate the title's baseline.

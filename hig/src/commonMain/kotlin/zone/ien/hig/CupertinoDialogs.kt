@@ -122,6 +122,12 @@ import zone.ien.hig.utils.CupertinoGlassDefaults
 import zone.ien.hig.utils.LocalCupertinoBackdrop
 import zone.ien.hig.utils.cupertinoGlassEffects
 import zone.ien.hig.utils.glassEdge
+import zone.ien.hig.utils.LocalCupertinoDialogBackdropMotion
+import zone.ien.hig.utils.rememberCupertinoDialogBackdrop
+import androidx.compose.runtime.rememberCoroutineScope
+import zone.ien.hig.utils.InteractiveHighlight
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.ui.draw.clipToBounds
 import zone.ien.hig.utils.rememberDefaultBackdrop
 
 /**
@@ -258,6 +264,7 @@ fun CupertinoAlertDialog(
     AnimatedDialog(
         properties = properties,
         onDismissRequest = onDismissRequest,
+        outsidePressFeedback = true,
         enterTransition = scaleIn(initialScale = 0.94f) + fadeIn(tween(180)),
         exitTransition = scaleOut(targetScale = 0.98f, animationSpec = tween(120)) + fadeOut(tween(120)),
     ) { dismiss, updatePanelBounds ->
@@ -282,7 +289,7 @@ private fun CupertinoDialogPanel(
     buttons: AlertDialogActionsScope.() -> Unit,
     emphasizeDefaultAction: Boolean = true,
 ) {
-    val backdrop = LocalCupertinoBackdrop.current
+    val backdrop = rememberCupertinoDialogBackdrop()
     val useDefaultAlertMaterial = containerColor == CupertinoDialogsDefaults.AlertContainerColor
     val isDarkTheme = CupertinoTheme.colorScheme.isDark
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -576,6 +583,7 @@ internal fun AnimatedDialog(
     exitTransition: ExitTransition,
     scrimColor: Color = CupertinoDialogsDefaults.ScrimColor,
     visible: Boolean = true,
+    outsidePressFeedback: Boolean = false,
     content: @Composable BoxScope.(
         dismiss: (afterDismiss: (() -> Unit)?) -> Unit,
         updatePanelBounds: (Rect) -> Unit,
@@ -583,6 +591,8 @@ internal fun AnimatedDialog(
 ) {
     val haptic = LocalHapticFeedback.current
     val visibility = remember { MutableTransitionState(false) }
+    val animationScope = rememberCoroutineScope()
+    val outsideInteraction = remember(animationScope) { InteractiveHighlight(animationScope) }
     var dismissRequested by remember { mutableStateOf(false) }
     var afterDismiss by remember { mutableStateOf<(() -> Unit)?>(null) }
     var panelBounds by remember { mutableStateOf<Rect?>(null) }
@@ -632,19 +642,27 @@ internal fun AnimatedDialog(
                         .drawWithContent {
                             drawRect(animatedScrimColor)
                             drawContent()
-                        }.then(
-                            if (properties.dismissOnClickOutside) {
-                                Modifier.pointerInput(visibility.targetState) {
-                                    detectTapGestures { offset ->
-                                        if (visibility.targetState && panelBounds?.contains(offset) != true) {
-                                            dismiss(null)
+                        }.pointerInput(visibility.targetState, properties.dismissOnClickOutside, outsidePressFeedback) {
+                            detectTapGestures(
+                                onPress = { offset ->
+                                    if (visibility.targetState && panelBounds?.contains(offset) == false &&
+                                        !properties.dismissOnClickOutside && outsidePressFeedback
+                                    ) {
+                                        outsideInteraction.press()
+                                        try {
+                                            tryAwaitRelease()
+                                        } finally {
+                                            outsideInteraction.release()
                                         }
                                     }
-                                }
-                            } else {
-                                Modifier
-                            },
-                        ).then(
+                                },
+                                onTap = { offset ->
+                                    if (visibility.targetState && properties.dismissOnClickOutside &&
+                                        panelBounds?.contains(offset) == false
+                                    ) dismiss(null)
+                                },
+                            )
+                        }.then(
                             if (properties.platformInsets) {
                                 Modifier
                                     .systemBarsPadding()
@@ -659,8 +677,19 @@ internal fun AnimatedDialog(
                     enter = enterTransition,
                     exit = exitTransition,
                 ) {
-                    Box(Modifier.fillMaxSize()) {
-                        content(dismiss) { panelBounds = it }
+                    Box(Modifier.fillMaxSize().graphicsLayer {
+                        val scale = 1f + outsideInteraction.pressProgress * 0.012f
+                        scaleX = scale
+                        scaleY = scale
+                    }) {
+                        CompositionLocalProvider(
+                            LocalCupertinoDialogBackdropMotion provides {
+                                outsideInteraction.pressProgress
+                                animatedScrimColor.alpha
+                            },
+                        ) {
+                            content(dismiss) { panelBounds = it }
+                        }
                     }
                 }
             }
@@ -994,7 +1023,7 @@ private class CupertinoActionSheetImpl(
                         onClick = onClick,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(CupertinoDialogsTokens.PickerToolbarHeight),
+                            .height(CupertinoDialogsTokens.PickerActionHeight),
                         enabled = enabled,
                         colors =
                             CupertinoLiquidButtonDefaults.glassProminentButtonColors(
@@ -1028,7 +1057,7 @@ private class CupertinoActionSheetImpl(
                                 .heightIn(
                                     min =
                                         if (pickerToolbarActive) {
-                                            CupertinoDialogsTokens.PickerToolbarHeight
+                                            CupertinoDialogsTokens.PickerActionHeight
                                         } else {
                                             CupertinoDialogsTokens.ActionSheetButtonHeight
                                         },
@@ -1167,14 +1196,17 @@ private class CupertinoActionSheetImpl(
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
-                                        .heightIn(min = CupertinoDialogsTokens.PickerToolbarHeight),
+                                        .heightIn(min = CupertinoDialogsTokens.PickerToolbarHeight)
+                                        .padding(vertical = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Box(Modifier.weight(1f)) {
                                     cancelAction.second()
                                 }
                                 Box(
-                                    Modifier.weight(1.5f),
+                                    Modifier.weight(1.5f)
+                                        .clipToBounds()
+                                        .basicMarquee(iterations = Int.MAX_VALUE, repeatDelayMillis = 3000, initialDelayMillis = 2500, velocity = 24.dp),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     pickerTitle?.let { titleContent ->
@@ -1303,7 +1335,8 @@ internal object CupertinoDialogsTokens {
     val PickerSheetBottomInset = 12.dp
     val PickerSheetShape = ContinuousRoundedRectangle(34.dp)
     val ActionSheetButtonHeight: Dp = 56.dp
-    val PickerToolbarHeight: Dp = 48.dp
+    val PickerActionHeight: Dp = 44.dp
+    val PickerToolbarHeight: Dp = 60.dp
     val ActionSheetTitleMessageSpacing: Dp = 6.dp
     val ActionSheetWindowInsets: WindowInsets
         @Composable

@@ -30,6 +30,23 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.dp
+import zone.ien.hig.utils.LocalCupertinoBackdropCoordinates
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -52,7 +69,6 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
@@ -114,6 +130,25 @@ fun CupertinoScaffold(
     hasNavigationTitle: Boolean = false,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val scrollOffset = remember { mutableStateOf(0f) }
+    val scrollSource = remember { mutableStateOf<ScrollableState?>(null) }
+    val density = LocalDensity.current
+    val scrollEdgeProgress by animateFloatAsState(
+        (scrollOffset.value / with(density) { 24.dp.toPx() }).coerceIn(0f, 1f),
+        animationSpec = spring(dampingRatio = 1f, stiffness = 600f),
+        label = "TopScrollEdge",
+    )
+    val scrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                if (scrollSource.value != null) return Offset.Zero
+                scrollOffset.value = if (available.y > 0f && consumed.y == 0f) 0f
+                else (scrollOffset.value - consumed.y).coerceAtLeast(0f)
+                return Offset.Zero
+            }
+        }
+    }
+    val contentCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
     val hasSoftBottomEdge = LocalScaffoldSoftBottomEdge.current
     val contentBackdrop = rememberLayerBackdrop {
         drawRect(containerColor)
@@ -135,7 +170,7 @@ fun CupertinoScaffold(
 
     CupertinoSurface(
         modifier =
-            modifier.onGloballyPositioned {
+            modifier.nestedScroll(scrollConnection).onGloballyPositioned {
                 scaffoldCoordinates.value = it
             },
         color = containerColor,
@@ -154,6 +189,10 @@ fun CupertinoScaffold(
                 rememberSaveable(hasNavigationTitle) {
                     mutableStateOf(if (hasNavigationTitle) 0f else 1f)
                 },
+            LocalTopScrollOffset provides scrollOffset,
+            LocalTopScrollSource provides scrollSource,
+            LocalTopScrollEdgeProgress provides scrollEdgeProgress,
+            LocalCupertinoBackdropCoordinates provides contentCoordinates,
             LocalScaffoldCoordinates provides scaffoldCoordinates,
             LocalTopBarHeight provides topBarHeight,
             LocalScaffoldInsets provides contentWindowInsets,
@@ -161,6 +200,7 @@ fun CupertinoScaffold(
             CompositionLocalProvider(LocalCupertinoBackdrop provides contentBackdrop) {
                 ScaffoldLayout(
                     contentBackdrop = contentBackdrop,
+                    contentCoordinates = contentCoordinates,
                     topBarHeightLocal = topBarHeight,
                     fabPosition = floatingActionButtonPosition,
                     topBar = {
@@ -279,6 +319,7 @@ fun CupertinoScaffold(
 @Composable
 private fun ScaffoldLayout(
     contentBackdrop: LayerBackdrop,
+    contentCoordinates: MutableState<LayoutCoordinates?>,
     appBarsState: AppBarsState,
     topBarHeightLocal: MutableState<Float>,
     fabPosition: FabPosition,
@@ -508,7 +549,8 @@ private fun ScaffoldLayout(
                         modifier =
                             topModifier
                                 .then(bottomModifier)
-                                .layerBackdrop(contentBackdrop),
+                                .layerBackdrop(contentBackdrop)
+                                .onGloballyPositioned { contentCoordinates.value = it },
                     ) {
                         content(innerPadding)
                     }
@@ -676,3 +718,36 @@ internal val LocalAppBarsBlurRadius =
     }
 
 private val LocalScaffoldSoftBottomEdge = staticCompositionLocalOf { false }
+
+private val LocalTopScrollOffset = compositionLocalOf<MutableState<Float>?> { null }
+private val LocalTopScrollSource = compositionLocalOf<MutableState<ScrollableState?>?> { null }
+
+/** 주 콘텐츠의 실제 스크롤 상태를 Top Bar scroll edge에 연결합니다. */
+@Composable
+fun Modifier.cupertinoScrollEdge(state: ScrollableState): Modifier {
+    val offset = LocalTopScrollOffset.current ?: return this
+    val source = LocalTopScrollSource.current ?: return this
+    val distance = with(LocalDensity.current) { 24.dp.toPx() }
+    DisposableEffect(state, source) {
+        source.value = state
+        onDispose {
+            if (source.value === state) {
+                source.value = null
+                offset.value = 0f
+            }
+        }
+    }
+    LaunchedEffect(state, distance) {
+        snapshotFlow {
+            when (state) {
+                is LazyListState ->
+                    if (state.firstVisibleItemIndex == 0) state.firstVisibleItemScrollOffset.toFloat() else distance
+                is LazyGridState ->
+                    if (state.firstVisibleItemIndex == 0) state.firstVisibleItemScrollOffset.toFloat() else distance
+                is ScrollState -> state.value.toFloat()
+                else -> if (state.canScrollBackward) distance else 0f
+            }
+        }.collect { offset.value = it }
+    }
+    return this
+}

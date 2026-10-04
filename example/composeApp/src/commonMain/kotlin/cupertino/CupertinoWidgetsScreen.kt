@@ -47,6 +47,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -105,6 +106,7 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.CupertinoActionSheet
 import zone.ien.hig.CupertinoActionSheetNative
 import zone.ien.hig.CupertinoActivityIndicator
@@ -114,6 +116,9 @@ import zone.ien.hig.CupertinoBottomSheetContent
 import zone.ien.hig.CupertinoBottomSheetScaffold
 import zone.ien.hig.CupertinoBottomSheetScaffoldDefaults
 import zone.ien.hig.CupertinoBottomSheetScaffoldState
+import zone.ien.hig.CupertinoBottomAppBar
+import zone.ien.hig.CupertinoBottomAppBarSlots
+import zone.ien.hig.CupertinoBottomAppBarAction
 import zone.ien.hig.CupertinoButton
 import zone.ien.hig.CupertinoButtonDefaults
 import zone.ien.hig.CupertinoButtonSize
@@ -360,7 +365,8 @@ internal fun Body(
                 .fillMaxSize()
                 .then(modifier)
                 .sectionContainerBackground()
-                .nestedScroll(searchState.nestedScrollConnection),
+                .nestedScroll(searchState.nestedScrollConnection)
+                .cupertinoScrollEdge(scrollState),
             state = scrollState,
             contentPadding = paddingValues + PaddingValues(top = 10.dp),
         ) {
@@ -1128,9 +1134,18 @@ private fun BottomBarSample(
             }
         )
     } else {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.fillMaxWidth()) {
+            CupertinoBottomAppBar(
+                slots = CupertinoBottomAppBarSlots(
+                    trailingContent = {
+                        CupertinoBottomAppBarAction(onClick = {}) { Text("Save") }
+                    },
+                ),
+                windowInsets = WindowInsets(0, 0, 0, 0),
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
+            )
             AdaptiveNavigationBar(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 selectedTabIndex = { tab },
                 onTabSelected = { tab = it },
                 tabsCount = content.size,
@@ -1156,15 +1171,6 @@ private fun BottomBarSample(
                     )
                 }
             }
-            CupertinoLiquidButton(
-                onClick = {},
-                modifier = Modifier.padding(end = 16.dp, bottom = CupertinoNavigationBarDefaults.BottomPadding),
-                colors = CupertinoLiquidButtonDefaults.glassButtonColors(),
-                backdrop = backdrop,
-                content = {
-                    Text("Save")
-                },
-            )
         }
     }
 }
@@ -1203,7 +1209,7 @@ private fun SheetSample(
         }
     ) { pv ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().cupertinoScrollEdge(sheetListState),
             state = sheetListState,
             contentPadding = pv,
         ) {

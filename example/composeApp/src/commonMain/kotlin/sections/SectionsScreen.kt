@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.CupertinoDatePickerState
 import zone.ien.hig.CupertinoNavigateBackLiquidButton
 import zone.ien.hig.CupertinoSegmentedControl
@@ -181,7 +182,7 @@ fun SectionsScreen(
                     LazyColumn(
                         state = lazyState,
                         contentPadding = pv,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().cupertinoScrollEdge(lazyState),
                     ) {
                         SectionStyle.entries.forEach { style ->
                             section(
@@ -226,6 +227,7 @@ fun SectionsScreen(
                         modifier =
                             Modifier
                                 .verticalScroll(defaultState)
+                                    .cupertinoScrollEdge(defaultState)
                                 .fillMaxSize()
                                 .padding(pv),
                     ) {

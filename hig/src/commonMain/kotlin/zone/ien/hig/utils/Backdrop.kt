@@ -1,5 +1,17 @@
 package zone.ien.hig.utils
 
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.runtime.MutableState
+import androidx.compose.ui.layout.LayoutCoordinates
+import com.kyant.backdrop.Backdrop
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.foundation.border
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -130,4 +142,48 @@ fun Modifier.cupertinoSidebarMaterial(backdrop: LayerBackdrop): Modifier {
         shadow = { null },
         onDrawSurface = { drawRect(tint) },
     )
+}
+
+internal val LocalCupertinoBackdropCoordinates = staticCompositionLocalOf<MutableState<LayoutCoordinates?>?> { null }
+
+internal val LocalCupertinoDialogBackdropMotion = staticCompositionLocalOf<() -> Unit> { {} }
+
+@Composable
+internal fun rememberCupertinoDialogBackdrop(): Backdrop? {
+    val backdrop = LocalCupertinoBackdrop.current ?: return null
+    val source = LocalCupertinoBackdropCoordinates.current ?: return backdrop
+    val observeMotion = rememberUpdatedState(LocalCupertinoDialogBackdropMotion.current)
+    return remember(backdrop, source) {
+        object : Backdrop {
+            override val isCoordinatesDependent = true
+
+            override fun DrawScope.drawBackdrop(
+                density: Density,
+                coordinates: LayoutCoordinates?,
+                layerBlock: (GraphicsLayerScope.() -> Unit)?,
+            ) {
+                observeMotion.value()
+                val origin = source.value ?: return
+                val target = coordinates ?: return
+                if (!origin.isAttached || !target.isAttached) return
+                val zero = target.screenToLocal(origin.localToScreen(Offset.Zero))
+                val x = target.screenToLocal(origin.localToScreen(Offset(1f, 0f))) - zero
+                val y = target.screenToLocal(origin.localToScreen(Offset(0f, 1f))) - zero
+                if (!zero.x.isFinite() || !zero.y.isFinite()) return
+                val matrix = backdropTransform(zero, x, y)
+                withTransform({ transform(matrix) }) {
+                    drawLayer(backdrop.graphicsLayer)
+                }
+            }
+        }
+    }
+}
+
+internal fun backdropTransform(origin: Offset, xAxis: Offset, yAxis: Offset): Matrix = Matrix().apply {
+    this[0, 0] = xAxis.x
+    this[0, 1] = xAxis.y
+    this[1, 0] = yAxis.x
+    this[1, 1] = yAxis.y
+    this[3, 0] = origin.x
+    this[3, 1] = origin.y
 }
