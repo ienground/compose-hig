@@ -41,6 +41,8 @@ import zone.ien.hig.theme.CupertinoTheme
 
 internal val LocalCupertinoBackdrop = staticCompositionLocalOf<LayerBackdrop?> { null }
 
+internal val LocalCupertinoDialogBackdrop = staticCompositionLocalOf<LayerBackdrop?> { null }
+
 @Composable
 fun rememberDefaultBackdrop(): LayerBackdrop {
     val background = CupertinoTheme.colorScheme.systemBackground
@@ -150,7 +152,7 @@ internal val LocalCupertinoDialogBackdropMotion = staticCompositionLocalOf<() ->
 
 @Composable
 internal fun rememberCupertinoDialogBackdrop(): Backdrop? {
-    val backdrop = LocalCupertinoBackdrop.current ?: return null
+    val backdrop = LocalCupertinoDialogBackdrop.current ?: LocalCupertinoBackdrop.current ?: return null
     val source = LocalCupertinoBackdropCoordinates.current ?: return backdrop
     val observeMotion = rememberUpdatedState(LocalCupertinoDialogBackdropMotion.current)
     return remember(backdrop, source) {

@@ -120,6 +120,7 @@ import zone.ien.hig.theme.systemBlue
 import zone.ien.hig.theme.systemRed
 import zone.ien.hig.utils.CupertinoGlassDefaults
 import zone.ien.hig.utils.LocalCupertinoBackdrop
+import zone.ien.hig.utils.LocalCupertinoDialogBackdrop
 import zone.ien.hig.utils.cupertinoGlassEffects
 import zone.ien.hig.utils.glassEdge
 import zone.ien.hig.utils.LocalCupertinoDialogBackdropMotion
@@ -417,7 +418,7 @@ fun CupertinoActionSheet(
         }
         return
     }
-    val backdrop = LocalCupertinoBackdrop.current
+    val backdrop = LocalCupertinoDialogBackdrop.current ?: LocalCupertinoBackdrop.current
     CompositionLocalProvider(
         LocalContainerColor provides containerColor,
     ) {

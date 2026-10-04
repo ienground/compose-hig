@@ -77,6 +77,7 @@ import androidx.compose.ui.util.fastMaxOfOrNull
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.CupertinoGlassDefaults
 import zone.ien.hig.utils.LocalCupertinoBackdrop
+import zone.ien.hig.utils.LocalCupertinoDialogBackdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
@@ -150,6 +151,7 @@ fun CupertinoScaffold(
     }
     val contentCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
     val hasSoftBottomEdge = LocalScaffoldSoftBottomEdge.current
+    val backgroundBackdrop = rememberLayerBackdrop { drawRect(containerColor) }
     val contentBackdrop = rememberLayerBackdrop {
         drawRect(containerColor)
         drawContent()
@@ -197,9 +199,13 @@ fun CupertinoScaffold(
             LocalTopBarHeight provides topBarHeight,
             LocalScaffoldInsets provides contentWindowInsets,
         ) {
-            CompositionLocalProvider(LocalCupertinoBackdrop provides contentBackdrop) {
+            CompositionLocalProvider(
+                LocalCupertinoBackdrop provides contentBackdrop,
+                LocalCupertinoDialogBackdrop provides contentBackdrop,
+            ) {
                 ScaffoldLayout(
                     contentBackdrop = contentBackdrop,
+                    backgroundBackdrop = backgroundBackdrop,
                     contentCoordinates = contentCoordinates,
                     topBarHeightLocal = topBarHeight,
                     fabPosition = floatingActionButtonPosition,
@@ -319,6 +325,7 @@ fun CupertinoScaffold(
 @Composable
 private fun ScaffoldLayout(
     contentBackdrop: LayerBackdrop,
+    backgroundBackdrop: LayerBackdrop,
     contentCoordinates: MutableState<LayoutCoordinates?>,
     appBarsState: AppBarsState,
     topBarHeightLocal: MutableState<Float>,
@@ -552,7 +559,12 @@ private fun ScaffoldLayout(
                                 .layerBackdrop(contentBackdrop)
                                 .onGloballyPositioned { contentCoordinates.value = it },
                     ) {
-                        content(innerPadding)
+                        Box(
+                            Modifier.matchParentSize().layerBackdrop(backgroundBackdrop),
+                        )
+                        CompositionLocalProvider(LocalCupertinoBackdrop provides backgroundBackdrop) {
+                            content(innerPadding)
+                        }
                     }
                 }.fastMap { it.measure(looseConstraints) }
 
