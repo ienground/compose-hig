@@ -10,14 +10,21 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceIn
 import com.kyant.backdrop.RuntimeShader
 import com.kyant.backdrop.asComposeShader
 import com.kyant.backdrop.isRuntimeShaderSupported
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.tanh
 
 class InteractiveHighlight(
     val animationScope: CoroutineScope,
@@ -37,6 +44,34 @@ class InteractiveHighlight(
     private var startPosition = Offset.Zero
     val pressProgress: Float get() = pressProgressAnimation.value
     val offset: Offset get() = positionAnimation.value - startPosition
+
+    val layerBlock: GraphicsLayerScope.() -> Unit = {
+        val width = size.width.coerceAtLeast(1f)
+        val height = size.height.coerceAtLeast(1f)
+        val progress = pressProgress.coerceIn(0f, 1f)
+        val scale = 1f + 4.dp.toPx() / height * progress
+        val maxOffset = minOf(width, height)
+        val dragOffset = offset
+        translationX = maxOffset * tanh(0.05f * dragOffset.x / maxOffset)
+        translationY = maxOffset * tanh(0.05f * dragOffset.y / maxOffset)
+        val dragScale = 4.dp.toPx() / height
+        val angle = atan2(dragOffset.y, dragOffset.x)
+        scaleX = scale + dragScale * abs(cos(angle) * dragOffset.x / maxOf(width, height)) *
+            (width / height).coerceAtMost(1f)
+        scaleY = scale + dragScale * abs(sin(angle) * dragOffset.y / maxOf(width, height)) *
+            (height / width).coerceAtMost(1f)
+    }
+
+    fun press() {
+        animationScope.launch { pressProgressAnimation.animateTo(1f, pressProgressAnimationSpec) }
+    }
+
+    fun release() {
+        animationScope.launch {
+            launch { pressProgressAnimation.animateTo(0f, pressProgressAnimationSpec) }
+            launch { positionAnimation.animateTo(startPosition, positionAnimationSpec) }
+        }
+    }
 
     private val shader =
         if (isRuntimeShaderSupported()) {
@@ -97,23 +132,13 @@ half4 main(float2 coord) {
             inspectDragGestures(
                 onDragStart = { down ->
                     startPosition = down.position
+                    press()
                     animationScope.launch {
-                        launch { pressProgressAnimation.animateTo(1f, pressProgressAnimationSpec) }
-                        launch { positionAnimation.snapTo(startPosition) }
+                        positionAnimation.snapTo(startPosition)
                     }
                 },
-                onDragEnd = {
-                    animationScope.launch {
-                        launch { pressProgressAnimation.animateTo(0f, pressProgressAnimationSpec) }
-                        launch { positionAnimation.animateTo(startPosition, positionAnimationSpec) }
-                    }
-                },
-                onDragCancel = {
-                    animationScope.launch {
-                        launch { pressProgressAnimation.animateTo(0f, pressProgressAnimationSpec) }
-                        launch { positionAnimation.animateTo(startPosition, positionAnimationSpec) }
-                    }
-                }
+                onDragEnd = { release() },
+                onDragCancel = { release() }
             ) { change, _ ->
                 animationScope.launch { positionAnimation.snapTo(change.position) }
             }

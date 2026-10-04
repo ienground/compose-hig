@@ -21,12 +21,16 @@
 
 package zone.ien.hig
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.exponentialDecay
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
+import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -50,14 +54,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawOutline
@@ -69,17 +78,19 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFirstOrNull
 import com.kyant.capsule.ContinuousRoundedRectangle
-import zone.ien.hig.theme.CupertinoTheme
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.math.cos
+import kotlin.math.sin
+import zone.ien.hig.theme.CupertinoTheme
 
 @Stable
 @ExperimentalCupertinoApi
@@ -173,7 +184,6 @@ class CupertinoPickerState(
         scrollPriority: MutatePriority,
         block: suspend ScrollScope.() -> Unit,
     ) {
-        changedProgrammatically = true
         lazyListState.scroll(scrollPriority, block)
     }
 
@@ -202,13 +212,29 @@ class CupertinoPickerState(
      * Instantly selects the item with given [index]
      */
     suspend fun scrollToItem(index: Int) {
-        lazyListState.scrollToItem(if (infinite) INFINITE_OFFSET + index else index)
+        changedProgrammatically = true
+        try {
+            lazyListState.scrollToItem(if (infinite) INFINITE_OFFSET + index else index)
+        } finally {
+            changedProgrammatically = false
+        }
     }
 
     /**
      * Animate (smooth scroll) to the item with given [index].
      */
-    suspend fun animateScrollToItem(index: Int) = lazyListState.animateScrollToItem(index)
+    suspend fun animateScrollToItem(index: Int) {
+        changedProgrammatically = true
+        try {
+            lazyListState.animateScrollToItem(index)
+        } finally {
+            changedProgrammatically = false
+        }
+    }
+
+    internal suspend fun animateScrollToItemFromUser(index: Int) {
+        lazyListState.animateScrollToItem(index)
+    }
 
     companion object {
         fun Saver(): Saver<CupertinoPickerState, *> =
@@ -270,69 +296,108 @@ fun <T: Any> CupertinoWheelPicker(
         },
     textStyle: TextStyle = CupertinoPickerDefaults.textStyle,
     key: ((T) -> Any)? = null,
-    withRotation: Boolean = false,
+    withRotation: Boolean = true,
     rotationTransformOrigin: TransformOrigin = TransformOrigin.Center,
     enabled: Boolean = true,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     content: @Composable (T) -> Unit,
 ) {
+    if (items.isEmpty()) return
+
     val paddingValues =
         with(LocalDensity.current) {
-            remember(height, state.selectedItemHeight) {
-                PaddingValues(vertical = ((height.toPx() - state.selectedItemHeight) / 2).toDp())
+            remember(height, state.selectedItemHeight, this) {
+                PaddingValues(
+                    vertical = ((height.toPx() - state.selectedItemHeight).coerceAtLeast(0f) / 2).toDp(),
+                )
             }
         }
 
     val haptic = LocalHapticFeedback.current
-
-    var isInitial by remember {
-        mutableStateOf(true)
+    val playTickSound = rememberCupertinoPickerTickSound()
+    val selectedItemState = remember(state, items.size) {
+        state.selectedItemState(items.size)
     }
 
-    LaunchedEffect(0) {
-        delay(100.milliseconds)
-        isInitial = false
-    }
-
-    LaunchedEffect(state.selectedItemIndex(items.size)) {
-        if (!isInitial && !state.changedProgrammatically) {
-            haptic.performHapticFeedback(CupertinoHapticFeedback.SelectionChanged)
-//            soundLauncher.play()
+    LaunchedEffect(state, items.size) {
+        var previousIndex = selectedItemState.value
+        var lastFeedbackIndex: Int? = null
+        var lastFeedbackNanos: Long? = null
+        var userScrollInProgress = false
+        snapshotFlow {
+            Triple(selectedItemState.value, state.isScrollInProgress, state.changedProgrammatically)
         }
-        state.changedProgrammatically = false
+            .distinctUntilChanged()
+            .collect { (selectedIndex, isScrolling, isProgrammatic) ->
+                if (isProgrammatic) {
+                    userScrollInProgress = false
+                } else if (isScrolling) {
+                    userScrollInProgress = true
+                }
+                val needsFeedback = userScrollInProgress && !isProgrammatic &&
+                    (selectedIndex != previousIndex ||
+                        (!isScrolling && selectedIndex != lastFeedbackIndex))
+                if (needsFeedback) {
+                    val feedbackTimeNanos = withFrameNanos { it }
+                    val shouldPlay = lastFeedbackNanos?.let {
+                        feedbackTimeNanos - it >= PickerFeedbackThrottleNanos
+                    } ?: true
+                    if (
+                        shouldPlay &&
+                        !state.changedProgrammatically &&
+                        selectedItemState.value == selectedIndex
+                    ) {
+                        playTickSound()
+                        haptic.performHapticFeedback(CupertinoHapticFeedback.SelectionChanged)
+                        lastFeedbackNanos = feedbackTimeNanos
+                        lastFeedbackIndex = selectedIndex
+                    }
+                }
+                if (!isScrolling) userScrollInProgress = false
+                previousIndex = selectedIndex
+            }
     }
 
     LaunchedEffect(state.isScrollInProgress) {
         if (!state.isScrollInProgress) {
             state.scrollToItem(state.selectedItemIndex.modSign(items.size))
+            state.changedProgrammatically = false
         }
     }
 
     val scope = rememberCoroutineScope()
+    val drawContainer = !LocalCupertinoSheetSurfaceDrawn.current || containerColor != LocalContainerColor.current
+    val flingBehavior = remember(state.lazyListState) {
+        snapFlingBehavior(
+            snapLayoutInfoProvider = SnapLayoutInfoProvider(state.lazyListState),
+            decayAnimationSpec = exponentialDecay(frictionMultiplier = 1.2f),
+            snapAnimationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessMedium,
+            ),
+        )
+    }
 
     CompositionLocalProvider(
-        LocalContentColor provides
-            CupertinoTheme.colorScheme
-                .label
-                .copy(alpha = .75f),
-        // native picker doesn't scale with font
-        LocalDensity provides Density(LocalDensity.current.density, 1f),
+        LocalContentColor provides CupertinoTheme.colorScheme.label,
     ) {
         ProvideTextStyle(textStyle) {
             LazyColumn(
                 modifier =
                     modifier
                         .requiredHeight(height)
-                        .background(containerColor)
+                        .background(if (drawContainer) containerColor else Color.Transparent)
+                        .clipToBounds()
+                        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                         .cupertinoPickerForeground(
                             state = state,
-                            containerColor = containerColor,
                         ).cupertinoPickerIndicator(state, indicator),
                 state = state.lazyListState,
                 contentPadding = paddingValues,
                 userScrollEnabled = enabled,
                 horizontalAlignment = horizontalAlignment,
-                flingBehavior = rememberSnapFlingBehavior(state.lazyListState),
+                flingBehavior = flingBehavior,
+                overscrollEffect = null,
             ) {
                 fun index(index: Int) =
                     if (state.infinite) {
@@ -350,30 +415,46 @@ fun <T: Any> CupertinoWheelPicker(
                         } else {
                             items.size
                         },
-                    key = key?.run { { invoke(items[index(it)]) } },
+                    key = key?.let { itemKey ->
+                        { lazyIndex ->
+                            val value = itemKey(items[index(lazyIndex)])
+                            if (state.infinite) lazyIndex to value else value
+                        }
+                    },
                 ) { index ->
                     Box(
                         modifier =
                             Modifier
                                 .heightIn(min = MinItemHeight)
                                 .graphicsLayer {
-                                    if (withRotation) {
-                                        rotationX =
-                                            (
-                                                15f * (
-                                                    (index - if (state.infinite) INFINITE_OFFSET else 0) -
-                                                        state.selectedItemIndex
-                                                )
-                                            ).coerceIn(-60f, 60f)
-                                        transformOrigin = rotationTransformOrigin
-
-//                            cameraDistance += abs(rotationX)/15
-                                        // TODO: compose doesn't support Z translation
+                                    val item = state.layoutInfo.visibleItemsInfo.fastFirstOrNull {
+                                        it.index == index
                                     }
-                                }.pointerInput(0) {
-                                    detectTapGestures {
-                                        scope.launch {
-                                            state.animateScrollToItem(index)
+                                    val itemOffsetFromCenter = item?.let {
+                                        it.offset + it.size / 2f -
+                                            state.layoutInfo.viewportStartOffset -
+                                            state.layoutInfo.viewportSize.height / 2f
+                                    } ?: 0f
+
+                                    if (withRotation) {
+                                        val radius =
+                                            (state.layoutInfo.viewportSize.height * .68f)
+                                                .coerceAtLeast(size.height)
+                                        val angle = (itemOffsetFromCenter / radius).coerceIn(-.92f, .92f)
+                                        rotationX = angle * 180f / PI.toFloat()
+                                        transformOrigin = rotationTransformOrigin
+                                        translationY = radius * sin(angle) - itemOffsetFromCenter
+                                        cameraDistance = radius * 8f
+                                        alpha = cos(angle).coerceIn(.16f, 1f)
+                                    } else {
+                                        rotationX = 0f
+                                        translationY = 0f
+                                        alpha = 1f
+                                    }
+                                }.pointerInput(enabled) {
+                                    if (enabled) {
+                                        detectTapGestures {
+                                            scope.launch { state.animateScrollToItemFromUser(index) }
                                         }
                                     }
                                 },
@@ -391,18 +472,7 @@ fun <T: Any> CupertinoWheelPicker(
 @Composable
 private fun Modifier.cupertinoPickerForeground(
     state: CupertinoPickerState,
-    containerColor: Color,
 ): Modifier {
-    val halfTransparentContainerColor =
-        remember(containerColor) {
-            containerColor.copy(alpha = .5f)
-        }
-
-    val transparentContainerColor =
-        remember(containerColor) {
-            containerColor.copy(alpha = 0f)
-        }
-
     return drawWithContent {
         drawContent()
 
@@ -415,22 +485,24 @@ private fun Modifier.cupertinoPickerForeground(
             size = size.copy(height = height),
             brush =
                 Brush.verticalGradient(
-                    0f to containerColor,
-                    .05f to containerColor,
-                    .25f to halfTransparentContainerColor,
-                    1f to transparentContainerColor,
+                    0f to Color.Transparent,
+                    .05f to Color.Transparent,
+                    .25f to Color.White.copy(alpha = .5f),
+                    1f to Color.White,
                 ),
+            blendMode = BlendMode.DstIn,
         )
         drawRect(
             topLeft = Offset(0f, height + itemHeight),
             size = size.copy(height = height),
             brush =
                 Brush.verticalGradient(
-                    0f to transparentContainerColor,
-                    .75f to halfTransparentContainerColor,
-                    .95f to containerColor,
-                    1f to containerColor,
+                    0f to Color.White,
+                    .75f to Color.White.copy(alpha = .5f),
+                    .95f to Color.Transparent,
+                    1f to Color.Transparent,
                 ),
+            blendMode = BlendMode.DstIn,
         )
     }
 }
@@ -502,7 +574,9 @@ object CupertinoPickerDefaults {
 
 internal object CupertinoPickerTokens {
     val IndicatorColor: Color
-        @Composable get() = CupertinoTheme.colorScheme.label.copy(alpha = .05f)
+        @Composable get() = CupertinoTheme.colorScheme.label.copy(
+            alpha = if (CupertinoTheme.colorScheme.isDark) .11f else .06f,
+        )
 
     val IndicatorPaddingValues: PaddingValues =
         PaddingValues(
@@ -516,3 +590,7 @@ internal object CupertinoPickerTokens {
 internal val PickerMaxWidth = 500.dp
 private val MinItemHeight = 32.dp
 private const val INFINITE_OFFSET = Int.MAX_VALUE / 2
+private const val PickerFeedbackThrottleNanos = 40_000_000L
+
+@Composable
+internal expect fun rememberCupertinoPickerTickSound(): () -> Unit

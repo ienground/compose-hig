@@ -45,6 +45,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,6 +61,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
@@ -85,8 +88,9 @@ import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.White
 import zone.ien.hig.theme.isDark
-import zone.ien.hig.theme.systemGray8
 import zone.ien.hig.utils.DampedDragAnimation
+import zone.ien.hig.utils.CupertinoGlassDefaults
+import zone.ien.hig.utils.glassEdge
 import zone.ien.hig.utils.InteractiveHighlight
 import zone.ien.hig.utils.rememberDefaultBackdrop
 
@@ -127,6 +131,11 @@ fun CupertinoSegmentedControl(
 ) {
     val registry = remember { SegmentedTabRegistry() }
     val tabCount = registry.tabs.size
+    val density = LocalDensity.current
+    var controlHeightPx by remember(density) {
+        mutableIntStateOf(with(density) { CupertinoSegmentedControlTokens.MinHeight.roundToPx() })
+    }
+    val controlHeight = with(density) { controlHeightPx.toDp() }
     val animationScope = rememberCoroutineScope()
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
     var dragSettlingIndex by remember { mutableStateOf<Int?>(null) }
@@ -227,7 +236,7 @@ fun CupertinoSegmentedControl(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .height(CupertinoSegmentedControlTokens.MinHeight)
+                        .height(controlHeight)
                         .drawBackdrop(
                             backdrop = backdrop,
                             shape = { shape },
@@ -239,11 +248,14 @@ fun CupertinoSegmentedControl(
                             onDrawSurface = {
                                 drawRect(colors.containerColor)
                             },
-                        ),
+                        )
+                        .glassEdge(shape),
             )
 
             if (tabCount > 0 && dampedDragAnimation != null) {
-                indicator(tabPositions)
+                CompositionLocalProvider(LocalSegmentedControlHeight provides controlHeight) {
+                    indicator(tabPositions)
+                }
             }
 
             CompositionLocalProvider(
@@ -254,7 +266,10 @@ fun CupertinoSegmentedControl(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(CupertinoSegmentedControlTokens.MinHeight),
+                            .heightIn(min = CupertinoSegmentedControlTokens.MinHeight)
+                            .onSizeChanged { size ->
+                                if (controlHeightPx != size.height) controlHeightPx = size.height
+                            },
                     verticalAlignment = Alignment.CenterVertically,
                     content = { tabs() },
                 )
@@ -316,7 +331,7 @@ fun CupertinoSegmentedControlIndicator(
         modifier =
             modifier
                 .fillMaxWidth()
-                .height(CupertinoSegmentedControlTokens.MinHeight),
+                .height(LocalSegmentedControlHeight.current),
     ) {
         Spacer(
             modifier = Modifier
@@ -365,10 +380,10 @@ fun CupertinoSegmentedControlIndicator(
                         )
                     },
                     highlight = {
-                        Highlight.Default.copy(alpha = dampedDragAnimation.pressProgress)
+                        Highlight.Default.copy(alpha = 0.35f + 0.4f * dampedDragAnimation.pressProgress)
                     },
                     shadow = {
-                        Shadow(alpha = dampedDragAnimation.pressProgress)
+                        Shadow(radius = 6.dp, alpha = 0.3f * dampedDragAnimation.pressProgress)
                     },
                     innerShadow = {
                         val progress = dampedDragAnimation.pressProgress
@@ -386,6 +401,7 @@ fun CupertinoSegmentedControlIndicator(
                         drawRect(Color.Black.copy(alpha = 0.03f * progress))
                     },
                 )
+                .glassEdge(shape)
                 .align(Alignment.CenterStart),
         )
     }
@@ -499,10 +515,10 @@ object CupertinoSegmentedControlDefaults {
     @Composable
     @ReadOnlyComposable
     fun colors(
-        containerColor: Color = CupertinoTheme.colorScheme.quaternarySystemFill,
+        containerColor: Color = CupertinoGlassDefaults.tint,
         indicatorColor: Color =
             if (isDark()) {
-                CupertinoColors.systemGray8(true)
+                CupertinoGlassDefaults.selection
             } else {
                 CupertinoColors.White
             },
@@ -592,3 +608,6 @@ private val LocalSegmentedTabWidth =
 
 private val LocalSegmentedOverlay =
     compositionLocalOf { false }
+
+private val LocalSegmentedControlHeight =
+    compositionLocalOf { CupertinoSegmentedControlTokens.MinHeight }

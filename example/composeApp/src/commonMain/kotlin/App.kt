@@ -9,6 +9,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.materialkolor.dynamicColorScheme
@@ -43,35 +45,33 @@ fun App(
     val backStack = rememberNavBackStack(rootConfig, RootRoute.Cupertino)
 
     val viewModel: RootViewModel = koinViewModel()
+    val uiState = viewModel.uiState
 
     val theme by derivedStateOf {
-        if (viewModel.uiState.item.isMaterial) Theme.Material3 else Theme.Cupertino
+        if (uiState.item.isMaterial) Theme.Material3 else Theme.Cupertino
     }
-    val (lightAccent, darkAccent) = viewModel.uiState.item.accentColors
-    val isDark = isSystemInDarkTheme()
-//    val isDark = viewModel.uiState.item.isDark
+    val (lightAccent, darkAccent) = uiState.item.accentColors
+    val isDark = uiState.item.isDark
     val direction = LocalLayoutDirection.current
+    val density = LocalDensity.current
 
-    val directionState by remember {
-        derivedStateOf {
-            if (viewModel.uiState.item.invertLayoutDirection) {
-                if (direction == LayoutDirection.Rtl)
-                    LayoutDirection.Ltr else
-                    LayoutDirection.Rtl
-            } else {
-                direction
-            }
-        }
+    val directionState = if (uiState.item.invertLayoutDirection) {
+        if (direction == LayoutDirection.Rtl) LayoutDirection.Ltr else LayoutDirection.Rtl
+    } else {
+        direction
     }
 
     CompositionLocalProvider(
-        LocalLayoutDirection provides directionState
+        LocalLayoutDirection provides directionState,
+        LocalDensity provides Density(
+            density = density.density,
+            fontScale = density.fontScale * uiState.item.fontScale,
+        ),
     ) {
 
         GeneratedAdaptiveTheme(
             target = theme,
-            primaryColor = if (isDark)
-                lightAccent else darkAccent,
+            primaryColor = if (isDark) darkAccent else lightAccent,
             useDarkTheme = isDark
         ) {
             when (renderStage) {

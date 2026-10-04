@@ -22,7 +22,8 @@ package zone.ien.hig
 
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -36,8 +37,17 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.runtimeShaderEffect
 import zone.ien.hig.section.CupertinoSectionDefaults
+import zone.ien.hig.section.CupertinoSectionTokens
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.utils.CupertinoGlassDefaults
+import zone.ien.hig.utils.LocalCupertinoBackdrop
+import zone.ien.hig.utils.glassEdge
+import zone.ien.hig.utils.rememberDefaultBackdrop
 
 /**
  * Return true if container can't scroll forward
@@ -115,31 +125,180 @@ fun CupertinoBottomAppBar(
     windowInsets: WindowInsets = WindowInsets.navigationBars,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val actualContainerColor =
-        cupertinoTranslucentBottomBarColor(
-            color = containerColor,
-            isTranslucent = isTranslucent,
-            isTransparent = isTransparent,
+    BottomAppBarSurface(
+        modifier = modifier,
+        isTranslucent = isTranslucent,
+        isTransparent = isTransparent,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        windowInsets = windowInsets,
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(contentPadding),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            content = content,
         )
+    }
+}
 
-    Column {
-        if (!isTransparent) {
-            CupertinoHorizontalDivider()
-        }
-        CupertinoSurface(
-            modifier = modifier,
-            color = actualContainerColor,
-            contentColor = contentColor,
+/**
+ * leading, center, trailing 영역의 콘텐츠를 담는 하단 도구 막대 슬롯입니다.
+ */
+class CupertinoBottomAppBarSlots(
+    val leadingContent: @Composable RowScope.() -> Unit = {},
+    val centerContent: @Composable RowScope.() -> Unit = {},
+    val trailingContent: @Composable RowScope.() -> Unit = {},
+)
+
+/**
+ * leading, center, trailing 영역을 분리해 배치하는 하단 도구 막대를 만듭니다.
+ * 각 영역의 동작 버튼은 [CupertinoBottomAppBarAction]을 사용해 Liquid Glass로 표시할 수 있습니다.
+ */
+@ExperimentalCupertinoApi
+@Composable
+fun CupertinoBottomAppBar(
+    slots: CupertinoBottomAppBarSlots,
+    modifier: Modifier = Modifier,
+    isTranslucent: Boolean = true,
+    isTransparent: Boolean = false,
+    containerColor: Color = CupertinoNavigationBarDefaults.containerColor,
+    contentColor: Color = CupertinoTheme.colorScheme.accent,
+    contentPadding: PaddingValues = CupertinoSectionDefaults.PaddingValues,
+    windowInsets: WindowInsets = WindowInsets.navigationBars,
+) {
+    BottomAppBarSurface(
+        modifier = modifier,
+        isTranslucent = isTranslucent,
+        isTransparent = isTransparent,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        windowInsets = windowInsets,
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(contentPadding),
         ) {
             Row(
-                Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(windowInsets)
-                    .padding(contentPadding),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.align(Alignment.CenterStart),
+                horizontalArrangement = Arrangement.spacedBy(CupertinoSectionTokens.InlinePadding),
                 verticalAlignment = Alignment.CenterVertically,
-                content = content,
+                content = slots.leadingContent,
+            )
+            Row(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalArrangement = Arrangement.spacedBy(CupertinoSectionTokens.InlinePadding),
+                verticalAlignment = Alignment.CenterVertically,
+                content = slots.centerContent,
+            )
+            Row(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                horizontalArrangement = Arrangement.spacedBy(CupertinoSectionTokens.InlinePadding),
+                verticalAlignment = Alignment.CenterVertically,
+                content = slots.trailingContent,
             )
         }
     }
+}
+
+/** 하단 도구 막대 안에 Liquid Glass 동작 버튼을 표시합니다. */
+@ExperimentalCupertinoApi
+@Composable
+fun CupertinoBottomAppBarAction(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val backdrop = LocalCupertinoBackdrop.current ?: rememberDefaultBackdrop()
+    CupertinoLiquidButton(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        backdrop = backdrop,
+        content = content,
+    )
+}
+
+@Composable
+@OptIn(ExperimentalCupertinoApi::class)
+private fun BottomAppBarSurface(
+    modifier: Modifier,
+    isTranslucent: Boolean,
+    isTransparent: Boolean,
+    containerColor: Color,
+    contentColor: Color,
+    windowInsets: WindowInsets,
+    content: @Composable () -> Unit,
+) {
+    val backdrop = LocalCupertinoBackdrop.current ?: rememberDefaultBackdrop()
+    val drawsGlass = isTranslucent && !isTransparent
+    val surfaceColor = if (isTranslucent) {
+        cupertinoTranslucentBottomBarColor(
+            color = containerColor,
+            isTranslucent = true,
+            isTransparent = true,
+        )
+        Color.Transparent
+    } else {
+        containerColor
+    }
+    val shape = CupertinoTheme.shapes.extraLarge
+
+    CupertinoSurface(
+        modifier = modifier
+            .padding(
+                horizontal = CupertinoSectionTokens.HorizontalPadding,
+            )
+            .windowInsetsPadding(windowInsets),
+        shape = shape,
+        color = surfaceColor,
+        contentColor = contentColor,
+    ) {
+        Box(Modifier.fillMaxWidth()) {
+            if (drawsGlass) {
+                BottomAppBarGlass(backdrop, shape, containerColor)
+            }
+            content()
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.BottomAppBarGlass(
+    backdrop: LayerBackdrop,
+    shape: androidx.compose.ui.graphics.Shape,
+    tint: Color,
+) {
+    Box(
+        Modifier
+            .matchParentSize()
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { shape },
+                effects = {
+                    blur(CupertinoGlassDefaults.blurRadius.toPx())
+                    runtimeShaderEffect(
+                        "MaterialTint",
+                        """
+                            uniform shader content;
+                            layout(color) uniform half4 tint;
+                            uniform float tintIntensity;
+
+                            half4 main(float2 coord) {
+                                return mix(content.eval(coord), tint, tintIntensity);
+                            }
+                        """.trimIndent(),
+                        "content",
+                    ) {
+                        setColorUniform("tint", tint)
+                        setFloatUniform("tintIntensity", 0.48f)
+                    }
+                },
+            )
+            .glassEdge(shape),
+    )
 }

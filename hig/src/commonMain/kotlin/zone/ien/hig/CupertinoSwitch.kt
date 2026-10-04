@@ -24,6 +24,7 @@ package zone.ien.hig
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
@@ -55,6 +56,10 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -74,12 +79,13 @@ import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
 import com.kyant.capsule.ContinuousCapsule
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.drop
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.Gray
 import zone.ien.hig.theme.systemGreen
 import zone.ien.hig.utils.DampedDragAnimation
+import zone.ien.hig.utils.CupertinoGlassDefaults
+import zone.ien.hig.utils.glassEdge
 
 /**
  * Cupertino Design Switch.
@@ -113,15 +119,10 @@ fun CupertinoSwitch(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val updatedChecked by rememberUpdatedState(checked)
+    val updatedOnCheckedChange by rememberUpdatedState(onCheckedChange)
     val haptic = LocalHapticFeedback.current
-
-    LaunchedEffect(0) {
-        snapshotFlow {
-            updatedChecked
-        }.drop(1).collect {
-            haptic.performHapticFeedback(CupertinoHapticFeedback.ImpactLight)
-        }
-    }
+    val glassTint = CupertinoGlassDefaults.tint
+    val thumbColor by colors.thumbColor(enabled)
 
     val density = LocalDensity.current
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
@@ -129,7 +130,7 @@ fun CupertinoSwitch(
     val animationScope = rememberCoroutineScope()
     var didDrag by remember { mutableStateOf(false) }
     var fraction by remember { mutableFloatStateOf(if (updatedChecked) 1f else 0f) }
-    val dampedDragAnimation = remember(animationScope) {
+    val dampedDragAnimation = remember(animationScope, dragWidth, isLtr, haptic) {
         DampedDragAnimation(
             animationScope = animationScope,
             initialValue = fraction,
@@ -141,11 +142,15 @@ fun CupertinoSwitch(
             onDragStopped = {
                 if (didDrag) {
                     fraction = if (targetValue >= 0.5f) 1f else 0f
-                    onCheckedChange(fraction == 1f)
+                    if ((fraction == 1f) != updatedChecked) {
+                        haptic.performHapticFeedback(CupertinoHapticFeedback.SelectionChanged)
+                        updatedOnCheckedChange(fraction == 1f)
+                    }
                     didDrag = false
                 } else {
                     fraction = if (updatedChecked) 0f else 1f
-                    onCheckedChange(fraction == 1f)
+                    haptic.performHapticFeedback(CupertinoHapticFeedback.SelectionChanged)
+                    updatedOnCheckedChange(fraction == 1f)
                 }
             },
             onDrag = { _, dragAmount ->
@@ -157,7 +162,13 @@ fun CupertinoSwitch(
                     if (isLtr) (fraction + delta).fastCoerceIn(0f, 1f)
                     else (fraction - delta).fastCoerceIn(0f, 1f)
             }
-        )
+        ).apply {
+            onDragCancelled = {
+                didDrag = false
+                fraction = if (updatedChecked) 1f else 0f
+                updateValue(fraction)
+            }
+        }
     }
     LaunchedEffect(dampedDragAnimation) {
         snapshotFlow { fraction }
@@ -180,7 +191,21 @@ fun CupertinoSwitch(
 
     Box(
         modifier
-        ,
+            .heightIn(min = 44.dp)
+            .then(if (enabled) dampedDragAnimation.modifier else Modifier)
+            .semantics(mergeDescendants = true) {
+            role = Role.Switch
+            toggleableState = if (checked) ToggleableState.On else ToggleableState.Off
+            if (enabled) {
+                onClick {
+                    haptic.performHapticFeedback(CupertinoHapticFeedback.SelectionChanged)
+                    updatedOnCheckedChange(!updatedChecked)
+                    true
+                }
+            } else {
+                disabled()
+            }
+        },
         contentAlignment = Alignment.CenterStart
     ) {
         val checkedTrackColor by colors.trackColor(enabled, true)
@@ -210,7 +235,6 @@ fun CupertinoSwitch(
                 .semantics {
                     role = Role.Switch
                 }
-                .then(if (enabled) dampedDragAnimation.modifier else Modifier)
                 .drawBackdrop(
                     backdrop = rememberCombinedBackdrop(
                         backdrop,
@@ -238,7 +262,7 @@ fun CupertinoSwitch(
                         Highlight.Ambient.copy(
                             width = Highlight.Ambient.width / 1.5f,
                             blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                            alpha = progress
+                            alpha = 0.35f + 0.4f * progress
                         )
                     },
                     shadow = {
@@ -263,9 +287,11 @@ fun CupertinoSwitch(
                     },
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
-                        drawRect(Color.White.copy(alpha = 1f - progress))
+                        drawRect(glassTint.copy(alpha = glassTint.alpha * progress))
+                        drawRect(thumbColor.copy(alpha = thumbColor.alpha * (1f - progress)))
                     }
                 )
+                .glassEdge(ContinuousCapsule())
                 .size(40.dp, 24.dp)
         ) {
             CompositionLocalProvider(

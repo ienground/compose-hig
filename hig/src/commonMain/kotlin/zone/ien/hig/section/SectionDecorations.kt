@@ -71,15 +71,19 @@ internal fun SectionTitle(
     val basePadding =
         PaddingValues(
             start =
-                if (!lazy && style == SectionStyle.Sidebar) {
-                    0.dp
+                if (style == SectionStyle.Sidebar) {
+                    CupertinoSectionTokens.SidebarHorizontalPadding
                 } else {
                     CupertinoSectionTokens.HorizontalPadding
                 },
-            end = CupertinoSectionTokens.HorizontalPadding,
+            end = if (style == SectionStyle.Sidebar) {
+                CupertinoSectionTokens.SidebarHorizontalPadding
+            } else {
+                CupertinoSectionTokens.HorizontalPadding
+            },
             bottom =
                 if (style == SectionStyle.Sidebar) {
-                    CupertinoSectionTokens.InlinePadding * 2
+                    CupertinoSectionTokens.SidebarVerticalPadding
                 } else {
                     CupertinoSectionTokens.InlinePadding
                 },
@@ -136,17 +140,18 @@ internal fun SectionTitle(
                             } else {
                                 CupertinoIcons.Default.ChevronBackward
                             },
-                        contentDescription = "Collapse",
+                        contentDescription = null,
                         modifier =
                             Modifier
                                 .padding(
                                     end =
                                         when {
+                                            style == SectionStyle.Sidebar -> CupertinoSectionTokens.SidebarHorizontalPadding
                                             !lazy -> 0.dp
                                             autoPadding -> CupertinoSectionTokens.HorizontalPadding
                                             else -> CupertinoSectionTokens.HorizontalPadding * 2
                                         },
-                                ).size(CupertinoIconDefaults.SmallSize)
+                                ).size(12.dp)
                                 .align(Alignment.CenterEnd)
                                 .graphicsLayer {
                                     rotationZ = rotation
@@ -210,7 +215,7 @@ internal fun SectionDivider(
     style: SectionStyle,
     modifier: Modifier = Modifier,
 ) {
-    if (style.inset && style.grouped) {
+    if (style == SectionStyle.Sidebar || (style.inset && style.grouped)) {
         return
     }
 

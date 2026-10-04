@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -51,6 +52,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
+import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoLiquidButtonDefaults
@@ -187,7 +189,9 @@ fun AdaptiveWidgetsScreen(
             }
         },
     ) {
+        val listState = rememberLazyListState()
         LazyColumn(
+            state = listState,
             contentPadding =
                 PaddingValues(
                     start = 12.dp,
@@ -197,6 +201,7 @@ fun AdaptiveWidgetsScreen(
                 ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
+                .cupertinoScrollEdge(listState)
                 .layerBackdrop(backdrop)
                 .fillMaxSize()
         ) {
