@@ -201,15 +201,15 @@ fun CupertinoLiquidButton(
                         vibrancy()
                         if (isBackgroundAdaptive) {
                             blur(
-                                if (l > 0f) lerp(8.dp.toPx(), 16.dp.toPx(), l)
-                                else lerp(12.dp.toPx(), 8.dp.toPx(), -l)
+                                if (l > 0f) lerp(10.dp.toPx(), 18.dp.toPx(), l)
+                                else lerp(16.dp.toPx(), 10.dp.toPx(), -l)
                             )
                         } else {
                             blur(CupertinoGlassDefaults.blurRadius.toPx())
                         }
                         if (shape is CornerBasedShape) {
                             val progress = if (enabled && isInteractive) interactiveHighlight.pressProgress.coerceIn(0f, 1f) else 0f
-                            lens(8.dp.toPx(), lerp(12.dp.toPx(), 24.dp.toPx(), progress))
+                            lens(4.dp.toPx(), lerp(8.dp.toPx(), 16.dp.toPx(), progress))
                         }
                     },
                     layerBlock = if (enabled && isInteractive) interactiveHighlight.layerBlock else null,

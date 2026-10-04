@@ -150,18 +150,12 @@ fun CupertinoBottomSheetScaffold(
         bottomSheet = { layoutHeight ->
             CompositionLocalProvider(
                 LocalTopAppBarInsets provides
-                    when {
-                        scaffoldState.bottomSheetState.presentationStyle is PresentationStyle.Modal -> {
-                            CupertinoTopAppBarDefaults.windowInsets.union(SheetTopAppBarInsets)
-                        }
-
-                        sheetDragHandle != null -> {
-                            CupertinoTopAppBarDefaults.windowInsets.add(SheetTopAppBarInsets)
-                        }
-
-                        else -> {
-                            CupertinoTopAppBarDefaults.windowInsets
-                        }
+                    if (scaffoldState.bottomSheetState.presentationStyle == PresentationStyle.Fullscreen) {
+                        CupertinoTopAppBarDefaults.windowInsets
+                    } else if (sheetDragHandle != null) {
+                        SheetTopAppBarInsets
+                    } else {
+                        WindowInsets(0, 0, 0, 0)
                     },
                 LocalContainerColor provides colors.sheetContainerColor,
                 LocalContentColor provides colors.sheetContentColor,
@@ -734,5 +728,5 @@ internal val SheetTopAppBarInsets =
         left = 0.dp,
         top = DragHandleHeight,
         right = 0.dp,
-        bottom = DragHandleHeight,
+        bottom = 0.dp,
     )

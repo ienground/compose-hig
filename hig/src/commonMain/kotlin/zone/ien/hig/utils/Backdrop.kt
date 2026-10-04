@@ -53,7 +53,7 @@ fun rememberDefaultBackdrop(): LayerBackdrop {
 }
 
 internal object CupertinoGlassDefaults {
-    val blurRadius = 12.dp
+    val blurRadius = 16.dp
 
     val tint: Color
         @Composable
@@ -61,9 +61,9 @@ internal object CupertinoGlassDefaults {
         get() = if (Accessibility.isReduceTransparencyEnabled) {
             opaqueMaterial
         } else if (CupertinoTheme.colorScheme.isDark) {
-            Color(0xFF6C7076).copy(alpha = 0.42f)
+            Color(0xFF6C7076).copy(alpha = 0.36f)
         } else {
-            Color.White.copy(alpha = 0.48f)
+            Color.White.copy(alpha = 0.38f)
         }
 
     val panelTint: Color
@@ -88,7 +88,7 @@ internal object CupertinoGlassDefaults {
         get() = if (CupertinoTheme.colorScheme.isDark) {
             Color.White.copy(alpha = if (Accessibility.isHighContrastEnabled) 0.44f else 0.22f)
         } else {
-            Color.Black.copy(alpha = if (Accessibility.isHighContrastEnabled) 0.28f else 0.12f)
+            Color.Black.copy(alpha = if (Accessibility.isHighContrastEnabled) 0.28f else 0.16f)
         }
 
     val selection: Color
@@ -111,7 +111,7 @@ internal object CupertinoGlassDefaults {
 @Composable
 internal fun Modifier.glassEdge(shape: Shape): Modifier {
     val edge = CupertinoGlassDefaults.border
-    val highlight = Color.White.copy(alpha = if (CupertinoTheme.colorScheme.isDark) 0.30f else 0.82f)
+    val highlight = Color.White.copy(alpha = if (CupertinoTheme.colorScheme.isDark) 0.42f else 0.9f)
     return border(
         width = (1f / LocalDensity.current.density).dp,
         brush = Brush.verticalGradient(listOf(highlight, edge, edge)),

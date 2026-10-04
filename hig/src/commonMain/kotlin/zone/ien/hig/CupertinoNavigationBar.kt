@@ -37,6 +37,9 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -57,6 +60,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
@@ -122,6 +126,7 @@ private val NavBarItemMinWidth = 90.dp  // Fixed width when items are few
  * 탭 콘텐츠에는 [CupertinoNavigationBarItem]을 사용합니다. 배경 유리 효과는 [backdrop]에서 읽습니다.
  *
  * 강조 탭은 강조 인덱스를 받는 오버로드와 인덱스를 지정하는 항목 오버로드에서 선택할 수 있습니다.
+ * [trailingAction]은 탭과 분리된 trailing 액션입니다. 액션의 너비와 높이는 탭 capsule 높이에 맞춰집니다.
  */
 @Composable
 @ExperimentalCupertinoApi
@@ -133,8 +138,48 @@ fun CupertinoNavigationBar(
     selectedTabIndex: () -> Int,
     onTabSelected: (index: Int) -> Unit,
     tabsCount: Int,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    trailingAction: (@Composable BoxScope.() -> Unit)? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
+    if (trailingAction != null) {
+        val density = LocalDensity.current
+        var navigationHeight by remember(density) { mutableStateOf(64.dp) }
+        Row(
+            modifier = modifier.fillMaxWidth()
+                .windowInsetsPadding(windowInsets)
+                .windowInsetsPadding(
+                    WindowInsets.navigationBars.exclude(
+                        WindowInsets(bottom = CupertinoNavigationBarDefaults.BottomPadding),
+                    ),
+                ),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            CupertinoNavigationBar(
+                modifier = Modifier.weight(1f).onSizeChanged {
+                    navigationHeight = with(density) {
+                        (it.height.toDp() - CupertinoNavigationBarDefaults.BottomPadding).coerceAtLeast(0.dp)
+                    }
+                },
+                colors = colors,
+                windowInsets = WindowInsets(0, 0, 0, 0),
+                backdrop = backdrop,
+                selectedTabIndex = selectedTabIndex,
+                onTabSelected = onTabSelected,
+                tabsCount = tabsCount,
+                horizontalAlignment = Alignment.Start,
+                content = content,
+            )
+            Box(
+                Modifier.padding(start = 12.dp, bottom = CupertinoNavigationBarDefaults.BottomPadding)
+                    .size(navigationHeight),
+                contentAlignment = Alignment.Center,
+                propagateMinConstraints = true,
+                content = trailingAction,
+            )
+        }
+        return
+    }
     val navigationBarOptions = LocalCupertinoNavigationBarOptions.current
     val prominentTabIndex = navigationBarOptions?.prominentTabIndex
     if (prominentTabIndex != null) {
@@ -161,7 +206,7 @@ fun CupertinoNavigationBar(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = CupertinoNavigationBarDefaults.BottomPadding)
-            .wrapContentWidth()
+            .wrapContentWidth(horizontalAlignment)
             .windowInsetsPadding(windowInsets)
     ) {
             // Calculate actual available width after applying windowInsets
@@ -901,6 +946,8 @@ fun CupertinoNavigationBar(
     tabsCount: Int,
     prominentTabIndex: Int?,
     isCollapsed: Boolean = false,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    trailingAction: (@Composable BoxScope.() -> Unit)? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
     require(prominentTabIndex == null || prominentTabIndex in 0 until tabsCount) {
@@ -924,6 +971,8 @@ fun CupertinoNavigationBar(
             selectedTabIndex = selectedTabIndex,
             onTabSelected = onTabSelected,
             tabsCount = tabsCount,
+            horizontalAlignment = horizontalAlignment,
+            trailingAction = trailingAction,
             content = content,
         )
     }
@@ -1012,13 +1061,13 @@ object CupertinoNavigationBarDefaults {
     val containerColor: Color
         @Composable
         @ReadOnlyComposable
-        get() = CupertinoGlassDefaults.panelTint
+        get() = CupertinoGlassDefaults.tint
 
     @Composable
     @ReadOnlyComposable
     fun colors(
         accentColor: Color = CupertinoTheme.colorScheme.accent,
-        containerColor: Color = CupertinoGlassDefaults.panelTint,
+        containerColor: Color = CupertinoGlassDefaults.tint,
         selectedIconColor: Color = CupertinoTheme.colorScheme.accent,
         selectedTextColor: Color = CupertinoTheme.colorScheme.accent,
         unselectedIconColor: Color = CupertinoTheme.colorScheme.secondaryLabel,

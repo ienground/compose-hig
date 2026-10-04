@@ -116,9 +116,6 @@ import zone.ien.hig.CupertinoBottomSheetContent
 import zone.ien.hig.CupertinoBottomSheetScaffold
 import zone.ien.hig.CupertinoBottomSheetScaffoldDefaults
 import zone.ien.hig.CupertinoBottomSheetScaffoldState
-import zone.ien.hig.CupertinoBottomAppBar
-import zone.ien.hig.CupertinoBottomAppBarSlots
-import zone.ien.hig.CupertinoBottomAppBarAction
 import zone.ien.hig.CupertinoButton
 import zone.ien.hig.CupertinoButtonDefaults
 import zone.ien.hig.CupertinoButtonSize
@@ -141,7 +138,6 @@ import zone.ien.hig.CupertinoLiquidIconButton
 import zone.ien.hig.CupertinoMenuItemData
 import zone.ien.hig.CupertinoMenuSectionData
 import zone.ien.hig.CupertinoNavigationBarItemData
-import zone.ien.hig.CupertinoNavigationBarDefaults
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
 import zone.ien.hig.CupertinoRangeSlider
@@ -410,28 +406,6 @@ internal fun Body(
                                 onItemValueChanged(uiState.item.copy(accentColors = Pair(light, dark)))
                             }
                         )
-                    }
-
-                    SectionItem {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            Text("글자 크기")
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                CupertinoSlider(
-                                    modifier = Modifier.weight(1f),
-                                    value = uiState.item.fontScale,
-                                    onValueChange = {
-                                        onItemValueChanged(uiState.item.copy(fontScale = it))
-                                    },
-                                    valueRange = 1f..2f,
-                                    backdrop = backdrop,
-                                )
-                                Spacer(Modifier.width(8.dp))
-                                Text("${(uiState.item.fontScale * 100).toInt()}%")
-                            }
-                        }
                     }
                 }
             }
@@ -1134,42 +1108,40 @@ private fun BottomBarSample(
             }
         )
     } else {
-        Column(Modifier.fillMaxWidth()) {
-            CupertinoBottomAppBar(
-                slots = CupertinoBottomAppBarSlots(
-                    trailingContent = {
-                        CupertinoBottomAppBarAction(onClick = {}) { Text("Save") }
-                    },
-                ),
-                windowInsets = WindowInsets(0, 0, 0, 0),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp),
-            )
-            AdaptiveNavigationBar(
-                modifier = Modifier.fillMaxWidth(),
-                selectedTabIndex = { tab },
-                onTabSelected = { tab = it },
-                tabsCount = content.size,
-                prominentTabIndex = null,
-                isCollapsed = isCollapsed,
-                adaptation = {
-                    cupertino { this.backdrop = backdrop }
-                },
-            ) {
-                content.forEachIndexed { index, pair ->
-                    AdaptiveNavigationBarItem(
-                        index = index,
-                        onClick = { tab = index },
-                        icon = {
-                            Icon(
-                                imageVector = pair.second,
-                                contentDescription = pair.first,
-                            )
-                        },
-                        label = {
-                            Text(pair.first)
-                        },
-                    )
+        AdaptiveNavigationBar(
+            modifier = Modifier.fillMaxWidth(),
+            selectedTabIndex = { tab },
+            onTabSelected = { tab = it },
+            tabsCount = content.size,
+            prominentTabIndex = null,
+            isCollapsed = isCollapsed,
+            trailingAction = {
+                CupertinoLiquidIconButton(onClick = {}, backdrop = backdrop) {
+                    Icon(Icons.Default.Save, contentDescription = "Save")
                 }
+            },
+            adaptation = {
+                cupertino {
+                    this.backdrop = backdrop
+                    windowInsets = WindowInsets(left = 16.dp, right = 16.dp)
+                    horizontalAlignment = Alignment.Start
+                }
+            },
+        ) {
+            content.forEachIndexed { index, pair ->
+                AdaptiveNavigationBarItem(
+                    index = index,
+                    onClick = { tab = index },
+                    icon = {
+                        Icon(
+                            imageVector = pair.second,
+                            contentDescription = pair.first,
+                        )
+                    },
+                    label = {
+                        Text(pair.first)
+                    },
+                )
             }
         }
     }
