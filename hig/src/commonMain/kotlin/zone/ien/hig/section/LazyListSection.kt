@@ -86,7 +86,11 @@ fun LazyListScope.section(
     @Composable
     fun resolvedColor(): Color =
         color.takeOrElse {
-            CupertinoSectionDefaults.Color
+            if (resolvedStyle() == SectionStyle.Sidebar) {
+                Color.Transparent
+            } else {
+                CupertinoSectionDefaults.Color
+            }
         }
 
     item(contentType = SplitPaddingContentType) {
@@ -160,7 +164,11 @@ fun LazyListScope.stickySection(
     @Composable
     fun resolvedColor(): Color =
         color.takeOrElse {
-            CupertinoSectionDefaults.Color
+            if (resolvedStyle() == SectionStyle.Sidebar) {
+                Color.Transparent
+            } else {
+                CupertinoSectionDefaults.Color
+            }
         }
 
     item(contentType = SplitPaddingContentType) {
@@ -256,6 +264,7 @@ private fun LazyListScope.itemsAndCaption(
                 val style = resolvedStyle()
                 val clipShape = remember(style, resolvedShape, index, items.size) {
                     when {
+                        style == SectionStyle.Sidebar -> null
                         !style.inset || !style.grouped -> null
                         items.size == 1 -> resolvedShape
                         index == 0 ->
@@ -285,7 +294,7 @@ private fun LazyListScope.itemsAndCaption(
                         Modifier
                             .padding(
                                 horizontal =
-                                    if (resolvedStyle().inset && resolvedStyle().grouped) {
+                                    if (resolvedStyle() != SectionStyle.Sidebar && resolvedStyle().inset && resolvedStyle().grouped) {
                                         CupertinoSectionTokens.HorizontalPadding
                                     } else {
                                         0.dp
@@ -297,10 +306,16 @@ private fun LazyListScope.itemsAndCaption(
                         LocalSectionStyle provides resolvedStyle(),
                         LocalContainerColor provides resolvedColor(),
                     ) {
-                        item.content(itemsPadding)
+                        item.content(
+                            if (style == SectionStyle.Sidebar) {
+                                CupertinoSectionDefaults.SidebarItemPaddingValues
+                            } else {
+                                itemsPadding
+                            },
+                        )
                     }
 
-                    if (index != items.lastIndex &&
+                    if (style != SectionStyle.Sidebar && index != items.lastIndex &&
                         item.dividerPadding != null &&
                         items[index + 1].dividerPadding != null
                     ) {
@@ -369,4 +384,3 @@ private object SplitPaddingContentType
 private object SectionTitleContentType
 
 private object SectionCaptionContentType
-

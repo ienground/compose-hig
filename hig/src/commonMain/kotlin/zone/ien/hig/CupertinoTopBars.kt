@@ -31,7 +31,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.gestures.ScrollableState
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -91,7 +91,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import zone.ien.hig.utils.LocalCupertinoBackdrop
+import zone.ien.hig.utils.rememberDefaultBackdrop
 import com.kyant.backdrop.drawPlainBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.runtimeShaderEffect
@@ -100,6 +101,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import zone.ien.hig.section.CupertinoSectionDefaults
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.utils.CupertinoGlassDefaults
 import zone.ien.hig.theme.darkColorScheme
 import zone.ien.hig.theme.lightColorScheme
 import kotlin.math.max
@@ -205,7 +207,7 @@ fun CupertinoTopAppBar(
     isCenterAligned: Boolean = true,
     isBackgroundAdaptive: Boolean = true,
     isBackgroundGradient: Boolean = false,
-    backdrop: LayerBackdrop = rememberLayerBackdrop(),
+    backdrop: LayerBackdrop = LocalCupertinoBackdrop.current ?: rememberDefaultBackdrop(),
     colors: CupertinoTopAppBarColors = CupertinoTopAppBarDefaults.topAppBarColors(),
 ) {
     InlineTopAppBar(
@@ -224,6 +226,8 @@ fun CupertinoTopAppBar(
 }
 
 internal val LocalNavigationTitleVisible = compositionLocalOf { mutableStateOf(false) }
+internal val LocalTopScrollEdgeProgress = compositionLocalOf { 0f }
+internal val LocalNavigationTitleProgress = compositionLocalOf { mutableStateOf(1f) }
 
 private class ClipShape(
     private val offsetDifference: Float,
@@ -275,7 +279,15 @@ fun CupertinoNavigationTitle(
     require(maxFontScale >= 1) {
         "maxFontScale must be >= 1."
     }
-    var visible by LocalNavigationTitleVisible.current
+    val navigationTitleVisibility = LocalNavigationTitleVisible.current
+    val navigationTitleProgress = LocalNavigationTitleProgress.current
+    var visible by navigationTitleVisibility
+    DisposableEffect(navigationTitleVisibility) {
+        onDispose {
+            navigationTitleVisibility.value = false
+            navigationTitleProgress.value = 1f
+        }
+    }
 
     val density = LocalDensity.current
     val scaffoldCoordinates by LocalScaffoldCoordinates.current
@@ -288,7 +300,12 @@ fun CupertinoNavigationTitle(
     val maxSizeIncreaseDistancePx = density.run { maxFontScaleDistance.toPx() }
 
     val insets = LocalScaffoldInsets.current?.getTop(density) ?: 0
-    val fontIncrease by remember(maxSizeIncreaseDistancePx, maxFontScale) {
+    val fontIncrease by remember(
+        maxSizeIncreaseDistancePx,
+        maxFontScale,
+        topBarHeightPx,
+        insets,
+    ) {
         derivedStateOf {
             val d = offsetDifference + topBarHeightPx - insets
             if (d >= 0) {
@@ -302,22 +319,9 @@ fun CupertinoNavigationTitle(
     val font = CupertinoTheme.typography.largeTitle.copy(fontWeight = FontWeight.Bold)
     val subtitleFont = CupertinoTheme.typography.subhead
 
-    val titleAlpha by remember {
+    val titleAlpha by remember(topAppBarExists, navigationTitleProgress) {
         derivedStateOf {
-                if (!topAppBarExists) {
-                    1f // TopBar does not exist, always visible
-                } else {
-                    val d = offsetDifference - actualTopBarHeight + 50
-                    // If d is negative, it's in Large Title area → alpha 1
-                    // If d is positive, it's entering TopBar → alpha 0
-                    if (d <= 0) {
-                        1f
-                    } else {
-                        // Fade smoothly to 0 over fadeDistance
-                        val fadeDistance = 100f // Adjustable (recommended: dp → px conversion)
-                        (1f - (d / fadeDistance)).coerceIn(0f, 1f)
-                    }
-                }
+            if (!topAppBarExists) 1f else 1f - navigationTitleProgress.value
         }
     }
 
@@ -336,6 +340,15 @@ fun CupertinoNavigationTitle(
                 val scaffoldTop = (scaffoldCoordinates?.boundsInWindow()?.top ?: 0f)
 
                 offsetDifference = (topBarHeightPx - it.boundsInWindow().top) + scaffoldTop
+                val fadeDistance = density.run { 100.dp.toPx() }
+                val fadeStart = density.run { 50.dp.toPx() }
+                navigationTitleProgress.value =
+                    if (topAppBarExists) {
+                        ((offsetDifference - actualTopBarHeight + fadeStart) / fadeDistance)
+                            .coerceIn(0f, 1f)
+                    } else {
+                        0f
+                    }
 
                 visible = !topAppBarExists || offsetDifference < it.size.height
             },
@@ -365,16 +378,16 @@ class CupertinoTopAppBarColors internal constructor(
     internal val actionIconContentColor: Color,
 ) {
     @Composable
-    fun gradientColor(isDark: Boolean = isSystemInDarkTheme()): State<Color> {
+    fun gradientColor(isDark: Boolean = CupertinoTheme.colorScheme.isDark): State<Color> {
         return rememberUpdatedState(if (isDark) darkGradientColor else lightGradientColor)
     }
     @Composable
-    fun titleContentColor(isDark: Boolean = isSystemInDarkTheme()): State<Color> {
+    fun titleContentColor(isDark: Boolean = CupertinoTheme.colorScheme.isDark): State<Color> {
         return rememberUpdatedState(if (isDark) darkTitleContentColor else lightTitleContentColor)
     }
 
     @Composable
-    fun subtitleContentColor(isDark: Boolean = isSystemInDarkTheme()): State<Color> {
+    fun subtitleContentColor(isDark: Boolean = CupertinoTheme.colorScheme.isDark): State<Color> {
         return rememberUpdatedState(if (isDark) darkSubtitleContentColor else lightSubtitleContentColor)
     }
 
@@ -426,12 +439,15 @@ private fun InlineTopAppBar(
     backdrop: LayerBackdrop
 ) {
     val navTitleVisible by LocalNavigationTitleVisible.current
-    val isLightTheme = !isSystemInDarkTheme()
+    val scrollEdgeProgress = LocalTopScrollEdgeProgress.current
+    val isLightTheme = !CupertinoTheme.colorScheme.isDark
 //    val layer = backdrop.graphicsLayer
     val layer = rememberGraphicsLayer()
     var titleX by remember { mutableStateOf(0) }
     var titleWidth by remember { mutableStateOf(0) }
-    val topAppBarHeightPx = LocalDensity.current.run { TopAppBarHeight.toPx() }
+    val topAppBarHeightPx = LocalDensity.current.run {
+        (if (LocalCupertinoSheetSurfaceDrawn.current) 56.dp else TopAppBarHeight).toPx()
+    }
 
     val lightGradientColor by colors.gradientColor(isDark = false)
     val darkGradientColor by colors.gradientColor(isDark = true)
@@ -439,32 +455,50 @@ private fun InlineTopAppBar(
     val darkTitleColor by colors.titleContentColor(isDark = true)
     val lightSubtitleColor by colors.subtitleContentColor(isDark = false)
     val darkSubtitleColor by colors.subtitleContentColor(isDark = true)
+    val systemBackgroundColor = CupertinoTheme.colorScheme.systemBackground
+    val currentSystemBackgroundColor by rememberUpdatedState(systemBackgroundColor)
+    val currentLightGradientColor by rememberUpdatedState(lightGradientColor)
+    val currentDarkGradientColor by rememberUpdatedState(darkGradientColor)
+    val currentLightTitleColor by rememberUpdatedState(lightTitleColor)
+    val currentDarkTitleColor by rememberUpdatedState(darkTitleColor)
+    val currentLightSubtitleColor by rememberUpdatedState(lightSubtitleColor)
+    val currentDarkSubtitleColor by rememberUpdatedState(darkSubtitleColor)
+    val currentTitleBounds by rememberUpdatedState(titleX to titleWidth)
 
     val luminanceAnimation = remember { FloatAnimatable(if (isLightTheme) 1f else 0f) }
     val gradientColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightGradientColor else darkGradientColor) }
     val titleColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightTitleColor else darkTitleColor) }
     val subtitleColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightSubtitleColor else darkSubtitleColor) }
+    val backgroundOpacity = 0.48f * scrollEdgeProgress
+    val backgroundTint = if (isBackgroundGradient) {
+        gradientColorAnimation.value
+    } else {
+        CupertinoGlassDefaults.panelTint
+    }
 
     if (isBackgroundAdaptive) {
-        val defaultColor = CupertinoTheme.colorScheme.systemBackground
-
-        LaunchedEffect(layer) {
+        LaunchedEffect(layer, colors, isLightTheme, systemBackgroundColor) {
             while (isActive) {
                 if (layer.size != IntSize.Zero) {
                     try {
-                        val averageLuminance = layer.toImageBitmap().averageLuminance(cropX = titleX, cropWidth = titleWidth.takeIf { it != 0 } ?: layer.size.width, sampleWidth = 5, defaultColor = defaultColor)
+                        val averageLuminance = layer.toImageBitmap().averageLuminance(
+                            cropX = currentTitleBounds.first,
+                            cropWidth = currentTitleBounds.second.takeIf { it != 0 } ?: layer.size.width,
+                            sampleWidth = 5,
+                            defaultColor = currentSystemBackgroundColor,
+                        )
 
                         launch {
                             gradientColorAnimation.animateTo(
-                                if (averageLuminance > 0.5f) lightGradientColor else darkGradientColor,
+                                if (averageLuminance > 0.5f) currentLightGradientColor else currentDarkGradientColor,
                                 tween(300)
                             )
                             titleColorAnimation.animateTo(
-                                if (averageLuminance > 0.5f) lightTitleColor else darkTitleColor,
+                                if (averageLuminance > 0.5f) currentLightTitleColor else currentDarkTitleColor,
                                 tween(300)
                             )
                             subtitleColorAnimation.animateTo(
-                                if (averageLuminance > 0.5f) lightSubtitleColor else darkSubtitleColor,
+                                if (averageLuminance > 0.5f) currentLightSubtitleColor else currentDarkSubtitleColor,
                                 tween(300)
                             )
                         }
@@ -486,30 +520,27 @@ private fun InlineTopAppBar(
     Box {
         Box(
             modifier = Modifier
+                .matchParentSize()
                 .drawPlainBackdrop(
                     backdrop = backdrop,
                     shape = { RectangleShape },
                     effects = {
-                        blur(8.dp.toPx())
+                        blur(CupertinoGlassDefaults.blurRadius.toPx() * scrollEdgeProgress)
                         runtimeShaderEffect(
-                            "AlphaMask",
+                            "MaterialTint",
                             """
     uniform shader content;
 
-    uniform float2 size;
     layout(color) uniform half4 tint;
     uniform float tintIntensity;
 
     half4 main(float2 coord) {
-        float blurAlpha = smoothstep(size.y, size.y * 0.5, coord.y);
-        float tintAlpha = smoothstep(size.y, size.y * 0.5, coord.y);
-        return mix(content.eval(coord) * blurAlpha, tint * tintAlpha, tintIntensity);
+        return mix(content.eval(coord), tint, tintIntensity);
     }""",
                             "content"
                         ) {
-                            setFloatUniform("size", size.width, size.height)
-                            setColorUniform("tint", gradientColorAnimation.value)
-                            setFloatUniform("tintIntensity", if (isBackgroundGradient) 0.8f else 0f)
+                            setColorUniform("tint", backgroundTint)
+                            setFloatUniform("tintIntensity", backgroundOpacity)
                         }
                     },
                     onDrawBackdrop = { drawBackdrop ->
@@ -517,9 +548,6 @@ private fun InlineTopAppBar(
                         layer.record { drawBackdrop() }
                     }
                 )
-                .fillMaxWidth()
-                .windowInsetsPadding(windowInsets)
-                .height(TopAppBarHeight)
         )
         TopAppBarLayout(
             modifier = modifier.windowInsetsPadding(windowInsets),
@@ -585,6 +613,14 @@ private fun InlineTopAppBar(
                     content = actions,
                 )
             },
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(1.dp)
+                .alpha(scrollEdgeProgress)
+                .background(CupertinoGlassDefaults.border),
         )
     }
 }
@@ -652,11 +688,16 @@ private fun TopAppBarLayout(
                     .coerceAtLeast(0)
             }
 
-        val layoutHeight = heightPx.roundToInt()
-
         val titlePlaceable = measurables
             .first { it.layoutId == "title" }
             .measure(constraints.copy(minWidth = 0, maxWidth = maxTitleWidth))
+
+        val layoutHeight = maxOf(
+            heightPx.roundToInt(),
+            titlePlaceable.height,
+            navigationIconPlaceable.height + (if (heightPx < TopAppBarHeight.toPx()) 6.dp else TopAppBarVerticalPadding).roundToPx() * 2,
+            actionIconsPlaceable.height + (if (heightPx < TopAppBarHeight.toPx()) 6.dp else TopAppBarVerticalPadding).roundToPx() * 2,
+        ).coerceIn(constraints.minHeight, constraints.maxHeight)
 
         // Locate the title's baseline.
         val titleBaseline =
@@ -722,7 +763,8 @@ private fun TopAppBarLayout(
 // internal val TopTitleAlphaEasing = CubicBezierEasing(.8f, 0f, .8f, .15f)
 
 private val TopAppBarHorizontalPadding = 4.dp
-private val TopAppBarHeight = 44.dp
+private val TopAppBarHeight = 64.dp
+private val TopAppBarVerticalPadding = 10.dp
 
 // A title inset when the App-Bar is a Medium or Large one. Also used to size a spacer when the
 // navigation icon is missing.

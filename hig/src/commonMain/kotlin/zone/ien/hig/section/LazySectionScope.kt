@@ -109,7 +109,37 @@ sealed interface LazySectionScope {
         dividerPadding: Dp = CupertinoSectionDefaults.DividerPadding,
         content: @Composable (padding: PaddingValues) -> Unit,
     )
+
+    /** 사이드바 섹션에 선택 가능한 탐색 행을 추가합니다. */
+    fun sidebarItem(
+        selected: Boolean,
+        onClick: () -> Unit,
+        key: Any? = null,
+        contentType: Any? = SidebarItemContentType,
+        enabled: Boolean = true,
+        leadingContent: @Composable () -> Unit = {},
+        trailingContent: @Composable () -> Unit = {},
+        title: @Composable () -> Unit,
+    ) {
+        item(
+            key = key,
+            contentType = contentType,
+            dividerPadding = 0.dp,
+        ) {
+            SidebarItemRow(
+                modifier = Modifier.fillMaxWidth(),
+                selected = selected,
+                onClick = onClick,
+                enabled = enabled,
+                leadingContent = leadingContent,
+                trailingContent = trailingContent,
+                title = title,
+            )
+        }
+    }
 }
+
+private object SidebarItemContentType
 
 /**
  * Clickable label with trailing icon (chevron by default), [title], optional [icon] and [caption].
@@ -456,7 +486,7 @@ fun LazySectionScope.textField(
         val updatedValueChange by rememberUpdatedState(onValueChange)
 
         CupertinoSectionDefaults.TextFieldClearButton(
-            visible = focused && value.isNotEmpty(),
+            visible = enabled && !readOnly && focused && value.isNotEmpty(),
             onClick = {
                 updatedValueChange.invoke("")
             },

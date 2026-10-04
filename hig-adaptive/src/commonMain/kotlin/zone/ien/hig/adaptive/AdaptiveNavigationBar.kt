@@ -37,7 +37,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
@@ -75,6 +86,7 @@ internal val LocalNavigationBarState = compositionLocalOf<NavigationBarState?> {
  * @param onTabSelected callback to be invoked when a tab is selected
  * @param tabsCount the total number of tabs
  * @param adaptation lambda for customizing the adaptation behavior
+ * @param trailingAction 탭과 분리되어 실제 내비게이션 높이에 맞춰지는 액션 슬롯입니다.
  * @param content composable content of the navigation bar items
  */
 @OptIn(ExperimentalCupertinoApi::class)
@@ -86,6 +98,7 @@ fun AdaptiveNavigationBar(
     onTabSelected: (index: Int) -> Unit,
     tabsCount: Int,
     adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, MaterialNavigationBarAdaptation>.() -> Unit = {},
+    trailingAction: (@Composable BoxScope.() -> Unit)? = null,
     content: @Composable RowScope.() -> Unit
 ) {
     CompositionLocalProvider(
@@ -104,6 +117,8 @@ fun AdaptiveNavigationBar(
                     modifier = modifier,
                     colors = it.colors,
                     windowInsets = it.windowInsets,
+                    horizontalAlignment = it.horizontalAlignment,
+                    trailingAction = trailingAction,
                     backdrop = it.backdrop,
                     selectedTabIndex = selectedTabIndex,
                     onTabSelected = onTabSelected,
@@ -112,15 +127,109 @@ fun AdaptiveNavigationBar(
                 )
             },
             material = {
-                NavigationBar(
+                MaterialNavigationBarWithAction(
                     modifier = modifier,
-                    containerColor = it.containerColor,
-                    contentColor = it.contentColor,
-                    tonalElevation = it.tonalElevation,
-                    windowInsets = it.windowInsets,
+                    adaptation = it,
+                    trailingAction = trailingAction,
                     content = content
                 )
             }
+        )
+    }
+}
+
+/**
+ * 접힌 상태에서도 강조 탭을 표시할 수 있는 적응형 탐색 막대입니다.
+ *
+ * 이 Compose 구현은 명시적으로 선택해야 적용됩니다. 기존 호출은 일반 탭 막대를 유지합니다.
+ */
+@OptIn(ExperimentalCupertinoApi::class)
+@ExperimentalAdaptiveApi
+@Composable
+fun AdaptiveNavigationBar(
+    modifier: Modifier = Modifier,
+    selectedTabIndex: () -> Int,
+    onTabSelected: (index: Int) -> Unit,
+    tabsCount: Int,
+    prominentTabIndex: Int?,
+    isCollapsed: Boolean = false,
+    adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, MaterialNavigationBarAdaptation>.() -> Unit = {},
+    trailingAction: (@Composable BoxScope.() -> Unit)? = null,
+    content: @Composable RowScope.() -> Unit,
+) {
+    CompositionLocalProvider(
+        LocalNavigationBarState provides NavigationBarState(
+            selectedTabIndex = selectedTabIndex,
+            onTabSelected = onTabSelected,
+        )
+    ) {
+        AdaptiveWidget(
+            adaptation = remember {
+                NavigationBarAdaptation()
+            },
+            adaptationScope = adaptation,
+            cupertino = {
+                CupertinoNavigationBar(
+                    modifier = modifier,
+                    colors = it.colors,
+                    windowInsets = it.windowInsets,
+                    horizontalAlignment = it.horizontalAlignment,
+                    trailingAction = trailingAction,
+                    backdrop = it.backdrop,
+                    selectedTabIndex = selectedTabIndex,
+                    onTabSelected = onTabSelected,
+                    tabsCount = tabsCount,
+                    prominentTabIndex = prominentTabIndex,
+                    isCollapsed = isCollapsed,
+                    content = content,
+                )
+            },
+            material = {
+                MaterialNavigationBarWithAction(
+                    modifier = modifier,
+                    adaptation = it,
+                    trailingAction = trailingAction,
+                    content = content,
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun MaterialNavigationBarWithAction(
+    modifier: Modifier,
+    adaptation: MaterialNavigationBarAdaptation,
+    trailingAction: (@Composable BoxScope.() -> Unit)?,
+    content: @Composable RowScope.() -> Unit,
+) {
+    if (trailingAction == null) {
+        NavigationBar(
+            modifier = modifier,
+            containerColor = adaptation.containerColor,
+            contentColor = adaptation.contentColor,
+            tonalElevation = adaptation.tonalElevation,
+            windowInsets = adaptation.windowInsets,
+            content = content,
+        )
+        return
+    }
+    val density = LocalDensity.current
+    var navigationHeight by remember(density) { mutableStateOf(80.dp) }
+    Row(modifier.fillMaxWidth().windowInsetsPadding(adaptation.windowInsets), verticalAlignment = Alignment.CenterVertically) {
+        NavigationBar(
+            modifier = Modifier.weight(1f).onSizeChanged { navigationHeight = with(density) { it.height.toDp() } },
+            containerColor = adaptation.containerColor,
+            contentColor = adaptation.contentColor,
+            tonalElevation = adaptation.tonalElevation,
+            windowInsets = WindowInsets(0, 0, 0, 0),
+            content = content,
+        )
+        Box(
+            Modifier.padding(start = 12.dp).size(navigationHeight),
+            contentAlignment = Alignment.Center,
+            propagateMinConstraints = true,
+            content = trailingAction,
         )
     }
 }
@@ -226,6 +335,7 @@ fun RowScope.AdaptiveNavigationBarItem(
         adaptationScope = adaptation,
         cupertino = {
             CupertinoNavigationBarItem(
+                index = index,
                 onClick = resolvedOnClick,
                 icon = icon,
                 modifier = modifier,
@@ -290,6 +400,7 @@ class CupertinoNavigationBarAdaptation internal constructor(
     var colors: CupertinoNavigationBarColors by mutableStateOf(colors)
     var windowInsets: WindowInsets by mutableStateOf(windowInsets)
     var backdrop: LayerBackdrop by mutableStateOf(backdrop)
+    var horizontalAlignment: Alignment.Horizontal by mutableStateOf(Alignment.CenterHorizontally)
 }
 
 @Stable

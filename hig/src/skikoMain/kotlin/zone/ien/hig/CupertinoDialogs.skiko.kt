@@ -23,6 +23,7 @@ package zone.ien.hig
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.DialogProperties
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -38,6 +39,11 @@ actual fun FullscreenPopupProperties(
         dismissOnClickOutside = dismissOnClickOutside,
         dismissOnBackPress = dismissOnBackPress,
         usePlatformDefaultWidth = usePlatformDefaultWidth,
+        scrimColor = Color.Transparent,
+        animateTransition = false,
     )
+
+@Composable
+internal actual fun PrepareComposeDialogWindow() = Unit
 
 actual val DialogProperties.platformInsets: Boolean get() = usePlatformInsets

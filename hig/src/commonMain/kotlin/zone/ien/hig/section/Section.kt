@@ -72,7 +72,7 @@ fun CupertinoSection(
     exitTransition: ExitTransition = CupertinoSectionDefaults.ExitTransition,
     shape: ContinuousRoundedRectangle = CupertinoSectionDefaults.shape(style),
     color: Color =
-        if (style.grouped) {
+        if (style != SectionStyle.Sidebar && style.grouped) {
             CupertinoSectionDefaults.Color
         } else {
             Color.Transparent
@@ -124,7 +124,8 @@ fun CupertinoSection(
                         shape = shape,
                         color = color,
                     ) {
-                        val showDivider = CupertinoTheme.colorScheme.separator.let { it.isSpecified && it != Color.Transparent }
+                        val showDivider = style != SectionStyle.Sidebar &&
+                            CupertinoTheme.colorScheme.separator.let { it.isSpecified && it != Color.Transparent }
 
                         SubcomposeLayout { constraints ->
                             val measurables = subcompose(null) { content(SectionScopeImpl) }

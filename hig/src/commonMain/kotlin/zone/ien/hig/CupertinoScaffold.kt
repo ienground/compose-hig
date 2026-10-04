@@ -21,12 +21,32 @@
 package zone.ien.hig
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.dp
+import zone.ien.hig.utils.LocalCupertinoBackdropCoordinates
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -40,20 +60,30 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMapNotNull
 import androidx.compose.ui.util.fastMaxOfOrNull
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.utils.CupertinoGlassDefaults
+import zone.ien.hig.utils.LocalCupertinoBackdrop
+import zone.ien.hig.utils.LocalCupertinoDialogBackdrop
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.runtimeShaderEffect
 
 /**
  * Scaffold implements the basic cupertino and material design visual layout structure.
@@ -101,6 +131,36 @@ fun CupertinoScaffold(
     hasNavigationTitle: Boolean = false,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val scrollOffset = remember { mutableStateOf(0f) }
+    val scrollSource = remember { mutableStateOf<ScrollableState?>(null) }
+    val density = LocalDensity.current
+    val scrollEdgeProgress by animateFloatAsState(
+        (scrollOffset.value / with(density) { 24.dp.toPx() }).coerceIn(0f, 1f),
+        animationSpec = spring(dampingRatio = 1f, stiffness = 600f),
+        label = "TopScrollEdge",
+    )
+    val scrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                if (scrollSource.value != null) return Offset.Zero
+                scrollOffset.value = if (available.y > 0f && consumed.y == 0f) 0f
+                else (scrollOffset.value - consumed.y).coerceAtLeast(0f)
+                return Offset.Zero
+            }
+        }
+    }
+    val contentCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
+    val hasSoftBottomEdge = LocalScaffoldSoftBottomEdge.current
+    val backgroundBackdrop = rememberLayerBackdrop { drawRect(containerColor) }
+    val contentBackdrop = rememberLayerBackdrop {
+        drawRect(containerColor)
+        drawContent()
+    }
+    val softBottomEdgeTint = if (hasSoftBottomEdge) {
+        CupertinoGlassDefaults.panelTint.copy(alpha = 0.16f)
+    } else {
+        Color.Transparent
+    }
     val scaffoldCoordinates =
         remember {
             mutableStateOf<LayoutCoordinates?>(null)
@@ -112,7 +172,7 @@ fun CupertinoScaffold(
 
     CupertinoSurface(
         modifier =
-            modifier.onGloballyPositioned {
+            modifier.nestedScroll(scrollConnection).onGloballyPositioned {
                 scaffoldCoordinates.value = it
             },
         color = containerColor,
@@ -122,46 +182,151 @@ fun CupertinoScaffold(
 
         CompositionLocalProvider(
             LocalNavigationTitleVisible provides
-                rememberSaveable {
+                rememberSaveable(hasNavigationTitle) {
                     mutableStateOf(
                         hasNavigationTitle,
                     )
                 },
+            LocalNavigationTitleProgress provides
+                rememberSaveable(hasNavigationTitle) {
+                    mutableStateOf(if (hasNavigationTitle) 0f else 1f)
+                },
+            LocalTopScrollOffset provides scrollOffset,
+            LocalTopScrollSource provides scrollSource,
+            LocalTopScrollEdgeProgress provides scrollEdgeProgress,
+            LocalCupertinoBackdropCoordinates provides contentCoordinates,
             LocalScaffoldCoordinates provides scaffoldCoordinates,
             LocalTopBarHeight provides topBarHeight,
             LocalScaffoldInsets provides contentWindowInsets,
         ) {
-            ScaffoldLayout(
-                topBarHeightLocal = topBarHeight,
-                fabPosition = floatingActionButtonPosition,
-                topBar = {
-                    CompositionLocalProvider(
-                        LocalContainerColor provides Color.Transparent,
-                        LocalAppBarsState provides appbarState,
-                        content = topBar,
-                    )
-                },
-                bottomBar = {
-                    CompositionLocalProvider(
-                        LocalContainerColor provides Color.Transparent,
-                        LocalAppBarsState provides appbarState,
-                        content = bottomBar,
-                    )
-                },
-                content = content,
-                snackbar = snackbarHost,
-                contentWindowInsets = contentWindowInsets,
-                fab = floatingActionButton,
-                appBarsAlpha = appBarsBlurAlpha,
-                appBarsBlurRadius = appBarsBlurRadius,
-                appBarsState = appbarState,
-            )
+            CompositionLocalProvider(
+                LocalCupertinoBackdrop provides contentBackdrop,
+                LocalCupertinoDialogBackdrop provides contentBackdrop,
+            ) {
+                ScaffoldLayout(
+                    contentBackdrop = contentBackdrop,
+                    backgroundBackdrop = backgroundBackdrop,
+                    contentCoordinates = contentCoordinates,
+                    topBarHeightLocal = topBarHeight,
+                    fabPosition = floatingActionButtonPosition,
+                    topBar = {
+                        CompositionLocalProvider(
+                            LocalContainerColor provides Color.Transparent,
+                            LocalAppBarsState provides appbarState,
+                            content = topBar,
+                        )
+                    },
+                    bottomBar = {
+                        CompositionLocalProvider(
+                            LocalContainerColor provides Color.Transparent,
+                            LocalAppBarsState provides appbarState,
+                        ) {
+                            if (hasSoftBottomEdge) {
+                                Column {
+                                    Box(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .height(20.dp)
+                                            .drawBackdrop(
+                                                backdrop = contentBackdrop,
+                                                shape = { RectangleShape },
+                                                effects = {
+                                                    blur(CupertinoGlassDefaults.blurRadius.toPx())
+                                                    runtimeShaderEffect(
+                                                        "BottomEdgeFalloff",
+                                                        """
+                                                            uniform shader content;
+                                                            uniform float2 size;
+
+                                                            half4 main(float2 coord) {
+                                                                float opacity = smoothstep(0.0, size.y, coord.y);
+                                                                return content.eval(coord) * opacity;
+                                                            }
+                                                        """.trimIndent(),
+                                                        "content",
+                                                    ) {
+                                                        setFloatUniform("size", size.width, size.height)
+                                                    }
+                                                },
+                                                onDrawSurface = {
+                                                    drawRect(
+                                                        brush = Brush.verticalGradient(
+                                                            colors = listOf(
+                                                                Color.Transparent,
+                                                                softBottomEdgeTint,
+                                                            ),
+                                                        ),
+                                                    )
+                                                },
+                                            ),
+                                    )
+                                    bottomBar()
+                                }
+                            } else {
+                                bottomBar()
+                            }
+                        }
+                    },
+                    content = content,
+                    snackbar = snackbarHost,
+                    contentWindowInsets = contentWindowInsets,
+                    fab = floatingActionButton,
+                    appBarsAlpha = appBarsBlurAlpha,
+                    appBarsBlurRadius = appBarsBlurRadius,
+                    appBarsState = appbarState,
+                )
+            }
         }
+    }
+}
+
+/**
+ * 가장자리 구분선을 선택적으로 표시하는 Cupertino 스캐폴드입니다.
+ *
+ * 하단 막대와 콘텐츠가 자연스럽게 이어져야 하는 화면에서 [hasSoftBottomEdge]를 켭니다.
+ */
+@Composable
+@ExperimentalCupertinoApi
+fun CupertinoScaffold(
+    modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    floatingActionButtonPosition: FabPosition = FabPosition.End,
+    containerColor: Color = CupertinoScaffoldDefaults.containerColor,
+    contentColor: Color = CupertinoScaffoldDefaults.contentColor,
+    contentWindowInsets: WindowInsets = CupertinoScaffoldDefaults.contentWindowInsets,
+    appBarsBlurAlpha: Float = CupertinoScaffoldDefaults.AppBarsBlurAlpha,
+    appBarsBlurRadius: Dp = CupertinoScaffoldDefaults.AppBarsBlurRadius,
+    hasNavigationTitle: Boolean = false,
+    hasSoftBottomEdge: Boolean,
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    CompositionLocalProvider(LocalScaffoldSoftBottomEdge provides hasSoftBottomEdge) {
+        CupertinoScaffold(
+            modifier = modifier,
+            topBar = topBar,
+            bottomBar = bottomBar,
+            snackbarHost = snackbarHost,
+            floatingActionButton = floatingActionButton,
+            floatingActionButtonPosition = floatingActionButtonPosition,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            contentWindowInsets = contentWindowInsets,
+            appBarsBlurAlpha = appBarsBlurAlpha,
+            appBarsBlurRadius = appBarsBlurRadius,
+            hasNavigationTitle = hasNavigationTitle,
+            content = content,
+        )
     }
 }
 
 @Composable
 private fun ScaffoldLayout(
+    contentBackdrop: LayerBackdrop,
+    backgroundBackdrop: LayerBackdrop,
+    contentCoordinates: MutableState<LayoutCoordinates?>,
     appBarsState: AppBarsState,
     topBarHeightLocal: MutableState<Float>,
     fabPosition: FabPosition,
@@ -390,9 +555,16 @@ private fun ScaffoldLayout(
                     Box(
                         modifier =
                             topModifier
-                                .then(bottomModifier),
+                                .then(bottomModifier)
+                                .layerBackdrop(contentBackdrop)
+                                .onGloballyPositioned { contentCoordinates.value = it },
                     ) {
-                        content(innerPadding)
+                        Box(
+                            Modifier.matchParentSize().layerBackdrop(backgroundBackdrop),
+                        )
+                        CompositionLocalProvider(LocalCupertinoBackdrop provides backgroundBackdrop) {
+                            content(innerPadding)
+                        }
                     }
                 }.fastMap { it.measure(looseConstraints) }
 
@@ -556,3 +728,38 @@ internal val LocalAppBarsBlurRadius =
     compositionLocalOf {
         CupertinoScaffoldDefaults.AppBarsBlurRadius
     }
+
+private val LocalScaffoldSoftBottomEdge = staticCompositionLocalOf { false }
+
+private val LocalTopScrollOffset = compositionLocalOf<MutableState<Float>?> { null }
+private val LocalTopScrollSource = compositionLocalOf<MutableState<ScrollableState?>?> { null }
+
+/** 주 콘텐츠의 실제 스크롤 상태를 Top Bar scroll edge에 연결합니다. */
+@Composable
+fun Modifier.cupertinoScrollEdge(state: ScrollableState): Modifier {
+    val offset = LocalTopScrollOffset.current ?: return this
+    val source = LocalTopScrollSource.current ?: return this
+    val distance = with(LocalDensity.current) { 24.dp.toPx() }
+    DisposableEffect(state, source) {
+        source.value = state
+        onDispose {
+            if (source.value === state) {
+                source.value = null
+                offset.value = 0f
+            }
+        }
+    }
+    LaunchedEffect(state, distance) {
+        snapshotFlow {
+            when (state) {
+                is LazyListState ->
+                    if (state.firstVisibleItemIndex == 0) state.firstVisibleItemScrollOffset.toFloat() else distance
+                is LazyGridState ->
+                    if (state.firstVisibleItemIndex == 0) state.firstVisibleItemScrollOffset.toFloat() else distance
+                is ScrollState -> state.value.toFloat()
+                else -> if (state.canScrollBackward) distance else 0f
+            }
+        }.collect { offset.value = it }
+    }
+    return this
+}

@@ -1,19 +1,19 @@
 [versions]
-agp = "9.2.0"
-kotlin = "2.4.10"
-lib-version-name = "1.4.1"
+agp = "9.3.1"
+kotlin = "2.4.20"
+lib-version-name = "27.0.1-alpha01"
 
 # plugin
-compose-plugin = "1.12.0"
+compose-plugin = "1.12.1"
 compose-plugin-experimental = "1.12.0-alpha03"
-compose-navigation3 = "1.2.0-alpha02"
+compose-navigation3 = "1.2.0-beta01"
 
 # ui
 activity-compose = "1.13.0"
 lifecycle = "2.11.0"
 backdrop = "2.0.1"
 capsule = "2.1.4"
-haze = "1.7.3"
+haze = "2.0.1"
 
 # functionality
 datetime = "0.8.0"

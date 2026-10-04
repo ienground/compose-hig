@@ -19,12 +19,14 @@
 package zone.ien.hig.section
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -39,6 +41,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
@@ -53,13 +56,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.CupertinoButtonTokens
 import zone.ien.hig.CupertinoDatePickerDefaults
 import zone.ien.hig.CupertinoDatePickerState
@@ -118,6 +124,100 @@ fun SectionScope.SectionItem(
         CompositionLocalProvider(
             LocalContentColor provides CupertinoTheme.colorScheme.tertiaryLabel,
             trailingContent,
+        )
+    }
+}
+
+/** 사이드바 섹션에서 선택할 수 있는 탐색 행입니다. */
+@ExperimentalCupertinoApi
+@Composable
+fun SectionScope.SidebarItem(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable () -> Unit = {},
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    title: @Composable () -> Unit,
+) {
+    SidebarItemRow(
+        modifier = modifier,
+        paddingValues = CupertinoSectionDefaults.SidebarItemPaddingValues,
+        selected = selected,
+        onClick = onClick,
+        enabled = enabled,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        interactionSource = interactionSource,
+        title = title,
+    )
+}
+
+@Composable
+internal fun SidebarItemRow(
+    modifier: Modifier = Modifier,
+    paddingValues: PaddingValues = CupertinoSectionDefaults.SidebarItemPaddingValues,
+    selected: Boolean,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable () -> Unit = {},
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    title: @Composable () -> Unit,
+) {
+    val shape = ContinuousRoundedRectangle(CupertinoSectionTokens.SidebarItemCornerRadius)
+    val pressed by interactionSource.collectIsPressedAsState()
+    val selectionColor = CupertinoTheme.colorScheme.tertiarySystemFill
+    val backgroundColor by animateColorAsState(
+        targetValue = when {
+            enabled && pressed -> selectionColor.copy(alpha = (selectionColor.alpha * 2f).coerceAtMost(1f))
+            selected -> selectionColor
+            else -> Color.Transparent
+        },
+        label = "SidebarItemBackground",
+    )
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = CupertinoSectionTokens.SidebarItemMinHeight)
+            .clip(shape)
+            .background(backgroundColor, shape)
+            .graphicsLayer { alpha = if (enabled) 1f else 0.5f }
+            .selectable(
+                selected = selected,
+                enabled = enabled,
+                role = Role.Tab,
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+            )
+            .padding(paddingValues),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(CupertinoSectionTokens.SidebarItemGap),
+    ) {
+        CompositionLocalProvider(
+            LocalContentColor provides if (selected) {
+                CupertinoTheme.colorScheme.accent
+            } else {
+                CupertinoTheme.colorScheme.label
+            },
+        ) {
+            leadingContent()
+            Box(Modifier.weight(1f)) {
+                ProvideTextStyle(
+                    CupertinoTheme.typography.body.copy(
+                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                    ),
+                ) {
+                    title()
+                }
+            }
+        }
+        CompositionLocalProvider(
+            LocalContentColor provides CupertinoTheme.colorScheme.tertiaryLabel,
+            content = trailingContent,
         )
     }
 }
@@ -356,7 +456,7 @@ fun SectionScope.SectionTextField(
         val updatedValueChange by rememberUpdatedState(onValueChange)
 
         CupertinoSectionDefaults.TextFieldClearButton(
-            visible = focused && value.isNotEmpty(),
+            visible = enabled && !readOnly && focused && value.isNotEmpty(),
             onClick = {
                 updatedValueChange.invoke("")
             },
