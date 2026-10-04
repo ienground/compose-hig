@@ -146,13 +146,7 @@ fun CupertinoNavigationBar(
         val density = LocalDensity.current
         var navigationHeight by remember(density) { mutableStateOf(64.dp) }
         Row(
-            modifier = modifier.fillMaxWidth()
-                .windowInsetsPadding(windowInsets)
-                .windowInsetsPadding(
-                    WindowInsets.navigationBars.exclude(
-                        WindowInsets(bottom = CupertinoNavigationBarDefaults.BottomPadding),
-                    ),
-                ),
+            modifier = modifier.fillMaxWidth().windowInsetsPadding(windowInsets),
             verticalAlignment = Alignment.Bottom,
         ) {
             CupertinoNavigationBar(

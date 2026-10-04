@@ -393,31 +393,6 @@ fun CupertinoActionSheet(
     content: (@Composable () -> Unit)? = null,
     buttons: AlertDialogActionsScope.() -> Unit,
 ) {
-    if (content == null) {
-        AnimatedDialog(
-            visible = visible,
-            properties = properties,
-            onDismissRequest = onDismissRequest,
-            enterTransition = scaleIn(initialScale = 0.94f) + fadeIn(tween(180)),
-            exitTransition = scaleOut(targetScale = 0.98f, animationSpec = tween(120)) + fadeOut(tween(120)),
-        ) { dismiss, updatePanelBounds ->
-            CupertinoDialogPanel(
-                title = title,
-                message = message,
-                containerColor = if (containerColor == CupertinoDialogsDefaults.ContainerColor) {
-                    CupertinoDialogsDefaults.AlertContainerColor
-                } else containerColor,
-                shape = CupertinoDialogsDefaults.AlertShape,
-                shadowElevation = CupertinoDialogsTokens.AlertDialogElevation,
-                buttonsOrientation = Orientation.Vertical,
-                dismiss = dismiss,
-                updatePanelBounds = updatePanelBounds,
-                buttons = buttons,
-                emphasizeDefaultAction = false,
-            )
-        }
-        return
-    }
     val backdrop = LocalCupertinoDialogBackdrop.current ?: LocalCupertinoBackdrop.current
     CompositionLocalProvider(
         LocalContainerColor provides containerColor,
