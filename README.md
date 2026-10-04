@@ -28,8 +28,7 @@ Forked and expanded from [alexzhirkevich/compose-cupertino](https://github.com/a
 
 ## 🎬 Preview Video
 
-https://github.com/user-attachments/assets/ef0b2afd-030b-4aae-aa70-e0dfa2bfdd03
-
+https://github.com/user-attachments/assets/4cc67248-f666-4ba1-9f32-988356b96b2f
 
 
 ### iOS Native UI Flickering
