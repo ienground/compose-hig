@@ -21,6 +21,7 @@
 package sections
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -42,9 +43,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.CupertinoDatePickerState
 import zone.ien.hig.CupertinoNavigateBackLiquidButton
-import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoSegmentedControl
 import zone.ien.hig.CupertinoSegmentedControlTab
 import zone.ien.hig.CupertinoText
@@ -61,6 +62,8 @@ import zone.ien.hig.section.CupertinoLinkIcon
 import zone.ien.hig.section.CupertinoSection
 import zone.ien.hig.section.LazySectionScope
 import zone.ien.hig.section.SectionItem
+import zone.ien.hig.section.SectionScope
+import zone.ien.hig.section.SidebarItem
 import zone.ien.hig.section.SectionStyle
 import zone.ien.hig.section.datePicker
 import zone.ien.hig.section.dropdownMenu
@@ -72,14 +75,17 @@ import zone.ien.hig.section.switch
 import zone.ien.hig.section.textField
 import zone.ien.hig.section.timePicker
 import zone.ien.hig.theme.CupertinoTheme
-import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.hig.adaptive.AdaptiveScaffold
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 
-@OptIn(ExperimentalCupertinoApi::class)
+private val SidebarLabels = listOf("Text Field", "Date Picker", "Time Picker", "Popup Picker", "Switch")
+
+@OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun SectionsScreen(
     navigateBack: () -> Unit
 ) {
-    val backdrop = rememberDefaultBackdrop()
+    val backdrop = rememberLayerBackdrop()
     var isLazy by remember { mutableStateOf(true) }
     val pagerState = rememberPagerState { 2 }
     val toggleState = remember { mutableStateOf(false) }
@@ -98,6 +104,7 @@ fun SectionsScreen(
 
     val currentState = if (isLazy) lazyState else defaultState
     val sectionState = rememberSectionState()
+    var selectedSidebarItem by remember { mutableStateOf("Text Field") }
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(currentState.isScrollInProgress) {
@@ -110,123 +117,184 @@ fun SectionsScreen(
         pagerState.animateScrollToPage(if (isLazy) 0 else 1)
     }
 
-    CupertinoScaffold(
-        topBar = {
-            CupertinoTopAppBar(
-                navigationIcon = {
-                    CupertinoNavigateBackLiquidButton(
-                        onClick = navigateBack,
-                        backdrop = backdrop,
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
-                },
-                title = {
-                    CupertinoSegmentedControl(
-                        selectedTabIndex = if (isLazy) 0 else 1,
-                        backdrop = backdrop,
-                        modifier =
-                            Modifier
-                                .width(200.dp),
-                    ) {
-                        CupertinoSegmentedControlTab(
-                            isSelected = isLazy,
-                            onClick = {
-                                isLazy = true
-                            },
-                        ) {
-                            CupertinoText("Lazy")
-                        }
-                        CupertinoSegmentedControlTab(
-                            isSelected = !isLazy,
-                            onClick = {
-                                isLazy = false
-                            },
-                        ) {
-                            CupertinoText("Default")
-                        }
-                    }
-                },
-                backdrop = backdrop
-            )
-        },
-    ) { pv ->
-        if (isLazy) {
-            LazyColumn(
-                state = lazyState,
-                contentPadding = pv,
-                modifier =
-                    Modifier
-                        .layerBackdrop(backdrop)
-                        .fillMaxSize()
-                        .background(CupertinoTheme.colorScheme.systemGroupedBackground),
-            ) {
-                SectionStyle.entries.forEach { style ->
-                    section(
-                        state = sectionState,
-                        style = style,
-                        title = {
-                            Title(style)
-                        },
-                        caption = {
-                            Caption()
-                        },
-                    ) {
-                        sectionContent(
-                            toggle = toggleState,
-                            datePickerState = datePickerState,
-                            datePickerExpanded = datePickerExpanded == style,
-                            onDatePickerExpanded = { datePickerExpanded = if (it) style else null },
-                            timePickerState = timePickerState,
-                            timePickerExpanded = timePickerExpanded == style,
-                            onTimePickerExpanded = {
-                                timePickerExpanded = if (it) style else null
-                            },
-                            pickedIndex = pickedIndex,
-                            pickerExpanded = pickerExpanded == style,
-                            onpickerExpanded = {
-                                pickerExpanded = if (it) style else null
-                            },
-                            textFieldValue = textFieldValue,
+    Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().layerBackdrop(backdrop)
+            .background(CupertinoTheme.colorScheme.systemGroupedBackground))
+        AdaptiveScaffold(
+            adaptation = { cupertino { sidebarBackdrop = backdrop } },
+            topBar = {
+                CupertinoTopAppBar(
+                    navigationIcon = {
+                        CupertinoNavigateBackLiquidButton(
+                            onClick = navigateBack,
+                            backdrop = backdrop,
+                            modifier = Modifier.padding(start = 16.dp)
                         )
-                    }
-                }
-            }
-        } else {
-            Column(
-                modifier =
-                    Modifier
-                        .layerBackdrop(backdrop)
-                        .verticalScroll(defaultState)
-                        .background(CupertinoTheme.colorScheme.systemGroupedBackground)
-                        .fillMaxSize()
-                        .padding(pv),
-            ) {
-                SectionStyle.entries.forEach { style ->
-                    CupertinoSection(
-                        state = sectionState,
-                        style = style,
-                        title = {
-                            Title(style)
-                        },
-                        caption = {
-                            Caption()
-                        },
-                    ) {
-                        repeat(4) { index ->
-                            SectionItem(
-                                leadingContent = {
-                                    CupertinoLinkIcon(imageVector = CupertinoIcons.Default.Heart)
-                                },
-                                trailingContent = {
-                                    Text("Trailing ${index + 1}")
+                    },
+                    title = {
+                        CupertinoSegmentedControl(
+                            selectedTabIndex = if (isLazy) 0 else 1,
+                            backdrop = backdrop,
+                            modifier =
+                                Modifier
+                                    .width(200.dp),
+                        ) {
+                            CupertinoSegmentedControlTab(
+                                isSelected = isLazy,
+                                onClick = {
+                                    isLazy = true
                                 },
                             ) {
-                                Text("Section item ${index + 1}")
+                                CupertinoText("Lazy")
+                            }
+                            CupertinoSegmentedControlTab(
+                                isSelected = !isLazy,
+                                onClick = {
+                                    isLazy = false
+                                },
+                            ) {
+                                CupertinoText("Default")
+                            }
+                        }
+                    },
+                )
+            },
+            sidebarContent = {
+                CupertinoSection(
+                    style = SectionStyle.Sidebar,
+                    title = { CupertinoText("Sidebar") },
+                ) {
+                    SidebarItems(
+                        selectedItem = selectedSidebarItem,
+                        onItemSelected = { selectedSidebarItem = it },
+                    )
+                }
+            },
+        ) { pv ->
+            Box(Modifier.fillMaxSize()) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(CupertinoTheme.colorScheme.systemGroupedBackground),
+                )
+                if (isLazy) {
+                    LazyColumn(
+                        state = lazyState,
+                        contentPadding = pv,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        SectionStyle.entries.forEach { style ->
+                            section(
+                                state = sectionState,
+                                style = style,
+                                title = {
+                                    Title(style)
+                                },
+                                caption = {
+                                    Caption()
+                                },
+                            ) {
+                                if (style == SectionStyle.Sidebar) {
+                                    sidebarItems(
+                                        selectedItem = selectedSidebarItem,
+                                        onItemSelected = { selectedSidebarItem = it },
+                                    )
+                                } else {
+                                    sectionContent(
+                                        toggle = toggleState,
+                                        datePickerState = datePickerState,
+                                        datePickerExpanded = datePickerExpanded == style,
+                                        onDatePickerExpanded = { datePickerExpanded = if (it) style else null },
+                                        timePickerState = timePickerState,
+                                        timePickerExpanded = timePickerExpanded == style,
+                                        onTimePickerExpanded = {
+                                            timePickerExpanded = if (it) style else null
+                                        },
+                                        pickedIndex = pickedIndex,
+                                        pickerExpanded = pickerExpanded == style,
+                                        onpickerExpanded = {
+                                            pickerExpanded = if (it) style else null
+                                        },
+                                        textFieldValue = textFieldValue,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Column(
+                        modifier =
+                            Modifier
+                                .verticalScroll(defaultState)
+                                .fillMaxSize()
+                                .padding(pv),
+                    ) {
+                        SectionStyle.entries.forEach { style ->
+                            CupertinoSection(
+                                state = sectionState,
+                                style = style,
+                                title = {
+                                    Title(style)
+                                },
+                                caption = {
+                                    Caption()
+                                },
+                            ) {
+                                if (style == SectionStyle.Sidebar) {
+                                    SidebarItems(
+                                        selectedItem = selectedSidebarItem,
+                                        onItemSelected = { selectedSidebarItem = it },
+                                    )
+                                } else {
+                                    repeat(4) { index ->
+                                        SectionItem(
+                                            leadingContent = {
+                                                CupertinoLinkIcon(imageVector = CupertinoIcons.Default.Heart)
+                                            },
+                                            trailingContent = {
+                                                Text("Trailing ${index + 1}")
+                                            },
+                                        ) {
+                                            Text("Section item ${index + 1}")
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+private fun LazySectionScope.sidebarItems(
+    selectedItem: String,
+    onItemSelected: (String) -> Unit,
+) {
+    SidebarLabels.forEach { label ->
+        sidebarItem(
+            selected = selectedItem == label,
+            onClick = { onItemSelected(label) },
+            key = label,
+        ) {
+            CupertinoText(label)
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalCupertinoApi::class)
+private fun SectionScope.SidebarItems(
+    selectedItem: String,
+    onItemSelected: (String) -> Unit,
+) {
+    SidebarLabels.forEach { label ->
+        SidebarItem(
+            selected = selectedItem == label,
+            onClick = { onItemSelected(label) },
+        ) {
+            CupertinoText(label)
         }
     }
 }

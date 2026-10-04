@@ -20,68 +20,48 @@
 
 package zone.ien.hig
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.shadow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEachIndexed
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
-import com.kyant.backdrop.effects.colorControls
-import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.capsule.ContinuousRoundedRectangle
-import zone.ien.hig.section.CupertinoSectionTokens
-import zone.ien.hig.theme.BrightSeparatorColor
-import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
-import zone.ien.hig.theme.isDark
-import zone.ien.hig.theme.systemGray7
+import zone.ien.hig.utils.glassEdge
 
 /**
  * Native analog for the compose [CupertinoLiquidAlertDialog].
@@ -108,58 +88,76 @@ fun CupertinoLiquidAlertDialog(
     buttonsOrientation: Orientation = CupertinoLiquidDialogsDefaults.ButtonOrientation,
     buttons: AlertDialogActionsScope.() -> Unit,
 ) {
+    val useDefaultAlertMaterial = containerColor == CupertinoDialogsDefaults.AlertContainerColor
+    val isDarkTheme = CupertinoTheme.colorScheme.isDark
     AnimatedDialog(
         properties = properties,
         onDismissRequest = onDismissRequest,
-        enterTransition = scaleIn(initialScale = 1.2f) + fadeIn(),
-        exitTransition = scaleOut(targetScale = 1.2f) + fadeOut(),
-    ) {
-        val isDarkTheme = isSystemInDarkTheme()
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(40.dp)
-                .drawBackdrop(
-                    backdrop = backdrop,
-                    shape = { shape },
-                    effects = {
-                        colorControls(
-                            brightness = if (!isDarkTheme) 0.2f else 0f,
-                            saturation = 1.5f
-                        )
-                        blur(if (!isDarkTheme) 16.dp.toPx() else 8.dp.toPx())
-                        lens(24.dp.toPx(), 48.dp.toPx(), depthEffect = true)
-                    },
-                    highlight = { Highlight.Plain },
-                    onDrawSurface = {
-                        drawRect(containerColor)
-                    }
-                )
-                .fillMaxWidth()
-                .padding(14.dp)
-        ) {
+        enterTransition = scaleIn(initialScale = 0.94f) + fadeIn(tween(180)),
+        exitTransition = scaleOut(targetScale = 0.98f, animationSpec = tween(120)) + fadeOut(tween(120)),
+    ) { dismiss, updatePanelBounds ->
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val dialogMaxHeight = if (maxHeight != Dp.Infinity) maxHeight * 0.85f else Dp.Infinity
             Column(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
-                    .padding(top = 8.dp, bottom = 24.dp)
-                    .padding(horizontal = 8.dp)
+                    .align(Alignment.Center)
+                    .shadow(shadowElevation, shape, clip = true)
+                    .widthIn(max = CupertinoDialogsTokens.AlertDialogWidth)
                     .fillMaxWidth()
-            ) {
-                ProvideTextStyle(
-                    value = CupertinoTheme.typography.headline.copy(),
-                    content = title
-                )
-                message?.let {
-                    ProvideTextStyle(
-                        value = CupertinoTheme.typography.body.copy(),
-                        content = it
+                    .heightIn(
+                        min = CupertinoLiquidDialogsTokens.AlertDialogMinHeight,
+                        max = dialogMaxHeight,
                     )
+                    .verticalScroll(rememberScrollState())
+                    .drawBackdrop(
+                        backdrop = backdrop,
+                        shape = { shape },
+                        effects = {
+                            blur(CupertinoDialogsTokens.AlertDialogBlurRadius.toPx())
+                        },
+                        highlight = { Highlight.Plain },
+                        onDrawSurface = {
+                            drawAlertDialogSurface(containerColor, useDefaultAlertMaterial, isDarkTheme)
+                        },
+                    )
+                    .glassEdge(shape)
+                    .onGloballyPositioned { updatePanelBounds(it.boundsInRoot()) },
+            ) {
+                CompositionLocalProvider(LocalContainerColor provides containerColor) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(CupertinoDialogsTokens.AlertDialogOuterPadding),
+                    ) {
+                        Column(
+                            verticalArrangement =
+                                Arrangement.spacedBy(CupertinoDialogsTokens.AlertDialogTitleMessageSpacing),
+                            horizontalAlignment = Alignment.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(CupertinoDialogsTokens.AlertDialogHeaderPadding),
+                        ) {
+                            ProvideTextStyle(
+                                value = CupertinoTheme.typography.headline.copy(textAlign = TextAlign.Start),
+                                content = title,
+                            )
+                            message?.let {
+                                ProvideTextStyle(
+                                    value = CupertinoTheme.typography.body.copy(
+                                        color = CupertinoTheme.colorScheme.secondaryLabel,
+                                        textAlign = TextAlign.Start,
+                                    ),
+                                    content = it,
+                                )
+                            }
+                        }
+
+                        CupertinoAlertDialogButtonsScopeImpl(buttonsOrientation, dismiss)
+                            .apply(buttons)
+                            .Content()
+                    }
                 }
             }
-
-            val scope = CupertinoLiquidAlertDialogButtonsScopeImpl(buttonsOrientation).apply(buttons)
-
-            scope.Content()
         }
     }
 }
@@ -169,187 +167,23 @@ object CupertinoLiquidDialogsDefaults {
     val ScrimColor: Color
         @Composable
         @ReadOnlyComposable
-        get() = Color.Black.copy(alpha = if (isDark()) .4f else .0f)
+        get() = Color.Black.copy(alpha = if (CupertinoTheme.colorScheme.isDark) .4f else .2f)
 
     val ButtonOrientation: Orientation = Orientation.Horizontal
 
     val ContainerColor: Color
         @Composable
-        get() = CupertinoColors.systemGray7
+        @ReadOnlyComposable
+        get() = CupertinoDialogsDefaults.AlertContainerColor
 
     val Shape: ContinuousRoundedRectangle
         @Composable
         @ReadOnlyComposable
-        get() = ContinuousRoundedRectangle(48.dp)
+        get() = CupertinoDialogsDefaults.AlertShape
 }
-@Composable
-private fun AnimatedDialog(
-    onDismissRequest: () -> Unit,
-    properties: DialogProperties = DialogProperties(),
-    enterTransition: EnterTransition,
-    exitTransition: ExitTransition,
-    scrimColor: Color = CupertinoLiquidDialogsDefaults.ScrimColor,
-    content: @Composable BoxScope.() -> Unit,
-) {
-    val haptic = LocalHapticFeedback.current
-
-    Dialog(
-        onDismissRequest = onDismissRequest,
-        properties =
-            FullscreenPopupProperties(
-                dismissOnBackPress = properties.dismissOnBackPress,
-                dismissOnClickOutside = properties.dismissOnClickOutside,
-                usePlatformDefaultWidth = false,
-            ),
-    ) {
-        CompositionLocalProvider(LocalHapticFeedback provides haptic) {
-            var visible by remember {
-                mutableStateOf(false)
-            }
-            LaunchedEffect(0) {
-                visible = true
-            }
-
-            val animatedScrimColor by animateColorAsState(
-                if (visible) scrimColor else scrimColor.copy(alpha = 0f),
-            )
-
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .drawWithContent {
-                            drawRect(animatedScrimColor)
-                            drawContent()
-                        }.then(
-                            if (properties.dismissOnClickOutside) {
-                                Modifier.pointerInput(0) {
-                                    detectTapGestures {
-                                        onDismissRequest()
-                                    }
-                                }
-                            } else {
-                                Modifier
-                            },
-                        ).then(
-                            if (properties.platformInsets) {
-                                Modifier
-                                    .systemBarsPadding()
-                                    .imePadding()
-                            } else {
-                                Modifier
-                            },
-                        ),
-            ) {
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = enterTransition,
-                    exit = exitTransition,
-                ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxSize(),
-                        content = content,
-                    )
-                }
-            }
-        }
-    }
-}
-
-private class CupertinoLiquidAlertDialogButtonsScopeImpl(
-    private val orientation: Orientation,
-): AlertDialogActionsScope {
-    private val buttons = mutableListOf<@Composable () -> Unit>()
-
-    override fun action(
-        onClick: () -> Unit,
-        style: AlertActionStyle,
-        enabled: Boolean,
-        title: @Composable () -> Unit,
-    ) {
-        buttons.add {
-            Box(
-                Modifier
-                    .clickable(
-                        enabled = enabled,
-                        onClick = onClick,
-                        role = Role.Button,
-                    ).fillMaxSize(),
-                contentAlignment = Alignment.Center,
-                content = {
-                    val s = style.apply(CupertinoTheme.typography.body, isDark())
-                    ProvideTextStyle(
-                        s.copy(
-                            color =
-                                if (enabled) {
-                                    s.color
-                                } else {
-                                    CupertinoTheme.colorScheme.tertiaryLabel
-                                },
-                        ),
-                    ) {
-                        CompositionLocalProvider(
-                            LocalContentColor provides LocalTextStyle.current.color,
-                        ) {
-                            title()
-                        }
-                    }
-                },
-            )
-        }
-    }
-
-    @Composable
-    fun Content() {
-        CompositionLocalProvider(
-            LocalSeparatorColor provides BrightSeparatorColor,
-        ) {
-            Column {
-                CupertinoHorizontalDivider()
-                if (orientation == Orientation.Horizontal) {
-                    Row(
-                        modifier =
-                            Modifier
-                                .height(CupertinoLiquidDialogsTokens.AlertDialogButtonHeight),
-                    ) {
-                        buttons.fastForEachIndexed { i, btn ->
-                            Box(Modifier.weight(1f)) {
-                                btn()
-                            }
-                            if (i != buttons.lastIndex) {
-                                CupertinoVerticalDivider()
-                            }
-                        }
-                    }
-                } else {
-                    buttons.fastForEachIndexed { i, btn ->
-                        Box(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(CupertinoLiquidDialogsTokens.AlertDialogButtonHeight),
-                        ) {
-                            btn()
-                        }
-                        if (i != buttons.lastIndex) {
-                            CupertinoHorizontalDivider()
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 internal object CupertinoLiquidDialogsTokens {
     val AlertDialogElevation: Dp = 1.dp
-    val AlertDialogPadding = CupertinoSectionTokens.HorizontalPadding
-    val AlertDialogWidth: Dp = 270.dp
     val AlertDialogMinHeight: Dp = 110.dp
-    val AlertDialogTitleMessageSpacing: Dp = 4.dp
-    val AlertDialogButtonHeight: Dp = CupertinoSectionTokens.MinHeight
 
     val ActionSheetTitlePaddingValues = PaddingValues(12.dp)
 

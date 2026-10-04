@@ -48,6 +48,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.utils.CupertinoGlassDefaults
 
 /**
  * Cupertino-style checkbox composable.
@@ -125,7 +126,7 @@ fun CupertinoTriStateCheckBox(
 object CupertinoCheckboxDefaults {
     @Composable
     fun colors(
-        checkedCheckmarkColor: Color = CupertinoTheme.colorScheme.systemBackground,
+        checkedCheckmarkColor: Color = Color.Unspecified,
         uncheckedCheckmarkColor: Color = Color.Transparent,
         checkedBoxColor: Color = CupertinoTheme.colorScheme.accent,
         uncheckedBoxColor: Color = Color.Transparent,
@@ -139,7 +140,9 @@ object CupertinoCheckboxDefaults {
         disabledIndeterminateBorderColor: Color = disabledBorderColor,
     ): CupertinoCheckboxColors =
         CupertinoCheckboxColors(
-            checkedCheckmarkColor = checkedCheckmarkColor,
+            checkedCheckmarkColor = checkedCheckmarkColor.takeOrElse {
+                CupertinoGlassDefaults.contentColor(checkedBoxColor, CupertinoTheme.colorScheme.systemBackground)
+            },
             uncheckedCheckmarkColor = uncheckedCheckmarkColor,
             checkedBoxColor = checkedBoxColor,
             uncheckedBoxColor = uncheckedBoxColor,

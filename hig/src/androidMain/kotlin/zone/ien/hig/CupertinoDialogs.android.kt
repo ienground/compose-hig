@@ -21,7 +21,10 @@ package zone.ien.hig
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 
 /**
  * Creates platform-specific dialog properties for fullscreen popups on Android.
@@ -44,6 +47,18 @@ internal actual fun FullscreenPopupProperties(
         dismissOnClickOutside = dismissOnClickOutside,
         usePlatformDefaultWidth = usePlatformDefaultWidth,
     )
+
+@Composable
+internal actual fun PrepareComposeDialogWindow() {
+    val view = LocalView.current
+    SideEffect {
+        val window = (view.parent as? DialogWindowProvider)?.window
+        window?.let {
+            if (it.attributes.dimAmount != 0f) it.setDimAmount(0f)
+            if (it.attributes.windowAnimations != 0) it.setWindowAnimations(0)
+        }
+    }
+}
 
 /**
  * Gets the platform-specific insets for dialog properties.

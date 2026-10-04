@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -60,6 +61,7 @@ import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.DefaultAlpha
 import zone.ien.hig.theme.Shapes
 import zone.ien.hig.theme.Typography
+import zone.ien.hig.utils.CupertinoGlassDefaults
 
 /**
  * Represents the size configuration for Cupertino buttons.
@@ -373,9 +375,9 @@ fun plainButtonColors(
 /**
  * Filled button with .borderedProminent SwiftUI style
  * 
- * Creates a button with a prominent filled appearance with white text.
+ * 배경 밝기에 따라 기본 전경 대비를 선택하는 채워진 버튼 색상을 생성한다.
  * 
- * @param contentColor The color of the button's text/content (default white)
+ * @param contentColor 전경 색상. 지정하지 않으면 배경과 대비되는 색상을 선택한다.
  * @param containerColor The background color of the button (default accent color)
  * @param disabledContentColor The color of the button's text/content when disabled
  * @param disabledContainerColor The background color of the button when disabled
@@ -386,18 +388,24 @@ fun plainButtonColors(
 @Composable
 @ReadOnlyComposable
 fun filledButtonColors(
-        contentColor: Color = Color.White,
+        contentColor: Color = Color.Unspecified,
         containerColor: Color = CupertinoTheme.colorScheme.accent,
         disabledContentColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
         disabledContainerColor: Color = CupertinoTheme.colorScheme.quaternarySystemFill,
-        indicationColor: Color = contentColor.copy(alpha = .2f)
-    ): CupertinoButtonColors = CupertinoButtonColors(
-        containerColor = containerColor,
-        contentColor = contentColor,
-        disabledContainerColor = disabledContainerColor,
-        disabledContentColor = disabledContentColor,
-        indicationColor = indicationColor
-    )
+        indicationColor: Color = Color.Unspecified
+    ): CupertinoButtonColors {
+        val background = CupertinoTheme.colorScheme.systemBackground
+        val resolvedContentColor = contentColor.takeOrElse {
+            CupertinoGlassDefaults.contentColor(containerColor, background)
+        }
+        return CupertinoButtonColors(
+            containerColor = containerColor,
+            contentColor = resolvedContentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
+            indicationColor = indicationColor.takeOrElse { resolvedContentColor.copy(alpha = .2f) }
+        )
+    }
 
 /**
  * Tinted button with .bordered SwiftUI style and [contentColor] tint
@@ -451,11 +459,11 @@ fun tintedButtonColors(
     )
 )
 fun borderedProminentButtonColors(
-        contentColor: Color = Color.White,
+        contentColor: Color = Color.Unspecified,
         containerColor: Color = CupertinoTheme.colorScheme.accent,
         disabledContentColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
         disabledContainerColor: Color = CupertinoTheme.colorScheme.quaternarySystemFill,
-        indicationColor: Color = contentColor.copy(alpha = .2f)
+        indicationColor: Color = Color.Unspecified
     ): CupertinoButtonColors = filledButtonColors(
         containerColor = containerColor,
         contentColor = contentColor,

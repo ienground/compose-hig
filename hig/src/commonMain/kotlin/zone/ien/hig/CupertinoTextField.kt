@@ -69,9 +69,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.systemRed
+import zone.ien.hig.utils.CupertinoGlassDefaults
 
 internal expect fun KeyboardOptions.enableNativeInput(): KeyboardOptions
 
@@ -896,9 +898,9 @@ object CupertinoBorderedTextFieldDefaults {
     val shape: Shape
         @ReadOnlyComposable
         @Composable
-        get() = CupertinoTheme.shapes.small
+        get() = ContinuousRoundedRectangle(14.dp)
 
-    val PaddingValues = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+    val PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
 
     /**
      * Creates a [CupertinoTextFieldColors] that represents the default input text, container, and content
@@ -948,9 +950,9 @@ object CupertinoBorderedTextFieldDefaults {
         errorCursorColor: Color = errorTextColor,
         selectionColors: TextSelectionColors =
             TextSelectionColors(cursorColor, cursorColor.copy(alpha = .25f)),
-        focusedBorderColor: Color = CupertinoTheme.colorScheme.quaternaryLabel,
-        unfocusedBorderColor: Color = focusedBorderColor,
-        disabledBorderColor: Color = focusedBorderColor,
+        focusedBorderColor: Color = CupertinoTheme.colorScheme.accent.copy(alpha = .48f),
+        unfocusedBorderColor: Color = CupertinoGlassDefaults.border,
+        disabledBorderColor: Color = unfocusedBorderColor.copy(alpha = unfocusedBorderColor.alpha * .65f),
         errorBorderColor: Color = errorTextColor,
         focusedLeadingIconColor: Color = CupertinoTheme.colorScheme.secondaryLabel,
         unfocusedLeadingIconColor: Color = focusedLeadingIconColor,
@@ -999,10 +1001,10 @@ object CupertinoBorderedTextFieldDefaults {
 @Immutable
 object CupertinoTextFieldDefaults {
     /**
-     * The default min width applied to an [CupertinoTextField].
-     * Note that you can override it by applying Modifier.heightIn directly on a text field.
+     * [CupertinoTextField]의 기본 최소 높이입니다. 글자 크기에 따라 더 높아질 수 있습니다.
+     * 텍스트 필드에 Modifier.heightIn을 직접 적용해 재정의할 수 있습니다.
      */
-    val MinHeight = 26.dp
+    val MinHeight = 44.dp
 
     /**
      * The default min width applied to an [CupertinoTextField].

@@ -54,6 +54,8 @@ class DampedDragAnimation(
 
     private val velocityTracker = VelocityTracker()
 
+    internal var onDragCancelled: DampedDragAnimation.() -> Unit = { onDragStopped() }
+
     val value: Float get() = valueAnimation.value
     val progress: Float get() = (value - valueRange.start) / (valueRange.endInclusive - valueRange.start)
     val targetValue: Float get() = valueAnimation.targetValue
@@ -73,7 +75,7 @@ class DampedDragAnimation(
                 release()
             },
             onDragCancel = {
-                onDragStopped()
+                onDragCancelled()
                 release()
             }
         ) { change, dragAmount ->

@@ -40,5 +40,8 @@ kotlin {
             implementation(libs.backdrop)
             implementation(libs.capsule)
         }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
     }
 }

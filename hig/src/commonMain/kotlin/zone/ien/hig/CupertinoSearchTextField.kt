@@ -48,6 +48,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,15 +75,19 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.dp
 import zone.ien.hig.theme.isDark
 import zone.ien.hig.CupertinoButtonDefaults.plainButtonColors
 import zone.ien.hig.icons.CupertinoIcons
+import zone.ien.hig.icons.filled.XmarkCircle
 import zone.ien.hig.icons.outlined.MagnifyingGlass
 import zone.ien.hig.section.CupertinoSectionTokens
 import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.systemRed
+import zone.ien.hig.utils.CupertinoGlassDefaults
+import com.kyant.capsule.ContinuousCapsule
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -156,6 +161,7 @@ fun rememberCupertinoSearchTextFieldState(
  */
 @Composable
 @ExperimentalCupertinoApi
+@OptIn(ExperimentalCupertinoApi::class)
 fun CupertinoSearchTextField(
     value: String,
     onValueChange: (String) -> Unit,
@@ -191,6 +197,20 @@ fun CupertinoSearchTextField(
     val focusManager = LocalFocusManager.current
 
     val density = LocalDensity.current
+    val contentLineHeight = when {
+        textStyle.lineHeight.isSpecified -> textStyle.lineHeight
+        textStyle.fontSize.isSpecified -> textStyle.fontSize * 1.25f
+        else -> CupertinoTheme.typography.body.lineHeight
+    }
+    val expandedHeightPx = with(density) {
+        maxOf(
+            CupertinoSearchTextFieldTokens.MaxHeight,
+            contentLineHeight.toDp() + 8.dp,
+        ).toPx()
+    }
+    SideEffect {
+        state.updateMaxHeight(expandedHeightPx)
+    }
 
     val heightDp by remember(state) {
         derivedStateOf {
@@ -291,11 +311,32 @@ fun CupertinoSearchTextField(
             singleLine = true,
             maxLines = 1,
             minLines = 1,
+            paddingValues = PaddingValues(horizontal = 12.dp),
             visualTransformation = visualTransformation,
             interactionSource = interactionSource,
             trailingIcon = {
                 Box(alpha) {
-                    trailingIcon()
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        trailingIcon()
+                        if (value.isNotEmpty() && enabled && !readOnly) {
+                            CupertinoIconButton(
+                                onClick = { onValueChange("") },
+                                modifier = Modifier.size(44.dp),
+                                colors = plainButtonColors(),
+                            ) {
+                                CupertinoIcon(
+                                    imageVector = CupertinoIcons.Filled.XmarkCircle,
+                                    contentDescription = "검색어 지우기",
+                                    modifier = Modifier.size(18.dp),
+                                    tint = colors.trailingIconColor(
+                                        enabled = enabled,
+                                        isError = false,
+                                        interactionSource = interactionSource,
+                                    ).value,
+                                )
+                            }
+                        }
+                    }
                 }
             },
             leadingIcon = {
@@ -316,6 +357,7 @@ fun CupertinoSearchTextField(
             ) {
                 CancelButton(
                     state = state,
+                    enabled = enabled && !readOnly,
                     content = cancelButton,
                 )
             }
@@ -326,6 +368,7 @@ fun CupertinoSearchTextField(
 @Composable
 private fun RowScope.CancelButton(
     state: CupertinoSearchTextFieldState,
+    enabled: Boolean,
     content: @Composable () -> Unit,
 ) {
     val progressIsZero by remember {
@@ -335,7 +378,7 @@ private fun RowScope.CancelButton(
     }
 
     AnimatedVisibility(
-        visible = state.isFocused && progressIsZero,
+        visible = enabled && state.isFocused && progressIsZero,
         enter =
             fadeIn() +
                 expandHorizontally(expandFrom = Alignment.Start, clip = false),
@@ -352,7 +395,7 @@ object CupertinoSearchTextFieldDefaults {
     val shape: Shape
         @Composable
         @ReadOnlyComposable
-        get() = CupertinoTheme.shapes.medium
+        get() = ContinuousCapsule()
 
     val PaddingValues =
         PaddingValues(
@@ -423,23 +466,23 @@ object CupertinoSearchTextFieldDefaults {
                 CupertinoTheme.colorScheme.quaternarySystemFill
             },
         unfocusedContainerColor: Color = focusedContainerColor,
-        disabledContainerColor: Color = unfocusedContainerColor,
+        disabledContainerColor: Color = unfocusedContainerColor.copy(alpha = unfocusedContainerColor.alpha * .65f),
         errorContainerColor: Color = disabledContainerColor,
         cursorColor: Color = CupertinoTheme.colorScheme.accent,
         errorCursorColor: Color = errorTextColor,
         selectionColors: TextSelectionColors =
             TextSelectionColors(cursorColor, cursorColor.copy(alpha = .25f)),
-        focusedBorderColor: Color = Color.Transparent,
-        unfocusedBorderColor: Color = focusedBorderColor,
-        disabledBorderColor: Color = focusedBorderColor,
+        focusedBorderColor: Color = CupertinoTheme.colorScheme.accent.copy(alpha = .72f),
+        unfocusedBorderColor: Color = CupertinoGlassDefaults.border,
+        disabledBorderColor: Color = unfocusedBorderColor.copy(alpha = unfocusedBorderColor.alpha * .65f),
         errorBorderColor: Color = errorTextColor,
         focusedLeadingIconColor: Color = CupertinoTheme.colorScheme.secondaryLabel,
         unfocusedLeadingIconColor: Color = focusedLeadingIconColor,
-        disabledLeadingIconColor: Color = focusedLeadingIconColor,
+        disabledLeadingIconColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
         errorLeadingIconColor: Color = focusedLeadingIconColor,
         focusedTrailingIconColor: Color = focusedLeadingIconColor,
         unfocusedTrailingIconColor: Color = focusedTrailingIconColor,
-        disabledTrailingIconColor: Color = focusedTrailingIconColor,
+        disabledTrailingIconColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
         errorTrailingIconColor: Color = focusedTrailingIconColor,
         focusedPlaceholderColor: Color = CupertinoTheme.colorScheme.secondaryLabel,
         unfocusedPlaceholderColor: Color = focusedPlaceholderColor,
@@ -478,7 +521,7 @@ object CupertinoSearchTextFieldDefaults {
 }
 
 internal object CupertinoSearchTextFieldTokens {
-    val MaxHeight = 36.dp
+    val MaxHeight = 48.dp
 
     val LeadingIconSize = 16.dp
 }
@@ -523,6 +566,19 @@ class CupertinoSearchTextFieldState internal constructor(
 
     internal fun setFocused(focused: Boolean) {
         this.isFocused = focused
+    }
+
+    internal fun updateMaxHeight(maxHeightPx: Float) {
+        if (this.maxHeightPx == maxHeightPx) return
+
+        val collapsedFraction = if (this.maxHeightPx > 0f) {
+            collapsedBy / this.maxHeightPx
+        } else {
+            progress
+        }
+        collapsedBy = collapsedFraction * maxHeightPx
+        this.maxHeightPx = maxHeightPx
+        progress = collapsedFraction
     }
 
     internal fun onScroll(available: Float): Float {

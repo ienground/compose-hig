@@ -29,11 +29,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
@@ -62,7 +64,11 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import zone.ien.hig.CupertinoSheetState.Companion.Saver
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.utils.CupertinoGlassDefaults
+import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlin.jvm.JvmName
+
+internal val LocalCupertinoSheetSurfaceDrawn = staticCompositionLocalOf { false }
 
 /**
  * Content of the Cupertino modal bottom sheet.
@@ -98,9 +104,16 @@ fun CupertinoBottomSheetContent(
     bottomBar: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val inheritedContainerColor = LocalContainerColor.current
+    val scaffoldContainerColor =
+        if (LocalCupertinoSheetSurfaceDrawn.current && containerColor == inheritedContainerColor) {
+            Color.Transparent
+        } else {
+            containerColor
+        }
     CupertinoScaffold(
         modifier = modifier,
-        containerColor = containerColor,
+        containerColor = scaffoldContainerColor,
         contentColor = contentColor,
         appBarsBlurAlpha = appBarsAlpha,
         appBarsBlurRadius = appBarsBlurRadius,
@@ -123,7 +136,7 @@ fun CupertinoBottomSheetContent(
 
 @Immutable
 object CupertinoBottomSheetDefaults {
-    val ShadowElevation: Dp = 4.dp
+    val ShadowElevation: Dp = 0.dp
 
     val contentColor: Color
         @Composable
@@ -133,13 +146,12 @@ object CupertinoBottomSheetDefaults {
     val containerColor: Color
         @Composable
         @ReadOnlyComposable
-        get() = CupertinoTheme.colorScheme.secondarySystemGroupedBackground
+        get() = CupertinoGlassDefaults.panelTint
 
     val shape: Shape
         @Composable
         @ReadOnlyComposable
-        get() =
-            CupertinoTheme.shapes.large.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
+        get() = ContinuousRoundedRectangle(34.dp)
 
     @Composable
     fun DragHandle(
@@ -236,7 +248,7 @@ sealed interface PresentationDetent {
         override fun calculate(
             density: Density,
             height: Float,
-        ): Float = (density.run { this@Height.height.toPx() } * height).coerceAtMost(height)
+        ): Float = density.run { this@Height.height.toPx() }.coerceAtMost(height)
 
         override fun toString(): String = "Height(height=$height)"
     }
@@ -546,7 +558,11 @@ class CupertinoSheetState(
     internal var swipeableState =
         SwipeableV2State(
             initialValue = initialValue,
-            animationSpec = cupertinoTween(),
+            animationSpec =
+                spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessMediumLow,
+                ),
             confirmValueChange = confirmValueChange,
             positionalThreshold = { .5f * it },
         )

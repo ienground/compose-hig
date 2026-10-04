@@ -4,18 +4,19 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -32,21 +33,24 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastCoerceAtMost
 import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
-import com.kyant.capsule.ContinuousRoundedRectangle
+import com.kyant.backdrop.highlight.Highlight
+import com.kyant.backdrop.shadow.Shadow
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import zone.ien.hig.CupertinoLiquidButtonDefaults.glassButtonColors
@@ -54,12 +58,9 @@ import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.darkColorScheme
 import zone.ien.hig.theme.lightColorScheme
 import zone.ien.hig.utils.InteractiveHighlight
-import kotlin.math.abs
-import kotlin.math.atan2
-import kotlin.math.cos
+import zone.ien.hig.utils.CupertinoGlassDefaults
+import zone.ien.hig.utils.glassEdge
 import kotlin.math.sign
-import kotlin.math.sin
-import kotlin.math.tanh
 import kotlin.time.Duration.Companion.milliseconds
 import androidx.compose.animation.Animatable as ColorAnimatable
 import androidx.compose.animation.core.Animatable as FloatAnimatable
@@ -112,27 +113,41 @@ fun CupertinoLiquidButton(
     val surfaceColor by colors.surfaceColor(enabled)
     val contentColor by colors.contentColor(enabled)
 
-    val lightTintColor by colors.tintColor(enabled, isDark = false)
-    val lightSurfaceColor by colors.surfaceColor(enabled, isDark = false)
     val lightContentColor by colors.contentColor(enabled, isDark = false)
-    val darkTintColor by colors.tintColor(enabled, isDark = true)
-    val darkSurfaceColor by colors.surfaceColor(enabled, isDark = true)
     val darkContentColor by colors.contentColor(enabled, isDark = true)
 
     val interactiveHighlight = remember(animationScope) { InteractiveHighlight(animationScope = animationScope) }
 
-    val isLightTheme = !isSystemInDarkTheme()
+    LaunchedEffect(interactionSource, enabled, isInteractive) {
+        if (!enabled || !isInteractive) {
+            interactiveHighlight.release()
+            return@LaunchedEffect
+        }
+        interactionSource.interactions.collect { interaction ->
+            when (interaction) {
+                is PressInteraction.Press -> interactiveHighlight.press()
+                is PressInteraction.Release, is PressInteraction.Cancel -> interactiveHighlight.release()
+            }
+        }
+    }
+
+    val isLightTheme = !CupertinoTheme.colorScheme.isDark
     val graphicsLayer = rememberGraphicsLayer()
     val targetGraphicsLayer = rememberGraphicsLayer()
 
-    val luminanceAnimation = remember(enabled) { FloatAnimatable(if (isLightTheme) 1f else 0f) }
-    val tintColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightTintColor else darkTintColor) }
-    val surfaceColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightSurfaceColor else darkSurfaceColor) }
+    val materialTint = CupertinoGlassDefaults.tint
+    val luminanceAnimation = remember(enabled, isLightTheme) { FloatAnimatable(if (isLightTheme) 1f else 0f) }
     val contentColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightContentColor else darkContentColor) }
+    val updatedLightContent by rememberUpdatedState(lightContentColor)
+    val updatedDarkContent by rememberUpdatedState(darkContentColor)
+
+    LaunchedEffect(isLightTheme, lightContentColor, darkContentColor) {
+        contentColorAnimation.animateTo(contentColor, tween(180))
+    }
 
     if (isBackgroundAdaptive) {
         val defaultColor = CupertinoTheme.colorScheme.systemBackground
-        LaunchedEffect(graphicsLayer) {
+        LaunchedEffect(graphicsLayer, isLightTheme, enabled) {
             while (isActive) {
                 if (graphicsLayer.size != IntSize.Zero) {
                     try {
@@ -140,7 +155,7 @@ fun CupertinoLiquidButton(
 
                         launch {
                             contentColorAnimation.animateTo(
-                                if (averageLuminance > 0.5f) lightContentColor else darkContentColor,
+                                if (averageLuminance > 0.5f) updatedLightContent else updatedDarkContent,
                                 tween(300)
                             )
                         }
@@ -159,7 +174,18 @@ fun CupertinoLiquidButton(
         }
     }
 
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier
+            .heightIn(min = if (size == CupertinoButtonSize.Small) 32.dp else 44.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = enabled,
+                role = Role.Button,
+                onClick = onClick,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
         Row(
             modifier = Modifier
                 .drawWithContent {
@@ -176,57 +202,28 @@ fun CupertinoLiquidButton(
                         if (isBackgroundAdaptive) {
                             blur(
                                 if (l > 0f) lerp(8.dp.toPx(), 16.dp.toPx(), l)
-                                else lerp(8.dp.toPx(), 2.dp.toPx(), -l)
+                                else lerp(12.dp.toPx(), 8.dp.toPx(), -l)
                             )
                         } else {
-                            blur(2.dp.toPx())
+                            blur(CupertinoGlassDefaults.blurRadius.toPx())
                         }
-                        if (shape is ContinuousRoundedRectangle || shape is CornerBasedShape) {
-                            lens(12.dp.toPx(), 24.dp.toPx())
+                        if (shape is CornerBasedShape) {
+                            val progress = if (enabled && isInteractive) interactiveHighlight.pressProgress.coerceIn(0f, 1f) else 0f
+                            lens(8.dp.toPx(), lerp(12.dp.toPx(), 24.dp.toPx(), progress))
                         }
                     },
-                    layerBlock = if (enabled && isInteractive) {
-                        {
-                            val width = this.size.width
-                            val height = this.size.height
-
-                            val progress = interactiveHighlight.pressProgress
-                            val scale = lerp(1f, 1f + 4.dp.toPx() / height, progress)
-
-                            val maxOffset = this.size.minDimension
-                            val initialDerivative = 0.05f
-                            val offset = interactiveHighlight.offset
-
-                            translationX = maxOffset * tanh(initialDerivative * offset.x / maxOffset)
-                            translationY = maxOffset * tanh(initialDerivative * offset.y / maxOffset)
-
-                            val maxDragScale = 4.dp.toPx() / height
-                            val offsetAngle = atan2(offset.y, offset.x)
-
-                            scaleX = scale + maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension) * (width / height).fastCoerceAtMost(1f)
-                            scaleY = scale + maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension) * (height / width).fastCoerceAtMost(1f)
-
-                        }
-                    } else {
-                        null
-                    },
+                    layerBlock = if (enabled && isInteractive) interactiveHighlight.layerBlock else null,
+                    highlight = { Highlight.Default.copy(alpha = 0.65f) },
+                    shadow = { Shadow(radius = 8.dp, color = Color.Black.copy(alpha = 0.06f)) },
                     onDrawSurface = {
-                        if (isBackgroundAdaptive) {
-                            if (tintColorAnimation.value.isSpecified) {
-                                drawRect(tintColorAnimation.value, blendMode = BlendMode.Hue)
-                                drawRect(tintColorAnimation.value.copy(alpha = 0.75f))
-                            }
-                            if (surfaceColorAnimation.value.isSpecified) {
-                                drawRect(surfaceColorAnimation.value)
-                            }
+                        if (tintColor.isSpecified) {
+                            drawRect(tintColor, blendMode = BlendMode.Hue)
+                            drawRect(tintColor.copy(alpha = tintColor.alpha * 0.94f))
                         } else {
-                            if (tintColor.isSpecified) {
-                                drawRect(tintColor, blendMode = BlendMode.Hue)
-                                drawRect(tintColor.copy(alpha = 0.75f))
-                            }
-                            if (surfaceColor.isSpecified) {
-                                drawRect(surfaceColor)
-                            }
+                            drawRect(materialTint)
+                        }
+                        if (surfaceColor.isSpecified) {
+                            drawRect(surfaceColor)
                         }
                     },
                     onDrawBackdrop = { drawBackdrop ->
@@ -234,23 +231,16 @@ fun CupertinoLiquidButton(
                         graphicsLayer.record { drawBackdrop() }
                     }
                 )
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = if (enabled) LocalIndication.current else null,
-                    enabled = enabled,
-                    role = Role.Button,
-                    onClick = onClick
-                )
+                .glassEdge(shape)
+                .then(if (enabled) Modifier.indication(interactionSource, LocalIndication.current) else Modifier)
                 .then(
-                    if (enabled) {
-                        Modifier
-                            .then(interactiveHighlight.modifier)
-                            .then(interactiveHighlight.gestureModifier)
+                    if (enabled && isInteractive) {
+                        interactiveHighlight.modifier.then(interactiveHighlight.gestureModifier)
                     } else {
                         Modifier
                     }
                 )
-                .height(48.dp)
+                .heightIn(min = if (size == CupertinoButtonSize.Small) 32.dp else 44.dp)
                 .padding(contentPadding),
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
@@ -258,13 +248,24 @@ fun CupertinoLiquidButton(
                 CompositionLocalProvider(
                     LocalContentColor provides if (isBackgroundAdaptive) contentColorAnimation.value else contentColor,
                 ) {
-                    content()
+                    ProvideTextStyle(size.textStyle(CupertinoTheme.typography)) {
+                        content()
+                    }
                 }
             }
         )
 
-        Canvas(Modifier.matchParentSize()) {
-            drawLayer(targetGraphicsLayer)
+        Canvas(
+            Modifier.matchParentSize().then(
+                if (enabled && isInteractive) Modifier.graphicsLayer(interactiveHighlight.layerBlock) else Modifier,
+            ),
+        ) {
+            translate(
+                left = (this.size.width - targetGraphicsLayer.size.width) / 2f,
+                top = (this.size.height - targetGraphicsLayer.size.height) / 2f,
+            ) {
+                drawLayer(targetGraphicsLayer)
+            }
         }
     }
 }
@@ -328,7 +329,7 @@ class CupertinoLiquidButtonColors internal constructor(
      * @params enabled whether the button is enabled
      */
     @Composable
-    fun tintColor(enabled: Boolean, isDark: Boolean = isSystemInDarkTheme()): State<Color> {
+    fun tintColor(enabled: Boolean, isDark: Boolean = CupertinoTheme.colorScheme.isDark): State<Color> {
         return rememberUpdatedState(
             if (isDark) {
                 if (enabled) darkTintColor else disabledDarkTintColor
@@ -344,7 +345,7 @@ class CupertinoLiquidButtonColors internal constructor(
      * @params enabled whether the button is enabled
      */
     @Composable
-    fun surfaceColor(enabled: Boolean, isDark: Boolean = isSystemInDarkTheme()): State<Color> {
+    fun surfaceColor(enabled: Boolean, isDark: Boolean = CupertinoTheme.colorScheme.isDark): State<Color> {
         return rememberUpdatedState(
             if (isDark) {
                 if (enabled) darkSurfaceColor else disabledDarkSurfaceColor
@@ -360,7 +361,7 @@ class CupertinoLiquidButtonColors internal constructor(
      * @params enabled whether the button is enabled
      */
     @Composable
-    fun contentColor(enabled: Boolean, isDark: Boolean = isSystemInDarkTheme()): State<Color> {
+    fun contentColor(enabled: Boolean, isDark: Boolean = CupertinoTheme.colorScheme.isDark): State<Color> {
         return rememberUpdatedState(
             if (isDark) {
                 if (enabled) darkContentColor else disabledDarkContentColor
@@ -415,12 +416,12 @@ object CupertinoLiquidButtonDefaults {
     @Composable
     @ReadOnlyComposable
     fun glassProminentButtonColors(
-        lightTintColor: Color = lightColorScheme().accent,
+        lightTintColor: Color = CupertinoTheme.colorScheme.accent,
         lightSurfaceColor: Color = Color.Unspecified,
-        lightContentColor: Color = Color.White.copy(0.8f),
-        darkTintColor: Color = darkColorScheme().accent,
+        lightContentColor: Color = CupertinoGlassDefaults.contentColor(lightTintColor, lightColorScheme().systemBackground),
+        darkTintColor: Color = CupertinoTheme.colorScheme.accent,
         darkSurfaceColor: Color = Color.Unspecified,
-        darkContentColor: Color = Color.White.copy(0.8f),
+        darkContentColor: Color = CupertinoGlassDefaults.contentColor(darkTintColor, darkColorScheme().systemBackground),
         disabledLightTintColor: Color = Color.Unspecified,
         disabledLightSurfaceColor: Color = lightColorScheme().systemFill,
         disabledLightContentColor: Color = lightColorScheme().tertiaryLabel,

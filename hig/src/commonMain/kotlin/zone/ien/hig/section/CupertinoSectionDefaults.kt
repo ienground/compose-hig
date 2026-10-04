@@ -30,7 +30,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
@@ -47,8 +47,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -76,6 +76,10 @@ object CupertinoSectionDefaults {
     val DividerPaddingWithIcon =
         DividerPadding + CupertinoSectionTokens.MinHeight + CupertinoSectionTokens.InlinePadding
 
+    val SidebarItemPaddingValues = PaddingValues(
+        start = CupertinoSectionTokens.SidebarItemHorizontalPadding,
+    )
+
     val Color
         @Composable
         @ReadOnlyComposable
@@ -91,9 +95,14 @@ object CupertinoSectionDefaults {
         style: SectionStyle,
         includePaddingBetweenSections: Boolean
     ): PaddingValues {
-        val default = if (style.inset && style.grouped)
-            PaddingValues
-        else ZeroPaddingValues
+        val default = when {
+            style == SectionStyle.Sidebar -> PaddingValues(
+                horizontal = 0.dp,
+                vertical = CupertinoSectionTokens.InlinePadding,
+            )
+            style.inset && style.grouped -> PaddingValues
+            else -> ZeroPaddingValues
+        }
 
         return if (includePaddingBetweenSections)
             default.copy(
@@ -105,21 +114,19 @@ object CupertinoSectionDefaults {
     @Composable
     @ReadOnlyComposable
     fun shape(style: SectionStyle = LocalSectionStyle.current): ContinuousRoundedRectangle =
-        if (style.grouped && style.inset) CupertinoTheme.shapes.extraLarge
+        if (style != SectionStyle.Sidebar && style.grouped && style.inset) CupertinoTheme.shapes.extraLarge
         else ContinuousRoundedRectangle(0.dp)
 
     @Composable
     @ReadOnlyComposable
-    fun titleColor(style: SectionStyle) = if (style == SectionStyle.Sidebar)
-        CupertinoTheme.colorScheme.label else
-        CupertinoTheme.colorScheme.secondaryLabel
+    fun titleColor(style: SectionStyle) = CupertinoTheme.colorScheme.secondaryLabel
 
     @Composable
     @ReadOnlyComposable
     fun titleTextStyle(style: SectionStyle = LocalSectionStyle.current) =
         when {
-            style == SectionStyle.Sidebar -> CupertinoTheme.typography.title3.copy(
-                fontWeight = FontWeight.Bold
+            style == SectionStyle.Sidebar -> CupertinoTheme.typography.subhead.copy(
+                fontWeight = FontWeight.SemiBold
             )
             style.grouped -> CupertinoTheme.typography.footnote
             else -> CupertinoTheme.typography.subhead
@@ -142,7 +149,9 @@ object CupertinoSectionDefaults {
 
     @Composable
     @ReadOnlyComposable
-    fun containerColor(style: SectionStyle) = if (style.shouldFillContainer)
+    fun containerColor(style: SectionStyle) = if (style == SectionStyle.Sidebar)
+        androidx.compose.ui.graphics.Color.Transparent
+    else if (style.shouldFillContainer)
         Color else
         CupertinoTheme.colorScheme.systemGroupedBackground
 
@@ -198,18 +207,19 @@ object CupertinoSectionDefaults {
             enter = fadeIn() + scaleIn(initialScale = .75f),
             exit = fadeOut() + scaleOut(targetScale = .75f)
         ) {
-            CupertinoIcon(
-                imageVector = CupertinoIcons.Filled.XmarkCircle,
-                contentDescription = "Clear",
+            Box(
                 modifier = Modifier
-                    .pointerInput(0){
-                        detectTapGestures {
-                            onClick()
-                        }
-                    }
-                    .size(CupertinoIconDefaults.MediumSize),
-                tint = CupertinoTheme.colorScheme.tertiaryLabel
-            )
+                    .size(44.dp)
+                    .clickable(role = Role.Button, onClick = onClick),
+                contentAlignment = Alignment.Center,
+            ) {
+                CupertinoIcon(
+                    imageVector = CupertinoIcons.Filled.XmarkCircle,
+                    contentDescription = "Clear",
+                    modifier = Modifier.size(18.dp),
+                    tint = CupertinoTheme.colorScheme.tertiaryLabel,
+                )
+            }
         }
     }
 }
@@ -221,6 +231,12 @@ internal object CupertinoSectionTokens {
     val VerticalPadding = 8.dp
     val HorizontalPadding = 18.dp
     val MinHeight = 45.dp
+    val SidebarHorizontalPadding = 12.dp
+    val SidebarVerticalPadding = 6.dp
+    val SidebarItemMinHeight = 44.dp
+    val SidebarItemCornerRadius = 22.dp
+    val SidebarItemHorizontalPadding = 10.dp
+    val SidebarItemGap = 8.dp
 }
 
 private val ZeroPaddingValues = PaddingValues(0.dp)

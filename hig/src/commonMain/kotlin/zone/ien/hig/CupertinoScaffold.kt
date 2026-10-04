@@ -21,6 +21,9 @@
 package zone.ien.hig
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -40,7 +43,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -54,6 +59,14 @@ import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMapNotNull
 import androidx.compose.ui.util.fastMaxOfOrNull
 import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.utils.CupertinoGlassDefaults
+import zone.ien.hig.utils.LocalCupertinoBackdrop
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.runtimeShaderEffect
 
 /**
  * Scaffold implements the basic cupertino and material design visual layout structure.
@@ -101,6 +114,16 @@ fun CupertinoScaffold(
     hasNavigationTitle: Boolean = false,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val hasSoftBottomEdge = LocalScaffoldSoftBottomEdge.current
+    val contentBackdrop = rememberLayerBackdrop {
+        drawRect(containerColor)
+        drawContent()
+    }
+    val softBottomEdgeTint = if (hasSoftBottomEdge) {
+        CupertinoGlassDefaults.panelTint.copy(alpha = 0.16f)
+    } else {
+        Color.Transparent
+    }
     val scaffoldCoordinates =
         remember {
             mutableStateOf<LayoutCoordinates?>(null)
@@ -122,46 +145,140 @@ fun CupertinoScaffold(
 
         CompositionLocalProvider(
             LocalNavigationTitleVisible provides
-                rememberSaveable {
+                rememberSaveable(hasNavigationTitle) {
                     mutableStateOf(
                         hasNavigationTitle,
                     )
+                },
+            LocalNavigationTitleProgress provides
+                rememberSaveable(hasNavigationTitle) {
+                    mutableStateOf(if (hasNavigationTitle) 0f else 1f)
                 },
             LocalScaffoldCoordinates provides scaffoldCoordinates,
             LocalTopBarHeight provides topBarHeight,
             LocalScaffoldInsets provides contentWindowInsets,
         ) {
-            ScaffoldLayout(
-                topBarHeightLocal = topBarHeight,
-                fabPosition = floatingActionButtonPosition,
-                topBar = {
-                    CompositionLocalProvider(
-                        LocalContainerColor provides Color.Transparent,
-                        LocalAppBarsState provides appbarState,
-                        content = topBar,
-                    )
-                },
-                bottomBar = {
-                    CompositionLocalProvider(
-                        LocalContainerColor provides Color.Transparent,
-                        LocalAppBarsState provides appbarState,
-                        content = bottomBar,
-                    )
-                },
-                content = content,
-                snackbar = snackbarHost,
-                contentWindowInsets = contentWindowInsets,
-                fab = floatingActionButton,
-                appBarsAlpha = appBarsBlurAlpha,
-                appBarsBlurRadius = appBarsBlurRadius,
-                appBarsState = appbarState,
-            )
+            CompositionLocalProvider(LocalCupertinoBackdrop provides contentBackdrop) {
+                ScaffoldLayout(
+                    contentBackdrop = contentBackdrop,
+                    topBarHeightLocal = topBarHeight,
+                    fabPosition = floatingActionButtonPosition,
+                    topBar = {
+                        CompositionLocalProvider(
+                            LocalContainerColor provides Color.Transparent,
+                            LocalAppBarsState provides appbarState,
+                            content = topBar,
+                        )
+                    },
+                    bottomBar = {
+                        CompositionLocalProvider(
+                            LocalContainerColor provides Color.Transparent,
+                            LocalAppBarsState provides appbarState,
+                        ) {
+                            if (hasSoftBottomEdge) {
+                                Column {
+                                    Box(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .height(20.dp)
+                                            .drawBackdrop(
+                                                backdrop = contentBackdrop,
+                                                shape = { RectangleShape },
+                                                effects = {
+                                                    blur(CupertinoGlassDefaults.blurRadius.toPx())
+                                                    runtimeShaderEffect(
+                                                        "BottomEdgeFalloff",
+                                                        """
+                                                            uniform shader content;
+                                                            uniform float2 size;
+
+                                                            half4 main(float2 coord) {
+                                                                float opacity = smoothstep(0.0, size.y, coord.y);
+                                                                return content.eval(coord) * opacity;
+                                                            }
+                                                        """.trimIndent(),
+                                                        "content",
+                                                    ) {
+                                                        setFloatUniform("size", size.width, size.height)
+                                                    }
+                                                },
+                                                onDrawSurface = {
+                                                    drawRect(
+                                                        brush = Brush.verticalGradient(
+                                                            colors = listOf(
+                                                                Color.Transparent,
+                                                                softBottomEdgeTint,
+                                                            ),
+                                                        ),
+                                                    )
+                                                },
+                                            ),
+                                    )
+                                    bottomBar()
+                                }
+                            } else {
+                                bottomBar()
+                            }
+                        }
+                    },
+                    content = content,
+                    snackbar = snackbarHost,
+                    contentWindowInsets = contentWindowInsets,
+                    fab = floatingActionButton,
+                    appBarsAlpha = appBarsBlurAlpha,
+                    appBarsBlurRadius = appBarsBlurRadius,
+                    appBarsState = appbarState,
+                )
+            }
         }
+    }
+}
+
+/**
+ * 가장자리 구분선을 선택적으로 표시하는 Cupertino 스캐폴드입니다.
+ *
+ * 하단 막대와 콘텐츠가 자연스럽게 이어져야 하는 화면에서 [hasSoftBottomEdge]를 켭니다.
+ */
+@Composable
+@ExperimentalCupertinoApi
+fun CupertinoScaffold(
+    modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    floatingActionButtonPosition: FabPosition = FabPosition.End,
+    containerColor: Color = CupertinoScaffoldDefaults.containerColor,
+    contentColor: Color = CupertinoScaffoldDefaults.contentColor,
+    contentWindowInsets: WindowInsets = CupertinoScaffoldDefaults.contentWindowInsets,
+    appBarsBlurAlpha: Float = CupertinoScaffoldDefaults.AppBarsBlurAlpha,
+    appBarsBlurRadius: Dp = CupertinoScaffoldDefaults.AppBarsBlurRadius,
+    hasNavigationTitle: Boolean = false,
+    hasSoftBottomEdge: Boolean,
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    CompositionLocalProvider(LocalScaffoldSoftBottomEdge provides hasSoftBottomEdge) {
+        CupertinoScaffold(
+            modifier = modifier,
+            topBar = topBar,
+            bottomBar = bottomBar,
+            snackbarHost = snackbarHost,
+            floatingActionButton = floatingActionButton,
+            floatingActionButtonPosition = floatingActionButtonPosition,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            contentWindowInsets = contentWindowInsets,
+            appBarsBlurAlpha = appBarsBlurAlpha,
+            appBarsBlurRadius = appBarsBlurRadius,
+            hasNavigationTitle = hasNavigationTitle,
+            content = content,
+        )
     }
 }
 
 @Composable
 private fun ScaffoldLayout(
+    contentBackdrop: LayerBackdrop,
     appBarsState: AppBarsState,
     topBarHeightLocal: MutableState<Float>,
     fabPosition: FabPosition,
@@ -390,7 +507,8 @@ private fun ScaffoldLayout(
                     Box(
                         modifier =
                             topModifier
-                                .then(bottomModifier),
+                                .then(bottomModifier)
+                                .layerBackdrop(contentBackdrop),
                     ) {
                         content(innerPadding)
                     }
@@ -556,3 +674,5 @@ internal val LocalAppBarsBlurRadius =
     compositionLocalOf {
         CupertinoScaffoldDefaults.AppBarsBlurRadius
     }
+
+private val LocalScaffoldSoftBottomEdge = staticCompositionLocalOf { false }

@@ -20,10 +20,21 @@
 
 package zone.ien.hig.adaptive
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -34,10 +45,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.unit.dp
+import zone.ien.hig.CupertinoSurface
 import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoScaffoldDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.FabPosition
+import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.utils.cupertinoSidebarMaterial
+import zone.ien.hig.utils.rememberDefaultBackdrop
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
 
 
 /**
@@ -108,6 +126,122 @@ fun AdaptiveScaffold(
             )
         }
     )
+}
+
+/**
+ * 사용 가능한 너비가 넓을 때 앞쪽 사이드바를 선택적으로 표시하는 적응형 스캐폴드입니다.
+ *
+ * 가용 너비가 600 dp 이상이면 사이드바를 표시하고, 더 좁으면 기존 하단 막대를 표시합니다.
+ * 기기 종류나 방향 대신 현재 창의 너비로 표시 방식을 결정합니다.
+ */
+@OptIn(ExperimentalCupertinoApi::class)
+@ExperimentalAdaptiveApi
+@Composable
+fun AdaptiveScaffold(
+    modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    floatingActionButtonPosition: FabPosition = FabPosition.End,
+    contentWindowInsets: WindowInsets = CupertinoScaffoldDefaults.contentWindowInsets,
+    sidebarContent: @Composable ColumnScope.() -> Unit,
+    adaptation: AdaptationScope<ScaffoldAdaptation, ScaffoldAdaptation>.() -> Unit = {},
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    val fallbackBackdrop = rememberDefaultBackdrop()
+    BoxWithConstraints(modifier = modifier) {
+        if (maxWidth >= AdaptiveSidebarWidthBreakpoint) {
+            Row(Modifier.fillMaxSize()) {
+                AdaptiveWidget(
+                    adaptation = remember { ScaffoldAdaptationImpl() },
+                    adaptationScope = adaptation,
+                    cupertino = { config ->
+                        Box(Modifier.width(AdaptiveSidebarWidth).fillMaxHeight()) {
+                            if (config.sidebarBackdrop == null) {
+                                Box(
+                                    Modifier.fillMaxSize().layerBackdrop(fallbackBackdrop)
+                                        .background(CupertinoTheme.colorScheme.systemBackground),
+                                )
+                            }
+                            CupertinoSurface(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .cupertinoSidebarMaterial(config.sidebarBackdrop ?: fallbackBackdrop),
+                                color = Color.Transparent,
+                                contentColor = CupertinoTheme.colorScheme.label,
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = AdaptiveSidebarHorizontalPadding),
+                                    content = sidebarContent,
+                                )
+                            }
+                        }
+                    },
+                    material = {
+                        Surface(
+                            modifier = Modifier
+                                .width(AdaptiveSidebarWidth)
+                                .fillMaxHeight(),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = AdaptiveSidebarHorizontalPadding),
+                                content = sidebarContent,
+                            )
+                        }
+                    },
+                )
+                AdaptiveWidget(
+                    cupertino = {
+                        Box(
+                            modifier = Modifier
+                                .width(1.dp)
+                                .fillMaxHeight()
+                                .background(CupertinoTheme.colorScheme.separator),
+                        )
+                    },
+                    material = {
+                        Box(
+                            modifier = Modifier
+                                .width(1.dp)
+                                .fillMaxHeight()
+                                .background(MaterialTheme.colorScheme.outlineVariant),
+                        )
+                    },
+                )
+                AdaptiveScaffold(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    topBar = topBar,
+                    bottomBar = {},
+                    snackbarHost = snackbarHost,
+                    floatingActionButton = floatingActionButton,
+                    floatingActionButtonPosition = floatingActionButtonPosition,
+                    contentWindowInsets = contentWindowInsets,
+                    adaptation = adaptation,
+                    content = content,
+                )
+            }
+        } else {
+            AdaptiveScaffold(
+                modifier = Modifier.fillMaxSize(),
+                topBar = topBar,
+                bottomBar = bottomBar,
+                snackbarHost = snackbarHost,
+                floatingActionButton = floatingActionButton,
+                floatingActionButtonPosition = floatingActionButtonPosition,
+                contentWindowInsets = contentWindowInsets,
+                adaptation = adaptation,
+                content = content,
+            )
+        }
+    }
 }
 
 /**
@@ -201,6 +335,7 @@ class ScaffoldAdaptation internal constructor(
 ) {
     var contentColor by mutableStateOf(contentColor)
     var containerColor by mutableStateOf(containerColor)
+    var sidebarBackdrop: LayerBackdrop? by mutableStateOf(null)
 }
 
 /**
@@ -246,3 +381,7 @@ private class ScaffoldAdaptationImpl :
         }
     }
 }
+
+private val AdaptiveSidebarWidth = 256.dp
+private val AdaptiveSidebarHorizontalPadding = 12.dp
+private val AdaptiveSidebarWidthBreakpoint = 600.dp

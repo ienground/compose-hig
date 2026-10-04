@@ -79,6 +79,8 @@ import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.White
 import zone.ien.hig.utils.DampedDragAnimation
+import zone.ien.hig.utils.CupertinoGlassDefaults
+import zone.ien.hig.utils.glassEdge
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
@@ -975,6 +977,7 @@ object CupertinoLiquidSliderDefaults {
         trackBackdrop: LayerBackdrop
     ) {
         val thumbColor by colors.thumbColor(enabled)
+        val glassTint = CupertinoGlassDefaults.tint
 
         Box(
             modifier
@@ -1006,13 +1009,13 @@ object CupertinoLiquidSliderDefaults {
                         Highlight.Ambient.copy(
                             width = Highlight.Ambient.width / 1.5f,
                             blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                            alpha = progress
+                            alpha = 0.35f + 0.4f * progress
                         )
                     },
                     shadow = {
                         Shadow(
                             radius = ThumbElevation,
-                            color = Color.Black.copy(alpha = if (enabled) 0.15f else 0.05f)
+                            color = Color.Black.copy(alpha = if (enabled) 0.08f else 0.04f)
                         )
                     },
                     innerShadow = {
@@ -1033,9 +1036,11 @@ object CupertinoLiquidSliderDefaults {
                     },
                     onDrawSurface = {
                         val progress = if (enabled) dampedDragAnimation.pressProgress else 0f
-                        drawRect(thumbColor.copy(alpha = 1f - progress))
+                        drawRect(glassTint.copy(alpha = glassTint.alpha * progress))
+                        drawRect(thumbColor.copy(alpha = thumbColor.alpha * (1f - progress)))
                     }
                 )
+                .glassEdge(ThumbShape)
                 .size(thumbSize)
         )
     }

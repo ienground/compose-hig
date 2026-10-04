@@ -125,6 +125,63 @@ fun AdaptiveNavigationBar(
     }
 }
 
+/**
+ * 접힌 상태에서도 강조 탭을 표시할 수 있는 적응형 탐색 막대입니다.
+ *
+ * 이 Compose 구현은 명시적으로 선택해야 적용됩니다. 기존 호출은 일반 탭 막대를 유지합니다.
+ */
+@OptIn(ExperimentalCupertinoApi::class)
+@ExperimentalAdaptiveApi
+@Composable
+fun AdaptiveNavigationBar(
+    modifier: Modifier = Modifier,
+    selectedTabIndex: () -> Int,
+    onTabSelected: (index: Int) -> Unit,
+    tabsCount: Int,
+    prominentTabIndex: Int?,
+    isCollapsed: Boolean = false,
+    adaptation: AdaptationScope<CupertinoNavigationBarAdaptation, MaterialNavigationBarAdaptation>.() -> Unit = {},
+    content: @Composable RowScope.() -> Unit,
+) {
+    CompositionLocalProvider(
+        LocalNavigationBarState provides NavigationBarState(
+            selectedTabIndex = selectedTabIndex,
+            onTabSelected = onTabSelected,
+        )
+    ) {
+        AdaptiveWidget(
+            adaptation = remember {
+                NavigationBarAdaptation()
+            },
+            adaptationScope = adaptation,
+            cupertino = {
+                CupertinoNavigationBar(
+                    modifier = modifier,
+                    colors = it.colors,
+                    windowInsets = it.windowInsets,
+                    backdrop = it.backdrop,
+                    selectedTabIndex = selectedTabIndex,
+                    onTabSelected = onTabSelected,
+                    tabsCount = tabsCount,
+                    prominentTabIndex = prominentTabIndex,
+                    isCollapsed = isCollapsed,
+                    content = content,
+                )
+            },
+            material = {
+                NavigationBar(
+                    modifier = modifier,
+                    containerColor = it.containerColor,
+                    contentColor = it.contentColor,
+                    tonalElevation = it.tonalElevation,
+                    windowInsets = it.windowInsets,
+                    content = content,
+                )
+            }
+        )
+    }
+}
+
 @OptIn(ExperimentalAdaptiveApi::class, ExperimentalCupertinoApi::class)
 @Composable
 fun AdaptiveNavigationBarNative(
@@ -226,6 +283,7 @@ fun RowScope.AdaptiveNavigationBarItem(
         adaptationScope = adaptation,
         cupertino = {
             CupertinoNavigationBarItem(
+                index = index,
                 onClick = resolvedOnClick,
                 icon = icon,
                 modifier = modifier,
