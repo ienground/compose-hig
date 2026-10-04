@@ -13,23 +13,24 @@ Forked and expanded from [alexzhirkevich/compose-cupertino](https://github.com/a
 
 ## 🌟 Key Features
 
-- **iOS 26 HIG Liquid Glass Aesthetic**: Advanced backdrop rendering with interactive lens refraction, chromatic aberration, vibrancy, and dynamic luminance tinting.
+- **iOS 27 HIG Liquid Glass Aesthetic**: Advanced backdrop rendering with interactive lens refraction, chromatic aberration, vibrancy, and dynamic luminance tinting.
 - **Enhanced Component Suite**:
-  - 💧 **Liquid Glass Components**: `CupertinoLiquidButton`, `CupertinoLiquidAlertDialog`
+  - 💧 **Liquid Glass Components**: `CupertinoLiquidButton`, `CupertinoLiquidIconButton`, `CupertinoLiquidAlertDialog`
   - 🎛️ **Segmented Control**: `CupertinoSegmentedControl` with spring drag animations, dynamic indicator width, and haptic feedback.
   - 👆 **SwipeBox**: `CupertinoSwipeBox` with DSL action builders (`start` & `end`), full-swipe auto-trigger, and spring response.
   - 📋 **Grouped Sections & Lazy Lists**: `CupertinoSection`, `LazyListScope.section`, and `stickySection` with iOS grouped inset styling.
   - 📅 **Pickers**: `CupertinoPicker`, `CupertinoDatePicker`, `CupertinoTimePicker`, and `CupertinoDateTimePicker`.
-  - 🧭 **Navigation & Structure**: `CupertinoTopAppBar`, `CupertinoNavigationBar`, `CupertinoBottomSheet`, `CupertinoBottomSheetScaffold`, `CupertinoScaffold`.
-  - 🔘 **Inputs & Switches**: `CupertinoSwitch`, `CupertinoCheckbox`, `CupertinoTextField`, `CupertinoSearchTextField`.
+  - 🧭 **Navigation & Structure**: `CupertinoTopAppBar`, `CupertinoNavigationBar`, `CupertinoBottomAppBar`, `CupertinoBottomSheet`, `CupertinoBottomSheetScaffold`, `CupertinoScaffold`.
+  - 💬 **Dialogs & Menus**: `CupertinoAlertDialog`, `CupertinoActionSheet`, `CupertinoDropdownMenu`, and native `CupertinoDropdownMenuNative`.
+  - 🔘 **Inputs & Selection**: `CupertinoSwitch`, `CupertinoCheckBox`, `CupertinoTriStateCheckBox`, `CupertinoSlider`, `CupertinoRangeSlider`, `CupertinoTextField`, `CupertinoBorderedTextField`, `CupertinoSearchTextField`.
+  - ➕ **Floating Action Buttons**: `CupertinoSmallFloatingActionButton`, `CupertinoMediumFloatingActionButton`, `CupertinoLargeFloatingActionButton`, and `CupertinoExtraLargeFloatingActionButton`.
   - 🎨 **Standalone Cupertino Icons**: Lightweight vector `CupertinoIcons` (Outlined & Filled) removing unnecessary dependencies on heavy icon packs.
 
 ---
 
 ## 🎬 Preview Video
 
-https://github.com/user-attachments/assets/ef0b2afd-030b-4aae-aa70-e0dfa2bfdd03
-
+https://github.com/user-attachments/assets/4cc67248-f666-4ba1-9f32-988356b96b2f
 
 
 ### iOS Native UI Flickering
@@ -61,7 +62,7 @@ so apply it when native UI transitions exhibit flickering.
 ## 🚀 Live Demo
 
 Try the WasmJS interactive web showcase deployed via GitHub Pages:  
-👉 **[https://ienground.github.io/compose-hig/](https://ienground.github.io/compose-hig/)**
+👉 **[https://hig.ien.zone](https://hig.ien.zone)**
 
 ---
 
@@ -73,7 +74,7 @@ Declare the dependency in `libs.versions.toml`:
 
 ```toml
 [versions]
-hig = "1.3.1"
+hig = "27.0.1-alpha01"
 
 [libraries]
 hig = { group = "zone.ien.hig", name = "hig", version.ref = "hig" }
@@ -88,8 +89,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.hig)
-            // Optional adaptive / native extensions
+            // Optional adaptive and native extensions
             implementation(libs.hig.adaptive)
+            implementation(libs.hig.native)
         }
     }
 }
@@ -174,10 +176,10 @@ LazyColumn {
 
 Compared to the previous library, we have made efforts to update many components from the Human Interface Guidelines to match the latest design, but there is still work in progress. Please help complete the library with your contributions!
 
-- [ ] BottomBar
-- [ ] Search Bar
-- [ ] Dropdown Native
-- [ ] Dialog (Non-native)
+- [x] BottomBar
+- [x] Search Bar
+- [x] Dropdown Native
+- [x] Dialog (Non-native)
 - [x] Segmented Control
 
 ---

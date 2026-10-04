@@ -13,22 +13,24 @@ Apple **Human Interface Guidelines(HIG)**를 **Liquid Glass** 비주얼, 네이�
 
 ## 🌟 주요 기능
 
-- **iOS 26 HIG Liquid Glass 스타일**: 인터랙티브 렌즈 굴절, 색수차, 생동감, 동적 밝기 틴트를 지원하는 고급 배경 렌더링.
+- **iOS 27 HIG Liquid Glass 스타일**: 인터랙티브 렌즈 굴절, 색수차, 생동감, 동적 밝기 틴트를 지원하는 고급 배경 렌더링.
 - **확장된 컴포넌트 구성**:
-  - 💧 **Liquid Glass 컴포넌트**: `CupertinoLiquidButton`, `CupertinoLiquidAlertDialog`
+  - 💧 **Liquid Glass 컴포넌트**: `CupertinoLiquidButton`, `CupertinoLiquidIconButton`, `CupertinoLiquidAlertDialog`
   - 🎛️ **세그먼트 컨트롤**: 스프링 드래그 애니메이션, 동적 인디케이터 너비, 햅틱 피드백을 지원하는 `CupertinoSegmentedControl`.
   - 👆 **SwipeBox**: DSL 액션 빌더(`start` 및 `end`), 전체 스와이프 자동 실행, 스프링 응답을 지원하는 `CupertinoSwipeBox`.
   - 📋 **그룹 섹션 및 지연 리스트**: iOS 그룹 인셋 스타일을 지원하는 `CupertinoSection`, `LazyListScope.section`, `stickySection`.
   - 📅 **피커**: `CupertinoPicker`, `CupertinoDatePicker`, `CupertinoTimePicker`, `CupertinoDateTimePicker`.
-  - 🧭 **내비게이션 및 구조**: `CupertinoTopAppBar`, `CupertinoNavigationBar`, `CupertinoBottomSheet`, `CupertinoBottomSheetScaffold`, `CupertinoScaffold`.
-  - 🔘 **입력 및 스위치**: `CupertinoSwitch`, `CupertinoCheckbox`, `CupertinoTextField`, `CupertinoSearchTextField`.
+  - 🧭 **내비게이션 및 구조**: `CupertinoTopAppBar`, `CupertinoNavigationBar`, `CupertinoBottomAppBar`, `CupertinoBottomSheet`, `CupertinoBottomSheetScaffold`, `CupertinoScaffold`.
+  - 💬 **대화상자 및 메뉴**: `CupertinoAlertDialog`, `CupertinoActionSheet`, `CupertinoDropdownMenu`와 네이티브 `CupertinoDropdownMenuNative`.
+  - 🔘 **입력 및 선택**: `CupertinoSwitch`, `CupertinoCheckBox`, `CupertinoTriStateCheckBox`, `CupertinoSlider`, `CupertinoRangeSlider`, `CupertinoTextField`, `CupertinoBorderedTextField`, `CupertinoSearchTextField`.
+  - ➕ **플로팅 액션 버튼**: 크기별 `CupertinoSmallFloatingActionButton`, `CupertinoMediumFloatingActionButton`, `CupertinoLargeFloatingActionButton`, `CupertinoExtraLargeFloatingActionButton`.
   - 🎨 **독립형 Cupertino 아이콘**: 무거운 아이콘 팩 의존성을 줄인 경량 벡터 `CupertinoIcons`(Outlined 및 Filled).
 
 ---
 
 ## 🎬 미리보기 동영상
 
-https://github.com/user-attachments/assets/ef0b2afd-030b-4aae-aa70-e0dfa2bfdd03
+https://github.com/user-attachments/assets/4cc67248-f666-4ba1-9f32-988356b96b2f
 
 
 
@@ -57,7 +59,7 @@ fun MainViewController() = ComposeUIViewController(
 ## 🚀 라이브 데모
 
 GitHub Pages에 배포된 WasmJS 인터랙티브 웹 쇼케이스를 확인해 보세요.
-👉 **[https://ienground.github.io/compose-hig/](https://ienground.github.io/compose-hig/)**
+👉 **[https://hig.ien.zone](https://hig.ien.zone)**
 
 ---
 
@@ -69,7 +71,7 @@ GitHub Pages에 배포된 WasmJS 인터랙티브 웹 쇼케이스를 확인해 �
 
 ```toml
 [versions]
-hig = "1.3.1"
+hig = "27.0.1-alpha01"
 
 [libraries]
 hig = { group = "zone.ien.hig", name = "hig", version.ref = "hig" }
@@ -84,8 +86,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.hig)
-            // Optional adaptive / native extensions
+            // Optional adaptive and native extensions
             implementation(libs.hig.adaptive)
+            implementation(libs.hig.native)
         }
     }
 }
@@ -174,10 +177,10 @@ LazyColumn {
 
 이전 라이브러리와 비교해 Human Interface Guidelines에 맞도록 많은 컴포넌트를 최신 디자인으로 업데이트했지만, 아직 작업이 진행 중입니다. 기여를 통해 라이브러리 완성에 함께해 주세요.
 
-- [ ] BottomBar
-- [ ] Search Bar
-- [ ] Dropdown Native
-- [ ] Dialog (Non-native)
+- [x] BottomBar
+- [x] Search Bar
+- [x] Dropdown Native
+- [x] Dialog (Non-native)
 - [x] Segmented Control
 
 ---
