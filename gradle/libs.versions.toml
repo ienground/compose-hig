@@ -1,7 +1,7 @@
 [versions]
 agp = "9.3.1"
 kotlin = "2.4.21"
-lib-version-name = "27.0.1-alpha02-dev01"
+lib-version-name = "27.0.1-alpha02"
 
 # plugin
 compose-plugin = "1.12.1"
