@@ -515,7 +515,7 @@ object CupertinoSegmentedControlDefaults {
     @Composable
     @ReadOnlyComposable
     fun colors(
-        containerColor: Color = CupertinoGlassDefaults.tint,
+        containerColor: Color = CupertinoTheme.colorScheme.tertiarySystemFill,
         indicatorColor: Color =
             if (isDark()) {
                 CupertinoGlassDefaults.selection
