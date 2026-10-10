@@ -136,11 +136,59 @@ fun CupertinoBottomSheetScaffold(
     applyContentScaling: Boolean = CupertinoBottomSheetScaffoldDefaults.ApplyContentScaling,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    CupertinoBottomSheetScaffold(
+        sheetContent = sheetContent,
+        modifier = modifier,
+        windowInsets = windowInsets,
+        scaffoldState = scaffoldState,
+        colors = colors,
+        sheetShape = sheetShape,
+        sheetShadowElevation = sheetShadowElevation,
+        sheetDragHandle = sheetDragHandle,
+        sheetSwipeEnabled = sheetSwipeEnabled,
+        topBar = topBar,
+        bottomBar = bottomBar,
+        appBarsBlurAlpha = appBarsBlurAlpha,
+        appBarsBlurRadius = appBarsBlurRadius,
+        hasNavigationTitle = hasNavigationTitle,
+        applyContentScaling = applyContentScaling,
+        bottomBarBackdropEnabled = true,
+        content = content,
+    )
+}
+
+/**
+ * 하단 바 위쪽 backdrop 표시 여부를 설정합니다.
+ *
+ * @param bottomBarBackdropEnabled `false`면 하단 backdrop을 표시하지 않습니다.
+ */
+@Composable
+@ExperimentalCupertinoApi
+fun CupertinoBottomSheetScaffold(
+    sheetContent: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    windowInsets: WindowInsets = CupertinoScaffoldDefaults.contentWindowInsets,
+    scaffoldState: CupertinoBottomSheetScaffoldState = rememberCupertinoBottomSheetScaffoldState(),
+    colors: CupertinoBottomSheetScaffoldColors = CupertinoBottomSheetScaffoldDefaults.colors(),
+    sheetShape: Shape = CupertinoBottomSheetDefaults.shape,
+    sheetShadowElevation: Dp = CupertinoBottomSheetDefaults.ShadowElevation,
+    sheetDragHandle: @Composable (() -> Unit)? = { CupertinoBottomSheetDefaults.DragHandle() },
+    sheetSwipeEnabled: Boolean = true,
+    topBar: (@Composable () -> Unit)? = null,
+    bottomBar: (@Composable () -> Unit)? = null,
+    bottomBarBackdropEnabled: Boolean,
+    appBarsBlurAlpha: Float = CupertinoScaffoldDefaults.AppBarsBlurAlpha,
+    appBarsBlurRadius: Dp = CupertinoScaffoldDefaults.AppBarsBlurRadius,
+    hasNavigationTitle: Boolean = false,
+    applyContentScaling: Boolean = CupertinoBottomSheetScaffoldDefaults.ApplyContentScaling,
+    content: @Composable (PaddingValues) -> Unit,
+) {
     val backdrop = rememberLayerBackdrop()
     BottomSheetScaffoldLayout(
         appBarsBlurAlpha = appBarsBlurAlpha,
         appBarsBlurRadius = appBarsBlurRadius,
         hasNavigationTitle = hasNavigationTitle,
+        bottomBarBackdropEnabled = bottomBarBackdropEnabled,
         backdrop = backdrop,
         modifier = modifier,
         topBar = topBar,
@@ -570,6 +618,7 @@ private fun BottomSheetScaffoldLayout(
     appBarsBlurAlpha: Float = CupertinoScaffoldDefaults.AppBarsBlurAlpha,
     appBarsBlurRadius: Dp = CupertinoScaffoldDefaults.AppBarsBlurRadius,
     hasNavigationTitle: Boolean = false,
+    bottomBarBackdropEnabled: Boolean,
     applyContentScaling: Boolean = true
 ) {
     val density = LocalDensity.current
@@ -636,6 +685,7 @@ private fun BottomSheetScaffoldLayout(
                 appBarsBlurAlpha = appBarsBlurAlpha,
                 appBarsBlurRadius = appBarsBlurRadius,
                 hasNavigationTitle = hasNavigationTitle,
+                bottomBarBackdropEnabled = bottomBarBackdropEnabled,
             )
         }
 

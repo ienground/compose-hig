@@ -22,6 +22,7 @@ package zone.ien.hig
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.PaddingValues
@@ -58,6 +59,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
@@ -82,6 +84,7 @@ import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.drawPlainBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.runtimeShaderEffect
 
@@ -120,6 +123,47 @@ fun CupertinoScaffold(
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    floatingActionButtonPosition: FabPosition = FabPosition.End,
+    containerColor: Color = CupertinoScaffoldDefaults.containerColor,
+    contentColor: Color = CupertinoScaffoldDefaults.contentColor,
+    contentWindowInsets: WindowInsets = CupertinoScaffoldDefaults.contentWindowInsets,
+    appBarsBlurAlpha: Float = CupertinoScaffoldDefaults.AppBarsBlurAlpha,
+    appBarsBlurRadius: Dp = CupertinoScaffoldDefaults.AppBarsBlurRadius,
+    hasNavigationTitle: Boolean = false,
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    CupertinoScaffold(
+        modifier = modifier,
+        topBar = topBar,
+        bottomBar = bottomBar,
+        snackbarHost = snackbarHost,
+        floatingActionButton = floatingActionButton,
+        floatingActionButtonPosition = floatingActionButtonPosition,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        contentWindowInsets = contentWindowInsets,
+        appBarsBlurAlpha = appBarsBlurAlpha,
+        appBarsBlurRadius = appBarsBlurRadius,
+        hasNavigationTitle = hasNavigationTitle,
+        bottomBarBackdropEnabled = true,
+        content = content,
+    )
+}
+
+/**
+ * 하단 바 위쪽 backdrop 표시 여부를 설정합니다.
+ *
+ * @param bottomBarBackdropEnabled `false`면 하단 backdrop을 표시하지 않습니다.
+ */
+@Composable
+@ExperimentalCupertinoApi
+fun CupertinoScaffold(
+    modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    bottomBarBackdropEnabled: Boolean,
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
@@ -274,6 +318,8 @@ fun CupertinoScaffold(
                     appBarsAlpha = appBarsBlurAlpha,
                     appBarsBlurRadius = appBarsBlurRadius,
                     appBarsState = appbarState,
+                    containerColor = containerColor,
+                    bottomBarBackdropEnabled = bottomBarBackdropEnabled,
                 )
             }
         }
@@ -303,6 +349,49 @@ fun CupertinoScaffold(
     hasSoftBottomEdge: Boolean,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    CupertinoScaffold(
+        modifier = modifier,
+        topBar = topBar,
+        bottomBar = bottomBar,
+        snackbarHost = snackbarHost,
+        floatingActionButton = floatingActionButton,
+        floatingActionButtonPosition = floatingActionButtonPosition,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        contentWindowInsets = contentWindowInsets,
+        appBarsBlurAlpha = appBarsBlurAlpha,
+        appBarsBlurRadius = appBarsBlurRadius,
+        hasNavigationTitle = hasNavigationTitle,
+        hasSoftBottomEdge = hasSoftBottomEdge,
+        bottomBarBackdropEnabled = true,
+        content = content,
+    )
+}
+
+/**
+ * 하단 바 위쪽 backdrop 표시 여부를 설정합니다.
+ *
+ * @param bottomBarBackdropEnabled `false`면 하단 backdrop을 표시하지 않습니다.
+ */
+@Composable
+@ExperimentalCupertinoApi
+fun CupertinoScaffold(
+    modifier: Modifier = Modifier,
+    topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    bottomBarBackdropEnabled: Boolean,
+    snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
+    floatingActionButtonPosition: FabPosition = FabPosition.End,
+    containerColor: Color = CupertinoScaffoldDefaults.containerColor,
+    contentColor: Color = CupertinoScaffoldDefaults.contentColor,
+    contentWindowInsets: WindowInsets = CupertinoScaffoldDefaults.contentWindowInsets,
+    appBarsBlurAlpha: Float = CupertinoScaffoldDefaults.AppBarsBlurAlpha,
+    appBarsBlurRadius: Dp = CupertinoScaffoldDefaults.AppBarsBlurRadius,
+    hasNavigationTitle: Boolean = false,
+    hasSoftBottomEdge: Boolean,
+    content: @Composable (PaddingValues) -> Unit,
+) {
     CompositionLocalProvider(LocalScaffoldSoftBottomEdge provides hasSoftBottomEdge) {
         CupertinoScaffold(
             modifier = modifier,
@@ -317,6 +406,7 @@ fun CupertinoScaffold(
             appBarsBlurAlpha = appBarsBlurAlpha,
             appBarsBlurRadius = appBarsBlurRadius,
             hasNavigationTitle = hasNavigationTitle,
+            bottomBarBackdropEnabled = bottomBarBackdropEnabled,
             content = content,
         )
     }
@@ -337,6 +427,8 @@ private fun ScaffoldLayout(
     contentWindowInsets: WindowInsets,
     appBarsAlpha: Float,
     appBarsBlurRadius: Dp,
+    containerColor: Color,
+    bottomBarBackdropEnabled: Boolean,
     bottomBar: @Composable () -> Unit,
 ) {
     SubcomposeLayout { constraints ->
@@ -568,9 +660,67 @@ private fun ScaffoldLayout(
                     }
                 }.fastMap { it.measure(looseConstraints) }
 
+            val bottomBarBackdropPlaceables =
+                if (bottomBarBackdropEnabled && bottomBarHeight != null && bottomBarHeight > 0) {
+                    subcompose(ScaffoldLayoutContent.BottomBarBackdrop) {
+                        val bottomBarColor =
+                            appBarsState.bottomBarColor.value.takeIf {
+                                it.isSpecified
+                            } ?: containerColor
+                        val bottomBackdropHeight =
+                            with(LocalDensity.current) {
+                                bottomBarHeight.toDp() + 64.dp
+                            }
+
+                        Box(Modifier.fillMaxSize()) {
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .fillMaxWidth()
+                                        .height(bottomBackdropHeight)
+                                        .drawPlainBackdrop(
+                                            backdrop = contentBackdrop,
+                                            shape = { RectangleShape },
+                                            effects = {
+                                                blur(appBarsBlurRadius.toPx())
+                                                runtimeShaderEffect(
+                                                    "BottomEdgeBackdropMask",
+                                                    """
+                                                        uniform shader content;
+                                                        uniform float2 size;
+                                                        layout(color) uniform half4 tint;
+                                                        uniform float tintIntensity;
+
+                                                        half4 main(float2 coord) {
+                                                            float progress = clamp(coord.y / size.y, 0.0, 1.0);
+                                                            float edgeAlpha = smoothstep(0.0, 0.58, progress);
+                                                            half4 blurred = content.eval(coord) * edgeAlpha;
+                                                            half4 tintLayer = tint * edgeAlpha;
+                                                            return mix(blurred, tintLayer, tintIntensity);
+                                                        }
+                                                    """.trimIndent(),
+                                                    "content",
+                                                ) {
+                                                    setFloatUniform("size", size.width, size.height)
+                                                    setColorUniform("tint", bottomBarColor.copy(alpha = 0.42f))
+                                                    setFloatUniform("tintIntensity", 0.24f)
+                                                }
+                                            },
+                                        ),
+                            )
+                        }
+                    }.fastMap { it.measure(looseConstraints) }
+                } else {
+                    emptyList()
+                }
+
             // Placing to control drawing order to match default elevation of each placeable
 
             bodyContentPlaceables.fastForEach {
+                it.place(0, 0)
+            }
+            bottomBarBackdropPlaceables.fastForEach {
                 it.place(0, 0)
             }
             topBarPlaceables.fastForEach {
@@ -700,7 +850,7 @@ internal val LocalTopBarHeight =
 // FAB spacing above the bottom bar / bottom of the Scaffold
 private val FabSpacing = 16.dp
 
-private enum class ScaffoldLayoutContent { TopBar, MainContent, Snackbar, Fab, BottomBar }
+private enum class ScaffoldLayoutContent { TopBar, MainContent, Snackbar, Fab, BottomBar, BottomBarBackdrop }
 
 internal class AppBarsState(
     val isTopBarTransparent: MutableState<Boolean> = mutableStateOf(true),
