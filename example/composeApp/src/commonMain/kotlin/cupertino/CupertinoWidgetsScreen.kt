@@ -288,6 +288,7 @@ fun CupertinoWidgetsScreen(
             )
         },
         scaffoldState = scaffoldState,
+        bottomBarBackdropEnabled = false,
         topBar = {
             TopBarSample(
                 uiState = uiState,
