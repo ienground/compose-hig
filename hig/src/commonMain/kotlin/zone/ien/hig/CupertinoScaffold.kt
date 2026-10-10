@@ -703,7 +703,7 @@ private fun ScaffoldLayout(
                                                     "content",
                                                 ) {
                                                     setFloatUniform("size", size.width, size.height)
-                                                    setColorUniform("tint", bottomBarColor.copy(alpha = 0.42f))
+                                                    setColorUniform("tint", bottomBarColor.copy(alpha = appBarsAlpha))
                                                     setFloatUniform("tintIntensity", 0.24f)
                                                 }
                                             },
