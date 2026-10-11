@@ -53,11 +53,24 @@ internal class UIKitHapticFeedback(
 
     @OptIn(InternalCupertinoApi::class)
     override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
-        when (hapticFeedbackType) {
-            HapticFeedbackType.LongPress, HapticFeedbackType.TextHandleMove -> {
-                delegate.performHapticFeedback(hapticFeedbackType)
-            }
+        val cupertinoType = when (hapticFeedbackType) {
+            HapticFeedbackType.Confirm -> CupertinoHapticFeedback.Success
+            HapticFeedbackType.Reject -> CupertinoHapticFeedback.Error
+            HapticFeedbackType.ContextClick,
+            HapticFeedbackType.LongPress -> CupertinoHapticFeedback.ImpactMedium
+            HapticFeedbackType.GestureEnd,
+            HapticFeedbackType.GestureThresholdActivate,
+            HapticFeedbackType.KeyboardTap,
+            HapticFeedbackType.ToggleOff,
+            HapticFeedbackType.ToggleOn,
+            HapticFeedbackType.VirtualKey -> CupertinoHapticFeedback.ImpactLight
+            HapticFeedbackType.SegmentFrequentTick,
+            HapticFeedbackType.SegmentTick,
+            HapticFeedbackType.TextHandleMove -> CupertinoHapticFeedback.SelectionChanged
+            else -> hapticFeedbackType
+        }
 
+        when (cupertinoType) {
             CupertinoHapticFeedback.SelectionChanged -> {
                 selectionFeedbackGenerator.selectionChanged()
             }
@@ -67,7 +80,7 @@ internal class UIKitHapticFeedback(
             CupertinoHapticFeedback.Error,
             -> {
                 notificationFeedbackGenerator.notificationOccurred(
-                    NotificationFeedbackMapping[hapticFeedbackType]!!,
+                    NotificationFeedbackMapping[cupertinoType]!!,
                 )
             }
 
@@ -78,9 +91,11 @@ internal class UIKitHapticFeedback(
             CupertinoHapticFeedback.ImpactSoft,
             -> {
                 UIImpactFeedbackGenerator(
-                    ImpactFeedbackMapping[hapticFeedbackType]!!,
+                    ImpactFeedbackMapping[cupertinoType]!!,
                 ).impactOccurred()
             }
+
+            else -> delegate.performHapticFeedback(hapticFeedbackType)
         }
     }
 }

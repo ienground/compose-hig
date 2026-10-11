@@ -2392,5 +2392,18 @@ private fun LinksWithIcons(
         ) {
             CupertinoText("Bottom Sheet")
         }
+        SectionLink(
+            icon = {
+                CupertinoLinkIcon(
+                    imageVector = CupertinoIcons.Default.Iphone,
+                    containerColor = CupertinoColors.systemOrange
+                )
+            },
+            onClick = {
+                onNavigate(RootRoute.HapticFeedback)
+            }
+        ) {
+            CupertinoText("Haptic Feedback")
+        }
     }
 }

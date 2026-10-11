@@ -10,6 +10,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import cupertino.CupertinoWidgetsScreen
 import icons.IconsScreen
+import haptic.HapticFeedbackScreen
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -21,6 +22,7 @@ sealed interface RootRoute: NavKey {
     @Serializable data object Adaptive: RootRoute
     @Serializable data object Icons: RootRoute
     @Serializable data object Sections: RootRoute
+    @Serializable data object HapticFeedback: RootRoute
 }
 
 val rootConfig = SavedStateConfiguration {
@@ -30,6 +32,7 @@ val rootConfig = SavedStateConfiguration {
             subclass(RootRoute.Adaptive::class, RootRoute.Adaptive.serializer())
             subclass(RootRoute.Icons::class, RootRoute.Icons.serializer())
             subclass(RootRoute.Sections::class, RootRoute.Sections.serializer())
+            subclass(RootRoute.HapticFeedback::class, RootRoute.HapticFeedback.serializer())
         }
     }
 }
@@ -69,6 +72,11 @@ fun RootNavigationGraph(
             }
             entry<RootRoute.Sections> {
                 SectionsScreen(
+                    navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                )
+            }
+            entry<RootRoute.HapticFeedback> {
+                HapticFeedbackScreen(
                     navigateBack = { backStack.removeAt(backStack.lastIndex) }
                 )
             }
