@@ -1033,8 +1033,8 @@ private fun TopBarSample(
             CupertinoLiquidButton(
                 onClick = {},
                 backdrop = backdrop,
-                modifier = Modifier.padding(horizontal = 16.dp).height(48.dp),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
+                modifier = Modifier.padding(horizontal = 12.dp).height(44.dp),
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(18.dp),

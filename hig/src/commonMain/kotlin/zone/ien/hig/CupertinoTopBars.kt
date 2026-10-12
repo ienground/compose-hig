@@ -99,6 +99,8 @@ import com.kyant.backdrop.effects.runtimeShaderEffect
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import zone.ien.hig.Accessibility
+import zone.ien.hig.isHighContrastEnabled
 import zone.ien.hig.section.CupertinoSectionDefaults
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.CupertinoGlassDefaults
@@ -469,7 +471,7 @@ private fun InlineTopAppBar(
     val gradientColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightGradientColor else darkGradientColor) }
     val titleColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightTitleColor else darkTitleColor) }
     val subtitleColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightSubtitleColor else darkSubtitleColor) }
-    val backgroundOpacity = 0.48f * scrollEdgeProgress
+    val backgroundOpacity = 0.64f * scrollEdgeProgress
     val backgroundTint = if (isBackgroundGradient) {
         gradientColorAnimation.value
     } else {
@@ -525,7 +527,7 @@ private fun InlineTopAppBar(
                     backdrop = backdrop,
                     shape = { RectangleShape },
                     effects = {
-                        blur(CupertinoGlassDefaults.blurRadius.toPx() * scrollEdgeProgress)
+                        blur(TopAppBarBlurRadius.toPx() * scrollEdgeProgress)
                         runtimeShaderEffect(
                             "MaterialTint",
                             """
@@ -539,8 +541,8 @@ private fun InlineTopAppBar(
     }""",
                             "content"
                         ) {
-                            setColorUniform("tint", backgroundTint)
-                            setFloatUniform("tintIntensity", backgroundOpacity)
+                            setColorUniform("tint", backgroundTint.copy(alpha = 1f))
+                            setFloatUniform("tintIntensity", backgroundOpacity * backgroundTint.alpha)
                         }
                     },
                     onDrawBackdrop = { drawBackdrop ->
@@ -620,7 +622,15 @@ private fun InlineTopAppBar(
                 .fillMaxWidth()
                 .height(1.dp)
                 .alpha(scrollEdgeProgress)
-                .background(CupertinoGlassDefaults.border),
+                .background(
+                    CupertinoGlassDefaults.border.copy(
+                        alpha = if (Accessibility.isHighContrastEnabled) {
+                            CupertinoGlassDefaults.border.alpha
+                        } else {
+                            CupertinoGlassDefaults.border.alpha * 0.5f
+                        },
+                    ),
+                ),
         )
     }
 }
@@ -692,12 +702,16 @@ private fun TopAppBarLayout(
             .first { it.layoutId == "title" }
             .measure(constraints.copy(minWidth = 0, maxWidth = maxTitleWidth))
 
+        val isSheetToolbar = heightPx > TopAppBarHeight.toPx()
+        val verticalPadding = if (isSheetToolbar) 6.dp.roundToPx() else 0
+        val bottomPadding = if (isSheetToolbar) 0 else TopAppBarBottomPadding.roundToPx()
         val layoutHeight = maxOf(
             heightPx.roundToInt(),
-            titlePlaceable.height,
-            navigationIconPlaceable.height + (if (heightPx < TopAppBarHeight.toPx()) 6.dp else TopAppBarVerticalPadding).roundToPx() * 2,
-            actionIconsPlaceable.height + (if (heightPx < TopAppBarHeight.toPx()) 6.dp else TopAppBarVerticalPadding).roundToPx() * 2,
+            titlePlaceable.height + bottomPadding,
+            navigationIconPlaceable.height + verticalPadding * 2 + bottomPadding,
+            actionIconsPlaceable.height + verticalPadding * 2 + bottomPadding,
         ).coerceIn(constraints.minHeight, constraints.maxHeight)
+        val contentHeight = layoutHeight - bottomPadding
 
         // Locate the title's baseline.
         val titleBaseline =
@@ -711,7 +725,7 @@ private fun TopAppBarLayout(
             // Navigation icon
             navigationIconPlaceable.placeRelative(
                 x = 0,
-                y = (layoutHeight - navigationIconPlaceable.height) / 2,
+                y = (contentHeight - navigationIconPlaceable.height) / 2,
             )
             // Title
 //            ((constraints.maxWidth - titlePlaceable.width) / 2)
@@ -733,7 +747,7 @@ private fun TopAppBarLayout(
                     },
                 y =
                     when (titleVerticalArrangement) {
-                        Arrangement.Center -> (layoutHeight - titlePlaceable.height) / 2
+                        Arrangement.Center -> (contentHeight - titlePlaceable.height) / 2
                         // Apply bottom padding from the title's baseline only when the Arrangement is
                         // "Bottom".
                         Arrangement.Bottom ->
@@ -754,7 +768,7 @@ private fun TopAppBarLayout(
             // Action icons
             actionIconsPlaceable.placeRelative(
                 x = constraints.maxWidth - actionIconsPlaceable.width,
-                y = (layoutHeight - actionIconsPlaceable.height) / 2,
+                y = (contentHeight - actionIconsPlaceable.height) / 2,
             )
         }
     }
@@ -763,8 +777,9 @@ private fun TopAppBarLayout(
 // internal val TopTitleAlphaEasing = CubicBezierEasing(.8f, 0f, .8f, .15f)
 
 private val TopAppBarHorizontalPadding = 4.dp
-private val TopAppBarHeight = 64.dp
-private val TopAppBarVerticalPadding = 10.dp
+private val TopAppBarHeight = 54.dp
+private val TopAppBarBottomPadding = 10.dp
+private val TopAppBarBlurRadius = 24.dp
 
 // A title inset when the App-Bar is a Medium or Large one. Also used to size a spacer when the
 // navigation icon is missing.
