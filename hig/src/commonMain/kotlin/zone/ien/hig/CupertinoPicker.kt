@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -71,8 +72,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -82,12 +86,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFirstOrNull
-import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.sin
 import zone.ien.hig.theme.CupertinoTheme
@@ -279,6 +283,7 @@ typealias CupertinoPickerIndicator = DrawScope.(itemHeight: Float) -> Unit
  * Also [CupertinoPickerDefaults.indicatorOld] from older iOS can be used
  * @param containerColor picker background color. Also used for foreground blend.
  * @param key optional lazy list key for item.
+ * @param horizontalCurvature bends off-center items toward the right when positive and toward the left when negative.
  * @param content item content. All items should have the same height
  * */
 @OptIn(InternalCupertinoApi::class)
@@ -300,15 +305,18 @@ fun <T: Any> CupertinoWheelPicker(
     rotationTransformOrigin: TransformOrigin = TransformOrigin.Center,
     enabled: Boolean = true,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    horizontalCurvature: Float = 0f,
     content: @Composable (T) -> Unit,
 ) {
     if (items.isEmpty()) return
 
+    val wheelRadius = with(LocalDensity.current) { height.toPx() * .4f }
+    val listHeight = if (withRotation) height * (.4f * PI.toFloat()) else height
     val paddingValues =
         with(LocalDensity.current) {
-            remember(height, state.selectedItemHeight, this) {
+            remember(listHeight, state.selectedItemHeight, this) {
                 PaddingValues(
-                    vertical = ((height.toPx() - state.selectedItemHeight).coerceAtLeast(0f) / 2).toDp(),
+                    vertical = ((listHeight.toPx() - state.selectedItemHeight).coerceAtLeast(0f) / 2).toDp(),
                 )
             }
         }
@@ -382,7 +390,7 @@ fun <T: Any> CupertinoWheelPicker(
         LocalContentColor provides CupertinoTheme.colorScheme.label,
     ) {
         ProvideTextStyle(textStyle) {
-            LazyColumn(
+            Box(
                 modifier =
                     modifier
                         .requiredHeight(height)
@@ -391,76 +399,121 @@ fun <T: Any> CupertinoWheelPicker(
                         .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                         .cupertinoPickerForeground(
                             state = state,
-                        ).cupertinoPickerIndicator(state, indicator),
-                state = state.lazyListState,
-                contentPadding = paddingValues,
-                userScrollEnabled = enabled,
-                horizontalAlignment = horizontalAlignment,
-                flingBehavior = flingBehavior,
-                overscrollEffect = null,
-            ) {
-                fun index(index: Int) =
-                    if (state.infinite) {
-                        ((index - INFINITE_OFFSET) % items.size).let {
-                            if (it >= 0) it else items.size - abs(it)
-                        }
-                    } else {
-                        index
-                    }
-
-                items(
-                    count =
-                        if (state.infinite) {
-                            Int.MAX_VALUE
-                        } else {
-                            items.size
-                        },
-                    key = key?.let { itemKey ->
-                        { lazyIndex ->
-                            val value = itemKey(items[index(lazyIndex)])
-                            if (state.infinite) lazyIndex to value else value
-                        }
-                    },
-                ) { index ->
-                    Box(
-                        modifier =
-                            Modifier
-                                .heightIn(min = MinItemHeight)
-                                .graphicsLayer {
-                                    val item = state.layoutInfo.visibleItemsInfo.fastFirstOrNull {
-                                        it.index == index
-                                    }
-                                    val itemOffsetFromCenter = item?.let {
-                                        it.offset + it.size / 2f -
-                                            state.layoutInfo.viewportStartOffset -
-                                            state.layoutInfo.viewportSize.height / 2f
-                                    } ?: 0f
-
-                                    if (withRotation) {
-                                        val radius =
-                                            (state.layoutInfo.viewportSize.height * .68f)
-                                                .coerceAtLeast(size.height)
-                                        val angle = (itemOffsetFromCenter / radius).coerceIn(-.92f, .92f)
-                                        rotationX = angle * 180f / PI.toFloat()
-                                        transformOrigin = rotationTransformOrigin
-                                        translationY = radius * sin(angle) - itemOffsetFromCenter
-                                        cameraDistance = radius * 8f
-                                        alpha = cos(angle).coerceIn(.16f, 1f)
+                        ).cupertinoPickerIndicator(state, indicator)
+                        .pointerInput(enabled, withRotation, wheelRadius) {
+                            if (enabled) {
+                                detectTapGestures { position ->
+                                    val offsetFromCenter = position.y - size.height / 2f
+                                    val radius = wheelRadius.coerceAtLeast(state.selectedItemHeight.toFloat())
+                                    val listOffset = if (withRotation &&
+                                        abs(offsetFromCenter) > state.selectedItemHeight / 2f
+                                    ) {
+                                        radius * asin((offsetFromCenter / radius).coerceIn(-1f, 1f))
                                     } else {
-                                        rotationX = 0f
-                                        translationY = 0f
-                                        alpha = 1f
+                                        offsetFromCenter
                                     }
-                                }.pointerInput(enabled) {
-                                    if (enabled) {
-                                        detectTapGestures {
-                                            scope.launch { state.animateScrollToItemFromUser(index) }
+                                    val layoutInfo = state.layoutInfo
+                                    val center = layoutInfo.viewportStartOffset + layoutInfo.viewportSize.height / 2f
+                                    val item = layoutInfo.visibleItemsInfo.minByOrNull {
+                                        abs(it.offset + it.size / 2f - center - listOffset)
+                                    }
+                                    item?.let {
+                                        scope.launch { state.animateScrollToItemFromUser(it.index) }
+                                    }
+                                }
+                            }
+                        },
+                contentAlignment = Alignment.Center,
+            ) {
+                LazyColumn(
+                    modifier = Modifier.requiredHeight(listHeight),
+                    state = state.lazyListState,
+                    contentPadding = paddingValues,
+                    userScrollEnabled = enabled,
+                    horizontalAlignment = horizontalAlignment,
+                    flingBehavior = flingBehavior,
+                    overscrollEffect = null,
+                ) {
+                    fun index(index: Int) =
+                        if (state.infinite) {
+                            ((index - INFINITE_OFFSET) % items.size).let {
+                                if (it >= 0) it else items.size - abs(it)
+                            }
+                        } else {
+                            index
+                        }
+
+                    items(
+                        count =
+                            if (state.infinite) {
+                                Int.MAX_VALUE
+                            } else {
+                                items.size
+                            },
+                        key = key?.let { itemKey ->
+                            { lazyIndex ->
+                                val value = itemKey(items[index(lazyIndex)])
+                                if (state.infinite) lazyIndex to value else value
+                            }
+                        },
+                    ) { index ->
+                        val curvedLayer = rememberGraphicsLayer()
+                        val selectedLayer = rememberGraphicsLayer()
+                        Box(
+                            modifier =
+                                Modifier
+                                    .heightIn(min = MinItemHeight)
+                                    .drawWithContent {
+                                        val item = state.layoutInfo.visibleItemsInfo.fastFirstOrNull {
+                                            it.index == index
                                         }
-                                    }
-                                },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        content(items[index(index)])
+                                        val itemOffsetFromCenter = item?.let {
+                                            it.offset + it.size / 2f -
+                                                state.layoutInfo.viewportStartOffset -
+                                                state.layoutInfo.viewportSize.height / 2f
+                                        } ?: 0f
+
+                                        if (withRotation) {
+                                            val radius = wheelRadius.coerceAtLeast(size.height)
+                                            val angle = (itemOffsetFromCenter / radius)
+                                                .coerceIn(-PI.toFloat() / 2f, PI.toFloat() / 2f)
+                                            val depth = 1f - cos(angle)
+                                            val perspectiveScale = 1f / (1f + depth / 3f)
+                                            curvedLayer.record { this@drawWithContent.drawContent() }
+                                            curvedLayer.rotationX = angle * 180f / PI.toFloat()
+                                            curvedLayer.pivotOffset = Offset(
+                                                size.width * rotationTransformOrigin.pivotFractionX,
+                                                size.height * rotationTransformOrigin.pivotFractionY,
+                                            )
+                                            curvedLayer.translationY = radius * sin(angle) - itemOffsetFromCenter
+                                            curvedLayer.translationX =
+                                                horizontalCurvature.coerceIn(-1f, 1f) *
+                                                    size.width * .12f * abs(sin(angle))
+                                            curvedLayer.scaleX = perspectiveScale
+                                            curvedLayer.scaleY = perspectiveScale
+                                            curvedLayer.cameraDistance = radius * 8f
+                                            curvedLayer.alpha = .45f
+                                            val selectionTop = (size.height - state.selectedItemHeight) / 2f -
+                                                itemOffsetFromCenter
+                                            val selectionBottom = selectionTop + state.selectedItemHeight
+                                            clipRect(top = -listHeight.toPx(), bottom = selectionTop) {
+                                                drawLayer(curvedLayer)
+                                            }
+                                            clipRect(top = selectionBottom, bottom = listHeight.toPx()) {
+                                                drawLayer(curvedLayer)
+                                            }
+                                            selectedLayer.record { this@drawWithContent.drawContent() }
+                                            clipRect(top = selectionTop, bottom = selectionBottom) {
+                                                drawLayer(selectedLayer)
+                                            }
+                                        } else {
+                                            drawContent()
+                                        }
+                                    },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            content(items[index(index)])
+                        }
                     }
                 }
             }
@@ -583,8 +636,7 @@ internal object CupertinoPickerTokens {
             horizontal = 10.dp,
         )
 
-    val IndicatorShape: ContinuousRoundedRectangle
-        @Composable get() = CupertinoTheme.shapes.small
+    val IndicatorShape: Shape = CircleShape
 }
 
 internal val PickerMaxWidth = 500.dp

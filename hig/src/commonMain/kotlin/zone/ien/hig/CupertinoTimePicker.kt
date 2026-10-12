@@ -42,7 +42,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -153,6 +152,7 @@ private fun CupertinoTimePicker24(
                 modifier = Modifier.weight(1f),
                 indicator = {},
                 containerColor = containerColor,
+                horizontalCurvature = 1f,
             ) {
                 Box(
                     modifier =
@@ -173,6 +173,7 @@ private fun CupertinoTimePicker24(
                 modifier = Modifier.weight(1f),
                 indicator = {},
                 containerColor = containerColor,
+                horizontalCurvature = -1f,
             ) {
                 Box(
                     modifier =
@@ -217,15 +218,17 @@ private fun CupertinoTimePicker12(
                 state = state.hourState,
                 items = Hours12,
                 height = height,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.width(CupertinoTimePickerTokens.BlockWidth * 2 / 3),
                 indicator = {},
                 containerColor = containerColor,
+                horizontalCurvature = 1f,
             ) {
                 Box(
                     modifier = Modifier,
                 ) {
                     NumberPickerText(
                         text = it,
+                        modifier = Modifier.padding(end = 10.dp),
                         textAlign = TextAlign.End,
                     )
                 }
@@ -238,7 +241,7 @@ private fun CupertinoTimePicker12(
                 modifier = Modifier.width(CupertinoTimePickerTokens.BlockWidth),
                 indicator = {},
                 containerColor = containerColor,
-                rotationTransformOrigin = TransformOrigin.Center,
+                horizontalCurvature = 0f,
             ) {
                 NumberPickerText(
                     text = it,
@@ -249,14 +252,14 @@ private fun CupertinoTimePicker12(
                 state = state.amPmState,
                 items = listOf(true, false),
                 height = height,
-                modifier =
-                    Modifier
-                        .weight(1f),
+                modifier = Modifier.width(CupertinoTimePickerTokens.BlockWidth * 2 / 3),
                 indicator = {},
                 containerColor = containerColor,
+                horizontalCurvature = -1f,
             ) {
                 PickerText(
                     text = if (it) AmPm.first else AmPm.second,
+                    modifier = Modifier.fillMaxWidth().padding(start = 10.dp),
                     textAlign = TextAlign.Start,
                 )
             }

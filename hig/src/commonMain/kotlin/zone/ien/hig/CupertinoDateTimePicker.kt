@@ -246,6 +246,7 @@ private fun CupertinoDateTimePickerWheel(
                         .weight(2f),
                 indicator = {},
                 containerColor = containerColor,
+                horizontalCurvature = 1f,
             ) {
                 PickerText(
                     text =
@@ -277,6 +278,7 @@ private fun CupertinoDateTimePickerWheel(
                         ),
                 indicator = {},
                 containerColor = containerColor,
+                horizontalCurvature = 1f,
             ) {
                 NumberPickerText(
                     text = it,
@@ -300,6 +302,7 @@ private fun CupertinoDateTimePickerWheel(
                     },
                 indicator = {},
                 containerColor = containerColor,
+                horizontalCurvature = 0f,
             ) {
                 NumberPickerText(
                     text = it,
@@ -321,6 +324,7 @@ private fun CupertinoDateTimePickerWheel(
                             .weight(1f),
                     indicator = {},
                     containerColor = containerColor,
+                    horizontalCurvature = -1f,
                 ) {
                     PickerText(
                         text = if (it) AmPm.first else AmPm.second,

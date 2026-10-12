@@ -417,9 +417,9 @@ class CupertinoDatePickerColors internal constructor(
 @OptIn(ExperimentalCupertinoApi::class)
 private enum class DatePickerComponent(
     val key: Char,
-    val content: @Composable (CupertinoDatePickerState, Dp, Color) -> Unit,
+    val content: @Composable (CupertinoDatePickerState, Dp, Color, Float) -> Unit,
 ) {
-    Day('d', { state, height, containerColor ->
+    Day('d', { state, height, containerColor, horizontalCurvature ->
         CupertinoWheelPicker(
             state = state.stateData.dayState,
             items = (1..state.stateData.daysInMonth).toList(),
@@ -427,6 +427,7 @@ private enum class DatePickerComponent(
             modifier = Modifier.width(75.dp),
             indicator = {},
             containerColor = containerColor,
+            horizontalCurvature = horizontalCurvature,
         ) {
             PickerText(
                 text = it.toString(),
@@ -435,7 +436,7 @@ private enum class DatePickerComponent(
         }
     }),
 
-    Month('m', { state, height, containerColor ->
+    Month('m', { state, height, containerColor, horizontalCurvature ->
         CupertinoWheelPicker(
             state = state.stateData.monthState,
             items = state.stateData.monthNames,
@@ -443,6 +444,7 @@ private enum class DatePickerComponent(
             modifier = Modifier.width(130.dp),
             indicator = {},
             containerColor = containerColor,
+            horizontalCurvature = horizontalCurvature,
         ) {
             PickerText(
                 text = it,
@@ -454,7 +456,7 @@ private enum class DatePickerComponent(
             )
         }
     }),
-    Year('y', { state, height, containerColor ->
+    Year('y', { state, height, containerColor, horizontalCurvature ->
         CupertinoWheelPicker(
             state = state.stateData.yearState,
             items = remember(state) { state.stateData.yearRange.toList() },
@@ -462,6 +464,7 @@ private enum class DatePickerComponent(
             modifier = Modifier.width(85.dp),
             indicator = {},
             containerColor = containerColor,
+            horizontalCurvature = horizontalCurvature,
         ) {
             PickerText(
                 text = it.toString(),
@@ -512,8 +515,13 @@ private fun CupertinoDatePickerWheel(
         Row(
             horizontalArrangement = Arrangement.Center,
         ) {
-            components.fastForEach {
-                it.content(state, height, containerColor)
+            components.forEachIndexed { index, component ->
+                val horizontalCurvature = when (index.compareTo(components.lastIndex / 2)) {
+                    -1 -> 1f
+                    1 -> -1f
+                    else -> 0f
+                }
+                component.content(state, height, containerColor, horizontalCurvature)
             }
         }
     }
@@ -1469,8 +1477,8 @@ private fun CupertinoMonthPicker(
         Row(
             horizontalArrangement = Arrangement.Center,
         ) {
-            components.forEach {
-                it.content(delegatedState, height, containerColor)
+            components.forEachIndexed { index, component ->
+                component.content(delegatedState, height, containerColor, if (index == 0) 1f else -1f)
             }
         }
     }
