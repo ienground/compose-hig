@@ -72,7 +72,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
@@ -363,6 +362,8 @@ fun CupertinoNavigationBar(
 
                 // ── Accent color overlay Row ──────────────────────────────────────────────────────
                 CompositionLocalProvider(
+                    LocalContentColor provides accentColor,
+                    androidx.compose.material3.LocalContentColor provides accentColor,
                     LocalLiquidBottomTabScale provides {
                         lerp(1f, 1.2f, dampedDragAnimation.pressProgress)
                     }
@@ -396,8 +397,7 @@ fun CupertinoNavigationBar(
                             .then(interactiveHighlight.modifier)
                             .wrapContentWidth()
                             .height(indicatorHeight)
-                            .padding(horizontal = NavBarPadding)
-                            .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
+                            .padding(horizontal = NavBarPadding),
                         horizontalArrangement = Arrangement.spacedBy(NavBarItemGap),
                         verticalAlignment = Alignment.CenterVertically,
                         content = content
