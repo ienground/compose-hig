@@ -321,10 +321,16 @@ fun CupertinoSearchTextField(
                     .then(if (backdrop != null) Modifier.drawBackdrop(
                         backdrop = backdrop,
                         shape = { shape },
-                        effects = { cupertinoGlassEffects(12.dp.toPx(), 4.dp.toPx(), 8.dp.toPx()) },
-                        highlight = { Highlight.Plain },
+                        effects = {
+                            cupertinoGlassEffects(
+                                12.dp.toPx(),
+                                CupertinoGlassDefaults.refractionHeight.toPx(),
+                                CupertinoGlassDefaults.refractionAmount.toPx(),
+                            )
+                        },
+                        highlight = { Highlight.Default.copy(alpha = 0.35f) },
                         onDrawSurface = { drawRect(glassTint) },
-                    ).glassEdge(shape) else Modifier)
+                    ).glassEdge(shape, softShadow = true) else Modifier)
                     .focusable(),
             value = value,
             onValueChange = onValueChange,

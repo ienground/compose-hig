@@ -82,7 +82,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -116,8 +118,15 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 
 private val NavBarPadding = 4.dp
+private val NavBarHorizontalPadding = 8.dp
 private val NavBarItemGap = 0.dp
-private val NavBarItemMinWidth = 90.dp  // Fixed width when items are few
+private val NavBarItemMinWidth = 86.dp
+private val NavBarHeight = 62.dp
+private val NavBarItemHeight = NavBarHeight - NavBarPadding * 2
+private val NavBarBlurRadius = 24.dp
+private val NavBarSelectionBlurRadius = 16.dp
+private val NavBarRefractionHeight = 12.dp
+private val NavBarRefractionAmount = 22.dp
 
 /**
  * Cupertino 하단 탐색 탭 막대입니다.
@@ -143,7 +152,7 @@ fun CupertinoNavigationBar(
 ) {
     if (trailingAction != null) {
         val density = LocalDensity.current
-        var navigationHeight by remember(density) { mutableStateOf(64.dp) }
+        var navigationHeight by remember(density) { mutableStateOf(NavBarHeight) }
         Row(
             modifier = modifier.fillMaxWidth().windowInsetsPadding(windowInsets),
             verticalAlignment = Alignment.Bottom,
@@ -208,13 +217,14 @@ fun CupertinoNavigationBar(
             ) {
             val density = LocalDensity.current
             var barHeightPx by remember(density) {
-                mutableIntStateOf(with(density) { 64.dp.roundToPx() })
+                mutableIntStateOf(with(density) { NavBarHeight.roundToPx() })
             }
             val indicatorHeight = with(density) {
-                (barHeightPx - (NavBarPadding * 2).roundToPx()).coerceAtLeast(56.dp.roundToPx()).toDp()
+                (barHeightPx - (NavBarPadding * 2).roundToPx()).coerceAtLeast(NavBarItemHeight.roundToPx()).toDp()
             }
 
-            val paddingPx = with(density) { NavBarPadding.toPx() }
+            val paddingPx = with(density) { NavBarHorizontalPadding.toPx() }
+            val indicatorOverflowPx = with(density) { NavBarPadding.toPx() }
             val gapPx = with(density) { NavBarItemGap.toPx() }
             val minItemWidthPx = with(density) { NavBarItemMinWidth.toPx() }
 
@@ -228,13 +238,14 @@ fun CupertinoNavigationBar(
                 0f
             }
 
-            // If evenly distributed width is greater than or equal to minimum width (90dp), use fixed width, otherwise use evenly distributed width
+            // 공간이 충분하면 고정 항목 너비를 사용하고, 부족하면 균등하게 나눕니다.
             val itemWidthPx = if (calculatedItemWidthPx >= minItemWidthPx) {
                 minItemWidthPx
             } else {
                 calculatedItemWidthPx
             }
             val itemWidthDp: Dp = with(density) { itemWidthPx.toDp() }
+            val indicatorWidthPx = itemWidthPx + indicatorOverflowPx * 2f
 
             // NavBar total width = padding*2 + itemWidth*n + gap*(n-1)
             val rowWidth = (paddingPx * 2f + itemWidthPx * displayedTabsCount + gapPx * (displayedTabsCount - 1)).coerceAtLeast(1f)
@@ -335,7 +346,20 @@ fun CupertinoNavigationBar(
                             shape = { ContinuousCapsule() },
                             effects = {
                                 vibrancy()
-                                blur(CupertinoGlassDefaults.blurRadius.toPx())
+                                blur(NavBarBlurRadius.toPx())
+                                lens(
+                                    NavBarRefractionHeight.toPx(),
+                                    NavBarRefractionAmount.toPx(),
+                                    depthEffect = true,
+                                )
+                            },
+                            innerShadow = { InnerShadow(radius = 3.dp, alpha = 0.3f) },
+                            shadow = {
+                                Shadow(
+                                    radius = 2.dp,
+                                    offset = DpOffset(0.dp, 1.dp),
+                                    color = Color.Black.copy(alpha = 0.16f),
+                                )
                             },
                             layerBlock = {
                                 val progress = dampedDragAnimation.pressProgress
@@ -347,14 +371,13 @@ fun CupertinoNavigationBar(
                                 drawRect(containerColor)
                             }
                         )
-                        .glassEdge(ContinuousCapsule())
                         .then(interactiveHighlight.modifier)
                         .wrapContentWidth()
-                        .heightIn(min = 64.dp)
+                        .heightIn(min = NavBarHeight)
                         .onSizeChanged { size ->
                             if (barHeightPx != size.height) barHeightPx = size.height
                         }
-                        .padding(NavBarPadding),
+                        .padding(horizontal = NavBarHorizontalPadding, vertical = NavBarPadding),
                     horizontalArrangement = Arrangement.spacedBy(NavBarItemGap),
                     verticalAlignment = Alignment.CenterVertically,
                     content = content
@@ -382,22 +405,23 @@ fun CupertinoNavigationBar(
                                 effects = {
                                     val progress = dampedDragAnimation.pressProgress
                                     vibrancy()
-                                    blur(8.dp.toPx())
+                                    blur(NavBarSelectionBlurRadius.toPx())
                                     lens(
-                                        24.dp.toPx() * progress,
-                                        24.dp.toPx() * progress
+                                        lerp(NavBarRefractionHeight.toPx(), 24.dp.toPx(), progress),
+                                        lerp(NavBarRefractionAmount.toPx(), 24.dp.toPx(), progress),
                                     )
                                 },
                                 highlight = {
                                     val progress = dampedDragAnimation.pressProgress
                                     Highlight.Default.copy(alpha = progress)
                                 },
-                                onDrawSurface = {}
+                                onDrawSurface = { drawRect(containerColor) }
                             )
                             .then(interactiveHighlight.modifier)
                             .wrapContentWidth()
+                            .align(Alignment.CenterStart)
                             .height(indicatorHeight)
-                            .padding(horizontal = NavBarPadding),
+                            .padding(horizontal = NavBarHorizontalPadding),
                         horizontalArrangement = Arrangement.spacedBy(NavBarItemGap),
                         verticalAlignment = Alignment.CenterVertically,
                         content = content
@@ -408,11 +432,11 @@ fun CupertinoNavigationBar(
                 Box(
                     modifier = Modifier
                         .graphicsLayer {
-                            val leftX = itemLeftX(dampedDragAnimation.value)
+                            val leftX = itemLeftX(dampedDragAnimation.value) - indicatorOverflowPx
                             translationX = if (isLtr) {
                                 leftX + panelOffset
                             } else {
-                                rowWidth - leftX - itemWidthPx + panelOffset
+                                rowWidth - leftX - indicatorWidthPx + panelOffset
                             }
                         }
                         .then(interactiveHighlight.gestureModifier)
@@ -430,17 +454,17 @@ fun CupertinoNavigationBar(
                             },
                             highlight = {
                                 val progress = dampedDragAnimation.pressProgress
-                                Highlight.Default.copy(alpha = progress)
+                                Highlight.Default.copy(alpha = lerp(0.08f, 1f, progress))
                             },
                             shadow = {
                                 val progress = dampedDragAnimation.pressProgress
-                                Shadow(alpha = progress)
+                                Shadow(alpha = lerp(0.04f, 1f, progress))
                             },
                             innerShadow = {
                                 val progress = dampedDragAnimation.pressProgress
                                 InnerShadow(
-                                    radius = 8.dp * progress,
-                                    alpha = progress
+                                    radius = 2.dp + 2.dp * progress,
+                                    alpha = 0.35f * progress
                                 )
                             },
                             layerBlock = {
@@ -458,7 +482,7 @@ fun CupertinoNavigationBar(
                         )
                         .align(Alignment.CenterStart)
                         .height(indicatorHeight)
-                        .width(itemWidthDp)  // ★ Apply dynamic width
+                        .width(with(density) { indicatorWidthPx.toDp() })
                 )
         }
         }
@@ -636,17 +660,29 @@ private fun CupertinoProminentNavigationBar(
                                         shape = { ContinuousCapsule() },
                                         effects = {
                                             vibrancy()
-                                            blur(CupertinoGlassDefaults.blurRadius.toPx())
+                                            blur(NavBarBlurRadius.toPx())
+                                            lens(
+                                                NavBarRefractionHeight.toPx(),
+                                                NavBarRefractionAmount.toPx(),
+                                                depthEffect = true,
+                                            )
+                                        },
+                                        innerShadow = { InnerShadow(radius = 3.dp, alpha = 0.3f) },
+                                        shadow = {
+                                            Shadow(
+                                                radius = 2.dp,
+                                                offset = DpOffset(0.dp, 1.dp),
+                                                color = Color.Black.copy(alpha = 0.16f),
+                                            )
                                         },
                                         onDrawSurface = { drawRect(surfaceTint) },
-                                    )
-                                    .glassEdge(ContinuousCapsule()),
+                                    ),
                             )
                         }
                         content.invoke(rowScope)
                     },
                 ) { measurables, constraints ->
-                    val minimumHeightPx = with(density) { 64.dp.roundToPx() }
+                    val minimumHeightPx = with(density) { NavBarHeight.roundToPx() }
                     val intrinsicHeightPx = measurables.mapNotNull { measurable ->
                         val index = measurable.layoutId as? Int ?: return@mapNotNull null
                         val isVisible = if (isCollapsed) {
@@ -790,7 +826,7 @@ fun RowScope.CupertinoNavigationBarItem(
     )
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .then(
@@ -808,10 +844,11 @@ fun RowScope.CupertinoNavigationBarItem(
                             shape = { ContinuousCapsule() },
                             effects = {
                                 vibrancy()
-                                blur(CupertinoGlassDefaults.blurRadius.toPx())
+                                blur(NavBarBlurRadius.toPx())
                                 lens(
-                                    8.dp.toPx(),
-                                    lerp(12.dp.toPx(), 24.dp.toPx(), interactiveHighlight.pressProgress),
+                                    NavBarRefractionHeight.toPx(),
+                                    lerp(NavBarRefractionAmount.toPx(), 24.dp.toPx(), interactiveHighlight.pressProgress),
+                                    depthEffect = true,
                                 )
                             },
                             highlight = {
@@ -824,7 +861,7 @@ fun RowScope.CupertinoNavigationBarItem(
                                 if (itemFillColor != Color.Transparent) drawRect(itemFillColor)
                             },
                         )
-                        .glassEdge(ContinuousCapsule())
+                        .glassEdge(ContinuousCapsule(), softShadow = true)
                 } else {
                     Modifier
                 },
@@ -838,10 +875,11 @@ fun RowScope.CupertinoNavigationBarItem(
                             shape = { ContinuousCapsule() },
                             effects = {
                                 vibrancy()
-                                blur(CupertinoGlassDefaults.blurRadius.toPx())
+                                blur(NavBarSelectionBlurRadius.toPx())
                                 lens(
-                                    8.dp.toPx(),
-                                    lerp(12.dp.toPx(), 24.dp.toPx(), interactiveHighlight.pressProgress),
+                                    NavBarRefractionHeight.toPx(),
+                                    lerp(NavBarRefractionAmount.toPx(), 24.dp.toPx(), interactiveHighlight.pressProgress),
+                                    depthEffect = true,
                                 )
                             },
                             highlight = {
@@ -853,7 +891,7 @@ fun RowScope.CupertinoNavigationBarItem(
                                 drawRect(itemFillColor)
                             },
                         )
-                        .glassEdge(ContinuousCapsule())
+                        .glassEdge(ContinuousCapsule(), softShadow = true)
                 } else {
                     Modifier
                 },
@@ -880,7 +918,7 @@ fun RowScope.CupertinoNavigationBarItem(
                     )
                 },
             )
-            .heightIn(min = 56.dp)
+            .heightIn(min = NavBarItemHeight)
             .width(animatedItemWidth)
             .graphicsLayer {
                 val s = scale() * pressScale
@@ -897,8 +935,9 @@ fun RowScope.CupertinoNavigationBarItem(
     ) {
         Box(
             contentAlignment = Alignment.Center,
+            propagateMinConstraints = true,
             modifier = Modifier
-                .size(if (isProminent) 26.dp else 24.dp)
+                .size(20.dp)
         ) {
             if (isManaged) {
                 CompositionLocalProvider(LocalContentColor provides managedIconColor) {
@@ -909,7 +948,13 @@ fun RowScope.CupertinoNavigationBarItem(
             }
         }
         ProvideTextStyle(
-            value = TextStyle(fontSize = 10.sp, lineHeight = 12.sp, fontWeight = FontWeight.Bold)
+            value = TextStyle(
+                fontFamily = FontFamily.Default,
+                fontSize = 11.sp,
+                lineHeight = 13.sp,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.sp,
+            )
         ) {
             if (isManaged) {
                 CompositionLocalProvider(LocalContentColor provides managedLabelColor) {
@@ -1079,12 +1124,12 @@ object CupertinoNavigationBarDefaults {
         disabledTextColor = disabledTextColor,
     )
 
-    val windowInsets = WindowInsets(left = 36.dp, right = 36.dp)
-    val BottomPadding = 24.dp
+    val windowInsets = WindowInsets(left = 16.dp, right = 16.dp)
+    val BottomPadding = 20.dp
 }
 
 internal val LocalLiquidBottomTabScale = staticCompositionLocalOf { { 1f } }
-internal val LocalCupertinoNavItemWidth = staticCompositionLocalOf { 90.dp }  // ★ Dynamic width transmission
+internal val LocalCupertinoNavItemWidth = staticCompositionLocalOf { NavBarItemMinWidth }
 
 @OptIn(ExperimentalCupertinoApi::class)
 private data class CupertinoNavigationBarOptions(

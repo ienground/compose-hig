@@ -12,6 +12,10 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.foundation.border
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -54,6 +58,8 @@ fun rememberDefaultBackdrop(): LayerBackdrop {
 
 internal object CupertinoGlassDefaults {
     val blurRadius = 16.dp
+    val refractionHeight = 4.dp
+    val refractionAmount = 8.dp
 
     val tint: Color
         @Composable
@@ -109,7 +115,17 @@ internal object CupertinoGlassDefaults {
 }
 
 @Composable
-internal fun Modifier.glassEdge(shape: Shape): Modifier {
+internal fun Modifier.glassEdge(shape: Shape, softShadow: Boolean = false): Modifier {
+    if (softShadow) {
+        return dropShadow(
+            shape = shape,
+            shadow = Shadow(
+                radius = 2.dp,
+                offset = DpOffset(0.dp, 1.dp),
+                color = Color.Black.copy(alpha = if (Accessibility.isHighContrastEnabled) 0.20f else 0.08f),
+            ),
+        )
+    }
     val edge = CupertinoGlassDefaults.border
     val highlight = Color.White.copy(alpha = if (CupertinoTheme.colorScheme.isDark) 0.42f else 0.9f)
     return border(
@@ -126,7 +142,14 @@ internal fun BackdropEffectScope.cupertinoGlassEffects(
 ) {
     vibrancy()
     blur(blurRadius)
-    if (lensHeight > 0f && lensDepth > 0f) lens(lensHeight, lensDepth)
+    if (lensHeight > 0f && lensDepth > 0f &&
+        shape is CornerBasedShape
+    ) {
+        lens(
+            lensHeight.coerceAtMost(size.minDimension / 4f),
+            lensDepth.coerceAtMost(size.minDimension / 2f),
+        )
+    }
 }
 
 /** 실제 배경 레이어 위에 Sidebar용 material을 그립니다. */

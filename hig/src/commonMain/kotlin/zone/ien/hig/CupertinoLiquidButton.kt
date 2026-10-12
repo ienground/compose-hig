@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -136,6 +137,7 @@ fun CupertinoLiquidButton(
     val targetGraphicsLayer = rememberGraphicsLayer()
 
     val materialTint = CupertinoGlassDefaults.tint
+    val reduceTransparency = Accessibility.isReduceTransparencyEnabled
     val luminanceAnimation = remember(enabled, isLightTheme) { FloatAnimatable(if (isLightTheme) 1f else 0f) }
     val contentColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightContentColor else darkContentColor) }
     val updatedLightContent by rememberUpdatedState(lightContentColor)
@@ -209,18 +211,34 @@ fun CupertinoLiquidButton(
                         }
                         if (shape is CornerBasedShape) {
                             val progress = if (enabled && isInteractive) interactiveHighlight.pressProgress.coerceIn(0f, 1f) else 0f
-                            lens(4.dp.toPx(), lerp(8.dp.toPx(), 16.dp.toPx(), progress))
+                            lens(
+                                6.dp.toPx().coerceAtMost(this.size.minDimension / 4f),
+                                lerp(10.dp.toPx(), 16.dp.toPx(), progress).coerceAtMost(this.size.minDimension / 2f),
+                            )
                         }
                     },
                     layerBlock = if (enabled && isInteractive) interactiveHighlight.layerBlock else null,
-                    highlight = { Highlight.Default.copy(alpha = 0.65f) },
-                    shadow = { Shadow(radius = 8.dp, color = Color.Black.copy(alpha = 0.06f)) },
+                    highlight = { Highlight.Default.copy(alpha = 0.45f) },
+                    shadow = {
+                        Shadow(
+                            radius = 15.dp,
+                            offset = DpOffset(0.dp, 8.dp),
+                            color = Color.Black.copy(alpha = if (isLightTheme) 0.02f else 0.06f),
+                        )
+                    },
                     onDrawSurface = {
                         if (tintColor.isSpecified) {
                             drawRect(tintColor, blendMode = BlendMode.Hue)
                             drawRect(tintColor.copy(alpha = tintColor.alpha * 0.94f))
-                        } else {
+                        } else if (reduceTransparency) {
                             drawRect(materialTint)
+                        } else if (isLightTheme) {
+                            drawRect(Color.Black.copy(alpha = 0.25f))
+                            drawRect(Color.White.copy(alpha = 0.25f))
+                            drawRect(Color(0xFF444444).copy(alpha = 0.6f), blendMode = BlendMode.Plus)
+                            drawRect(Color(0xFFF8F8F8).copy(alpha = 0.2f), blendMode = BlendMode.Luminosity)
+                        } else {
+                            drawRect(Color(0xFF999999).copy(alpha = 0.17f))
                         }
                         if (surfaceColor.isSpecified) {
                             drawRect(surfaceColor)
@@ -231,7 +249,7 @@ fun CupertinoLiquidButton(
                         graphicsLayer.record { drawBackdrop() }
                     }
                 )
-                .glassEdge(shape)
+                .glassEdge(shape, softShadow = true)
                 .then(if (enabled) Modifier.indication(interactionSource, LocalIndication.current) else Modifier)
                 .then(
                     if (enabled && isInteractive) {

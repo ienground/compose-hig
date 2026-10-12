@@ -85,7 +85,6 @@ import zone.ien.hig.theme.Gray
 import zone.ien.hig.theme.systemGreen
 import zone.ien.hig.utils.DampedDragAnimation
 import zone.ien.hig.utils.CupertinoGlassDefaults
-import zone.ien.hig.utils.glassEdge
 
 /**
  * Cupertino Design Switch.
@@ -262,7 +261,7 @@ fun CupertinoSwitch(
                         Highlight.Ambient.copy(
                             width = Highlight.Ambient.width / 1.5f,
                             blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                            alpha = 0.35f + 0.4f * progress
+                            alpha = 0.75f * progress
                         )
                     },
                     shadow = {
@@ -275,7 +274,7 @@ fun CupertinoSwitch(
                         val progress = dampedDragAnimation.pressProgress
                         InnerShadow(
                             radius = 4.dp * progress,
-                            alpha = progress
+                            alpha = 0.35f * progress
                         )
                     },
                     layerBlock = {
@@ -291,7 +290,6 @@ fun CupertinoSwitch(
                         drawRect(thumbColor.copy(alpha = thumbColor.alpha * (1f - progress)))
                     }
                 )
-                .glassEdge(ContinuousCapsule())
                 .size(40.dp, 24.dp)
         ) {
             CompositionLocalProvider(

@@ -38,8 +38,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.kyant.backdrop.backdrops.LayerBackdrop
-import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.runtimeShaderEffect
 import zone.ien.hig.section.CupertinoSectionDefaults
 import zone.ien.hig.section.CupertinoSectionTokens
@@ -299,6 +299,6 @@ private fun BoxScope.BottomAppBarGlass(
                     }
                 },
             )
-            .glassEdge(shape),
+            .glassEdge(shape, softShadow = true),
     )
 }

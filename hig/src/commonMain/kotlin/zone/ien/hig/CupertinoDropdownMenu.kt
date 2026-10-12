@@ -609,7 +609,11 @@ private fun DropdownMenuContent(
                             backdrop = backdrop,
                             shape = { shape },
                             effects = {
-                                cupertinoGlassEffects(30.dp.toPx(), 6.dp.toPx(), 10.dp.toPx())
+                                cupertinoGlassEffects(
+                                    30.dp.toPx(),
+                                    6.dp.toPx(),
+                                    10.dp.toPx(),
+                                )
                             },
                             shadow = {
                                 Shadow(
@@ -640,7 +644,7 @@ private fun DropdownMenuContent(
                                 drawRect(containerColor)
                             },
                         )
-                        .glassEdge(shape)
+                        .glassEdge(shape, softShadow = true)
                         .heightIn(max = maxHeight)
                         .padding(vertical = 8.dp)
                         .verticalScroll(scrollState),

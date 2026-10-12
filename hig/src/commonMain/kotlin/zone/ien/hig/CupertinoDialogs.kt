@@ -108,7 +108,6 @@ import androidx.compose.ui.window.DialogProperties
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.capsule.ContinuousRoundedRectangle
 import com.kyant.backdrop.drawBackdrop
-import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.highlight.Highlight
 import zone.ien.hig.CupertinoDialogsTokens.AlertDialogTitleMessageSpacing
 import zone.ien.hig.section.CupertinoSectionTokens
@@ -308,8 +307,14 @@ private fun CupertinoDialogPanel(
                         Modifier.drawBackdrop(
                             backdrop = backdrop,
                             shape = { shape },
-                            effects = { cupertinoGlassEffects(CupertinoDialogsTokens.AlertDialogBlurRadius.toPx(), 4.dp.toPx(), 8.dp.toPx()) },
-                            highlight = { Highlight.Plain },
+                            effects = {
+                                cupertinoGlassEffects(
+                                    CupertinoDialogsTokens.AlertDialogBlurRadius.toPx(),
+                                    CupertinoGlassDefaults.refractionHeight.toPx(),
+                                    CupertinoGlassDefaults.refractionAmount.toPx(),
+                                )
+                            },
+                            highlight = { Highlight.Default.copy(alpha = 0.35f) },
                             onDrawSurface = {
                                 drawAlertDialogSurface(containerColor, useDefaultAlertMaterial, isDarkTheme)
                             },
@@ -317,7 +322,7 @@ private fun CupertinoDialogPanel(
                     } else {
                         Modifier
                     },
-                ).glassEdge(shape)
+                ).glassEdge(shape, softShadow = backdrop != null)
                 .widthIn(max = CupertinoDialogsTokens.AlertDialogWidth)
                 .fillMaxWidth()
                 .heightIn(
@@ -1149,14 +1154,20 @@ private class CupertinoActionSheetImpl(
                                     Modifier.drawBackdrop(
                                         backdrop = backdrop,
                                         shape = { surfaceShape },
-                                        effects = { blur(CupertinoGlassDefaults.blurRadius.toPx()) },
-                                        highlight = { Highlight.Plain },
+                                        effects = {
+                                            cupertinoGlassEffects(
+                                                CupertinoGlassDefaults.blurRadius.toPx(),
+                                                CupertinoGlassDefaults.refractionHeight.toPx(),
+                                                CupertinoGlassDefaults.refractionAmount.toPx(),
+                                            )
+                                        },
+                                        highlight = { Highlight.Default.copy(alpha = 0.35f) },
                                         onDrawSurface = { drawRect(primaryContainerColor) },
                                     )
                                 } else {
                                     Modifier
                                 },
-                            ).glassEdge(surfaceShape),
+                            ).glassEdge(surfaceShape, softShadow = backdrop != null),
                     shape = surfaceShape,
                     color = if (backdrop == null) primaryContainerColor else Color.Transparent,
                 ) {
@@ -1253,14 +1264,20 @@ private class CupertinoActionSheetImpl(
                                                 Modifier.drawBackdrop(
                                                     backdrop = backdrop,
                                                     shape = { actionSheetShape },
-                                                    effects = { blur(CupertinoGlassDefaults.blurRadius.toPx()) },
-                                                    highlight = { Highlight.Plain },
+                                                    effects = {
+                                                        cupertinoGlassEffects(
+                                                            CupertinoGlassDefaults.blurRadius.toPx(),
+                                                            CupertinoGlassDefaults.refractionHeight.toPx(),
+                                                            CupertinoGlassDefaults.refractionAmount.toPx(),
+                                                        )
+                                                    },
+                                                    highlight = { Highlight.Default.copy(alpha = 0.35f) },
                                                     onDrawSurface = { drawRect(secondaryContainerColor) },
                                                 )
                                             } else {
                                                 Modifier
                                             },
-                                        ).glassEdge(actionSheetShape),
+                                        ).glassEdge(actionSheetShape, softShadow = backdrop != null),
                                 shape = actionSheetShape,
                                 color = if (backdrop == null) secondaryContainerColor else Color.Transparent,
                             ) {

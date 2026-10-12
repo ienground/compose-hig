@@ -76,8 +76,8 @@ import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastRoundToInt
 import com.kyant.backdrop.backdrops.LayerBackdrop
-import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
@@ -90,7 +90,6 @@ import zone.ien.hig.theme.White
 import zone.ien.hig.theme.isDark
 import zone.ien.hig.utils.DampedDragAnimation
 import zone.ien.hig.utils.CupertinoGlassDefaults
-import zone.ien.hig.utils.glassEdge
 import zone.ien.hig.utils.InteractiveHighlight
 import zone.ien.hig.utils.rememberDefaultBackdrop
 
@@ -248,8 +247,7 @@ fun CupertinoSegmentedControl(
                             onDrawSurface = {
                                 drawRect(colors.containerColor)
                             },
-                        )
-                        .glassEdge(shape),
+                        ),
             )
 
             if (tabCount > 0 && dampedDragAnimation != null) {
@@ -380,7 +378,7 @@ fun CupertinoSegmentedControlIndicator(
                         )
                     },
                     highlight = {
-                        Highlight.Default.copy(alpha = 0.35f + 0.4f * dampedDragAnimation.pressProgress)
+                        Highlight.Default.copy(alpha = 0.75f * dampedDragAnimation.pressProgress)
                     },
                     shadow = {
                         Shadow(radius = 6.dp, alpha = 0.3f * dampedDragAnimation.pressProgress)
@@ -388,8 +386,8 @@ fun CupertinoSegmentedControlIndicator(
                     innerShadow = {
                         val progress = dampedDragAnimation.pressProgress
                         InnerShadow(
-                            radius = 8.dp * progress,
-                            alpha = progress,
+                            radius = 4.dp * progress,
+                            alpha = 0.35f * progress,
                         )
                     },
                     onDrawSurface = {
@@ -401,7 +399,6 @@ fun CupertinoSegmentedControlIndicator(
                         drawRect(Color.Black.copy(alpha = 0.03f * progress))
                     },
                 )
-                .glassEdge(shape)
                 .align(Alignment.CenterStart),
         )
     }

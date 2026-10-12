@@ -56,8 +56,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.kyant.backdrop.Backdrop
-import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.theme.CupertinoTheme
@@ -115,12 +115,12 @@ fun CupertinoLiquidAlertDialog(
                         effects = {
                             blur(CupertinoDialogsTokens.AlertDialogBlurRadius.toPx())
                         },
-                        highlight = { Highlight.Plain },
+                        highlight = { Highlight.Default.copy(alpha = 0.35f) },
                         onDrawSurface = {
                             drawAlertDialogSurface(containerColor, useDefaultAlertMaterial, isDarkTheme)
                         },
                     )
-                    .glassEdge(shape)
+                    .glassEdge(shape, softShadow = true)
                     .onGloballyPositioned { updatePanelBounds(it.boundsInRoot()) },
             ) {
                 CompositionLocalProvider(LocalContainerColor provides containerColor) {

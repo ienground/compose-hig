@@ -73,8 +73,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -295,12 +293,12 @@ fun CupertinoWidgetsScreen(
             TopBarSample(
                 uiState = uiState,
                 onItemValueChanged = onItemValueChanged,
-                backdrop = backdrop
+                backdrop = popupBackdrop
             )
         },
         bottomBar = {
             BottomBarSample(
-                backdrop = backdrop,
+                backdrop = popupBackdrop,
                 isNative = nativePickers.value,
                 scrollState = scrollState,
             )
@@ -1035,32 +1033,34 @@ private fun TopBarSample(
             CupertinoLiquidButton(
                 onClick = {},
                 backdrop = backdrop,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp).height(48.dp),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(18.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     repeat(2) {
                         Box(
-                            modifier = Modifier.clickable(
+                            modifier = Modifier.size(36.dp).clickable(
                                 interactionSource = null,
                                 indication = null,
                                 onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
-                            )
+                            ),
+                            contentAlignment = Alignment.Center
                         ) {
                             AnimatedContent(uiState.item.isDark) {
                                 if (it) {
                                     CupertinoIcon(
                                         imageVector = CupertinoIcons.Default.SunMax,
                                         contentDescription = null,
-                                        modifier = Modifier.size(24.dp)
+                                        modifier = Modifier.size(20.dp)
                                     )
                                 } else {
                                     CupertinoIcon(
                                         imageVector = CupertinoIcons.Default.MoonStars,
                                         contentDescription = null,
-                                        modifier = Modifier.size(24.dp)
+                                        modifier = Modifier.size(20.dp)
                                     )
                                 }
                             }
@@ -1118,16 +1118,11 @@ private fun BottomBarSample(
             tabsCount = content.size,
             prominentTabIndex = null,
             isCollapsed = isCollapsed,
-            trailingAction = {
-                CupertinoLiquidIconButton(onClick = {}, backdrop = backdrop) {
-                    Icon(Icons.Default.Save, contentDescription = "Save")
-                }
-            },
             adaptation = {
                 cupertino {
                     this.backdrop = backdrop
                     windowInsets = WindowInsets(left = 16.dp, right = 16.dp)
-                    horizontalAlignment = Alignment.Start
+                    horizontalAlignment = Alignment.CenterHorizontally
                 }
             },
         ) {
@@ -1136,20 +1131,11 @@ private fun BottomBarSample(
                     index = index,
                     onClick = { tab = index },
                     icon = {
-                        BadgedBox(
-                            badge = {
-                                if (index == 0) {
-                                    Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                        Text("1")
-                                    }
-                                }
-                            },
-                        ) {
-                            Icon(
-                                imageVector = pair.second,
-                                contentDescription = pair.first,
-                            )
-                        }
+                        Icon(
+                            imageVector = pair.second,
+                            contentDescription = pair.first,
+                            modifier = Modifier.size(20.dp),
+                        )
                     },
                     label = {
                         Text(pair.first)

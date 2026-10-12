@@ -72,8 +72,8 @@ import androidx.compose.ui.util.fastMap
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.theme.CupertinoColors
@@ -451,10 +451,12 @@ private fun StandardBottomSheet(
                 .drawBackdrop(
                     backdrop = backdrop,
                     shape = { sheetVisualShape },
-                    effects = { blur(blurRadius.toPx()) },
-                    highlight = { Highlight.Plain },
+                    effects = {
+                        blur(blurRadius.toPx())
+                    },
+                    highlight = { Highlight.Default.copy(alpha = 0.35f) },
                     onDrawSurface = { drawRect(containerColor) },
-                ).glassEdge(sheetVisualShape)
+                ).glassEdge(sheetVisualShape, softShadow = true)
                 .requiredHeightIn(min = peekHeight)
                 .nestedScroll(
                     remember(state.swipeableState) {
