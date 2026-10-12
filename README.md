@@ -74,7 +74,7 @@ Declare the dependency in `libs.versions.toml`:
 
 ```toml
 [versions]
-hig = "27.0.1-alpha01"
+hig = "27.0.1-alpha04"
 
 [libraries]
 hig = { group = "zone.ien.hig", name = "hig", version.ref = "hig" }
