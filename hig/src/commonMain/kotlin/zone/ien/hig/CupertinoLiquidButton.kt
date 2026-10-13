@@ -137,7 +137,6 @@ fun CupertinoLiquidButton(
     val targetGraphicsLayer = rememberGraphicsLayer()
 
     val materialTint = CupertinoGlassDefaults.tint
-    val reduceTransparency = Accessibility.isReduceTransparencyEnabled
     val luminanceAnimation = remember(enabled, isLightTheme) { FloatAnimatable(if (isLightTheme) 1f else 0f) }
     val contentColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightContentColor else darkContentColor) }
     val updatedLightContent by rememberUpdatedState(lightContentColor)
@@ -230,15 +229,8 @@ fun CupertinoLiquidButton(
                         if (tintColor.isSpecified) {
                             drawRect(tintColor, blendMode = BlendMode.Hue)
                             drawRect(tintColor.copy(alpha = tintColor.alpha * 0.94f))
-                        } else if (reduceTransparency) {
-                            drawRect(materialTint)
-                        } else if (isLightTheme) {
-                            drawRect(Color.Black.copy(alpha = 0.25f))
-                            drawRect(Color.White.copy(alpha = 0.25f))
-                            drawRect(Color(0xFF444444).copy(alpha = 0.6f), blendMode = BlendMode.Plus)
-                            drawRect(Color(0xFFF8F8F8).copy(alpha = 0.2f), blendMode = BlendMode.Luminosity)
                         } else {
-                            drawRect(Color(0xFF999999).copy(alpha = 0.17f))
+                            drawRect(materialTint)
                         }
                         if (surfaceColor.isSpecified) {
                             drawRect(surfaceColor)
