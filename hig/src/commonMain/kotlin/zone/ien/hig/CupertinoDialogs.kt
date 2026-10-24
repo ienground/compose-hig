@@ -76,6 +76,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -105,6 +106,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.capsule.ContinuousRoundedRectangle
 import com.kyant.backdrop.drawBackdrop
@@ -395,10 +397,14 @@ fun CupertinoActionSheet(
     containerColor: Color = CupertinoDialogsDefaults.ContainerColor,
     secondaryContainerColor: Color = CupertinoTheme.colorScheme.tertiarySystemBackground,
     properties: DialogProperties = DialogProperties(),
+    onGone: () -> Unit = {},
+    scrimColor: Color = CupertinoDialogsDefaults.ScrimColor,
+    backdrop: Backdrop? = null,
     content: (@Composable () -> Unit)? = null,
     buttons: AlertDialogActionsScope.() -> Unit,
 ) {
-    val backdrop = LocalCupertinoDialogBackdrop.current ?: LocalCupertinoBackdrop.current
+    val sheetBackdrop: Backdrop? =
+        backdrop ?: LocalCupertinoDialogBackdrop.current ?: LocalCupertinoBackdrop.current
     CompositionLocalProvider(
         LocalContainerColor provides containerColor,
     ) {
@@ -406,6 +412,8 @@ fun CupertinoActionSheet(
             visible = visible,
             onDismissRequest = onDismissRequest,
             dialogProperties = properties,
+            onGone = onGone,
+            scrimColor = scrimColor,
         ) {
             val hasTitle = title != null || message != null
 
@@ -414,7 +422,7 @@ fun CupertinoActionSheet(
                     hasTitle = hasTitle,
                     primaryContainerColor = containerColor,
                     secondaryContainerColor = secondaryContainerColor,
-                    backdrop = backdrop,
+                    backdrop = sheetBackdrop,
                 ).apply(buttons)
 
             scope.run {
@@ -683,12 +691,16 @@ private fun DialogSheet(
     visible: Boolean,
     onDismissRequest: () -> Unit,
     dialogProperties: DialogProperties,
+    onGone: () -> Unit = {},
+    scrimColor: Color = CupertinoDialogsDefaults.ScrimColor,
     content: @Composable () -> Unit,
 ) {
     AnimatedSheet(
         visible = visible,
         onDismissRequest = onDismissRequest,
         properties = dialogProperties,
+        scrimColor = scrimColor,
+        onGone = onGone,
     ) { updatePanelBounds ->
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val maxSheetHeight = if (maxHeight != Dp.Infinity) maxHeight * 0.9f else Dp.Infinity
@@ -712,6 +724,7 @@ private fun AnimatedSheet(
     onDismissRequest: () -> Unit,
     properties: DialogProperties = DialogProperties(),
     scrimColor: Color = CupertinoDialogsDefaults.ScrimColor,
+    onGone: () -> Unit = {},
     content: @Composable BoxScope.(updatePanelBounds: (Rect) -> Unit) -> Unit,
 ) {
     val expandedStates = remember { MutableTransitionState(false) }
@@ -721,6 +734,23 @@ private fun AnimatedSheet(
     }
 
     expandedStates.targetState = visible
+
+    // The dismiss animation completes only after the sheet has left the window, but the window
+    // itself is removed as soon as the transition goes idle, which also disposes this composition.
+    // Observe the transition outside the Dialog block so that onGone can be reported once per
+    // "shown -> hidden" cycle, e.g. to start a follow-up dialog after this one is gone.
+    val latestOnGone by rememberUpdatedState(onGone)
+    LaunchedEffect(Unit) {
+        var everShown = false
+        snapshotFlow { Triple(expandedStates.targetState, expandedStates.isIdle, expandedStates.currentState) }
+            .collect { (target, idle, current) ->
+                if (target) everShown = true
+                if (everShown && idle && !current) {
+                    everShown = false
+                    latestOnGone()
+                }
+            }
+    }
 
     if (expandedStates.currentState || expandedStates.targetState) {
         val haptic = LocalHapticFeedback.current
@@ -979,7 +1009,7 @@ private class CupertinoActionSheetImpl(
     private val hasTitle: Boolean,
     private val primaryContainerColor: Color,
     private val secondaryContainerColor: Color,
-    private val backdrop: LayerBackdrop?,
+    private val backdrop: Backdrop?,
 ): AlertDialogActionsScope {
     private val buttons = mutableListOf<Pair<AlertActionStyle, @Composable () -> Unit>>()
     val hasPickerActions: Boolean

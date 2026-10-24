@@ -540,6 +540,30 @@ class CupertinoSheetState(
     }
 
     /**
+     * Whether the anchors needed to animate the sheet (the Hidden position and at least one
+     * visible position) are already registered.
+     *
+     * A host that calls [show] right after the sheet enters the composition can wait for this
+     * flag instead of polling [requireOffset] to find out that the anchors are available.
+     */
+    val anchorsReady: Boolean
+        get() = swipeableState.anchors.values.toSet().size >= 2
+
+    /**
+     * Snap the sheet to [CupertinoSheetValue.Hidden] without animation.
+     *
+     * [show] only updates [currentValue] when it is called before the anchors are registered,
+     * leaving the offset untouched. A host can use this call right after the anchors become
+     * available to recover from that state.
+     *
+     * @throws CancellationException if the interaction interrupted by another interaction like a
+     * gesture interaction or another programmatic interaction like a [animateTo] or [snapTo] call.
+     */
+    suspend fun snapToHidden() {
+        swipeableState.snapTo(CupertinoSheetValue.Hidden)
+    }
+
+    /**
      * Attempt to snap synchronously. Snapping can happen synchronously when there is no other swipe
      * transaction like a drag or an animation is progress. If there is another interaction in
      * progress, the suspending [snapTo] overload needs to be used.
