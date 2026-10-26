@@ -188,7 +188,12 @@ fun CupertinoScaffold(
     hasNavigationTitle: Boolean = false,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val barPlacement by rememberCupertinoVerticalBarPlacement()
+    val barPlacement = if (LocalCupertinoSheetPresentation.current is PresentationStyle.Modal) {
+        null
+    } else {
+        val placement by rememberCupertinoVerticalBarPlacement()
+        placement
+    }
     val verticalBarPlacement = barPlacement?.takeIf { it.width > 0.dp }
     val layoutWindowInsets = if (verticalBarPlacement != null) {
         contentWindowInsets.union(WindowInsets(right = verticalBarPlacement!!.width))

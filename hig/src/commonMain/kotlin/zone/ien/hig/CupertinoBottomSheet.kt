@@ -32,12 +32,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -69,11 +71,13 @@ import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlin.jvm.JvmName
 
 internal val LocalCupertinoSheetSurfaceDrawn = staticCompositionLocalOf { false }
+internal val LocalCupertinoSheetPresentation = staticCompositionLocalOf<PresentationStyle?> { null }
 
 /**
  * Content of the Cupertino modal bottom sheet.
  *
  * This composable creates the content area for a Cupertino modal bottom sheet.
+ * Duo에서도 모달 시트의 탑바는 시트 상단에 가로로 배치합니다.
  *
  * @param modifier The modifier to be applied to the bottom sheet
  * @param containerColor The color of the bottom sheet container
@@ -104,6 +108,7 @@ fun CupertinoBottomSheetContent(
     bottomBar: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val presentationStyle = LocalCupertinoSheetPresentation.current ?: remember { PresentationStyle.Modal() }
     val inheritedContainerColor = LocalContainerColor.current
     val scaffoldContainerColor =
         if (LocalCupertinoSheetSurfaceDrawn.current && containerColor == inheritedContainerColor) {
@@ -111,27 +116,33 @@ fun CupertinoBottomSheetContent(
         } else {
             containerColor
         }
-    CupertinoScaffold(
-        modifier = modifier,
-        containerColor = scaffoldContainerColor,
-        contentColor = contentColor,
-        appBarsBlurAlpha = appBarsAlpha,
-        appBarsBlurRadius = appBarsBlurRadius,
-        hasNavigationTitle = hasNavigationTitle,
-        topBar = {
-            Box(
-                Modifier.pointerInput(0) {},
-            ) {
-                topBar()
-            }
-        },
-        bottomBar = bottomBar,
-        contentWindowInsets =
-            CupertinoScaffoldDefaults.contentWindowInsets.union(
-                WindowInsets(bottom = CupertinoBottomSheetTokens.MaxOverflow),
-            ),
-        content = content,
-    )
+    CompositionLocalProvider(LocalCupertinoSheetPresentation provides presentationStyle) {
+        CupertinoScaffold(
+            modifier = modifier,
+            containerColor = scaffoldContainerColor,
+            contentColor = contentColor,
+            appBarsBlurAlpha = appBarsAlpha,
+            appBarsBlurRadius = appBarsBlurRadius,
+            hasNavigationTitle = hasNavigationTitle,
+            topBar = {
+                Box(
+                    Modifier.pointerInput(0) {},
+                ) {
+                    topBar()
+                }
+            },
+            bottomBar = bottomBar,
+            contentWindowInsets =
+                (if (presentationStyle is PresentationStyle.Fullscreen) {
+                    CupertinoScaffoldDefaults.contentWindowInsets
+                } else {
+                    WindowInsets(0, 0, 0, 0)
+                }).union(
+                    WindowInsets(bottom = CupertinoBottomSheetTokens.MaxOverflow),
+                ),
+            content = content,
+        )
+    }
 }
 
 @Immutable
