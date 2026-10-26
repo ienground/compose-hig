@@ -77,7 +77,7 @@ internal actual fun rememberCupertinoVerticalBarPlacement(): State<CupertinoVert
                             topBarInset = topBarInset.dp,
                             centerFromRight = (centerFromRight ?: maxOf(statusWidth, right, 64.0) / 2).dp,
                             top = (if (statusTop < viewHeight / 2) statusBottom + 8.0 else top + 8.0).dp,
-                            bottom = (if (statusTop >= viewHeight / 2) viewHeight - statusTop + 8.0 else bottom + 16.0).dp,
+                            bottom = (if (statusTop >= viewHeight / 2) viewHeight - statusTop + 8.0 else 24.0).dp,
                         )
                     }
                 }

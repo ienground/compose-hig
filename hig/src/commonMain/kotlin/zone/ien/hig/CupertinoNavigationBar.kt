@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
  * Copyright (c) 2025. Scott Lanoue.
+ * Copyright (c) 2025. Kyant.
  * Copyright (c) 2026. IENGROUND of IENLAB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +29,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -46,6 +49,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -54,6 +59,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
@@ -61,6 +67,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -68,6 +75,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -75,6 +83,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onSizeChanged
@@ -86,7 +97,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
@@ -96,6 +106,7 @@ import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.BackdropEffectScope
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
@@ -103,6 +114,7 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.colorControls
+import com.kyant.backdrop.effects.runtimeShaderEffect
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
@@ -111,6 +123,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.CupertinoGlassDefaults
 import zone.ien.hig.utils.DampedDragAnimation
@@ -126,6 +140,7 @@ private val NavBarItemGap = 0.dp
 private val NavBarItemMinWidth = 86.dp
 private val NavBarHeight = 62.dp
 private val NavBarItemHeight = NavBarHeight - NavBarPadding * 2
+private val NavBarVerticalItemHeight = 52.dp
 private val NavBarBlurRadius = CupertinoGlassDefaults.blurRadius
 private val NavBarSelectionBlurRadius = CupertinoGlassDefaults.blurRadius
 private val NavBarRefractionHeight = CupertinoGlassDefaults.refractionHeight
@@ -135,6 +150,7 @@ private val NavBarRefractionAmount = CupertinoGlassDefaults.refractionAmount
  * Cupertino 탐색 탭 막대입니다.
  *
  * Duo의 세로 도구 모음이 활성화되면 오른쪽 아래에 아이콘 탭을 세로로 배치합니다.
+ * 탭을 누르면 렌즈가 반응하고, 0.5초 유지하면 막대와 라벨을 펼칩니다. 드래그는 손을 뗄 때 확정합니다.
  *
  * 탭 콘텐츠에는 [CupertinoNavigationBarItem]을 사용합니다. 배경 유리 효과는 [backdrop]에서 읽습니다.
  *
@@ -161,37 +177,21 @@ fun CupertinoNavigationBar(
         val density = LocalDensity.current
         val animationScope = rememberCoroutineScope()
         val onSelected by rememberUpdatedState(onTabSelected)
-        val itemSize = CupertinoVerticalBarControlWidth - NavBarPadding * 2
-        val itemStep = with(density) { itemSize.toPx() }
+        val selectedIndex = selectedTabIndex()
+        val currentSelectedIndex by rememberUpdatedState(selectedTabIndex)
         val lastIndex = (tabsCount - 1).coerceAtLeast(0)
-        val dragAnimation = remember(tabsCount, density) {
-            DampedDragAnimation(
-                animationScope = animationScope,
-                initialValue = selectedTabIndex().coerceIn(0, lastIndex).toFloat(),
-                valueRange = 0f..lastIndex.toFloat(),
-                visibilityThreshold = 0.001f,
-                initialScale = 1f,
-                pressedScale = CupertinoVerticalBarControlWidth / itemSize * (78f / 56f),
-                onDragStarted = {},
-                onDragStopped = {
-                    val index = targetValue.roundToInt().coerceIn(0, lastIndex)
-                    animateToValue(index.toFloat())
-                    onSelected(index)
-                },
-                onDrag = { _, amount -> updateValue(targetValue + amount.y / itemStep) },
-            )
+        val motion = remember(animationScope, tabsCount) {
+            CupertinoVerticalNavigationBarState(animationScope, selectedIndex, tabsCount)
         }
-        LaunchedEffect(dragAnimation, selectedTabIndex()) {
-            val index = selectedTabIndex().coerceIn(0, lastIndex)
-            if (dragAnimation.targetValue != index.toFloat()) {
-                dragAnimation.animateToValue(index.toFloat())
-            }
+        LaunchedEffect(motion, selectedIndex) {
+            motion.select(selectedIndex)
         }
-        val interactiveHighlight = remember(animationScope, dragAnimation, density) {
-            InteractiveHighlight(animationScope) { size, _ ->
-                Offset(size.width / 2f, with(density) { NavBarPadding.toPx() } + (dragAnimation.value + 0.5f) * itemStep)
-            }
-        }
+        val expansion = motion.expansionProgress
+        val barWidth = CupertinoVerticalBarControlWidth + 30.dp * expansion
+        val itemSize = barWidth - NavBarPadding * 2
+        val itemHeight = NavBarVerticalItemHeight + 12.dp * expansion
+        val itemStep by rememberUpdatedState(with(density) { itemHeight.toPx() })
+        val paddingPx = with(density) { NavBarPadding.toPx() }
         val tabsBackdrop = rememberLayerBackdrop()
         Column(
             modifier = modifier
@@ -202,8 +202,69 @@ fun CupertinoNavigationBar(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            CompositionLocalProvider(LocalCupertinoNavItemWidth provides itemSize) {
-                Box(Modifier.width(CupertinoVerticalBarControlWidth)) {
+            CompositionLocalProvider(
+                LocalCupertinoNavItemWidth provides itemSize,
+                LocalCupertinoVerticalNavMotion provides motion,
+                LocalCupertinoNavigationBarOptions provides CupertinoNavigationBarOptions(
+                    prominentTabIndex = null,
+                    isCollapsed = false,
+                    selectedTabIndex = selectedIndex,
+                    colors = colors,
+                ),
+            ) {
+                Box(
+                    Modifier.requiredWidth(barWidth)
+                        .pointerInput(motion, density) {
+                            awaitEachGesture {
+                                val down = awaitFirstDown(false, PointerEventPass.Initial)
+                                awaitPointerEvent(PointerEventPass.Main)
+                                if (!down.isConsumed || tabsCount == 0) return@awaitEachGesture
+                                val startIndex = ((down.position.y - paddingPx) / itemStep)
+                                    .toInt().coerceIn(0, lastIndex)
+                                if (motion.enabledTabs[startIndex] == false) return@awaitEachGesture
+                                var dragPosition = startIndex.toFloat()
+                                val grabOffset = down.position.y - paddingPx - (startIndex + 0.5f) * itemStep
+                                var distance = Offset.Zero
+                                var dragging = false
+                                var released = false
+                                motion.press(startIndex)
+                                try {
+                                    while (true) {
+                                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                                        val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                                        if (change.isConsumed || event.changes.count { it.pressed } > 1) break
+                                        if (!change.pressed) {
+                                            if (dragging) {
+                                                change.consume()
+                                                val index = dragPosition.roundToInt().coerceIn(0, lastIndex)
+                                                val target = if (motion.enabledTabs[index] != false) index else currentSelectedIndex()
+                                                motion.release(target)
+                                                if (target != currentSelectedIndex()) onSelected(target)
+                                            } else {
+                                                awaitPointerEvent(PointerEventPass.Main)
+                                                motion.release(currentSelectedIndex())
+                                            }
+                                            released = true
+                                            break
+                                        }
+                                        val delta = change.positionChange()
+                                        distance += delta
+                                        if (!dragging && distance.getDistance() > viewConfiguration.touchSlop) {
+                                            dragging = true
+                                        }
+                                        if (delta != Offset.Zero) {
+                                            dragPosition = ((change.position.y - paddingPx - grabOffset) / itemStep - 0.5f)
+                                                .coerceIn(0f, lastIndex.toFloat())
+                                            motion.dragTo(dragPosition)
+                                        }
+                                        if (dragging) change.consume()
+                                    }
+                                } finally {
+                                    if (!released) motion.release(currentSelectedIndex())
+                                }
+                            }
+                        },
+                ) {
                     FlowRow(
                         modifier = Modifier
                             .drawBackdrop(
@@ -223,7 +284,7 @@ fun CupertinoNavigationBar(
                                     )
                                 },
                                 layerBlock = {
-                                    val scale = lerp(1f, 1f + 16.dp.toPx() / size.height, dragAnimation.pressProgress)
+                                    val scale = lerp(1f, 1f + 4.dp.toPx() / size.height, motion.pressProgress)
                                     scaleX = scale
                                     scaleY = scale
                                 },
@@ -231,7 +292,6 @@ fun CupertinoNavigationBar(
                                     drawRect(colors.containerColor)
                                 },
                             )
-                            .then(interactiveHighlight.modifier)
                             .padding(NavBarPadding),
                         maxItemsInEachRow = 1,
                         horizontalArrangement = Arrangement.Center,
@@ -239,7 +299,8 @@ fun CupertinoNavigationBar(
                     CompositionLocalProvider(
                         LocalContentColor provides colors.accentColor,
                         androidx.compose.material3.LocalContentColor provides colors.accentColor,
-                        LocalLiquidBottomTabScale provides { lerp(1f, 1.2f, dragAnimation.pressProgress) },
+                        LocalCupertinoNavBarOverlay provides true,
+                        LocalLiquidBottomTabScale provides { lerp(1f, 1.12f, motion.pressProgress) },
                     ) {
                         FlowRow(
                             modifier = Modifier
@@ -251,7 +312,7 @@ fun CupertinoNavigationBar(
                                     backdrop = backdrop,
                                     shape = { ContinuousCapsule() },
                                     effects = {
-                                        val progress = dragAnimation.pressProgress
+                                        val progress = motion.pressProgress
                                         colorControls(saturation = CupertinoGlassDefaults.saturation)
                                         blur(NavBarSelectionBlurRadius.toPx())
                                         lens(
@@ -259,10 +320,9 @@ fun CupertinoNavigationBar(
                                             lerp(NavBarRefractionAmount.toPx(), 24.dp.toPx(), progress),
                                         )
                                     },
-                                    highlight = { Highlight.Default.copy(alpha = dragAnimation.pressProgress) },
+                                    highlight = { Highlight.Default.copy(alpha = 0.45f * motion.pressProgress) },
                                     onDrawSurface = { drawRect(colors.containerColor) },
                                 )
-                                .then(interactiveHighlight.modifier)
                                 .padding(NavBarPadding),
                             maxItemsInEachRow = 1,
                             horizontalArrangement = Arrangement.Center,
@@ -271,39 +331,36 @@ fun CupertinoNavigationBar(
                     if (tabsCount > 0) {
                         Box(
                             Modifier
-                                .offset {
-                                    IntOffset(
-                                        NavBarPadding.roundToPx(),
-                                        (NavBarPadding.toPx() + dragAnimation.value * itemStep).roundToInt(),
-                                    )
+                                .graphicsLayer {
+                                    translationX = NavBarPadding.toPx()
+                                    translationY = NavBarPadding.toPx() + motion.value * itemStep
                                 }
-                                .size(itemSize)
-                                .then(interactiveHighlight.gestureModifier)
-                                .then(dragAnimation.modifier)
+                                .width(itemSize)
+                                .height(itemHeight)
                                 .drawBackdrop(
                                     backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
                                     shape = { ContinuousCapsule() },
                                     effects = {
-                                        val progress = dragAnimation.pressProgress
-                                        lens(10.dp.toPx() * progress, 14.dp.toPx() * progress, chromaticAberration = true)
+                                        verticalNavigationLens(motion.pressProgress)
                                     },
                                     highlight = {
-                                        Highlight.Default.copy(alpha = lerp(0.08f, 1f, dragAnimation.pressProgress))
+                                        Highlight.Default.copy(alpha = lerp(0.08f, 0.45f, motion.pressProgress))
                                     },
-                                    shadow = { Shadow(alpha = lerp(0.04f, 1f, dragAnimation.pressProgress)) },
+                                    shadow = { Shadow(alpha = lerp(0.04f, 0.6f, motion.pressProgress)) },
                                     innerShadow = {
-                                        InnerShadow(radius = 2.dp + 2.dp * dragAnimation.pressProgress, alpha = 0.35f * dragAnimation.pressProgress)
+                                        InnerShadow(radius = 2.dp + 2.dp * motion.pressProgress, alpha = 0.35f * motion.pressProgress)
                                     },
                                     layerBlock = {
-                                        scaleX = dragAnimation.scaleY
-                                        scaleY = dragAnimation.scaleX
-                                        val velocity = dragAnimation.velocity / 10f
-                                        scaleY /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
-                                        scaleX *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
+                                        val expansionProgress = motion.expansionProgress
+                                        val animation = motion.dragAnimation
+                                        scaleX = 1f + (animation.scaleY - 1f) * lerp(0.85f, 0.4f, expansionProgress)
+                                        scaleY = 1f + (animation.scaleX - 1f) * lerp(0.8f, 0.5f, expansionProgress)
+                                        val velocity = abs(animation.velocity / 10f).coerceIn(0f, 0.2f)
+                                        scaleY /= 1f - velocity * 0.75f
+                                        scaleX *= 1f - velocity * 0.25f
                                     },
                                     onDrawSurface = {
-                                        drawRect(verticalSelectionColor, alpha = 1f - dragAnimation.pressProgress)
-                                        drawRect(Color.Black.copy(alpha = 0.03f * dragAnimation.pressProgress))
+                                        drawRect(verticalSelectionColor, alpha = 1f - motion.pressProgress)
                                     },
                                 ),
                         )
@@ -920,6 +977,8 @@ fun RowScope.CupertinoNavigationBarItem(
     val navigationBarOptions = LocalCupertinoNavigationBarOptions.current
     val index = LocalCupertinoNavItemIndex.current
     val isVertical = (LocalCupertinoVerticalBarPlacement.current?.width ?: 0.dp) > 0.dp
+    val verticalMotion = LocalCupertinoVerticalNavMotion.current
+    val isOverlay = LocalCupertinoNavBarOverlay.current
     val isCollapsed = !isVertical && navigationBarOptions?.isCollapsed == true && navigationBarOptions.prominentTabIndex != null
     val selectedIndex = navigationBarOptions?.selectedTabIndex ?: -1
     val prominentIndex = navigationBarOptions?.prominentTabIndex ?: -1
@@ -927,13 +986,23 @@ fun RowScope.CupertinoNavigationBarItem(
     val isProminent = !isVertical && index != null && itemIndex == prominentIndex
     val isManaged = (isVertical || navigationBarOptions?.usesManagedLayout == true) && index != null
     val isSelected = isManaged && itemIndex == selectedIndex
+    DisposableEffect(verticalMotion, index, enabled, isOverlay) {
+        if (verticalMotion != null && index != null && !isOverlay) {
+            verticalMotion.enabledTabs[index] = enabled
+        }
+        onDispose {
+            if (verticalMotion != null && index != null && !isOverlay) {
+                verticalMotion.enabledTabs.remove(index)
+            }
+        }
+    }
     val isPressed by interactionSource.collectIsPressedAsState()
     val animationScope = rememberCoroutineScope()
     val interactiveHighlight = remember(animationScope) {
         InteractiveHighlight(animationScope) { size, _ -> Offset(size.width / 2f, size.height / 2f) }
     }
-    LaunchedEffect(interactionSource, enabled, isManaged) {
-        if (!enabled || !isManaged) {
+    LaunchedEffect(interactionSource, enabled, isManaged, verticalMotion, isOverlay) {
+        if (!enabled || !isManaged || verticalMotion != null || isOverlay) {
             interactiveHighlight.release()
             return@LaunchedEffect
         }
@@ -945,7 +1014,7 @@ fun RowScope.CupertinoNavigationBarItem(
         }
     }
     val pressScale by animateFloatAsState(
-        targetValue = if (isManaged && enabled && isPressed) 0.985f else 1f,
+        targetValue = if (isManaged && verticalMotion == null && enabled && isPressed) 0.985f else 1f,
         animationSpec = spring(dampingRatio = 0.72f, stiffness = 700f),
         label = "CupertinoNavigationBarItemPressScale",
     )
@@ -959,13 +1028,17 @@ fun RowScope.CupertinoNavigationBarItem(
     val selectionColor = CupertinoGlassDefaults.selection
     val pressedSelectionColor = selectionColor.copy(alpha = (selectionColor.alpha * 2f).coerceAtMost(1f))
     val itemColors = navigationBarOptions?.colors
-    val iconContentColor = if (isManaged) {
-        itemColors?.iconColor(isSelected, enabled) ?: CupertinoTheme.colorScheme.secondaryLabel
+    val iconContentColor = if (isOverlay) {
+        LocalContentColor.current
+    } else if (isManaged) {
+        itemColors?.iconColor(isSelected && verticalMotion == null, enabled) ?: CupertinoTheme.colorScheme.secondaryLabel
     } else {
         Color.Unspecified
     }
-    val labelContentColor = if (isManaged) {
-        itemColors?.textColor(isSelected, enabled) ?: CupertinoTheme.colorScheme.secondaryLabel
+    val labelContentColor = if (isOverlay) {
+        LocalContentColor.current
+    } else if (isManaged) {
+        itemColors?.textColor(isSelected && verticalMotion == null, enabled) ?: CupertinoTheme.colorScheme.secondaryLabel
     } else {
         Color.Unspecified
     }
@@ -1064,10 +1137,12 @@ fun RowScope.CupertinoNavigationBarItem(
                     Modifier
                 },
             )
-            .then(if (isManaged && enabled) interactiveHighlight.modifier.then(interactiveHighlight.gestureModifier) else Modifier)
+            .then(if (isManaged && verticalMotion == null && enabled && !isOverlay) interactiveHighlight.modifier.then(interactiveHighlight.gestureModifier) else Modifier)
             .clip(ContinuousCapsule())
             .then(
-                if (isManaged) {
+                if (isOverlay) {
+                    Modifier
+                } else if (isManaged) {
                     Modifier.selectable(
                         selected = isSelected,
                         enabled = enabled,
@@ -1086,15 +1161,17 @@ fun RowScope.CupertinoNavigationBarItem(
                     )
                 },
             )
-            .heightIn(min = if (isVertical) CupertinoVerticalBarControlWidth - NavBarPadding * 2 else NavBarItemHeight)
-            .width(animatedItemWidth)
+            .heightIn(min = if (isVertical) {
+                NavBarVerticalItemHeight + 12.dp * (verticalMotion?.expansionProgress ?: 0f)
+            } else NavBarItemHeight)
+            .width(if (verticalMotion != null) itemWidth else animatedItemWidth)
             .graphicsLayer {
                 val s = scale() * pressScale
                 scaleX = s
                 scaleY = s
             }
             .then(
-                if (isManaged && enabled) {
+                if (isManaged && verticalMotion == null && enabled && !isOverlay) {
                     Modifier.graphicsLayer(interactiveHighlight.layerBlock)
                 } else {
                     Modifier
@@ -1115,7 +1192,7 @@ fun RowScope.CupertinoNavigationBarItem(
                 icon()
             }
         }
-        if (!isVertical) ProvideTextStyle(
+        if (!isVertical || verticalMotion != null) ProvideTextStyle(
             value = TextStyle(
                 fontFamily = FontFamily.Default,
                 fontSize = 11.sp,
@@ -1124,12 +1201,25 @@ fun RowScope.CupertinoNavigationBarItem(
                 letterSpacing = 0.sp,
             )
         ) {
-            if (isManaged) {
-                CompositionLocalProvider(LocalContentColor provides managedLabelColor) {
-                    label?.invoke()
+            Box(
+                if (verticalMotion != null) {
+                    Modifier.height(13.dp * verticalMotion.expansionProgress)
+                        .graphicsLayer { alpha = verticalMotion.expansionProgress }
+                } else Modifier,
+                contentAlignment = Alignment.Center,
+            ) {
+                Box(
+                    if (verticalMotion != null) Modifier.requiredHeight(13.dp) else Modifier,
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (isManaged) {
+                        CompositionLocalProvider(LocalContentColor provides managedLabelColor) {
+                            label?.invoke()
+                        }
+                    } else {
+                        label?.invoke()
+                    }
                 }
-            } else {
-                label?.invoke()
             }
         } else {
             Box(Modifier.size(0.dp)) { label?.invoke() }
@@ -1316,3 +1406,131 @@ private val LocalCupertinoNavigationBarOptions = staticCompositionLocalOf<Cupert
 private val LocalCupertinoNavItemIndex = staticCompositionLocalOf<Int?> { null }
 private val LocalCupertinoProminentNavItemWidth = staticCompositionLocalOf { 64.dp }
 private object CupertinoNavigationBarRegularBackground
+
+private val LocalCupertinoVerticalNavMotion = staticCompositionLocalOf<CupertinoVerticalNavigationBarState?> { null }
+private val LocalCupertinoNavBarOverlay = staticCompositionLocalOf { false }
+
+private fun BackdropEffectScope.verticalNavigationLens(progress: Float) {
+    if (progress <= 0f) return
+    // 렌즈 경계에서 배경 선을 이어 주고, 안쪽으로 진입하면서 굴절시킵니다.
+    runtimeShaderEffect(
+        key = "CupertinoVerticalNavigationLens",
+        shaderString = """
+uniform shader content;
+uniform float2 size;
+uniform float refractionHeight;
+uniform float refractionAmount;
+
+half4 sampleContent(float2 coord) {
+    return content.eval(clamp(coord, float2(0.5), size - 0.5));
+}
+
+half4 main(float2 coord) {
+    float2 halfSize = size * 0.5;
+    float2 centered = coord - halfSize;
+    float radius = min(halfSize.x, halfSize.y);
+    float2 corner = abs(centered) - (halfSize - radius);
+    float distance = length(max(corner, 0.0)) + min(max(corner.x, corner.y), 0.0) - radius;
+    if (-distance >= refractionHeight) return content.eval(coord);
+
+    float edge = clamp(1.0 + distance / refractionHeight, 0.0, 1.0);
+    float displacement = 0.6 * edge * (1.0 - edge) * refractionAmount;
+    float2 normal = sign(centered) * (max(corner.x, corner.y) > 0.0
+        ? normalize(max(corner, 0.0))
+        : (corner.x > corner.y ? float2(1.0, 0.0) : float2(0.0, 1.0)));
+    float2 refracted = coord + displacement * normal;
+    float dispersion = 0.2 * (centered.x * centered.y) / (halfSize.x * halfSize.y);
+    float2 spread = displacement * normal * dispersion;
+
+    half4 red = sampleContent(refracted + spread);
+    half4 orange = sampleContent(refracted + spread * (2.0 / 3.0));
+    half4 yellow = sampleContent(refracted + spread * (1.0 / 3.0));
+    half4 green = sampleContent(refracted);
+    half4 cyan = sampleContent(refracted - spread * (1.0 / 3.0));
+    half4 blue = sampleContent(refracted - spread * (2.0 / 3.0));
+    half4 purple = sampleContent(refracted - spread);
+    return half4(
+        (red.r + orange.r + yellow.r) / 3.5 + purple.r / 7.0,
+        orange.g / 7.0 + (yellow.g + green.g + cyan.g) / 3.5,
+        (cyan.b + blue.b + purple.b) / 3.0,
+        (red.a + orange.a + yellow.a + green.a + cyan.a + blue.a + purple.a) / 7.0
+    );
+}
+""",
+        uniformShaderName = "content",
+    ) {
+        setFloatUniform("size", size.width, size.height)
+        setFloatUniform("refractionHeight", 16.dp.toPx() * progress)
+        setFloatUniform("refractionAmount", 24.dp.toPx() * progress)
+    }
+}
+
+@Stable
+internal class CupertinoVerticalNavigationBarState(
+    private val scope: CoroutineScope,
+    initialIndex: Int,
+    tabsCount: Int,
+) {
+    private val lastIndex = (tabsCount - 1).coerceAtLeast(0)
+    val dragAnimation = DampedDragAnimation(
+        animationScope = scope,
+        initialValue = initialIndex.coerceIn(0, lastIndex).toFloat(),
+        valueRange = 0f..lastIndex.toFloat(),
+        visibilityThreshold = 0.001f,
+        initialScale = 1f,
+        pressedScale = CupertinoVerticalBarControlWidth /
+            (CupertinoVerticalBarControlWidth - NavBarPadding * 2) * (78f / 56f),
+        onDragStarted = {},
+        onDragStopped = {},
+        onDrag = { _, _ -> },
+    )
+    val value: Float get() = dragAnimation.value
+    val pressProgress: Float get() = dragAnimation.pressProgress
+    private val expansionAnimation = Animatable(0f)
+    private var expansionJob: Job? = null
+    val expansionProgress: Float get() = expansionAnimation.value.coerceIn(0f, 1f)
+    val enabledTabs = mutableStateMapOf<Int, Boolean>()
+    var isPressed by mutableStateOf(false)
+        private set
+    private var targetPosition = value
+
+    fun press(index: Int) {
+        isPressed = true
+        targetPosition = index.coerceIn(0, lastIndex).toFloat()
+        dragAnimation.press()
+        dragAnimation.updateValue(targetPosition)
+        expansionJob?.cancel()
+        expansionJob = scope.launch {
+            launch { expansionAnimation.animateTo(0f, spring(1f, 1000f, 0.001f)) }
+            val startTime = withFrameNanos { it }
+            var elapsed = 0L
+            while (elapsed < 500_000_000L) {
+                elapsed = withFrameNanos { it - startTime }
+            }
+            expansionAnimation.animateTo(1f, spring(1f, 1000f, 0.001f))
+        }
+    }
+
+    fun dragTo(value: Float): Job {
+        targetPosition = value.coerceIn(0f, lastIndex.toFloat())
+        return dragAnimation.snapToValue(targetPosition)
+    }
+
+    fun release(index: Int) {
+        isPressed = false
+        targetPosition = index.coerceIn(0, lastIndex).toFloat()
+        dragAnimation.updateValue(targetPosition)
+        dragAnimation.release()
+        expansionJob?.cancel()
+        expansionJob = scope.launch {
+            expansionAnimation.animateTo(0f, spring(1f, 1000f, 0.001f))
+        }
+    }
+
+    fun select(index: Int) {
+        val target = index.coerceIn(0, lastIndex).toFloat()
+        if (isPressed || targetPosition == target) return
+        targetPosition = target
+        dragAnimation.animateToValue(target)
+    }
+}
