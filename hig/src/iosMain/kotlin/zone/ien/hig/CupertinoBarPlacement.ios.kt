@@ -13,6 +13,7 @@ import platform.UIKit.UIView
 import platform.UIKit.UIViewAutoresizingFlexibleWidth
 import platform.UIKit.UIViewAutoresizingFlexibleHeight
 import zone.ien.hig.uikit.HIGStatusRegion
+import zone.ien.hig.uikit.HIGStatusOcclusion
 import zone.ien.hig.uikit.HIGObserveHinge
 import zone.ien.hig.uikit.HIGRemoveHingeObserver
 
@@ -54,10 +55,27 @@ internal actual fun rememberCupertinoVerticalBarPlacement(): State<CupertinoVert
                     val statusTop = origin.y
                     val statusBottom = origin.y + size.height
                     val statusWidth = size.width
+                    val statusLeft = origin.x
                     val viewHeight = parent.bounds.useContents { size.height }
+                    val viewWidth = parent.bounds.useContents { size.width }
+                    val cameraFrame = HIGStatusOcclusion(parent)
+                    val centerFromRight = cameraFrame.useContents {
+                        when {
+                            size.width > 0.0 -> viewWidth - origin.x - size.width / 2
+                            statusWidth > 0.0 -> viewWidth - statusLeft - statusWidth / 2
+                            else -> null
+                        }
+                    }
+                    val topBarInset = cameraFrame.useContents {
+                        if (size.height > 0.0 && origin.y < viewHeight / 2) {
+                            (origin.y + size.height / 2 - 22.0).coerceAtLeast(0.0)
+                        } else 0.0
+                    }
                     parent.safeAreaInsets.useContents {
                         CupertinoVerticalBarPlacement(
                             width = maxOf(statusWidth, right, 64.0).dp,
+                            topBarInset = topBarInset.dp,
+                            centerFromRight = (centerFromRight ?: maxOf(statusWidth, right, 64.0) / 2).dp,
                             top = (if (statusTop < viewHeight / 2) statusBottom + 8.0 else top + 8.0).dp,
                             bottom = (if (statusTop >= viewHeight / 2) viewHeight - statusTop + 8.0 else bottom + 16.0).dp,
                         )

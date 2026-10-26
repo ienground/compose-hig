@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import com.kyant.backdrop.BackdropEffectScope
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
-import com.kyant.backdrop.effects.vibrancy
+import com.kyant.backdrop.effects.colorControls
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
 import androidx.compose.ui.graphics.compositeOver
@@ -58,8 +58,10 @@ fun rememberDefaultBackdrop(): LayerBackdrop {
 
 internal object CupertinoGlassDefaults {
     val blurRadius = 16.dp
-    val refractionHeight = 4.dp
+    val refractionHeight = 6.dp
     val refractionAmount = 8.dp
+    val pressedRefractionAmount = 12.dp
+    const val saturation = 1.2f
 
     val tint: Color
         @Composable
@@ -140,7 +142,7 @@ internal fun BackdropEffectScope.cupertinoGlassEffects(
     lensHeight: Float = 0f,
     lensDepth: Float = 0f,
 ) {
-    vibrancy()
+    colorControls(saturation = CupertinoGlassDefaults.saturation)
     blur(blurRadius)
     if (lensHeight > 0f && lensDepth > 0f &&
         shape is CornerBasedShape

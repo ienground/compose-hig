@@ -20,6 +20,7 @@
 
 package adaptive
 
+import zone.ien.hig.CupertinoTopAppBarDefaults
 import RootDetails
 import RootUiState
 import androidx.compose.foundation.layout.Arrangement
@@ -114,7 +115,7 @@ fun AdaptiveWidgetsScreen(
                             CupertinoLiquidIconButton(
                                 onClick = navigateBack,
                                 backdrop = backdrop,
-                                modifier = Modifier.padding(start = 16.dp)
+                                modifier = Modifier.padding(CupertinoTopAppBarDefaults.navigationIconPadding)
                             ) {
                                 CupertinoIcon(
                                     imageVector = CupertinoIcons.Default.ChevronBackward,

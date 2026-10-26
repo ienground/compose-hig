@@ -8,7 +8,11 @@ plugins {
 
 android {
     namespace = "zone.ien.hig.example"
-    compileSdk = (findProperty("android.compileSdk") as String).toInt()
+    compileSdk {
+        version = release((findProperty("android.compileSdk") as String).toInt()) {
+            minorApiLevel = (findProperty("android.compileSdkMinor") as String).toInt()
+        }
+    }
 
     defaultConfig {
         applicationId = "zone.ien.hig.example"

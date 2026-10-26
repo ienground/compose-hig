@@ -46,6 +46,8 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -228,6 +230,7 @@ fun CupertinoTopAppBar(
         actions = if (verticalPlacement == null) actions else ({}),
         windowInsets = when {
             verticalPlacement != null -> windowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Top)
+                .union(WindowInsets(top = verticalPlacement.topBarInset, right = verticalPlacement.width))
             barPlacement != null -> WindowInsets(top = barPlacement.top, right = barPlacement.horizontalStatusWidth)
             else -> windowInsets
         },
@@ -242,19 +245,22 @@ fun CupertinoTopAppBar(
             modifier = Modifier
                 .layoutId(CupertinoVerticalTopBar)
                 .width(verticalPlacement.width)
+                .offset(x = verticalPlacement.width / 2 - verticalPlacement.centerFromRight)
                 .fillMaxHeight()
                 .padding(top = verticalPlacement.top, bottom = verticalPlacement.bottom),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Box(contentAlignment = Alignment.Center) { navigationIcon() }
-            FlowRow(
-                modifier = Modifier.width(44.dp),
-                maxItemsInEachRow = 1,
-                horizontalArrangement = Arrangement.Center,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                actions()
+            CompositionLocalProvider(LocalCupertinoBarControlWidth provides CupertinoVerticalBarControlWidth) {
+                Box(contentAlignment = Alignment.Center) { navigationIcon() }
+                FlowRow(
+                    modifier = Modifier.width(CupertinoVerticalBarControlWidth),
+                    maxItemsInEachRow = 1,
+                    horizontalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    actions()
+                }
             }
         }
     }
@@ -820,6 +826,18 @@ private val TopAppBarTitleInset = 16.dp - TopAppBarHorizontalPadding
 
 @Immutable
 object CupertinoTopAppBarDefaults {
+    /** 액션 버튼 바깥 여백. 오른쪽 세로 영역에서는 공통 버튼 너비를 유지합니다. */
+    val actionPadding: PaddingValues
+        @Composable get() = PaddingValues(
+            horizontal = if ((LocalCupertinoVerticalBarPlacement.current?.width ?: 0.dp) > 0.dp) 0.dp else 4.dp,
+        )
+
+    /** 내비게이션 버튼의 시작 여백. 오른쪽 세로 영역에서는 중심 정렬을 유지합니다. */
+    val navigationIconPadding: PaddingValues
+        @Composable get() = PaddingValues(
+            start = if ((LocalCupertinoVerticalBarPlacement.current?.width ?: 0.dp) > 0.dp) 0.dp else 16.dp,
+        )
+
     /**
      * Default insets to be used and consumed by the top app bars
      */

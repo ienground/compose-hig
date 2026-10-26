@@ -20,6 +20,7 @@
 
 package sections
 
+import zone.ien.hig.CupertinoTopAppBarDefaults
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -129,7 +130,7 @@ fun SectionsScreen(
                         CupertinoNavigateBackLiquidButton(
                             onClick = navigateBack,
                             backdrop = backdrop,
-                            modifier = Modifier.padding(start = 16.dp)
+                            modifier = Modifier.padding(CupertinoTopAppBarDefaults.navigationIconPadding)
                         )
                     },
                     title = {

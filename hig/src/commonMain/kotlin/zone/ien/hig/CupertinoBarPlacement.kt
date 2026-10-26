@@ -13,6 +13,8 @@ internal data class CupertinoVerticalBarPlacement(
     val top: Dp,
     val bottom: Dp,
     val horizontalStatusWidth: Dp = 0.dp,
+    val centerFromRight: Dp = width / 2,
+    val topBarInset: Dp = 0.dp,
 )
 
 @Composable
@@ -23,3 +25,7 @@ internal val LocalCupertinoVerticalBarPlacement =
 
 internal object CupertinoVerticalTopBar
 internal object CupertinoVerticalBottomBar
+
+internal val CupertinoVerticalBarControlWidth = 48.dp
+
+internal val LocalCupertinoBarControlWidth = compositionLocalOf<Dp?> { null }

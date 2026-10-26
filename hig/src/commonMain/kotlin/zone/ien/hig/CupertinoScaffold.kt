@@ -492,7 +492,7 @@ private fun ScaffoldLayout(
             val topBarPlaceables = topBarMeasurables
                 .filter { it.layoutId != CupertinoVerticalTopBar }
                 .map {
-                    it.measure(looseConstraints.offset(horizontal = -railWidth))
+                    it.measure(looseConstraints)
                 }
 
             val topBarHeight = topBarPlaceables.fastMaxOfOrNull { it.height } ?: 0

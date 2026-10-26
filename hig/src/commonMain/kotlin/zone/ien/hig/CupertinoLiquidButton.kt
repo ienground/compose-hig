@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.interaction.PressInteraction
@@ -30,7 +31,9 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.innerShadow
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -47,8 +50,9 @@ import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
-import com.kyant.backdrop.effects.vibrancy
+import com.kyant.backdrop.effects.colorControls
 import com.kyant.backdrop.highlight.Highlight
+import com.kyant.backdrop.highlight.HighlightStyle
 import com.kyant.backdrop.shadow.Shadow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -63,6 +67,7 @@ import zone.ien.hig.utils.CupertinoGlassDefaults
 import zone.ien.hig.utils.glassEdge
 import kotlin.math.sign
 import kotlin.time.Duration.Companion.milliseconds
+import androidx.compose.ui.graphics.shadow.Shadow as SurfaceShadow
 import androidx.compose.animation.Animatable as ColorAnimatable
 import androidx.compose.animation.core.Animatable as FloatAnimatable
 
@@ -108,6 +113,7 @@ fun CupertinoLiquidButton(
     isInteractive: Boolean = true,
     content: @Composable RowScope.() -> Unit
 ) {
+    val barControlWidth = LocalCupertinoBarControlWidth.current
     val animationScope = rememberCoroutineScope()
 
     val tintColor by colors.tintColor(enabled)
@@ -137,6 +143,14 @@ fun CupertinoLiquidButton(
     val targetGraphicsLayer = rememberGraphicsLayer()
 
     val materialTint = CupertinoGlassDefaults.tint
+    val hasOpticalDepth = enabled && !Accessibility.isReduceTransparencyEnabled
+    val surfaceSheen = remember {
+        Brush.verticalGradient(
+            0f to Color.White.copy(alpha = 0.14f),
+            0.45f to Color.Transparent,
+            1f to Color.White.copy(alpha = 0.02f),
+        )
+    }
     val luminanceAnimation = remember(enabled, isLightTheme) { FloatAnimatable(if (isLightTheme) 1f else 0f) }
     val contentColorAnimation = remember(enabled) { ColorAnimatable(if (isLightTheme) lightContentColor else darkContentColor) }
     val updatedLightContent by rememberUpdatedState(lightContentColor)
@@ -177,6 +191,7 @@ fun CupertinoLiquidButton(
 
     Box(
         modifier = modifier
+            .then(if (barControlWidth != null) Modifier.width(barControlWidth) else Modifier)
             .heightIn(min = if (size == CupertinoButtonSize.Small) 32.dp else 44.dp)
             .clickable(
                 interactionSource = interactionSource,
@@ -186,6 +201,7 @@ fun CupertinoLiquidButton(
                 onClick = onClick,
             ),
         contentAlignment = Alignment.Center,
+        propagateMinConstraints = barControlWidth != null,
     ) {
         Row(
             modifier = Modifier
@@ -199,7 +215,7 @@ fun CupertinoLiquidButton(
                     shape = { shape },
                     effects = {
                         val l = (luminanceAnimation.value * 2f - 1f).let { sign(it) * it * it }
-                        vibrancy()
+                        colorControls(saturation = CupertinoGlassDefaults.saturation)
                         if (isBackgroundAdaptive) {
                             blur(
                                 if (l > 0f) lerp(10.dp.toPx(), 18.dp.toPx(), l)
@@ -211,18 +227,30 @@ fun CupertinoLiquidButton(
                         if (shape is CornerBasedShape) {
                             val progress = if (enabled && isInteractive) interactiveHighlight.pressProgress.coerceIn(0f, 1f) else 0f
                             lens(
-                                6.dp.toPx().coerceAtMost(this.size.minDimension / 4f),
-                                lerp(10.dp.toPx(), 16.dp.toPx(), progress).coerceAtMost(this.size.minDimension / 2f),
+                                CupertinoGlassDefaults.refractionHeight.toPx().coerceAtMost(this.size.minDimension / 4f),
+                                lerp(CupertinoGlassDefaults.refractionAmount.toPx(), CupertinoGlassDefaults.pressedRefractionAmount.toPx(), progress).coerceAtMost(this.size.minDimension / 2f),
                             )
                         }
                     },
                     layerBlock = if (enabled && isInteractive) interactiveHighlight.layerBlock else null,
-                    highlight = { Highlight.Default.copy(alpha = 0.45f) },
+                    highlight = {
+                        Highlight.Default.copy(
+                            width = 0.5.dp,
+                            alpha = if (hasOpticalDepth) 0.55f else 0.45f,
+                            style = if (hasOpticalDepth) HighlightStyle.Default(angle = 90f, falloff = 1.5f) else HighlightStyle.Default,
+                        )
+                    },
                     shadow = {
                         Shadow(
-                            radius = 15.dp,
-                            offset = DpOffset(0.dp, 8.dp),
-                            color = Color.Black.copy(alpha = if (isLightTheme) 0.02f else 0.06f),
+                            radius = if (hasOpticalDepth) 6.dp else 15.dp,
+                            offset = DpOffset(0.dp, if (hasOpticalDepth) 3.dp else 8.dp),
+                            color = Color.Black.copy(
+                                alpha = if (hasOpticalDepth) {
+                                    if (isLightTheme) 0.06f else 0.12f
+                                } else {
+                                    if (isLightTheme) 0.02f else 0.06f
+                                },
+                            ),
                         )
                     },
                     onDrawSurface = {
@@ -235,13 +263,27 @@ fun CupertinoLiquidButton(
                         if (surfaceColor.isSpecified) {
                             drawRect(surfaceColor)
                         }
+                        if (hasOpticalDepth) drawRect(surfaceSheen)
                     },
                     onDrawBackdrop = { drawBackdrop ->
                         drawBackdrop()
                         graphicsLayer.record { drawBackdrop() }
                     }
                 )
-                .glassEdge(shape, softShadow = true)
+                .then(if (hasOpticalDepth) Modifier else Modifier.glassEdge(shape, softShadow = true))
+                .then(
+                    if (hasOpticalDepth) {
+                        Modifier
+                            .innerShadow(
+                                shape,
+                                SurfaceShadow(
+                                    radius = 1.5.dp,
+                                    offset = DpOffset(0.dp, 1.dp),
+                                    color = Color.White.copy(alpha = 0.42f),
+                                ),
+                            )
+                    } else Modifier
+                )
                 .then(if (enabled) Modifier.indication(interactionSource, LocalIndication.current) else Modifier)
                 .then(
                     if (enabled && isInteractive) {
@@ -295,7 +337,7 @@ fun CupertinoLiquidIconButton(
 ) {
     CupertinoLiquidButton(
         onClick = onClick,
-        modifier = modifier.size(CupertinoLiquidButtonTokens.IconButtonSize),
+        modifier = modifier.size(LocalCupertinoBarControlWidth.current ?: CupertinoLiquidButtonTokens.IconButtonSize),
         enabled = enabled,
         colors = colors,
         size = CupertinoButtonSize.Regular,

@@ -1,5 +1,6 @@
 package haptic
 
+import zone.ien.hig.CupertinoTopAppBarDefaults
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -51,7 +52,7 @@ fun HapticFeedbackScreen(navigateBack: () -> Unit) {
                     CupertinoNavigateBackLiquidButton(
                         onClick = navigateBack,
                         backdrop = backdrop,
-                        modifier = Modifier.padding(start = 16.dp),
+                        modifier = Modifier.padding(CupertinoTopAppBarDefaults.navigationIconPadding),
                     )
                 },
                 backdrop = backdrop,

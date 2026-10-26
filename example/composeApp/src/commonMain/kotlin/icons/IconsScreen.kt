@@ -20,6 +20,7 @@
 
 package icons
 
+import zone.ien.hig.CupertinoTopAppBarDefaults
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -914,7 +915,7 @@ fun IconsScreen(
                             CupertinoNavigateBackLiquidButton(
                                 onClick = navigateBack,
                                 backdrop = backdrop,
-                                modifier = Modifier.padding(start = 16.dp)
+                                modifier = Modifier.padding(CupertinoTopAppBarDefaults.navigationIconPadding)
                             )
                         },
                         material = {

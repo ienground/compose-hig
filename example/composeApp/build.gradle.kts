@@ -33,7 +33,11 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "zone.ien.hig.example.lib"
-        compileSdk = (findProperty("android.compileSdk") as String).toInt()
+        compileSdk {
+            version = release((findProperty("android.compileSdk") as String).toInt()) {
+                minorApiLevel = (findProperty("android.compileSdkMinor") as String).toInt()
+            }
+        }
 
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)

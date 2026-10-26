@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -72,8 +73,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
@@ -87,6 +86,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
@@ -102,7 +102,7 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
-import com.kyant.backdrop.effects.vibrancy
+import com.kyant.backdrop.effects.colorControls
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
@@ -126,10 +126,10 @@ private val NavBarItemGap = 0.dp
 private val NavBarItemMinWidth = 86.dp
 private val NavBarHeight = 62.dp
 private val NavBarItemHeight = NavBarHeight - NavBarPadding * 2
-private val NavBarBlurRadius = 24.dp
-private val NavBarSelectionBlurRadius = 16.dp
-private val NavBarRefractionHeight = 12.dp
-private val NavBarRefractionAmount = 22.dp
+private val NavBarBlurRadius = CupertinoGlassDefaults.blurRadius
+private val NavBarSelectionBlurRadius = CupertinoGlassDefaults.blurRadius
+private val NavBarRefractionHeight = CupertinoGlassDefaults.refractionHeight
+private val NavBarRefractionAmount = CupertinoGlassDefaults.refractionAmount
 
 /**
  * Cupertino 탐색 탭 막대입니다.
@@ -158,45 +158,132 @@ fun CupertinoNavigationBar(
     val verticalPlacement = LocalCupertinoVerticalBarPlacement.current?.takeIf { it.width > 0.dp }
     if (verticalPlacement != null) {
         val verticalSelectionColor = CupertinoGlassDefaults.selection
+        val density = LocalDensity.current
+        val animationScope = rememberCoroutineScope()
+        val onSelected by rememberUpdatedState(onTabSelected)
+        val itemSize = CupertinoVerticalBarControlWidth - NavBarPadding * 2
+        val itemStep = with(density) { itemSize.toPx() }
+        val lastIndex = (tabsCount - 1).coerceAtLeast(0)
+        val dragAnimation = remember(tabsCount, density) {
+            DampedDragAnimation(
+                animationScope = animationScope,
+                initialValue = selectedTabIndex().coerceIn(0, lastIndex).toFloat(),
+                valueRange = 0f..lastIndex.toFloat(),
+                visibilityThreshold = 0.001f,
+                initialScale = 1f,
+                pressedScale = 78f / 56f,
+                onDragStarted = {},
+                onDragStopped = {
+                    val index = targetValue.roundToInt().coerceIn(0, lastIndex)
+                    animateToValue(index.toFloat())
+                    onSelected(index)
+                },
+                onDrag = { _, amount -> updateValue(targetValue + amount.y / itemStep) },
+            )
+        }
+        LaunchedEffect(dragAnimation, selectedTabIndex()) {
+            val index = selectedTabIndex().coerceIn(0, lastIndex)
+            if (dragAnimation.targetValue != index.toFloat()) {
+                dragAnimation.animateToValue(index.toFloat())
+            }
+        }
+        val interactiveHighlight = remember(animationScope) { InteractiveHighlight(animationScope) }
+        val tabsBackdrop = rememberLayerBackdrop()
         Column(
             modifier = modifier
                 .layoutId(CupertinoVerticalBottomBar)
                 .width(verticalPlacement.width)
+                .offset(x = verticalPlacement.width / 2 - verticalPlacement.centerFromRight)
                 .padding(bottom = verticalPlacement.bottom),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            CompositionLocalProvider(LocalCupertinoNavItemWidth provides 44.dp) {
-                FlowRow(
-                    modifier = Modifier
-                        .width(52.dp)
-                        .drawBackdrop(
-                            backdrop = backdrop,
-                            shape = { ContinuousCapsule() },
-                            effects = {
-                                vibrancy()
-                                blur(NavBarBlurRadius.toPx())
-                            },
-                            onDrawSurface = {
-                                drawRect(colors.containerColor)
-                                if (tabsCount > 0) {
-                                    drawRoundRect(
-                                        color = verticalSelectionColor,
-                                        topLeft = Offset(4.dp.toPx(), 4.dp.toPx() + selectedTabIndex().coerceIn(0, tabsCount - 1) * 44.dp.toPx()),
-                                        size = Size(44.dp.toPx(), 44.dp.toPx()),
-                                        cornerRadius = CornerRadius(22.dp.toPx()),
+            CompositionLocalProvider(LocalCupertinoNavItemWidth provides itemSize) {
+                Box(Modifier.width(CupertinoVerticalBarControlWidth)) {
+                    FlowRow(
+                        modifier = Modifier
+                            .drawBackdrop(
+                                backdrop = backdrop,
+                                shape = { ContinuousCapsule() },
+                                effects = {
+                                    colorControls(saturation = CupertinoGlassDefaults.saturation)
+                                    blur(NavBarBlurRadius.toPx())
+                                    lens(NavBarRefractionHeight.toPx(), NavBarRefractionAmount.toPx(), depthEffect = true)
+                                },
+                                layerBlock = {
+                                    val scale = 1f + 8.dp.toPx() / size.width * dragAnimation.pressProgress
+                                    scaleX = scale
+                                    scaleY = scale
+                                },
+                                onDrawSurface = {
+                                    drawRect(colors.containerColor)
+                                },
+                            )
+                            .glassEdge(ContinuousCapsule(), softShadow = true)
+                            .padding(NavBarPadding),
+                        maxItemsInEachRow = 1,
+                        horizontalArrangement = Arrangement.Center,
+                    ) { content() }
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.accentColor,
+                        androidx.compose.material3.LocalContentColor provides colors.accentColor,
+                        LocalLiquidBottomTabScale provides { lerp(1f, 1.2f, dragAnimation.pressProgress) },
+                    ) {
+                        FlowRow(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .clearAndSetSemantics {}
+                                .alpha(0f)
+                                .layerBackdrop(tabsBackdrop)
+                                .padding(NavBarPadding),
+                            maxItemsInEachRow = 1,
+                            horizontalArrangement = Arrangement.Center,
+                        ) { content() }
+                    }
+                    if (tabsCount > 0) {
+                        Box(
+                            Modifier
+                                .offset {
+                                    IntOffset(
+                                        NavBarPadding.roundToPx(),
+                                        (NavBarPadding.toPx() + dragAnimation.value * itemStep).roundToInt(),
                                     )
                                 }
-                            },
+                                .size(itemSize)
+                                .then(interactiveHighlight.gestureModifier)
+                                .then(dragAnimation.modifier)
+                                .drawBackdrop(
+                                    backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop),
+                                    shape = { ContinuousCapsule() },
+                                    effects = {
+                                        val progress = dragAnimation.pressProgress
+                                        lens(10.dp.toPx() * progress, 14.dp.toPx() * progress, chromaticAberration = true)
+                                    },
+                                    highlight = {
+                                        Highlight.Default.copy(alpha = lerp(0.08f, 1f, dragAnimation.pressProgress))
+                                    },
+                                    shadow = { Shadow(alpha = lerp(0.04f, 1f, dragAnimation.pressProgress)) },
+                                    innerShadow = {
+                                        InnerShadow(radius = 2.dp + 2.dp * dragAnimation.pressProgress, alpha = 0.35f * dragAnimation.pressProgress)
+                                    },
+                                    layerBlock = {
+                                        scaleX = dragAnimation.scaleY
+                                        scaleY = dragAnimation.scaleX
+                                        val velocity = (dragAnimation.velocity / 10f).fastCoerceIn(-0.2f, 0.2f)
+                                        scaleY /= 1f - velocity * 0.75f
+                                        scaleX *= 1f - velocity * 0.25f
+                                    },
+                                    onDrawSurface = {
+                                        drawRect(verticalSelectionColor, alpha = 1f - dragAnimation.pressProgress)
+                                    },
+                                )
+                                .then(interactiveHighlight.modifier),
                         )
-                        .glassEdge(ContinuousCapsule(), softShadow = true)
-                        .padding(4.dp),
-                    maxItemsInEachRow = 1,
-                    horizontalArrangement = Arrangement.Center,
-                ) { content() }
+                    }
+                }
             }
             if (trailingAction != null) {
-                Box(Modifier.size(44.dp), contentAlignment = Alignment.Center, content = trailingAction)
+                Box(Modifier.size(itemSize), contentAlignment = Alignment.Center, content = trailingAction)
             }
         }
         return
@@ -396,7 +483,7 @@ fun CupertinoNavigationBar(
                             backdrop = backdrop,
                             shape = { ContinuousCapsule() },
                             effects = {
-                                vibrancy()
+                                colorControls(saturation = CupertinoGlassDefaults.saturation)
                                 blur(NavBarBlurRadius.toPx())
                                 lens(
                                     NavBarRefractionHeight.toPx(),
@@ -455,7 +542,7 @@ fun CupertinoNavigationBar(
                                 shape = { ContinuousCapsule() },
                                 effects = {
                                     val progress = dampedDragAnimation.pressProgress
-                                    vibrancy()
+                                    colorControls(saturation = CupertinoGlassDefaults.saturation)
                                     blur(NavBarSelectionBlurRadius.toPx())
                                     lens(
                                         lerp(NavBarRefractionHeight.toPx(), 24.dp.toPx(), progress),
@@ -710,7 +797,7 @@ private fun CupertinoProminentNavigationBar(
                                         backdrop = backdrop,
                                         shape = { ContinuousCapsule() },
                                         effects = {
-                                            vibrancy()
+                                            colorControls(saturation = CupertinoGlassDefaults.saturation)
                                             blur(NavBarBlurRadius.toPx())
                                             lens(
                                                 NavBarRefractionHeight.toPx(),
@@ -896,11 +983,11 @@ fun RowScope.CupertinoNavigationBarItem(
                             backdrop = navigationBarOptions?.backdrop ?: rememberLayerBackdrop(),
                             shape = { ContinuousCapsule() },
                             effects = {
-                                vibrancy()
+                                colorControls(saturation = CupertinoGlassDefaults.saturation)
                                 blur(NavBarBlurRadius.toPx())
                                 lens(
                                     NavBarRefractionHeight.toPx(),
-                                    lerp(NavBarRefractionAmount.toPx(), 24.dp.toPx(), interactiveHighlight.pressProgress),
+                                    lerp(NavBarRefractionAmount.toPx(), CupertinoGlassDefaults.pressedRefractionAmount.toPx(), interactiveHighlight.pressProgress),
                                     depthEffect = true,
                                 )
                             },
@@ -927,11 +1014,11 @@ fun RowScope.CupertinoNavigationBarItem(
                             backdrop = navigationBarOptions?.backdrop ?: rememberLayerBackdrop(),
                             shape = { ContinuousCapsule() },
                             effects = {
-                                vibrancy()
+                                colorControls(saturation = CupertinoGlassDefaults.saturation)
                                 blur(NavBarSelectionBlurRadius.toPx())
                                 lens(
                                     NavBarRefractionHeight.toPx(),
-                                    lerp(NavBarRefractionAmount.toPx(), 24.dp.toPx(), interactiveHighlight.pressProgress),
+                                    lerp(NavBarRefractionAmount.toPx(), CupertinoGlassDefaults.pressedRefractionAmount.toPx(), interactiveHighlight.pressProgress),
                                     depthEffect = true,
                                 )
                             },
@@ -971,7 +1058,7 @@ fun RowScope.CupertinoNavigationBarItem(
                     )
                 },
             )
-            .heightIn(min = if (isVertical) 44.dp else NavBarItemHeight)
+            .heightIn(min = if (isVertical) CupertinoVerticalBarControlWidth - NavBarPadding * 2 else NavBarItemHeight)
             .width(animatedItemWidth)
             .graphicsLayer {
                 val s = scale() * pressScale

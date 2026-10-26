@@ -155,6 +155,7 @@ import zone.ien.hig.CupertinoTimePicker
 import zone.ien.hig.CupertinoTimePickerNative
 import zone.ien.hig.CupertinoTimePickerState
 import zone.ien.hig.CupertinoTopAppBar
+import zone.ien.hig.CupertinoTopAppBarDefaults
 import zone.ien.hig.CupertinoTriStateCheckBox
 import zone.ien.hig.CupertinoWheelPicker
 import zone.ien.hig.ExperimentalCupertinoApi
@@ -1034,7 +1035,7 @@ private fun TopBarSample(
             CupertinoLiquidButton(
                 onClick = {},
                 backdrop = backdrop,
-                modifier = Modifier.padding(horizontal = 4.dp).heightIn(min = 44.dp),
+                modifier = Modifier.padding(CupertinoTopAppBarDefaults.actionPadding).heightIn(min = 44.dp),
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 FlowRow(
