@@ -171,7 +171,7 @@ fun CupertinoNavigationBar(
                 valueRange = 0f..lastIndex.toFloat(),
                 visibilityThreshold = 0.001f,
                 initialScale = 1f,
-                pressedScale = 78f / 56f,
+                pressedScale = CupertinoVerticalBarControlWidth / itemSize * (78f / 56f),
                 onDragStarted = {},
                 onDragStopped = {
                     val index = targetValue.roundToInt().coerceIn(0, lastIndex)
@@ -187,7 +187,11 @@ fun CupertinoNavigationBar(
                 dragAnimation.animateToValue(index.toFloat())
             }
         }
-        val interactiveHighlight = remember(animationScope) { InteractiveHighlight(animationScope) }
+        val interactiveHighlight = remember(animationScope, dragAnimation, density) {
+            InteractiveHighlight(animationScope) { size, _ ->
+                Offset(size.width / 2f, with(density) { NavBarPadding.toPx() } + (dragAnimation.value + 0.5f) * itemStep)
+            }
+        }
         val tabsBackdrop = rememberLayerBackdrop()
         Column(
             modifier = modifier
@@ -210,8 +214,16 @@ fun CupertinoNavigationBar(
                                     blur(NavBarBlurRadius.toPx())
                                     lens(NavBarRefractionHeight.toPx(), NavBarRefractionAmount.toPx(), depthEffect = true)
                                 },
+                                innerShadow = { InnerShadow(radius = 3.dp, alpha = 0.3f) },
+                                shadow = {
+                                    Shadow(
+                                        radius = 2.dp,
+                                        offset = DpOffset(0.dp, 1.dp),
+                                        color = Color.Black.copy(alpha = 0.16f),
+                                    )
+                                },
                                 layerBlock = {
-                                    val scale = 1f + 8.dp.toPx() / size.width * dragAnimation.pressProgress
+                                    val scale = lerp(1f, 1f + 16.dp.toPx() / size.height, dragAnimation.pressProgress)
                                     scaleX = scale
                                     scaleY = scale
                                 },
@@ -219,7 +231,7 @@ fun CupertinoNavigationBar(
                                     drawRect(colors.containerColor)
                                 },
                             )
-                            .glassEdge(ContinuousCapsule(), softShadow = true)
+                            .then(interactiveHighlight.modifier)
                             .padding(NavBarPadding),
                         maxItemsInEachRow = 1,
                         horizontalArrangement = Arrangement.Center,
@@ -235,6 +247,22 @@ fun CupertinoNavigationBar(
                                 .clearAndSetSemantics {}
                                 .alpha(0f)
                                 .layerBackdrop(tabsBackdrop)
+                                .drawBackdrop(
+                                    backdrop = backdrop,
+                                    shape = { ContinuousCapsule() },
+                                    effects = {
+                                        val progress = dragAnimation.pressProgress
+                                        colorControls(saturation = CupertinoGlassDefaults.saturation)
+                                        blur(NavBarSelectionBlurRadius.toPx())
+                                        lens(
+                                            lerp(NavBarRefractionHeight.toPx(), 24.dp.toPx(), progress),
+                                            lerp(NavBarRefractionAmount.toPx(), 24.dp.toPx(), progress),
+                                        )
+                                    },
+                                    highlight = { Highlight.Default.copy(alpha = dragAnimation.pressProgress) },
+                                    onDrawSurface = { drawRect(colors.containerColor) },
+                                )
+                                .then(interactiveHighlight.modifier)
                                 .padding(NavBarPadding),
                             maxItemsInEachRow = 1,
                             horizontalArrangement = Arrangement.Center,
@@ -269,15 +297,15 @@ fun CupertinoNavigationBar(
                                     layerBlock = {
                                         scaleX = dragAnimation.scaleY
                                         scaleY = dragAnimation.scaleX
-                                        val velocity = (dragAnimation.velocity / 10f).fastCoerceIn(-0.2f, 0.2f)
-                                        scaleY /= 1f - velocity * 0.75f
-                                        scaleX *= 1f - velocity * 0.25f
+                                        val velocity = dragAnimation.velocity / 10f
+                                        scaleY /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
+                                        scaleX *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
                                     },
                                     onDrawSurface = {
                                         drawRect(verticalSelectionColor, alpha = 1f - dragAnimation.pressProgress)
+                                        drawRect(Color.Black.copy(alpha = 0.03f * dragAnimation.pressProgress))
                                     },
-                                )
-                                .then(interactiveHighlight.modifier),
+                                ),
                         )
                     }
                 }
