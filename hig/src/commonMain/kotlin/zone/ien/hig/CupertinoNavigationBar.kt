@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.exclude
@@ -71,6 +72,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
@@ -129,7 +132,9 @@ private val NavBarRefractionHeight = 12.dp
 private val NavBarRefractionAmount = 22.dp
 
 /**
- * Cupertino 하단 탐색 탭 막대입니다.
+ * Cupertino 탐색 탭 막대입니다.
+ *
+ * Duo의 세로 도구 모음이 활성화되면 오른쪽 아래에 아이콘 탭을 세로로 배치합니다.
  *
  * 탭 콘텐츠에는 [CupertinoNavigationBarItem]을 사용합니다. 배경 유리 효과는 [backdrop]에서 읽습니다.
  *
@@ -150,6 +155,52 @@ fun CupertinoNavigationBar(
     trailingAction: (@Composable BoxScope.() -> Unit)? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
+    val verticalPlacement = LocalCupertinoVerticalBarPlacement.current?.takeIf { it.width > 0.dp }
+    if (verticalPlacement != null) {
+        val verticalSelectionColor = CupertinoGlassDefaults.selection
+        Column(
+            modifier = modifier
+                .layoutId(CupertinoVerticalBottomBar)
+                .width(verticalPlacement.width)
+                .padding(bottom = verticalPlacement.bottom),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            CompositionLocalProvider(LocalCupertinoNavItemWidth provides 44.dp) {
+                FlowRow(
+                    modifier = Modifier
+                        .width(52.dp)
+                        .drawBackdrop(
+                            backdrop = backdrop,
+                            shape = { ContinuousCapsule() },
+                            effects = {
+                                vibrancy()
+                                blur(NavBarBlurRadius.toPx())
+                            },
+                            onDrawSurface = {
+                                drawRect(colors.containerColor)
+                                if (tabsCount > 0) {
+                                    drawRoundRect(
+                                        color = verticalSelectionColor,
+                                        topLeft = Offset(4.dp.toPx(), 4.dp.toPx() + selectedTabIndex().coerceIn(0, tabsCount - 1) * 44.dp.toPx()),
+                                        size = Size(44.dp.toPx(), 44.dp.toPx()),
+                                        cornerRadius = CornerRadius(22.dp.toPx()),
+                                    )
+                                }
+                            },
+                        )
+                        .glassEdge(ContinuousCapsule(), softShadow = true)
+                        .padding(4.dp),
+                    maxItemsInEachRow = 1,
+                    horizontalArrangement = Arrangement.Center,
+                ) { content() }
+            }
+            if (trailingAction != null) {
+                Box(Modifier.size(44.dp), contentAlignment = Alignment.Center, content = trailingAction)
+            }
+        }
+        return
+    }
     if (trailingAction != null) {
         val density = LocalDensity.current
         var navigationHeight by remember(density) { mutableStateOf(NavBarHeight) }
@@ -753,12 +804,13 @@ fun RowScope.CupertinoNavigationBarItem(
 ) {
     val navigationBarOptions = LocalCupertinoNavigationBarOptions.current
     val index = LocalCupertinoNavItemIndex.current
-    val isCollapsed = navigationBarOptions?.isCollapsed == true && navigationBarOptions.prominentTabIndex != null
+    val isVertical = (LocalCupertinoVerticalBarPlacement.current?.width ?: 0.dp) > 0.dp
+    val isCollapsed = !isVertical && navigationBarOptions?.isCollapsed == true && navigationBarOptions.prominentTabIndex != null
     val selectedIndex = navigationBarOptions?.selectedTabIndex ?: -1
     val prominentIndex = navigationBarOptions?.prominentTabIndex ?: -1
     val itemIndex = index ?: -1
-    val isProminent = index != null && itemIndex == prominentIndex
-    val isManaged = navigationBarOptions?.usesManagedLayout == true && index != null
+    val isProminent = !isVertical && index != null && itemIndex == prominentIndex
+    val isManaged = (isVertical || navigationBarOptions?.usesManagedLayout == true) && index != null
     val isSelected = isManaged && itemIndex == selectedIndex
     val isPressed by interactionSource.collectIsPressedAsState()
     val animationScope = rememberCoroutineScope()
@@ -814,6 +866,7 @@ fun RowScope.CupertinoNavigationBarItem(
         Color.Transparent
     }
     val itemFillColor = when {
+        isVertical -> Color.Transparent
         isManaged && enabled && isPressed -> pressedSelectionColor
         isManaged && isSelected -> selectionColor
         else -> Color.Transparent
@@ -826,7 +879,7 @@ fun RowScope.CupertinoNavigationBarItem(
     )
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
+        verticalArrangement = if (isVertical) Arrangement.Center else Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .then(
@@ -840,7 +893,7 @@ fun RowScope.CupertinoNavigationBarItem(
                 if (navigationBarOptions?.usesManagedLayout == true && isProminent) {
                     Modifier
                         .drawBackdrop(
-                            backdrop = navigationBarOptions.backdrop ?: rememberLayerBackdrop(),
+                            backdrop = navigationBarOptions?.backdrop ?: rememberLayerBackdrop(),
                             shape = { ContinuousCapsule() },
                             effects = {
                                 vibrancy()
@@ -871,7 +924,7 @@ fun RowScope.CupertinoNavigationBarItem(
                 ) {
                     Modifier
                         .drawBackdrop(
-                            backdrop = navigationBarOptions.backdrop ?: rememberLayerBackdrop(),
+                            backdrop = navigationBarOptions?.backdrop ?: rememberLayerBackdrop(),
                             shape = { ContinuousCapsule() },
                             effects = {
                                 vibrancy()
@@ -918,7 +971,7 @@ fun RowScope.CupertinoNavigationBarItem(
                     )
                 },
             )
-            .heightIn(min = NavBarItemHeight)
+            .heightIn(min = if (isVertical) 44.dp else NavBarItemHeight)
             .width(animatedItemWidth)
             .graphicsLayer {
                 val s = scale() * pressScale
@@ -947,7 +1000,7 @@ fun RowScope.CupertinoNavigationBarItem(
                 icon()
             }
         }
-        ProvideTextStyle(
+        if (!isVertical) ProvideTextStyle(
             value = TextStyle(
                 fontFamily = FontFamily.Default,
                 fontSize = 11.sp,
@@ -963,6 +1016,8 @@ fun RowScope.CupertinoNavigationBarItem(
             } else {
                 label?.invoke()
             }
+        } else {
+            Box(Modifier.size(0.dp)) { label?.invoke() }
         }
     }
 }

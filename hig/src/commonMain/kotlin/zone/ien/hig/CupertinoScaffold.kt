@@ -26,19 +26,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.MutableWindowInsets
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.draw.clipToBounds
 import zone.ien.hig.utils.LocalCupertinoBackdropCoordinates
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.ui.platform.LocalDensity
@@ -95,6 +104,9 @@ import com.kyant.backdrop.effects.runtimeShaderEffect
  * screen, by ensuring proper layout strategy for them and collecting necessary data so these
  * components will work together correctly.
  *
+ * Duo에서는 시스템 예약 영역에 맞춰 버튼과 탭을 세로로 배치합니다.
+ * 힌지가 있는 기기에서는 주 콘텐츠의 스크롤 방향에 따라 상단 제목과 배경을 숨기거나 표시합니다.
+ *
  * @param modifier the [Modifier] to be applied to this scaffold
  * @param topBar top app bar of the screen, typically a [CupertinoTopAppBar]
  * @param bottomBar bottom bar of the screen, typically a [CupertinoTopAppBar]
@@ -107,7 +119,7 @@ import com.kyant.backdrop.effects.runtimeShaderEffect
  * @param contentWindowInsets window insets to be passed to [content] slot via [PaddingValues]
  * params. Scaffold will take the insets into account from the top/bottom only if the [topBar]/
  * [bottomBar] are not present, as the scaffold expect [topBar]/[bottomBar] to handle insets
- * instead
+ * instead. 부모 레이아웃에서 이미 소비한 인셋은 제외합니다.
  * @param appBarsBlurAlpha app bars opacity level. Default lvl is similar to iOS one and
  * supports [Accessibility.isReduceTransparencyEnabled]
  * @param appBarsBlurAlpha app bars blur radius. Default radius is similar to iOS one and
@@ -157,6 +169,7 @@ fun CupertinoScaffold(
  *
  * @param bottomBarBackdropEnabled `false`면 하단 backdrop을 표시하지 않습니다.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 @ExperimentalCupertinoApi
 fun CupertinoScaffold(
@@ -175,6 +188,23 @@ fun CupertinoScaffold(
     hasNavigationTitle: Boolean = false,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val barPlacement by rememberCupertinoVerticalBarPlacement()
+    val verticalBarPlacement = barPlacement?.takeIf { it.width > 0.dp }
+    val layoutWindowInsets = if (verticalBarPlacement != null) {
+        contentWindowInsets.union(WindowInsets(right = verticalBarPlacement!!.width))
+    } else {
+        contentWindowInsets
+    }
+    val remainingWindowInsets = remember(layoutWindowInsets) {
+        MutableWindowInsets(layoutWindowInsets)
+    }
+    var isTopBarHidden by remember(barPlacement != null) { mutableStateOf(false) }
+    val topBarVisibility = animateFloatAsState(
+        targetValue = if (isTopBarHidden) 0f else 1f,
+        animationSpec = androidx.compose.animation.core.tween(220),
+        label = "CupertinoTopBarVisibility",
+    )
+    val currentBarPlacement by rememberUpdatedState(barPlacement)
     val scrollOffset = remember { mutableStateOf(0f) }
     val scrollSource = remember { mutableStateOf<ScrollableState?>(null) }
     val density = LocalDensity.current
@@ -183,9 +213,14 @@ fun CupertinoScaffold(
         animationSpec = spring(dampingRatio = 1f, stiffness = 600f),
         label = "TopScrollEdge",
     )
-    val scrollConnection = remember {
+    val scrollConnection = remember(barPlacement != null) {
         object : NestedScrollConnection {
             override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                if (currentBarPlacement != null && consumed.y != 0f &&
+                    scrollSource.value?.isScrollInProgress != false
+                ) {
+                    isTopBarHidden = consumed.y < 0f
+                }
                 if (scrollSource.value != null) return Offset.Zero
                 scrollOffset.value = if (available.y > 0f && consumed.y == 0f) 0f
                 else (scrollOffset.value - consumed.y).coerceAtLeast(0f)
@@ -216,9 +251,15 @@ fun CupertinoScaffold(
 
     CupertinoSurface(
         modifier =
-            modifier.nestedScroll(scrollConnection).onGloballyPositioned {
-                scaffoldCoordinates.value = it
-            },
+            modifier
+                .onConsumedWindowInsetsChanged {
+                    remainingWindowInsets.insets = layoutWindowInsets.exclude(it)
+                }
+                .then(if (barPlacement != null) Modifier.clipToBounds() else Modifier)
+                .nestedScroll(scrollConnection)
+                .onGloballyPositioned {
+                    scaffoldCoordinates.value = it
+                },
         color = containerColor,
         contentColor = contentColor,
     ) {
@@ -241,7 +282,8 @@ fun CupertinoScaffold(
             LocalCupertinoBackdropCoordinates provides contentCoordinates,
             LocalScaffoldCoordinates provides scaffoldCoordinates,
             LocalTopBarHeight provides topBarHeight,
-            LocalScaffoldInsets provides contentWindowInsets,
+            LocalScaffoldInsets provides remainingWindowInsets,
+            LocalCupertinoVerticalBarPlacement provides barPlacement,
         ) {
             CompositionLocalProvider(
                 LocalCupertinoBackdrop provides contentBackdrop,
@@ -252,6 +294,8 @@ fun CupertinoScaffold(
                     backgroundBackdrop = backgroundBackdrop,
                     contentCoordinates = contentCoordinates,
                     topBarHeightLocal = topBarHeight,
+                    topBarVisibility = topBarVisibility,
+                    verticalBarPlacement = verticalBarPlacement,
                     fabPosition = floatingActionButtonPosition,
                     topBar = {
                         CompositionLocalProvider(
@@ -313,7 +357,7 @@ fun CupertinoScaffold(
                     },
                     content = content,
                     snackbar = snackbarHost,
-                    contentWindowInsets = contentWindowInsets,
+                    contentWindowInsets = remainingWindowInsets,
                     fab = floatingActionButton,
                     appBarsAlpha = appBarsBlurAlpha,
                     appBarsBlurRadius = appBarsBlurRadius,
@@ -419,6 +463,8 @@ private fun ScaffoldLayout(
     contentCoordinates: MutableState<LayoutCoordinates?>,
     appBarsState: AppBarsState,
     topBarHeightLocal: MutableState<Float>,
+    topBarVisibility: State<Float>,
+    verticalBarPlacement: CupertinoVerticalBarPlacement?,
     fabPosition: FabPosition,
     topBar: @Composable () -> Unit,
     content: @Composable (PaddingValues) -> Unit,
@@ -438,9 +484,15 @@ private fun ScaffoldLayout(
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
         layout(layoutWidth, layoutHeight) {
-            val topBarPlaceables =
-                subcompose(ScaffoldLayoutContent.TopBar, topBar).fastMap {
-                    it.measure(looseConstraints)
+            val railWidth = verticalBarPlacement?.width?.roundToPx()?.coerceAtMost(layoutWidth) ?: 0
+            val topBarMeasurables = subcompose(ScaffoldLayoutContent.TopBar, topBar)
+            val verticalTopBarPlaceables = topBarMeasurables
+                .filter { it.layoutId == CupertinoVerticalTopBar }
+                .map { it.measure(looseConstraints.copy(minWidth = railWidth, maxWidth = railWidth)) }
+            val topBarPlaceables = topBarMeasurables
+                .filter { it.layoutId != CupertinoVerticalTopBar }
+                .map {
+                    it.measure(looseConstraints.offset(horizontal = -railWidth))
                 }
 
             val topBarHeight = topBarPlaceables.fastMaxOfOrNull { it.height } ?: 0
@@ -509,13 +561,19 @@ private fun ScaffoldLayout(
                     null
                 }
 
-            val bottomBarPlaceables =
+            val bottomBarMeasurables =
                 subcompose(ScaffoldLayoutContent.BottomBar) {
                     CompositionLocalProvider(
                         LocalFabPlacement provides fabPlacement,
                         content = bottomBar,
                     )
-                }.fastMap { it.measure(looseConstraints) }
+                }
+            val verticalBottomBarPlaceables = bottomBarMeasurables
+                .filter { it.layoutId == CupertinoVerticalBottomBar }
+                .map { it.measure(looseConstraints.copy(minWidth = railWidth, maxWidth = railWidth)) }
+            val bottomBarPlaceables = bottomBarMeasurables
+                .filter { it.layoutId != CupertinoVerticalBottomBar }
+                .map { it.measure(looseConstraints) }
 
             val bottomBarHeight = bottomBarPlaceables.fastMaxOfOrNull { it.height }
             val fabOffsetFromBottom =
@@ -614,7 +672,7 @@ private fun ScaffoldLayout(
                                     left = 0f,
                                     top = 0f,
                                     right = layoutWidth.toFloat(),
-                                    bottom = topBarHeight.toFloat(),
+                                    bottom = topBarHeight * topBarVisibility.value,
                                 ),
                                 backgroundColor = topBarColor,
                                 tint = topColor,
@@ -724,7 +782,16 @@ private fun ScaffoldLayout(
                 it.place(0, 0)
             }
             topBarPlaceables.fastForEach {
-                it.place(0, 0)
+                it.placeWithLayer(0, 0) {
+                    translationY = -topBarHeight * (1f - topBarVisibility.value)
+                    alpha = topBarVisibility.value
+                }
+            }
+            verticalTopBarPlaceables.fastForEach {
+                it.place(layoutWidth - railWidth, 0)
+            }
+            verticalBottomBarPlaceables.fastForEach {
+                it.place(layoutWidth - railWidth, layoutHeight - it.height)
             }
             snackbarPlaceables.fastForEach {
                 it.place(

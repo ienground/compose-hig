@@ -54,6 +54,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -1033,12 +1034,12 @@ private fun TopBarSample(
             CupertinoLiquidButton(
                 onClick = {},
                 backdrop = backdrop,
-                modifier = Modifier.padding(horizontal = 12.dp).height(44.dp),
+                modifier = Modifier.padding(horizontal = 4.dp).heightIn(min = 44.dp),
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                Row(
+                FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(18.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     repeat(2) {
                         Box(

@@ -31,7 +31,9 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.recalculateWindowInsets
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -133,6 +135,8 @@ fun AdaptiveScaffold(
  *
  * 가용 너비가 600 dp 이상이면 사이드바를 표시하고, 더 좁으면 기존 하단 막대를 표시합니다.
  * 기기 종류나 방향 대신 현재 창의 너비로 표시 방식을 결정합니다.
+ * 넓은 화면에서는 [topBar]와 [content]를 상세 영역에 배치하고 각 영역의 위치에 맞게
+ * 시스템 인셋을 계산합니다. [sidebarContent]에는 [contentWindowInsets]를 적용합니다.
  */
 @OptIn(ExperimentalCupertinoApi::class)
 @ExperimentalAdaptiveApi
@@ -157,7 +161,12 @@ fun AdaptiveScaffold(
                     adaptation = remember { ScaffoldAdaptationImpl() },
                     adaptationScope = adaptation,
                     cupertino = { config ->
-                        Box(Modifier.width(AdaptiveSidebarWidth).fillMaxHeight()) {
+                        Box(
+                            Modifier
+                                .width(AdaptiveSidebarWidth)
+                                .fillMaxHeight()
+                                .recalculateWindowInsets(),
+                        ) {
                             if (config.sidebarBackdrop == null) {
                                 Box(
                                     Modifier.fillMaxSize().layerBackdrop(fallbackBackdrop)
@@ -174,6 +183,7 @@ fun AdaptiveScaffold(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxSize()
+                                        .windowInsetsPadding(contentWindowInsets)
                                         .padding(horizontal = AdaptiveSidebarHorizontalPadding),
                                     content = sidebarContent,
                                 )
@@ -184,12 +194,14 @@ fun AdaptiveScaffold(
                         Surface(
                             modifier = Modifier
                                 .width(AdaptiveSidebarWidth)
-                                .fillMaxHeight(),
+                                .fillMaxHeight()
+                                .recalculateWindowInsets(),
                             color = MaterialTheme.colorScheme.surfaceVariant,
                         ) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
+                                    .windowInsetsPadding(contentWindowInsets)
                                     .padding(horizontal = AdaptiveSidebarHorizontalPadding),
                                 content = sidebarContent,
                             )
@@ -217,7 +229,8 @@ fun AdaptiveScaffold(
                 AdaptiveScaffold(
                     modifier = Modifier
                         .weight(1f)
-                        .fillMaxHeight(),
+                        .fillMaxHeight()
+                        .recalculateWindowInsets(),
                     topBar = topBar,
                     bottomBar = {},
                     snackbarHost = snackbarHost,

@@ -35,6 +35,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -189,6 +192,9 @@ fun cupertinoTranslucentTopBarColor(
  * typically be an [CupertinoIconButton].
  * @param actions the actions displayed at the end of the top app bar. This should typically be
  * [CupertinoIconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
+ * [CupertinoScaffold] 안에서는 Duo의 시스템 예약 영역에 맞춰 내비게이션 버튼과 액션을
+ * 오른쪽 세로 영역으로 옮깁니다. 제목은 상단에 유지하며 스캐폴드의 스크롤 동작을 따릅니다.
+ *
  * @param windowInsets a window insets that app bar will respect.
  * @param isTransparent top bar is usually transparent if scroll container reached or almost reached top.
  * [ScrollableState.isTopBarTransparent] and [LazyListState.isTopBarTransparent] can be used to track it
@@ -212,19 +218,46 @@ fun CupertinoTopAppBar(
     backdrop: LayerBackdrop = LocalCupertinoBackdrop.current ?: rememberDefaultBackdrop(),
     colors: CupertinoTopAppBarColors = CupertinoTopAppBarDefaults.topAppBarColors(),
 ) {
+    val barPlacement = LocalCupertinoVerticalBarPlacement.current
+    val verticalPlacement = barPlacement?.takeIf { it.width > 0.dp }
     InlineTopAppBar(
         title = title,
         subtitle = subtitle,
         modifier = modifier,
-        navigationIcon = navigationIcon,
-        actions = actions,
-        windowInsets = windowInsets,
-        isCenterAligned = isCenterAligned,
+        navigationIcon = if (verticalPlacement == null) navigationIcon else ({}),
+        actions = if (verticalPlacement == null) actions else ({}),
+        windowInsets = when {
+            verticalPlacement != null -> windowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Top)
+            barPlacement != null -> WindowInsets(top = barPlacement.top, right = barPlacement.horizontalStatusWidth)
+            else -> windowInsets
+        },
+        isCenterAligned = verticalPlacement == null && isCenterAligned,
         colors = colors,
         isBackgroundAdaptive = isBackgroundAdaptive,
         isBackgroundGradient = isBackgroundGradient,
         backdrop = backdrop
     )
+    if (verticalPlacement != null) {
+        Column(
+            modifier = Modifier
+                .layoutId(CupertinoVerticalTopBar)
+                .width(verticalPlacement.width)
+                .fillMaxHeight()
+                .padding(top = verticalPlacement.top, bottom = verticalPlacement.bottom),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Box(contentAlignment = Alignment.Center) { navigationIcon() }
+            FlowRow(
+                modifier = Modifier.width(44.dp),
+                maxItemsInEachRow = 1,
+                horizontalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                actions()
+            }
+        }
+    }
 }
 
 internal val LocalNavigationTitleVisible = compositionLocalOf { mutableStateOf(false) }
