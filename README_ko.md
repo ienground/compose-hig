@@ -30,6 +30,7 @@ Compose-HIG는 [Apple Human Interface Guidelines](https://developer.apple.com/de
 - [개요](#overview)
 - [목차](#contents)
 - [미리보기](#preview)
+  - [iPhone Duo](#duo-preview)
 - [주요 기능](#features)
 - [플랫폼 지원](#platforms)
 - [설치](#installation)
@@ -40,6 +41,7 @@ Compose-HIG는 [Apple Human Interface Guidelines](https://developer.apple.com/de
   - [스와이프 액션](#swipe)
   - [그룹 목록](#sections)
   - [적응형 컴포넌트](#adaptive)
+  - [iPhone Duo 레이아웃](#duo)
   - [iOS 네이티브 대화상자](#native)
 - [API 레퍼런스](#api)
   - [컴포넌트 구성](#component-api)
@@ -69,6 +71,27 @@ https://github.com/user-attachments/assets/4cc67248-f666-4ba1-9f32-988356b96b2f
 
 배포된 웹 데모와 이전 영상은 현재 체크아웃의 구현과 다를 수 있습니다.
 
+<a id="duo-preview"></a>
+
+### iPhone Duo
+
+[![iPhone Duo: 접힌·펼친 레이아웃, 세그먼트 컨트롤, 하단 시트](docs/assets/compose-hig-duo-demo.gif)](docs/assets/compose-hig-duo-demo.mp4)
+
+[iPhone Duo MP4 시연 영상 재생 및 다운로드](docs/assets/compose-hig-duo-demo.mp4). 현재 소스를 빌드해 iOS 27.1의 iPhone Duo 시뮬레이터에서 촬영했습니다. 접힌 상태와 펼친 상태를 각각 촬영해 컷으로 연결했습니다. 펼친 상태에서는 샘플의 목록·상세 내비게이션과 모달 하단 시트를 보여줍니다.
+
+| 접힌 상태: 오른쪽 컨트롤 | 펼친 상태: 목록과 상세 |
+|--------------------------|------------------------|
+| [<img src="docs/assets/compose-hig-duo-closed.png" width="240" alt="오른쪽에 컨트롤을 세로로 배치한 접힌 iPhone Duo">](docs/assets/compose-hig-duo-closed.png) | [<img src="docs/assets/compose-hig-duo-open.png" width="420" alt="내비게이션 목록과 섹션 상세를 함께 표시하는 펼친 iPhone Duo">](docs/assets/compose-hig-duo-open.png) |
+
+<details>
+<summary>iPhone Duo의 모달 하단 시트</summary>
+
+[<img src="docs/assets/compose-hig-duo-sheet.png" width="640" alt="가로형 상단 바와 Done 액션이 있는 iPhone Duo 모달 시트">](docs/assets/compose-hig-duo-sheet.png)
+
+</details>
+
+통합 방법과 플랫폼 요구 사항은 [iPhone Duo 레이아웃](#duo)을 참고하세요.
+
 <a id="features"></a>
 
 ## 주요 기능
@@ -76,6 +99,7 @@ https://github.com/user-attachments/assets/4cc67248-f666-4ba1-9f32-988356b96b2f
 - **Liquid Glass 표면** — 버튼, 아이콘 버튼, 대화상자, 세그먼트 컨트롤, 내비게이션 표면에 배경 렌더링을 활용한 블러, 굴절, 하이라이트, 그림자, 배경에 맞춘 색상을 적용합니다. [배경 레이어를 연결](#glass)하면 유리 너머로 콘텐츠를 표시할 수 있습니다.
 - **상호작용 컨트롤** — 세그먼트 선택은 드래그와 스프링 애니메이션을 지원하며, 스와이프 행은 양쪽 액션 표시와 전체 스와이프 액션 실행을 지원합니다. [세그먼트 컨트롤](#segments)과 [스와이프 액션](#swipe)을 참고하세요.
 - **그룹 및 접기 가능한 목록** — `CupertinoSection`, `section`, `stickySection`으로 그룹, 인셋, 일반, 사이드바 레이아웃을 구성하고 스타일과 섹션 상태를 공유합니다.
+- **iPhone Duo 레이아웃** — 힌지를 반영한 시스템 영역 처리로 세로 바 레이아웃이 활성화되면 오른쪽에 컨트롤을 배치합니다. 적응형 목록·상세 헬퍼는 실제 오른쪽 패널에 이 처리를 한정합니다. [스크린샷·영상](#duo-preview)과 [통합 방법](#duo)을 참고하세요.
 - **화면 구조와 내비게이션** — Scaffold, 상단·하단 앱 바, 내비게이션 바, 모달·고정형 하단 시트, 네 가지 크기의 플로팅 액션 버튼으로 화면을 구성합니다.
 - **입력·선택·피커** — 일반·테두리·검색 입력창, 스위치, 체크박스, 슬라이더와 범위 슬라이더, 활동 표시기, 휠·날짜·시간·날짜시간 피커로 일반적인 상호작용을 구현합니다.
 - **선택적 iOS 네이티브 컨트롤** — `hig-native`는 UIKit 기반 대화상자, 액션 시트, 메뉴, 날짜·시간 피커, 내비게이션 바를 제공합니다. 다른 대상에서는 공통 네이티브 API에 Compose 대체 구현을 사용합니다.
@@ -397,6 +421,26 @@ fun AdaptiveAction(onClick: () -> Unit) {
 
 Navigation 3용 `rememberAdaptiveListDetailSceneStrategy<T>()`는 기본적으로 중간 너비부터 두 패널을 사용하며, `BackNavigationBehavior.PopLatest`와 `shouldHandleSinglePaneLayout = true`를 적용합니다. `AdaptiveListDetailPane(role)`로 오른쪽 시스템 영역 처리를 해당 패널에 한정하고, `isAdaptiveListDetailExpanded`로 목표 레이아웃을 확인하며, `adaptivePaneAnimation()`으로 160ms 페이드와 240ms 위치·크기 애니메이션을 적용합니다. 이 헬퍼에는 `ExperimentalMaterial3AdaptiveApi` 사용 선언이 필요합니다. 역할, 선호 너비, 미선택 안내 콘텐츠는 호출자가 entry 메타데이터로 제공해야 합니다. [구현](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt)과 [샘플 내비게이션](example/composeApp/src/commonMain/kotlin/RootNavigationGraph.kt)을 참고하세요.
 
+<a id="duo"></a>
+
+### iPhone Duo 레이아웃
+
+`CupertinoScaffold`는 iOS 상태 영역, 카메라 가림 영역, safe-area 인셋, 힌지 상태를 관찰해 바 배치를 결정합니다. Duo에서는 시스템 예약 영역에 액션이 겹치지 않도록 콘텐츠와 컨트롤을 배치합니다.
+
+| 레이아웃 | 동작 |
+|----------|------|
+| 접힌 Duo | 촬영한 좁은 화면에서는 콘텐츠를 단일 패널에 표시하고 상단 바 액션과 내비게이션 탭을 오른쪽에 세로로 배치합니다. |
+| 펼친 Duo | 샘플의 넓어진 창에서 내비게이션 목록과 선택한 상세를 함께 표시합니다. `AdaptiveListDetailPane`은 실제 오른쪽에 놓인 패널에 오른쪽 바와 인셋을 적용합니다. |
+| 모달 하단 시트 | `CupertinoBottomSheetContent`는 Duo에서도 시트 상단에 가로형 상단 바를 유지합니다. |
+
+이 배치를 사용하려면 `CupertinoScaffold` 안에 `CupertinoTopAppBar`와 `CupertinoNavigationBar`를 구성하세요. 상단 바 제목은 위쪽에 유지되고, 뒤로가기 버튼과 액션은 오른쪽 컨트롤 영역으로 이동할 수 있습니다. 세로 내비게이션이 활성화되면 탭을 아이콘으로 표시하며, 탭을 0.5초 동안 누르면 바와 라벨을 펼칩니다. 드래그 선택은 손을 뗄 때 확정합니다.
+
+목록·상세 화면은 [적응형 컴포넌트](#adaptive)의 설명처럼 `rememberAdaptiveListDetailSceneStrategy<T>()`에 호출자가 제공한 entry 역할을 연결하고 각 패널을 `AdaptiveListDetailPane(role)`로 감싸세요. 패널 수는 창 크기에 따른 적응형 directive가 결정하며, 힌지 감지는 바 배치 정보를 제공합니다. 각 Scaffold가 전달하는 `PaddingValues`도 콘텐츠에 적용해야 합니다.
+
+힌지 관찰은 **iOS 27.1 이상**과 `UIHingeInteraction`을 제공하는 빌드 SDK에서 활성화되도록 보호되어 있습니다. 관찰자는 부분적으로 펼친 힌지와 완전히 펼친 힌지를 모두 열린 상태로 처리합니다. 위 미디어는 접힌·펼친 시뮬레이터 구성을 확인한 결과이며, 실기기나 모든 중간 힌지 각도를 검증한 결과는 아닙니다.
+
+구현 참고: [iOS 배치 처리](hig/src/iosMain/kotlin/zone/ien/hig/CupertinoBarPlacement.ios.kt), [버전 보호가 적용된 UIKit 브리지](hig/src/nativeInterop/cinterop/cupertinoBarPlacement.def), [패널별 영역 처리](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt), [샘플 내비게이션](example/composeApp/src/commonMain/kotlin/RootNavigationGraph.kt).
+
 <a id="native"></a>
 
 ### iOS 네이티브 대화상자
@@ -477,6 +521,7 @@ iOS에서는 `UIAlertController`를 사용하며, 다른 대상에서는 Compose
 - [`SectionState`](hig/src/commonMain/kotlin/zone/ien/hig/section/SectionState.kt)는 `isCollapsed`, 변경 가능한 `canCollapse`, `toggle()`, `collapse()`, `expand()`를 제공합니다. `rememberSectionState(initiallyCollapsed = false, canCollapse = true)`로 섹션 상태를 저장합니다.
 - [`rememberCupertinoSwipeBoxState`](hig/src/commonMain/kotlin/zone/ien/hig/swipebox/CupertinoSwipeBoxState.kt)는 `CupertinoSwipeBox`가 받는 `AnchoredDraggableState<SwipeBoxStates>`를 생성합니다.
 - [`CupertinoIcons`](hig/src/commonMain/kotlin/zone/ien/hig/icons/CupertinoIcons.kt)는 벡터를 `Outlined`와 `Filled`로 구분합니다. 각 아이콘 확장 속성을 해당 패키지에서 import하세요. [아이콘 샘플](example/composeApp/src/commonMain/kotlin/icons/IconsScreen.kt)을 참고하세요.
+- [`LocalCupertinoRightSystemArea`](hig/src/commonMain/kotlin/zone/ien/hig/CupertinoBarPlacement.kt)는 기본값이 `true`인 `CompositionLocal<Boolean>`입니다. 현재 패널이 오른쪽 시스템 영역을 담당하는지 나타내며, `AdaptiveListDetailPane`이 목록·상세 레이아웃에 맞게 범위를 지정합니다. [Duo 통합 방법](#duo)을 참고하세요.
 - [`Accessibility`](hig-core/src/commonMain/kotlin/zone/ien/hig/Accessibility.kt)는 `isHighContrastEnabled`, `isReduceTransparencyEnabled`를 제공하며, [`rememberCupertinoHapticFeedback()`](hig-core/src/commonMain/kotlin/zone/ien/hig/CupertinoHapticFeedback.kt)은 Compose `HapticFeedback`을 반환합니다.
 
 <a id="glass-api"></a>
@@ -522,6 +567,7 @@ iOS에서는 `UIAlertController`를 사용하며, 다른 대상에서는 Compose
 
 근거: [Version Catalog](gradle/libs.versions.toml), [Gradle 속성](gradle.properties), [타깃 설정](buildSrc/src/main/kotlin/multiplatform-module-convention.gradle.kts), [wrapper](gradle/wrapper/gradle-wrapper.properties), [workflows](.github/workflows/).
 
+- iPhone Duo 힌지 관찰에는 iOS 27.1 이상과 해당 SDK API가 필요합니다. [Duo 미리보기](#duo-preview)는 시뮬레이터 촬영본이며, 이번 문서 작업에서 실기기 및 중간 힌지 각도의 동작은 테스트하지 않았습니다.
 - 많은 Cupertino API에는 `@OptIn(ExperimentalCupertinoApi::class)`이, 적응형 API에는 `ExperimentalAdaptiveApi` 사용 선언이 필요합니다. 내비게이션 헬퍼에는 상위 라이브러리의 추가 실험적 API 사용 선언이 필요할 수 있습니다. Alpha 버전에서는 API가 변경될 수 있습니다.
 - UIKit 기반 컴포넌트가 네이티브로 동작하는 플랫폼은 iOS입니다. OS가 제어하는 레이아웃·외형·설정 범위는 Compose 대체 구현과 다를 수 있습니다.
 - Liquid Glass 외형은 렌더링 백엔드, OS, 접근성 설정, 캡처한 배경에 영향을 받습니다. 빌드 대상이 설정되어 있다는 사실만으로 모든 플랫폼의 광학 효과가 같다고 볼 수는 없습니다.

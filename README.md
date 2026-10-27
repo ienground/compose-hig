@@ -30,6 +30,7 @@ This README and its installation examples use the current project version, **`27
 - [Overview](#overview)
 - [Table of Contents](#contents)
 - [Preview](#preview)
+  - [iPhone Duo](#duo-preview)
 - [Features](#features)
 - [Platform Support](#platforms)
 - [Installation](#installation)
@@ -40,6 +41,7 @@ This README and its installation examples use the current project version, **`27
   - [Swipe Actions](#swipe)
   - [Grouped Lists](#sections)
   - [Adaptive Components](#adaptive)
+  - [iPhone Duo Layouts](#duo)
   - [Native iOS Dialogs](#native)
 - [API Reference](#api)
   - [Component Families](#component-api)
@@ -69,6 +71,27 @@ https://github.com/user-attachments/assets/4cc67248-f666-4ba1-9f32-988356b96b2f
 
 The deployed web demo and earlier video may differ from the current checkout.
 
+<a id="duo-preview"></a>
+
+### iPhone Duo
+
+[![iPhone Duo: closed and open layouts, segmented controls, and a bottom sheet](docs/assets/compose-hig-duo-demo.gif)](docs/assets/compose-hig-duo-demo.mp4)
+
+[Watch or download the iPhone Duo MP4](docs/assets/compose-hig-duo-demo.mp4). Recorded from this source build on iOS 27.1 iPhone Duo simulators. The video joins separate recordings of the closed and open configurations with a cut. The open configuration shows the sample’s list-detail navigation and a modal bottom sheet.
+
+| Closed: right-side controls | Open: list and detail |
+|-----------------------------|-----------------------|
+| [<img src="docs/assets/compose-hig-duo-closed.png" width="240" alt="Closed iPhone Duo with vertically arranged controls on the right">](docs/assets/compose-hig-duo-closed.png) | [<img src="docs/assets/compose-hig-duo-open.png" width="420" alt="Open iPhone Duo showing the navigation list and section detail together">](docs/assets/compose-hig-duo-open.png) |
+
+<details>
+<summary>Modal bottom sheet on iPhone Duo</summary>
+
+[<img src="docs/assets/compose-hig-duo-sheet.png" width="640" alt="iPhone Duo modal sheet with a horizontal top bar and Done action">](docs/assets/compose-hig-duo-sheet.png)
+
+</details>
+
+See [iPhone Duo layouts](#duo) for integration details and platform requirements.
+
 <a id="features"></a>
 
 ## Features
@@ -76,6 +99,7 @@ The deployed web demo and earlier video may differ from the current checkout.
 - **Liquid Glass surfaces** — Buttons, icon buttons, dialogs, segmented controls, and navigation surfaces use backdrop rendering with blur, refraction, highlights, shadows, and background-aware colors. [Connect a background layer](#glass) to render content through the glass.
 - **Interactive controls** — Segmented selection supports dragging and spring animation; swipe rows expose actions on either side and can invoke a full-swipe action. See [segmented controls](#segments) and [swipe actions](#swipe).
 - **Grouped and collapsible lists** — `CupertinoSection`, `section`, and `stickySection` support grouped, inset, plain, and sidebar layouts with shared styling and section state.
+- **iPhone Duo layouts** — Hinge-aware system-area handling positions controls on the right when the vertical bar layout is active. Adaptive list-detail helpers scope that handling to the pane at the physical right edge. See [screenshots and video](#duo-preview) and [integration details](#duo).
 - **Screen structure and navigation** — Scaffolds, top and bottom app bars, navigation bars, modal and persistent bottom sheets, and four floating action button sizes provide screen-level building blocks.
 - **Inputs, selection, and pickers** — Text, bordered and search fields, switches, checkboxes, sliders and range sliders, activity indicators, and wheel/date/time/date-time pickers cover common interaction patterns.
 - **Optional native iOS controls** — `hig-native` adds UIKit-backed dialogs, action sheets, menus, date/time pickers, and navigation bars, with Compose fallbacks for the common native APIs on other targets.
@@ -397,6 +421,26 @@ The default is Cupertino on iOS and Material 3 on other platforms. Set `target =
 
 For Navigation 3, `rememberAdaptiveListDetailSceneStrategy<T>()` defaults to two panes from medium width, `BackNavigationBehavior.PopLatest`, and `shouldHandleSinglePaneLayout = true`. Use `AdaptiveListDetailPane(role)` to scope right-side system-area handling to the appropriate pane, `isAdaptiveListDetailExpanded` to inspect the target layout, and `adaptivePaneAnimation()` for 160 ms fades and 240 ms bounds animation. These helpers require `ExperimentalMaterial3AdaptiveApi`; roles, preferred widths, and placeholder content remain caller-provided entry metadata. See [implementation](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt) and [sample navigation](example/composeApp/src/commonMain/kotlin/RootNavigationGraph.kt).
 
+<a id="duo"></a>
+
+### iPhone Duo Layouts
+
+`CupertinoScaffold` observes the iOS status region, camera occlusion, safe-area insets, and hinge state to choose bar placement. On Duo, this allows content and controls to share the available screen without placing actions over the reserved system area.
+
+| Layout | Behavior |
+|--------|----------|
+| Closed Duo | The captured compact layout keeps content in one pane and arranges top-bar actions and navigation tabs vertically on the right. |
+| Open Duo | The sample’s wider window displays the navigation list and selected detail together. `AdaptiveListDetailPane` assigns right-side bars and insets to the pane at the physical right edge. |
+| Modal bottom sheet | `CupertinoBottomSheetContent` keeps its top bar horizontal at the top of the sheet, including on Duo. |
+
+Use `CupertinoTopAppBar` and `CupertinoNavigationBar` within `CupertinoScaffold` to participate in this placement. The top-bar title stays at the top while navigation buttons and actions can move into the right-side control area. When vertical navigation is active, tabs use icons; holding a tab for 0.5 seconds expands the bar and labels, and a drag selects its final tab on release.
+
+For list-detail screens, use `rememberAdaptiveListDetailSceneStrategy<T>()` with caller-provided entry roles and wrap each pane in `AdaptiveListDetailPane(role)`, as described under [adaptive components](#adaptive). Pane count follows the window-adaptive directive; hinge detection supplies bar-placement information. Keep the `PaddingValues` supplied by each scaffold on its content.
+
+Hinge observation is guarded for **iOS 27.1 or later** and a build SDK exposing `UIHingeInteraction`; the observer treats partially and fully open hinges as open. The media above verifies the closed and open simulator configurations, not physical hardware or every intermediate hinge angle.
+
+Implementation references: [iOS placement](hig/src/iosMain/kotlin/zone/ien/hig/CupertinoBarPlacement.ios.kt), [guarded UIKit bridge](hig/src/nativeInterop/cinterop/cupertinoBarPlacement.def), [pane ownership](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt), and [sample navigation](example/composeApp/src/commonMain/kotlin/RootNavigationGraph.kt).
+
 <a id="native"></a>
 
 ### Native iOS Dialogs
@@ -477,6 +521,7 @@ Public component functions generally live in `zone.ien.hig`; themes in `zone.ien
 - [`SectionState`](hig/src/commonMain/kotlin/zone/ien/hig/section/SectionState.kt) exposes `isCollapsed`, mutable `canCollapse`, and `toggle()`, `collapse()`, `expand()`. `rememberSectionState(initiallyCollapsed = false, canCollapse = true)` saves section state.
 - [`rememberCupertinoSwipeBoxState`](hig/src/commonMain/kotlin/zone/ien/hig/swipebox/CupertinoSwipeBoxState.kt) creates the `AnchoredDraggableState<SwipeBoxStates>` accepted by `CupertinoSwipeBox`.
 - [`CupertinoIcons`](hig/src/commonMain/kotlin/zone/ien/hig/icons/CupertinoIcons.kt) groups vectors into `Outlined` and `Filled`; import each icon extension from its corresponding package. See the [icon sample](example/composeApp/src/commonMain/kotlin/icons/IconsScreen.kt).
+- [`LocalCupertinoRightSystemArea`](hig/src/commonMain/kotlin/zone/ien/hig/CupertinoBarPlacement.kt) is a `CompositionLocal<Boolean>` defaulting to `true`. It indicates whether the current pane owns the right-side system area; `AdaptiveListDetailPane` scopes it for list-detail layouts. See [Duo integration](#duo).
 - [`Accessibility`](hig-core/src/commonMain/kotlin/zone/ien/hig/Accessibility.kt) exposes `isHighContrastEnabled` and `isReduceTransparencyEnabled`; [`rememberCupertinoHapticFeedback()`](hig-core/src/commonMain/kotlin/zone/ien/hig/CupertinoHapticFeedback.kt) returns Compose `HapticFeedback`.
 
 <a id="glass-api"></a>
@@ -522,6 +567,7 @@ These are the **current source build settings**, not a compatibility promise for
 
 Sources: [version catalog](gradle/libs.versions.toml), [Gradle properties](gradle.properties), [target convention](buildSrc/src/main/kotlin/multiplatform-module-convention.gradle.kts), [wrapper](gradle/wrapper/gradle-wrapper.properties), and [workflows](.github/workflows/).
 
+- iPhone Duo hinge observation requires iOS 27.1+ and the corresponding SDK APIs. The [Duo preview](#duo-preview) was captured in simulators; physical-device and intermediate-angle behavior were not tested for this documentation update.
 - Many Cupertino APIs require `@OptIn(ExperimentalCupertinoApi::class)`; adaptive APIs require `ExperimentalAdaptiveApi`. Navigation helpers may require additional upstream experimental opt-ins. Alpha versions can change APIs.
 - UIKit-backed components are native only on iOS. OS-controlled layout, appearance, and supported customization can differ from Compose fallbacks.
 - Liquid Glass visuals depend on the rendering backend, OS, accessibility settings, and captured background. A configured target does not establish identical optical effects across platforms.
