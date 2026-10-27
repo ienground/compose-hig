@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" role="img" aria-labelledby="title">
+  <title id="title">Logo</title>
+  <rect x="2" y="2" width="156" height="156" rx="28" fill="#f6f7f9" stroke="#a7adb7" stroke-width="2" stroke-dasharray="6 6"/>
+  <text x="80" y="86" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" font-weight="600" letter-spacing="2" fill="#687180">LOGO</text>
+</svg>
