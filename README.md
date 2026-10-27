@@ -1,6 +1,6 @@
 <!-- Replace the image path below with your project logo. -->
 <p align="center">
-  <img src="docs/assets/logo-placeholder.svg" width="128" height="128" alt="Compose-HIG logo placeholder">
+  <img src="docs/assets/compose-hig.svg" width="128" height="128" alt="Compose-HIG logo placeholder">
 </p>
 
 # Compose-HIG
@@ -21,7 +21,7 @@ Compose-HIG brings [Apple’s Human Interface Guidelines](https://developer.appl
 
 The project extends [alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino) and [slanos/compose-cupertino](https://github.com/slanos/compose-cupertino) with backdrop-based Liquid Glass rendering, additional controls, and adaptive navigation. Most UI is rendered by Compose; native iOS controls are provided separately in `hig-native`.
 
-This README describes the current source tree. Its configured version is **`27.2.0-alpha01`**; the installation example uses the separately verified Maven Central release **`27.0.1-alpha05`**. Newer APIs and behavior described here may require building the source. See [installation](#installation) and [compatibility](#compatibility).
+This README and its installation examples use the current project version, **`27.2.0-alpha01`**. See [installation](#installation) and [compatibility](#compatibility).
 
 <a id="contents"></a>
 
@@ -123,7 +123,7 @@ For an existing Compose Multiplatform project, add the core UI dependency to `co
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("zone.ien.hig:hig:27.0.1-alpha05")
+            implementation("zone.ien.hig:hig:27.2.0-alpha01")
         }
     }
 }
@@ -133,7 +133,7 @@ Alternatively, use a [Gradle version catalog](https://docs.gradle.org/current/us
 
 ```toml
 [versions]
-hig = "27.0.1-alpha05"
+hig = "27.2.0-alpha01"
 
 [libraries]
 hig = { module = "zone.ien.hig:hig", version.ref = "hig" }
@@ -160,7 +160,7 @@ kotlin {
 | [`zone.ien.hig:hig-adaptive`](https://central.sonatype.com/artifact/zone.ien.hig/hig-adaptive) | Cupertino/Material 3 adaptation; includes `hig` and `hig-native` |
 | [`zone.ien.hig:hig-icons-extended`](https://central.sonatype.com/artifact/zone.ien.hig/hig-icons-extended) | Additional Cupertino vectors |
 
-All five artifacts were verified at `27.0.1-alpha05` in Maven Central. The source version `27.2.0-alpha01` was not present in the checked [registry metadata](https://repo.maven.apache.org/maven2/zone/ien/hig/hig/maven-metadata.xml). For APIs added since the published release, build this checkout and use local project dependencies as the [sample does](example/composeApp/build.gradle.kts), or publish the library modules to Maven Local and add `mavenLocal()` to your consuming project. Do not assume the source version is already downloadable from Maven Central.
+For local development, use project dependencies as the [sample does](example/composeApp/build.gradle.kts), or follow the [Maven Local instructions](#development).
 
 <a id="quick-start"></a>
 
@@ -214,7 +214,7 @@ Call `SettingsScreen()` from your platform’s Compose host. Apply the scaffold�
 
 ## Usage Examples
 
-The following composables assume an enclosing `CupertinoTheme` unless they create an `AdaptiveTheme`. Examples target the current source APIs; compare your selected release before copying them into a published-version integration.
+The following composables assume an enclosing `CupertinoTheme` unless they create an `AdaptiveTheme`. Examples use the current project APIs.
 
 <a id="glass"></a>
 

@@ -1,6 +1,6 @@
 <!-- 아래 이미지 경로를 프로젝트 로고 경로로 교체하세요. -->
 <p align="center">
-  <img src="docs/assets/logo-placeholder.svg" width="128" height="128" alt="Compose-HIG 로고 자리">
+  <img src="docs/assets/compose-hig.svg" width="128" height="128" alt="Compose-HIG 로고 자리">
 </p>
 
 # Compose-HIG
@@ -21,7 +21,7 @@ Compose-HIG는 [Apple Human Interface Guidelines](https://developer.apple.com/de
 
 [alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino)와 [slanos/compose-cupertino](https://github.com/slanos/compose-cupertino)를 바탕으로 배경 레이어 기반 Liquid Glass 렌더링, 추가 컨트롤, 적응형 내비게이션을 확장했습니다. 대부분의 UI는 Compose로 렌더링하며, iOS 네이티브 컨트롤은 `hig-native`에서 별도로 제공합니다.
 
-이 문서는 현재 소스 트리를 기준으로 합니다. 소스에 설정된 버전은 **`27.2.0-alpha01`**이며, 설치 예제는 Maven Central에서 별도로 확인한 배포 버전 **`27.0.1-alpha05`**를 사용합니다. 문서에 소개된 최신 API와 동작은 소스 빌드가 필요할 수 있습니다. [설치](#installation)와 [호환성](#compatibility)을 참고하세요.
+이 문서와 설치 예제는 현재 프로젝트 버전인 **`27.2.0-alpha01`**을 기준으로 합니다. [설치](#installation)와 [호환성](#compatibility)을 참고하세요.
 
 <a id="contents"></a>
 
@@ -123,7 +123,7 @@ dependencyResolutionManagement {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("zone.ien.hig:hig:27.0.1-alpha05")
+            implementation("zone.ien.hig:hig:27.2.0-alpha01")
         }
     }
 }
@@ -133,7 +133,7 @@ kotlin {
 
 ```toml
 [versions]
-hig = "27.0.1-alpha05"
+hig = "27.2.0-alpha01"
 
 [libraries]
 hig = { module = "zone.ien.hig:hig", version.ref = "hig" }
@@ -160,7 +160,7 @@ kotlin {
 | [`zone.ien.hig:hig-adaptive`](https://central.sonatype.com/artifact/zone.ien.hig/hig-adaptive) | Cupertino/Material 3 전환, `hig`와 `hig-native` 포함 |
 | [`zone.ien.hig:hig-icons-extended`](https://central.sonatype.com/artifact/zone.ien.hig/hig-icons-extended) | 추가 Cupertino 벡터 아이콘 |
 
-Maven Central에서 다섯 아티팩트의 `27.0.1-alpha05` 배포를 확인했습니다. 소스 버전 `27.2.0-alpha01`은 확인한 [저장소 메타데이터](https://repo.maven.apache.org/maven2/zone/ien/hig/hig/maven-metadata.xml)에 없었습니다. 배포 이후 추가된 API를 사용하려면 이 체크아웃을 빌드하고 [샘플처럼](example/composeApp/build.gradle.kts) 로컬 프로젝트 의존성을 사용하거나, 라이브러리 모듈을 Maven Local에 배포한 뒤 소비 프로젝트에 `mavenLocal()`을 추가하세요. 소스 버전을 Maven Central에서 바로 내려받을 수 있다고 가정하지 마세요.
+로컬 개발에서는 [샘플처럼](example/composeApp/build.gradle.kts) 프로젝트 의존성을 사용하거나 [Maven Local 안내](#development)를 참고하세요.
 
 <a id="quick-start"></a>
 
@@ -214,7 +214,7 @@ fun SettingsScreen() {
 
 ## 사용 예제
 
-다음 컴포저블은 `AdaptiveTheme`을 직접 구성하는 경우를 제외하면 상위에 `CupertinoTheme`이 있다고 가정합니다. 예제는 현재 소스 API 기준이므로 배포 버전에 적용할 때는 선택한 버전의 API와 비교하세요.
+다음 컴포저블은 `AdaptiveTheme`을 직접 구성하는 경우를 제외하면 상위에 `CupertinoTheme`이 있다고 가정합니다. 예제는 현재 프로젝트 API를 사용합니다.
 
 <a id="glass"></a>
 
