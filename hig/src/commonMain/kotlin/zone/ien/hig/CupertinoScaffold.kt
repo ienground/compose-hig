@@ -239,7 +239,7 @@ fun CupertinoScaffold(
         }
     }
     val contentCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
-    val hasSoftBottomEdge = LocalScaffoldSoftBottomEdge.current
+    val hasSoftBottomEdge = LocalScaffoldSoftBottomEdge.current && verticalBarPlacement == null
     val backgroundBackdrop = rememberLayerBackdrop { drawRect(containerColor) }
     val contentBackdrop = rememberLayerBackdrop {
         drawRect(containerColor)
@@ -550,16 +550,18 @@ private fun ScaffoldLayout(
                 if (fabPlaceables.isNotEmpty()) {
                     val fabWidth = fabPlaceables.fastMaxOfOrNull { it.width } ?: 0
                     val fabHeight = fabPlaceables.fastMaxOfOrNull { it.height } ?: 0
+                    val leftInset = contentWindowInsets.getLeft(this@SubcomposeLayout, layoutDirection)
+                    val rightInset = contentWindowInsets.getRight(this@SubcomposeLayout, layoutDirection)
                     // FAB distance from the left of the layout, taking into account LTR / RTL
                     val fabLeftOffset =
                         if (fabPosition == FabPosition.End) {
                             if (layoutDirection == LayoutDirection.Ltr) {
-                                layoutWidth - FabSpacing.roundToPx() - fabWidth
+                                layoutWidth - rightInset - FabSpacing.roundToPx() - fabWidth
                             } else {
-                                FabSpacing.roundToPx()
+                                leftInset + FabSpacing.roundToPx()
                             }
                         } else {
-                            (layoutWidth - fabWidth) / 2
+                            leftInset + (layoutWidth - leftInset - rightInset - fabWidth) / 2
                         }
 
                     FabPlacement(
