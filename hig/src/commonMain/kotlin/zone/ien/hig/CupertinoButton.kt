@@ -22,7 +22,6 @@ package zone.ien.hig
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -146,7 +145,7 @@ fun CupertinoButton(
         else 1f
     )
 
-    val indication = if (colors.isPlain) null else LocalIndication.current
+    val indication = rememberCupertinoIndication(colors.indicationColor)
 
     CupertinoSurface(
         onClick = onClick,

@@ -78,6 +78,7 @@ fun <T> CupertinoPickerNative(
                 titles = titles,
                 selectedIndex = selectedIndex,
                 enabled = enabled,
+                animated = state.consumeNativeSelectionAnimation(),
             )
             it.backgroundColor = containerColor.toUIColor()
         },
@@ -96,25 +97,34 @@ internal class NativePickerAdapter(
 ) : NSObject(), UIPickerViewDataSourceProtocol, UIPickerViewDelegateProtocol {
     private var titles: List<String> = emptyList()
     private var enabled = true
+    private var selectedIndex: Int? = null
 
     fun update(
         picker: UIPickerView,
         titles: List<String>,
         selectedIndex: Int,
         enabled: Boolean,
+        animated: Boolean = false,
     ) {
         picker.dataSource = this
         picker.delegate = this
-        this.titles = titles
         this.enabled = enabled
         picker.userInteractionEnabled = enabled
-        picker.reloadAllComponents()
+        val titlesChanged = this.titles != titles
+        if (titlesChanged) {
+            this.titles = titles
+            picker.reloadAllComponents()
+        }
         if (titles.isNotEmpty()) {
-            picker.selectRow(
-                row = selectedIndex.coerceIn(0, titles.lastIndex).toLong(),
-                inComponent = 0L,
-                animated = false,
-            )
+            val boundedIndex = selectedIndex.coerceIn(0, titles.lastIndex)
+            if (titlesChanged || this.selectedIndex != boundedIndex || animated) {
+                picker.selectRow(
+                    row = boundedIndex.toLong(),
+                    inComponent = 0L,
+                    animated = animated,
+                )
+                this.selectedIndex = boundedIndex
+            }
         }
     }
 

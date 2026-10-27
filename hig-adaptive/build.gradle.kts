@@ -29,6 +29,9 @@ plugins {
 kotlin {
 
     sourceSets {
+        jsTest {
+            resources.srcDir(rootProject.file("hig/src/jsTest/resources"))
+        }
         commonMain.dependencies {
             api(projects.hig)
             api(projects.higNative)

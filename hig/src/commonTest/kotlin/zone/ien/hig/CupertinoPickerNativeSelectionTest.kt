@@ -67,6 +67,7 @@ class CupertinoPickerNativeSelectionTest {
             assertTrue(scrollCompleted)
             assertEquals(3, state.selectedItemIndex)
             assertEquals(3, state.lazyListState.firstVisibleItemIndex)
+            assertFalse(state.nativeSelectionAnimated)
         }
 
         runOnIdle {
@@ -79,6 +80,9 @@ class CupertinoPickerNativeSelectionTest {
             assertTrue(animationCompleted)
             assertEquals(1, state.selectedItemIndex)
             assertEquals(1, state.lazyListState.firstVisibleItemIndex)
+            assertTrue(state.nativeSelectionAnimated)
+            assertTrue(state.consumeNativeSelectionAnimation())
+            assertFalse(state.consumeNativeSelectionAnimation())
         }
     }
 

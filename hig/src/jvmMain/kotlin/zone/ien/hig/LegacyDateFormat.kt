@@ -98,11 +98,16 @@ internal object LegacyDateFormat {
                 )
         }
 
-    fun monthsNames(locale: CalendarLocale): List<String> =
+    fun monthsNames(locale: CalendarLocale): List<String> = monthsNames(Calendar.getInstance(), locale)
+
+    internal fun monthsNames(
+        calendar: Calendar,
+        locale: CalendarLocale,
+    ): List<String> =
         (0 until 12).map {
-            Calendar
-                .getInstance()
+            (calendar.clone() as Calendar)
                 .apply {
+                    set(Calendar.DAY_OF_MONTH, 1)
                     set(Calendar.MONTH, it)
                 }.getDisplayName(Calendar.MONTH, Calendar.LONG_STANDALONE, locale)
         }

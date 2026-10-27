@@ -30,7 +30,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -75,6 +75,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -576,15 +577,16 @@ private fun CupertinoDatePickerPager(
                 onPrevMonthClicked = {
                     coroutineScope.launch {
                         monthsListState.animateScrollToItem(
-                            (monthsListState.firstVisibleItemIndex - 1).coerceAtLeast(1),
+                            (monthsListState.firstVisibleItemIndex - 1).coerceAtLeast(0),
                         )
                     }
                 },
                 onNextMonthClicked = {
                     coroutineScope.launch {
                         monthsListState.animateScrollToItem(
-                            monthsListState.firstVisibleItemIndex +
-                                if (monthsListState.isScrollInProgress) 2 else 1,
+                            (monthsListState.firstVisibleItemIndex +
+                                if (monthsListState.isScrollInProgress) 2 else 1)
+                                .coerceAtMost(state.stateData.totalMonthsInRange - 1),
                         )
                     }
                 },
@@ -661,6 +663,7 @@ private fun PagerDatePickerControls(
 ) {
     val calendarModel = state.stateData.calendarModel
     val locale = defaultLocale()
+    val isKorean = LocalLocale.current.language == "ko"
 
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
     val chevronRotation by animateFloatAsState(
@@ -696,11 +699,7 @@ private fun PagerDatePickerControls(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier =
-                Modifier.pointerInput(0) {
-                    detectTapGestures {
-                        onMonthSelectionClicked()
-                    }
-                },
+                Modifier.clickable(role = Role.Button, onClick = onMonthSelectionClicked),
         ) {
             CupertinoText(
                 text = month,
@@ -741,6 +740,7 @@ private fun PagerDatePickerControls(
             Row {
                 CupertinoIconButton(
                     onClick = onPrevMonthClicked,
+                    enabled = state.stateData.displayedMonthIndex > 0,
                 ) {
                     CupertinoIcon(
                         modifier =
@@ -753,12 +753,13 @@ private fun PagerDatePickerControls(
                             } else {
                                 CupertinoIcons.Default.ChevronBackward
                             },
-                        contentDescription = "Next Month",
+                        contentDescription = if (isKorean) "이전 달" else "Previous Month",
                         tint = colors.chevronsColor,
                     )
                 }
                 CupertinoIconButton(
                     onClick = onNextMonthClicked,
+                    enabled = state.stateData.displayedMonthIndex < state.stateData.totalMonthsInRange - 1,
                 ) {
                     CupertinoIcon(
                         modifier = Modifier.size(LargeChevronSize),
@@ -768,7 +769,7 @@ private fun PagerDatePickerControls(
                             } else {
                                 CupertinoIcons.Default.ChevronBackward
                             },
-                        contentDescription = "Next Month",
+                        contentDescription = if (isKorean) "다음 달" else "Next Month",
                         tint = colors.chevronsColor,
                     )
                 }

@@ -131,12 +131,10 @@ internal fun CupertinoDatePickerNativeImpl(
             }
         }
 
-    val size =
-        remember(datePicker) {
-            datePicker
-                .sizeThatFits(cValue { CGSizeZero })
-                .useContents { DpSize(width.dp, height.dp) }
-        }
+    val nativeStyle = style.toNativeStyle()
+    val size = remember(datePicker, nativeStyle) {
+        datePicker.measureSizeForStyle(nativeStyle)
+    }
 
     val dark = CupertinoTheme.colorScheme.isDark
 
@@ -150,11 +148,7 @@ internal fun CupertinoDatePickerNativeImpl(
             modifier
                 .size(size),
         update = {
-            it.preferredDatePickerStyle =
-                when (style) {
-                    is DatePickerStyle.Wheel -> UIDatePickerStyle.UIDatePickerStyleWheels
-                    is DatePickerStyle.Pager -> UIDatePickerStyle.UIDatePickerStyleInline
-                }
+            it.preferredDatePickerStyle = nativeStyle
             datePicker.updateRangeAndSelection(yearRange, millis)
             (it.subviews.firstOrNull() as UIView?)?.backgroundColor = containerColor.toUIColor()
             it.applyTheme(dark)
@@ -165,6 +159,19 @@ internal fun CupertinoDatePickerNativeImpl(
                 isNativeAccessibilityEnabled = true,
             ),
     )
+}
+
+private fun DatePickerStyle.toNativeStyle(): UIDatePickerStyle =
+    when (this) {
+        is DatePickerStyle.Wheel -> UIDatePickerStyle.UIDatePickerStyleWheels
+        is DatePickerStyle.Pager -> UIDatePickerStyle.UIDatePickerStyleInline
+    }
+
+@OptIn(ExperimentalForeignApi::class)
+internal fun UIDatePicker.measureSizeForStyle(style: UIDatePickerStyle): DpSize {
+    preferredDatePickerStyle = style
+    return sizeThatFits(cValue { CGSizeZero })
+        .useContents { DpSize(width.dp, height.dp) }
 }
 
 /**

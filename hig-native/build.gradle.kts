@@ -29,16 +29,17 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(projects.higCore)
-            implementation(projects.hig)
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
+            api(projects.hig)
+            api(libs.compose.runtime)
+            api(libs.compose.foundation)
             implementation(libs.compose.material3)
             implementation(libs.capsule)
-            implementation(libs.backdrop)
+            api(libs.backdrop)
         }
 
         iosTest.dependencies {
             implementation(kotlin("test"))
+            implementation("org.jetbrains.compose.ui:ui-test:${libs.plugins.compose.multiplatform.get().version}")
         }
     }
 }

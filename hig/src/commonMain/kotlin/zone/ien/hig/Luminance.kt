@@ -2,10 +2,48 @@ package zone.ien.hig
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 
 expect fun ImageBitmap.scale(width: Int, height: Int): ImageBitmap
 expect fun ImageBitmap.crop(x: Int, y: Int, width: Int, height: Int): ImageBitmap
+
+/** 전체 레이어를 CPU로 읽기 전에 관심 영역을 작은 레이어로 렌더링한다. */
+internal suspend fun GraphicsLayer.averageLuminance(
+    sampleLayer: GraphicsLayer,
+    cropX: Int = 0,
+    cropY: Int = 0,
+    cropWidth: Int = size.width,
+    cropHeight: Int = size.height,
+    sampleWidth: Int = 5,
+    sampleHeight: Int = sampleWidth,
+    defaultColor: Color,
+): Double {
+    require(sampleWidth > 0 && sampleHeight > 0)
+    if (size.width <= 0 || size.height <= 0) return defaultColor.toArgb().toLuminance(defaultColor)
+    val left = cropX.coerceIn(0, size.width - 1)
+    val top = cropY.coerceIn(0, size.height - 1)
+    val width = cropWidth.coerceIn(1, size.width - left)
+    val height = cropHeight.coerceIn(1, size.height - top)
+    val source = this
+    sampleLayer.record(Density(1f), LayoutDirection.Ltr, IntSize(sampleWidth, sampleHeight)) {
+        scale(sampleWidth.toFloat() / width, sampleHeight.toFloat() / height, Offset.Zero) {
+            translate(-left.toFloat(), -top.toFloat()) {
+                drawLayer(source)
+            }
+        }
+    }
+    return sampleLayer.toImageBitmap().averageLuminance(
+        sampleWidth = sampleWidth, sampleHeight = sampleHeight, defaultColor = defaultColor,
+    )
+}
 
 fun ImageBitmap.averageLuminance(
     cropX: Int = 0,

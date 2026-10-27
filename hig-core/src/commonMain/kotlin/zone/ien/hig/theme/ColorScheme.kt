@@ -268,123 +268,123 @@ internal fun isDark() =
     CupertinoTheme.colorScheme.isDark
 
 internal object ColorSchemeTokens {
-    val lightAccent: Color = CupertinoColors.systemBlue(false)
+    val lightAccent: Color get() = CupertinoColors.systemBlue(false)
     val lightLabel: Color = Color.Black
-    val lightSecondaryLabel: Color = color(
+    val lightSecondaryLabel: Color get() = color(
         accessible = Color(0xCC3C3C43),
         default = Color(0x993C3C43)
     )
-    val lightTertiaryLabel: Color = color(
+    val lightTertiaryLabel: Color get() = color(
         accessible = Color(0xB23C3C43),
         default = Color(0x4C3C3C43)
     )
-    val lightQuaternaryLabel: Color = color(
+    val lightQuaternaryLabel: Color get() = color(
         accessible = Color(0x8C3C3C43),
         default =  Color(0x2D3C3C43)
     )
-    val lightPlaceholderText: Color = color(
+    val lightPlaceholderText: Color get() = color(
         accessible = Color(0xB23C3C43),
         default = Color(0x4C3C3C43)
     )
     val lightLink: Color = Color(0xFF007aFF)
-    val lightSeparator: Color = color(
+    val lightSeparator: Color get() = color(
         accessible = Color(0x1E3C3C43),
         default = Color(0x1E3C3C43)
     )
-    val lightOpaqueSeparator: Color = color(
+    val lightOpaqueSeparator: Color get() = color(
         accessible = Color(0xffc6c6c8),
         default = Color(0xffc6c6c8)
     )
     val lightSystemBackground: Color = Color.White
-    val lightSecondarySystemBackground: Color = color(
+    val lightSecondarySystemBackground: Color get() = color(
         accessible = Color(0xffebebf0),
         default = Color(0xfff2f2f7)
     )
     val lightTertiarySystemBackground: Color = Color.White
-    val lightSystemGroupedBackground: Color = color(
+    val lightSystemGroupedBackground: Color get() = color(
         accessible = Color(0xffebebf0),
         default = Color(0xfff2f2f7)
     )
     val lightSecondarySystemGroupedBackground: Color = Color.White
-    val lightTertiarySystemGroupedBackground: Color = color(
+    val lightTertiarySystemGroupedBackground: Color get() = color(
         accessible = Color(0xffebebf0),
         default = Color(0xfff2f2f7)
     )
-    val lightSystemFill: Color = color(
+    val lightSystemFill: Color get() = color(
         accessible = Color(0x47787880),
         default = Color(0x33787880)
     )
-    val lightSecondarySystemFill: Color = color(
+    val lightSecondarySystemFill: Color get() = color(
         accessible = Color(0x3D787880),
         default = Color(0x28787880)
     )
-    val lightTertiarySystemFill: Color = color(
+    val lightTertiarySystemFill: Color get() = color(
         accessible = Color(0x33767680),
         default = Color(0x1E767680)
     )
-    val lightQuaternarySystemFill: Color = color(
+    val lightQuaternarySystemFill: Color get() = color(
         accessible = Color(0x28747480),
         default = Color(0x14747480)
     )
 
-    val darkAccent: Color = CupertinoColors.systemBlue(true)
+    val darkAccent: Color get() = CupertinoColors.systemBlue(true)
     val darkLabel: Color = Color.White
-    val darkSecondaryLabel: Color = color(
+    val darkSecondaryLabel: Color get() = color(
         accessible = Color(0xb2ebebf5),
         default = Color(0x99ebebf5)
     )
-    val darkTertiaryLabel: Color =  color(
+    val darkTertiaryLabel: Color get() = color(
         accessible = Color(0x8cebebf5),
         default = Color(0x4cebebf5)
     )
-    val darkQuaternaryLabel: Color =  color(
+    val darkQuaternaryLabel: Color get() = color(
         accessible = Color(0x66ebebf5),
         default = Color(0x28ebebf5)
     )
     val darkLink: Color = Color(0xff0984ff)
-    val darkPlaceholderText: Color =  color(
+    val darkPlaceholderText: Color get() = color(
         accessible = Color(0x8cebebf5),
         default = Color(0x4cebebf5)
     )
-    val darkSeparator: Color = color(
+    val darkSeparator: Color get() = color(
         accessible = Color(0x7F545458),
         default = Color(0x7F545458)
     )
-    val darkOpaqueSeparator: Color = color(
+    val darkOpaqueSeparator: Color get() = color(
         accessible = Color(0xff38383a),
         default = Color(0xff38383a)
     )
     val darkSystemBackground: Color = Color.Black
-    val darkSecondarySystemBackground: Color = color(
+    val darkSecondarySystemBackground: Color get() = color(
         accessible = Color(0xff242426),
         default = Color(0xff1c1c1e)
     )
-    val darkTertiarySystemBackground: Color = color(
+    val darkTertiarySystemBackground: Color get() = color(
         accessible = Color(0xff363638),
         default = Color(0xff2c2c2e)
     )
     val darkSystemGroupedBackground: Color = Color.Black
-    val darkSecondarySystemGroupedBackground: Color = color(
+    val darkSecondarySystemGroupedBackground: Color get() = color(
         accessible = Color(0xff242426),
         default = Color(0xff1c1c1e)
     )
-    val darkTertiarySystemGroupedBackground: Color = color(
+    val darkTertiarySystemGroupedBackground: Color get() = color(
         accessible = Color(0xff363638),
         default = Color(0xff2c2c2e)
     )
-    val darkSystemFill: Color = color(
+    val darkSystemFill: Color get() = color(
         accessible = Color(0x70787880),
         default = Color(0x5b787880)
     )
-    val darkSecondarySystemFill: Color = color(
+    val darkSecondarySystemFill: Color get() = color(
         accessible = Color(0x66787880),
         default = Color(0x51787880)
     )
-    val darkTertiarySystemFill: Color = color(
+    val darkTertiarySystemFill: Color get() = color(
         accessible = Color(0x51767680),
         default = Color(0x3d767680)
     )
-    val darkQuaternarySystemFill: Color = color(
+    val darkQuaternarySystemFill: Color get() = color(
         accessible = Color(0x42767680),
         default = Color(0x2d767680)
     )

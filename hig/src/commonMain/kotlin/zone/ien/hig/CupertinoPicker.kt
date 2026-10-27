@@ -125,6 +125,8 @@ class CupertinoPickerState(
     }
 
     internal var changedProgrammatically by mutableStateOf(false)
+    internal var nativeSelectionAnimated by mutableStateOf(false)
+        private set
     private var nativeSelectedItemIndex by mutableStateOf<Int?>(null)
     private var isNativePickerActive by mutableStateOf(false)
     private var nativePickerItemCount by mutableStateOf<Int?>(null)
@@ -223,7 +225,7 @@ class CupertinoPickerState(
         changedProgrammatically = true
         try {
             if (isNativePickerActive || nativeSelectedItemIndex != null) {
-                requestSelection(index)
+                requestSelection(index, animated = false)
             } else {
                 lazyListState.scrollToItem(if (infinite) INFINITE_OFFSET + index else index)
             }
@@ -239,9 +241,9 @@ class CupertinoPickerState(
         changedProgrammatically = true
         try {
             if (isNativePickerActive || nativeSelectedItemIndex != null) {
-                requestSelection(index)
+                requestSelection(index, animated = true)
             } else {
-                lazyListState.animateScrollToItem(index)
+                lazyListState.animateScrollToItem(if (infinite) INFINITE_OFFSET + index else index)
             }
         } finally {
             changedProgrammatically = false
@@ -256,7 +258,7 @@ class CupertinoPickerState(
     fun selectFromNative(index: Int) {
         val itemsCount = nativePickerItemCount
         require(itemsCount != null && index in 0 until itemsCount)
-        requestSelection(index)
+        requestSelection(index, animated = false)
     }
 
     /**
@@ -275,7 +277,7 @@ class CupertinoPickerState(
         nativePickerItemCount = itemsCount.takeIf { active }
     }
 
-    private fun requestSelection(index: Int) {
+    private fun requestSelection(index: Int, animated: Boolean = false) {
         if (!infinite) {
             require(index >= 0)
             nativePickerItemCount?.let { itemsCount ->
@@ -286,12 +288,26 @@ class CupertinoPickerState(
             require(index <= Int.MAX_VALUE - INFINITE_OFFSET)
         }
         val lazyListIndex = if (infinite) INFINITE_OFFSET + index else index
+        nativeSelectionAnimated = animated
         nativeSelectedItemIndex = index
         lazyListState.requestScrollToItem(lazyListIndex)
     }
 
     internal fun clearNativeSelection() {
         nativeSelectedItemIndex = null
+    }
+
+    /**
+     * 네이티브 피커가 사용할 애니메이션 요청을 가져오고 초기화합니다.
+     * 한 번의 선택 업데이트에만 적용됩니다.
+     *
+     * @return 현재 선택 업데이트에 애니메이션이 요청됐는지 여부
+     */
+    @InternalCupertinoApi
+    fun consumeNativeSelectionAnimation(): Boolean {
+        val animated = nativeSelectionAnimated
+        nativeSelectionAnimated = false
+        return animated
     }
 
     internal val nativeSelectionIsApplied: Boolean
@@ -444,7 +460,13 @@ fun <T: Any> CupertinoWheelPicker(
         if (state.isScrollInProgress) {
             if (!state.changedProgrammatically) state.clearNativeSelection()
         } else {
-            state.scrollToItem(state.selectedItemIndex.modSign(items.size))
+            val selectedIndex =
+                if (state.infinite) {
+                    state.selectedItemIndex
+                } else {
+                    state.selectedItemIndex.modSign(items.size)
+                }
+            state.scrollToItem(selectedIndex)
             state.changedProgrammatically = false
         }
     }

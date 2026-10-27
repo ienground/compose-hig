@@ -30,6 +30,7 @@ import zone.ien.hig.LocalContentColor
 import zone.ien.hig.LocalTextStyle
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.InternalCupertinoApi
+import zone.ien.hig.ObserveHighContrastSetting
 import zone.ien.hig.SystemBarAppearance
 import zone.ien.hig.rememberCupertinoHapticFeedback
 import zone.ien.hig.rememberCupertinoIndication
@@ -47,6 +48,7 @@ fun CupertinoTheme(
     typography: Typography = Typography(),
     content: @Composable () -> Unit,
 ) {
+    ObserveHighContrastSetting()
     SystemBarAppearance(colorScheme.isDark)
     CompositionLocalProvider(
         LocalColorScheme provides colorScheme,

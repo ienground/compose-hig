@@ -469,6 +469,11 @@ private fun SliderImpl(
             (valueRange.start + stepIndex * gap).coerceIn(valueRange)
         }
     }
+    val currentValueRange by rememberUpdatedState(valueRange)
+    val currentSteps by rememberUpdatedState(steps)
+    val currentGetSnappedValue by rememberUpdatedState(getSnappedValue)
+    val currentOnValueChange by rememberUpdatedState(onValueChange)
+    val currentOnValueChangeFinished by rememberUpdatedState(onValueChangeFinished)
 
     BoxWithConstraints(
         contentAlignment = Alignment.CenterStart,
@@ -531,9 +536,9 @@ private fun SliderImpl(
         var didDrag by remember { mutableStateOf(false) }
 
         var currentVirtualValue by remember { mutableStateOf(0f) }
-        var prevValue by remember(updatedValue) { mutableStateOf(updatedValue) }
+        var prevValue by remember(updatedValue, valueRange, steps) { mutableStateOf(updatedValue) }
 
-        val dampedDragAnimation = remember(animationScope) {
+        val dampedDragAnimation = remember(animationScope, valueRange, visibilityThreshold) {
             DampedDragAnimation(
                 animationScope = animationScope,
                 initialValue = updatedValue,
@@ -547,10 +552,10 @@ private fun SliderImpl(
                 onDragStopped = {
                     if (updatedEnabled) {
                         if (didDrag) {
-                            val snapped = getSnappedValue(targetValue)
+                            val snapped = currentGetSnappedValue(targetValue)
                             animateToValue(snapped)
-                            onValueChange(snapped)
-                            onValueChangeFinished?.invoke()
+                            currentOnValueChange(snapped)
+                            currentOnValueChangeFinished?.invoke()
                         }
                     }
                     didDrag = false
@@ -561,19 +566,20 @@ private fun SliderImpl(
                             didDrag = dragAmount.x != 0f
                         }
 
-                        val rangeLength = valueRange.endInclusive - valueRange.start
+                        val range = currentValueRange
+                        val rangeLength = range.endInclusive - range.start
                         val delta = rangeLength * (dragAmount.x / trackWidth) * if (isLtr) 1f else -1f
 
-                        currentVirtualValue = (currentVirtualValue + delta).coerceIn(valueRange)
+                        currentVirtualValue = (currentVirtualValue + delta).coerceIn(range)
 
                         // Snap point
-                        val snappedValue = getSnappedValue(currentVirtualValue)
-                        val stepGap = rangeLength / (steps + 1)
+                        val snappedValue = currentGetSnappedValue(currentVirtualValue)
+                        val stepGap = rangeLength / (currentSteps + 1)
                         val magneticThreshold = stepGap * 0.35f
 
                         // Snapping
                         val finalTargetValue = if (abs(currentVirtualValue - snappedValue) < magneticThreshold) {
-                            if (steps > 0) {
+                            if (currentSteps > 0) {
                                 if (prevValue != snappedValue) {
                                     prevValue = snappedValue
                                     haptic.performHapticFeedback(CupertinoHapticFeedback.SelectionChanged)
@@ -585,7 +591,7 @@ private fun SliderImpl(
                         }
 
                         updateValue(finalTargetValue)
-                        onValueChange(finalTargetValue)
+                        currentOnValueChange(finalTargetValue)
                     }
                 }
             )
@@ -613,15 +619,15 @@ private fun SliderImpl(
                             if (updatedEnabled) {
                                 val rawDelta = position.x / trackWidth
                                 val rawValue = if (isLtr) {
-                                    valueRange.start + (valueRange.endInclusive - valueRange.start) * rawDelta
+                                    currentValueRange.start + (currentValueRange.endInclusive - currentValueRange.start) * rawDelta
                                 } else {
-                                    valueRange.endInclusive - (valueRange.endInclusive - valueRange.start) * rawDelta
+                                    currentValueRange.endInclusive - (currentValueRange.endInclusive - currentValueRange.start) * rawDelta
                                 }
 
-                                val snapped = getSnappedValue(rawValue.coerceIn(valueRange))
+                                val snapped = currentGetSnappedValue(rawValue.coerceIn(currentValueRange))
                                 dampedDragAnimation.animateToValue(snapped)
-                                onValueChange(snapped)
-                                onValueChangeFinished?.invoke()
+                                currentOnValueChange(snapped)
+                                currentOnValueChangeFinished?.invoke()
                             }
                         }
                     }
@@ -654,7 +660,7 @@ private fun SliderImpl(
                         }
 
                         drawCircle(
-                            color = inactiveTickColor,
+                            color = if (progress <= dampedDragAnimation.progress) activeTickColor else inactiveTickColor,
                             radius = dotHeight.toPx(),
                             center = Offset(
                                 x = finalDotX + thumbWidth / 2f,
@@ -736,6 +742,11 @@ private fun RangeSliderImpl(
             (valueRange.start + stepIndex * gap).coerceIn(valueRange)
         }
     }
+    val currentValueRange by rememberUpdatedState(valueRange)
+    val currentSteps by rememberUpdatedState(steps)
+    val currentGetSnappedValue by rememberUpdatedState(getSnappedValue)
+    val currentOnValueChange by rememberUpdatedState(onValueChange)
+    val currentOnValueChangeFinished by rememberUpdatedState(onValueChangeFinished)
 
     BoxWithConstraints(
         contentAlignment = Alignment.CenterStart,
@@ -753,7 +764,7 @@ private fun RangeSliderImpl(
         var prevStartValue by remember(updatedStartValue, valueRange) { mutableStateOf(updatedStartValue) }
         var prevEndValue by remember(updatedEndValue, valueRange) { mutableStateOf(updatedEndValue) }
 
-        val startDampedDragAnimation = remember(animationScope) {
+        val startDampedDragAnimation = remember(animationScope, valueRange, visibilityThreshold) {
             DampedDragAnimation(
                 animationScope = animationScope,
                 initialValue = updatedStartValue,
@@ -767,10 +778,10 @@ private fun RangeSliderImpl(
                 onDragStopped = {
                     if (updatedEnabled) {
                         if (startDidDrag) {
-                            val snapped = getSnappedValue(targetValue)
+                            val snapped = currentGetSnappedValue(targetValue)
                             animateToValue(snapped)
-                            onValueChange(snapped..updatedEndValue)
-                            onValueChangeFinished?.invoke()
+                            currentOnValueChange(snapped..updatedEndValue)
+                            currentOnValueChangeFinished?.invoke()
                         }
                     }
                     startDidDrag = false
@@ -781,19 +792,20 @@ private fun RangeSliderImpl(
                             startDidDrag = dragAmount.x != 0f
                         }
 
-                        val rangeLength = valueRange.endInclusive - valueRange.start
+                        val range = currentValueRange
+                        val rangeLength = range.endInclusive - range.start
                         val delta = rangeLength * (dragAmount.x / trackWidth) * if (isLtr) 1f else -1f
 
-                        currentVirtualStartValue = (currentVirtualStartValue + delta).coerceIn(valueRange)
+                        currentVirtualStartValue = (currentVirtualStartValue + delta).coerceIn(range)
 
                         // Snap point
-                        val snappedValue = getSnappedValue(currentVirtualStartValue)
-                        val stepGap = rangeLength / (steps + 1)
+                        val snappedValue = currentGetSnappedValue(currentVirtualStartValue)
+                        val stepGap = rangeLength / (currentSteps + 1)
                         val magneticThreshold = stepGap * 0.35f
 
                         // Snapping
                         val finalTargetValue = if (abs(currentVirtualStartValue - snappedValue) < magneticThreshold) {
-                            if (steps > 0) {
+                            if (currentSteps > 0) {
                                 if (prevStartValue != snappedValue) {
                                     prevStartValue = snappedValue
                                     haptic.performHapticFeedback(CupertinoHapticFeedback.SelectionChanged)
@@ -806,13 +818,13 @@ private fun RangeSliderImpl(
 
                         if (finalTargetValue <= updatedEndValue) {
                             updateValue(finalTargetValue)
-                            onValueChange(finalTargetValue..updatedEndValue)
+                            currentOnValueChange(finalTargetValue..updatedEndValue)
                         }
                     }
                 }
             )
         }
-        val endDampedDragAnimation = remember(animationScope) {
+        val endDampedDragAnimation = remember(animationScope, valueRange, visibilityThreshold) {
             DampedDragAnimation(
                 animationScope = animationScope,
                 initialValue = updatedEndValue,
@@ -826,10 +838,10 @@ private fun RangeSliderImpl(
                 onDragStopped = {
                     if (updatedEnabled) {
                         if (endDidDrag) {
-                            val snapped = getSnappedValue(targetValue)
+                            val snapped = currentGetSnappedValue(targetValue)
                             animateToValue(snapped)
-                            onValueChange(updatedStartValue..snapped)
-                            onValueChangeFinished?.invoke()
+                            currentOnValueChange(updatedStartValue..snapped)
+                            currentOnValueChangeFinished?.invoke()
                         }
                     }
                     endDidDrag = false
@@ -840,19 +852,20 @@ private fun RangeSliderImpl(
                             endDidDrag = dragAmount.x != 0f
                         }
 
-                        val rangeLength = valueRange.endInclusive - valueRange.start
+                        val range = currentValueRange
+                        val rangeLength = range.endInclusive - range.start
                         val delta = rangeLength * (dragAmount.x / trackWidth) * if (isLtr) 1f else -1f
 
-                        currentVirtualEndValue = (currentVirtualEndValue + delta).coerceIn(valueRange)
+                        currentVirtualEndValue = (currentVirtualEndValue + delta).coerceIn(range)
 
                         // Snap point
-                        val snappedValue = getSnappedValue(currentVirtualEndValue)
-                        val stepGap = rangeLength / (steps + 1)
+                        val snappedValue = currentGetSnappedValue(currentVirtualEndValue)
+                        val stepGap = rangeLength / (currentSteps + 1)
                         val magneticThreshold = stepGap * 0.35f
 
                         // Snapping
                         val finalTargetValue = if (abs(currentVirtualEndValue - snappedValue) < magneticThreshold) {
-                            if (steps > 0) {
+                            if (currentSteps > 0) {
                                 if (prevEndValue != snappedValue) {
                                     prevEndValue = snappedValue
                                     haptic.performHapticFeedback(CupertinoHapticFeedback.SelectionChanged)
@@ -865,7 +878,7 @@ private fun RangeSliderImpl(
 
                         if (finalTargetValue >= updatedStartValue) {
                             updateValue(finalTargetValue)
-                            onValueChange(updatedStartValue..finalTargetValue)
+                            currentOnValueChange(updatedStartValue..finalTargetValue)
                         }
                     }
                 }
@@ -903,23 +916,23 @@ private fun RangeSliderImpl(
                             if (updatedEnabled) {
                                 val rawDelta = position.x / trackWidth
                                 val rawValue = if (isLtr) {
-                                    valueRange.start + (valueRange.endInclusive - valueRange.start) * rawDelta
+                                    currentValueRange.start + (currentValueRange.endInclusive - currentValueRange.start) * rawDelta
                                 } else {
-                                    valueRange.endInclusive - (valueRange.endInclusive - valueRange.start) * rawDelta
+                                    currentValueRange.endInclusive - (currentValueRange.endInclusive - currentValueRange.start) * rawDelta
                                 }
 
-                                val snapped = getSnappedValue(rawValue.coerceIn(valueRange))
+                                val snapped = currentGetSnappedValue(rawValue.coerceIn(currentValueRange))
                                 val startGap = abs(updatedStartValue - snapped)
                                 val endGap = abs(updatedEndValue - snapped)
 
                                 if (startGap < endGap) {
                                     startDampedDragAnimation.animateToValue(snapped)
-                                    onValueChange(snapped..updatedEndValue)
+                                    currentOnValueChange(snapped..updatedEndValue)
                                 } else {
                                     endDampedDragAnimation.animateToValue(snapped)
-                                    onValueChange(updatedStartValue..snapped)
+                                    currentOnValueChange(updatedStartValue..snapped)
                                 }
-                                onValueChangeFinished?.invoke()
+                                currentOnValueChangeFinished?.invoke()
                             }
                         }
                     }
@@ -951,8 +964,10 @@ private fun RangeSliderImpl(
                             }
                         }
 
+                        val active = progress >= startDampedDragAnimation.progress &&
+                            progress <= endDampedDragAnimation.progress
                         drawCircle(
-                            color = inactiveTickColor,
+                            color = if (active) activeTickColor else inactiveTickColor,
                             radius = dotHeight.toPx(),
                             center = Offset(
                                 x = finalDotX + startThumbWidth / 2f,

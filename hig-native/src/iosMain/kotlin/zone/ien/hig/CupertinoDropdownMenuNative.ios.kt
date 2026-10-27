@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.PopupProperties
 import com.kyant.backdrop.Backdrop
 import kotlinx.cinterop.BetaInteropApi
@@ -32,8 +33,6 @@ import platform.UIKit.UIContextMenuInteraction
 import platform.UIKit.UIContextMenuInteractionAnimatingProtocol
 import platform.UIKit.UIContextMenuInteractionDelegateProtocol
 import platform.UIKit.UIControlStateNormal
-import platform.UIKit.UIEvent
-import platform.UIKit.UIGestureRecognizer
 import platform.UIKit.UIMenu
 import platform.UIKit.UIMenuElement
 import platform.UIKit.UIMenuElementAttributesDestructive
@@ -42,9 +41,10 @@ import platform.UIKit.UIMenuOptionsDestructive
 import platform.UIKit.UIMenuOptionsDisplayAsPalette
 import platform.UIKit.UIMenuOptionsDisplayInline
 import platform.UIKit.UIMenuOptionsSingleSelection
-import platform.UIKit.addInteraction
-import platform.UIKit.touchesBegan
+import platform.UIKit.contextMenuInteraction
 import platform.darwin.NSObject
+import zone.ien.hig.theme.CupertinoColors
+import zone.ien.hig.theme.systemRed
 
 fun HigMenuOptions.toUIMenuOptions() = when (this) {
     HigMenuOptions.DisplayInline -> UIMenuOptionsDisplayInline
@@ -52,7 +52,6 @@ fun HigMenuOptions.toUIMenuOptions() = when (this) {
     HigMenuOptions.DisplayAsPalette -> UIMenuOptionsDisplayAsPalette
     HigMenuOptions.Destructive -> UIMenuOptionsDestructive
 }
-
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 @ExperimentalCupertinoApi
 @Composable
@@ -70,6 +69,24 @@ actual fun CupertinoDropdownMenuNative(
     items: List<CupertinoMenuItemData>,
     sections: List<CupertinoMenuSectionData>
 ) {
+    if (shouldUseComposeDropdownFallback()) {
+        CupertinoDropdownMenuComposeFallback(
+            expanded = expanded,
+            onDismissRequest = onDismissRequest,
+            modifier = modifier,
+            offset = offset,
+            paddingValues = paddingValues,
+            containerColor = containerColor,
+            width = width,
+            scrollState = scrollState,
+            properties = properties,
+            backdrop = backdrop,
+            items = items,
+            sections = sections,
+        )
+        return
+    }
+
     val density = LocalDensity.current
     val viewController = LocalUIViewController.current
 
@@ -85,19 +102,20 @@ actual fun CupertinoDropdownMenuNative(
             setTitle("", forState = UIControlStateNormal)
             showsMenuAsPrimaryAction = true
             preferredMenuElementOrder = UIContextMenuConfigurationElementOrderFixed
-            addInteraction(UIContextMenuInteraction(this))
         }
         viewController.view.insertSubview(button, atIndex = 0)
         delegate.button = button
         button.onMenuWillEnd = {
+            val wasVisible = delegate.isMenuVisible
             delegate.isMenuVisible = false
-            delegate.onDismissRequest()
+            if (wasVisible) delegate.onDismissRequest()
         }
 
         onDispose {
             button.onMenuWillEnd = null
             button.removeFromSuperview()
             delegate.button = null
+            delegate.isMenuVisible = false
         }
     }
 
@@ -109,21 +127,13 @@ actual fun CupertinoDropdownMenuNative(
     // Show menu when expanded changes
     LaunchedEffect(expanded) {
         val button = delegate.button ?: return@LaunchedEffect
-        if (!expanded) return@LaunchedEffect
+        if (!expanded) {
+            dismissNativeDropdownMenu(button, delegate)
+            return@LaunchedEffect
+        }
 
         delegate.isMenuVisible = true // Prevent frame updates while menu is visible
-        if (isPerformPrimaryActionAvailable()) {
-            button.performPrimaryAction()
-        } else {
-            val gesture = button.gestureRecognizers
-                .orEmpty()
-                .filterIsInstance<UIGestureRecognizer>()
-                .firstOrNull {
-                    it.`class`()?.toString()
-                        ?.contains("UITouchDownGestureRecognizer", ignoreCase = true) == true
-                }
-            gesture?.touchesBegan(emptySet<Nothing>(), UIEvent())
-        }
+        button.performPrimaryAction()
     }
 
     Box(
@@ -151,6 +161,89 @@ actual fun CupertinoDropdownMenuNative(
                 }
             }
     )
+}
+
+@OptIn(ExperimentalCupertinoApi::class)
+@Composable
+private fun CupertinoDropdownMenuComposeFallback(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier,
+    offset: DpOffset,
+    paddingValues: PaddingValues,
+    containerColor: Color,
+    width: Dp,
+    scrollState: ScrollState,
+    properties: PopupProperties,
+    backdrop: Backdrop,
+    items: List<CupertinoMenuItemData>,
+    sections: List<CupertinoMenuSectionData>,
+) {
+    CupertinoDropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        offset = offset,
+        paddingValues = paddingValues,
+        containerColor = containerColor,
+        width = width,
+        scrollState = scrollState,
+        properties = properties,
+        backdrop = backdrop,
+    ) {
+        items.fastForEach { item ->
+            MenuAction(
+                onClick = item.onClick,
+                enabled = item.enabled,
+                leadingIcon = {
+                    item.icon?.let { icon ->
+                        CupertinoIcon(painter = icon, contentDescription = null)
+                    }
+                },
+                title = { CupertinoText(text = item.title) },
+                contentColor = if (item.isDestructive) CupertinoColors.systemRed else CupertinoDropdownMenuDefaults.ContentColor,
+            )
+        }
+        if (items.isNotEmpty() && sections.isNotEmpty()) MenuDivider()
+        sections.fastForEach { section ->
+            MenuSection(title = { CupertinoText(text = section.title) }) {
+                section.items.fastForEach { item ->
+                    MenuAction(
+                        onClick = item.onClick,
+                        enabled = item.enabled,
+                        leadingIcon = {
+                            item.icon?.let { icon ->
+                                CupertinoIcon(painter = icon, contentDescription = null)
+                            }
+                        },
+                        title = { CupertinoText(text = item.title) },
+                        contentColor = if (item.isDestructive) CupertinoColors.systemRed else CupertinoDropdownMenuDefaults.ContentColor,
+                    )
+                }
+            }
+        }
+    }
+}
+
+internal fun shouldUseComposeDropdownFallback(
+    majorVersion: Long,
+    minorVersion: Long,
+): Boolean = majorVersion < 17L || (majorVersion == 17L && minorVersion < 4L)
+
+@OptIn(ExperimentalForeignApi::class)
+private fun shouldUseComposeDropdownFallback(): Boolean =
+    platform.Foundation.NSProcessInfo.processInfo.operatingSystemVersion.useContents {
+        shouldUseComposeDropdownFallback(majorVersion, minorVersion)
+    }
+
+@OptIn(ExperimentalForeignApi::class)
+internal fun dismissNativeDropdownMenu(
+    button: UIButton,
+    delegate: CupertinoDropdownMenuDelegate,
+) {
+    if (!delegate.isMenuVisible) return
+    delegate.isMenuVisible = false
+    button.contextMenuInteraction?.dismissMenu()
 }
 
 @OptIn(ExperimentalForeignApi::class)
@@ -222,9 +315,4 @@ private fun CupertinoMenuItemData.toUIAction(): UIAction {
     if (!enabled) attributes = attributes or UIMenuElementAttributesDisabled
     action.attributes = attributes
     return action
-}
-
-@OptIn(ExperimentalForeignApi::class)
-private fun isPerformPrimaryActionAvailable(): Boolean = platform.Foundation.NSProcessInfo.processInfo.operatingSystemVersion.useContents {
-    majorVersion > 17 || (majorVersion == 17L && minorVersion >= 4L)
 }

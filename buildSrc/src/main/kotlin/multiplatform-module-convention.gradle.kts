@@ -86,13 +86,28 @@ kotlin {
     }
 
     js(IR) {
-        browser()
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                    useConfigDirectory(rootProject.file("karma.config.d"))
+                }
+            }
+        }
         binaries.executable()
     }
 
     @Suppress("OPT_IN_USAGE")
     wasmJs {
-        browser()
+        binaries.executable()
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                    useConfigDirectory(rootProject.file("karma.config.d"))
+                }
+            }
+        }
     }
 
     sourceSets {

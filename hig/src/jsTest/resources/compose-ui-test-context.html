@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+</head>
+<body>
+  <script src="context.js"></script>
+  <script type="text/javascript">
+    %CLIENT_CONFIG%
+    window.__karma__.setupContext(window);
+    %MAPPINGS%
+  </script>
+  <template id="karma-script-template">
+    %SCRIPTS%
+  </template>
+  <script type="module">
+    const scripts = Array.from(
+      document.querySelector("#karma-script-template").content.querySelectorAll("script"),
+    );
+    const bootstrap = scripts.find((script) =>
+      new URL(script.src, window.location.href).pathname.endsWith("/compose-ui-test-bootstrap.mjs"),
+    );
+
+    async function loadScript(source) {
+      const script = document.createElement("script");
+      for (const attribute of source.attributes) {
+        script.setAttribute(attribute.name, attribute.value);
+      }
+
+      await new Promise((resolve, reject) => {
+        script.addEventListener("load", resolve, { once: true });
+        script.addEventListener("error", reject, { once: true });
+        document.body.appendChild(script);
+      });
+    }
+
+    try {
+      if (bootstrap) {
+        await import(bootstrap.src);
+      }
+
+      for (const script of scripts) {
+        if (script !== bootstrap) {
+          await loadScript(script);
+        }
+      }
+
+      window.__karma__.loaded();
+    } catch (error) {
+      window.__karma__.error(error.stack || error.toString());
+      window.__karma__.loaded();
+    }
+  </script>
+  <script nomodule>
+    window.__karma__.loaded();
+  </script>
+</body>
+</html>

@@ -27,8 +27,11 @@ import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -76,9 +79,14 @@ import zone.ien.hig.swipebox.LocalSwipeBoxItemRevealScale
 import zone.ien.hig.swipebox.LocalSwipeBoxItemWidth
 import zone.ien.hig.swipebox.LocalSwipeBoxState
 import zone.ien.hig.swipebox.SwipeBoxStates
+import zone.ien.hig.swipebox.SwipeBoxFlingConfiguration
 import zone.ien.hig.swipebox.rememberCupertinoSwipeBoxState
+import zone.ien.hig.swipebox.swipeBoxFlingConfigurations
 import zone.ien.hig.theme.CupertinoTheme
+import kotlin.math.abs
 import kotlin.math.roundToInt
+
+private val SwipeBoxMinTargetFlingVelocity = 125.dp
 
 /**
  * Default parameters and constants used by [CupertinoSwipeBox].
@@ -127,6 +135,29 @@ fun CupertinoSwipeBox(
     content: @Composable BoxScope.() -> Unit
 ) {
     val density = LocalDensity.current
+    val flingConfiguration =
+        swipeBoxFlingConfigurations[state]
+            ?: remember(state) {
+                SwipeBoxFlingConfiguration(
+                    positionalThreshold = { distance -> distance },
+                    velocityThreshold = CupertinoSwipeBoxDefaults.velocityThreshold,
+                    animationSpec = CupertinoSwipeBoxDefaults.animationSpec,
+                )
+            }
+    val defaultFlingBehavior =
+        AnchoredDraggableDefaults.flingBehavior(
+            state = state,
+            positionalThreshold = flingConfiguration.positionalThreshold,
+            animationSpec = flingConfiguration.animationSpec,
+        )
+    val flingBehavior =
+        remember(defaultFlingBehavior, flingConfiguration.velocityThreshold, density) {
+            SwipeBoxVelocityThresholdFlingBehavior(
+                delegate = defaultFlingBehavior,
+                velocityThreshold = flingConfiguration.velocityThreshold,
+                minTargetVelocity = with(density) { SwipeBoxMinTargetFlingVelocity.toPx() },
+            )
+        }
     var parentWidth by remember { mutableStateOf(0) }
     val actionItems = CupertinoSwipeBoxActionsBuilder().apply(actionItemBuilder)
     val startActionsSize = actionItems.startActions.size
@@ -328,7 +359,8 @@ fun CupertinoSwipeBox(
                         .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
                         .anchoredDraggable(
                             state = state,
-                            orientation = Orientation.Horizontal
+                            orientation = Orientation.Horizontal,
+                            flingBehavior = flingBehavior,
                         )
                 ) {
                     Box(
@@ -349,6 +381,23 @@ fun CupertinoSwipeBox(
                 }
             }
         }
+    }
+}
+
+private class SwipeBoxVelocityThresholdFlingBehavior(
+    private val delegate: FlingBehavior,
+    private val velocityThreshold: Float,
+    private val minTargetVelocity: Float,
+) : FlingBehavior {
+    override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+        val adjustedVelocity =
+            if (initialVelocity == 0f || abs(initialVelocity) < velocityThreshold) {
+                0f
+            } else {
+                minTargetVelocity.coerceAtLeast(abs(initialVelocity)) *
+                    if (initialVelocity < 0f) -1f else 1f
+            }
+        return with(delegate) { performFling(adjustedVelocity) }
     }
 }
 

@@ -136,6 +136,48 @@ class CupertinoNativeControlsTest {
     }
 
     @Test
+    fun presentationControllerDisposalSuppressesUserDismissCallback() {
+        var dismissCount = 0
+        val guard = PresentationControllerDismissGuard { dismissCount++ }
+
+        guard.request()
+        assertEquals(1, dismissCount)
+        guard.dispose()
+        guard.request()
+
+        assertEquals(1, dismissCount)
+
+        val nextControllerGuard = PresentationControllerDismissGuard { dismissCount++ }
+        nextControllerGuard.request()
+        assertEquals(2, dismissCount)
+    }
+
+    @Test
+    fun enabledChangesUpdateExistingUIAlertActions() {
+        val buttonState = NativeAlertDialogButtonsState {}
+        buttonState.update {
+            action(onClick = {}, title = "Action", enabled = true)
+        }
+        val uiAction = buttonState.createActions().single()
+        val previousEnabledState = buttonState.actionEnabled
+
+        buttonState.update {
+            action(onClick = {}, title = "Action", enabled = false)
+        }
+
+        assertEquals(listOf(true), previousEnabledState)
+        assertEquals(listOf(false), buttonState.actionEnabled)
+        buttonState.updateEnabledActions(listOf(uiAction))
+        assertFalse(uiAction.enabled)
+
+        buttonState.update {
+            action(onClick = {}, title = "Action", enabled = true)
+        }
+        buttonState.updateEnabledActions(listOf(uiAction))
+        assertTrue(uiAction.enabled)
+    }
+
+    @Test
     fun actionSheetPopoverUsesItsPresenterViewAndBoundsOnIPad() {
         if (UIScreen.mainScreen.traitCollection.userInterfaceIdiom != UIUserInterfaceIdiomPad) return
 

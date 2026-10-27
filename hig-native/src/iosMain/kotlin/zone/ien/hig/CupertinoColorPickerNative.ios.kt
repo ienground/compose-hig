@@ -50,6 +50,8 @@ fun CupertinoColorPickerNative(
             )
         }
 
+    val presentationSession = remember { PresentationControllerSession() }
+
     PresentationController(
         factory = {
             UIColorPickerViewController().apply {
@@ -64,6 +66,7 @@ fun CupertinoColorPickerNative(
         onDismissRequest = updatedOnDismissRequest,
         color,
         supportsAlpha,
+        session = presentationSession,
     )
 }
 

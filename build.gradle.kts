@@ -16,6 +16,11 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
+import org.jetbrains.kotlin.gradle.targets.wasm.yarn.WasmYarnPlugin
+import org.jetbrains.kotlin.gradle.targets.wasm.yarn.WasmYarnRootExtension
+
 plugins {
     // Necessary trick: for the same plugin versions in all sub-modules
     id(libs.plugins.android.library.get().pluginId) apply false
@@ -25,6 +30,20 @@ plugins {
 
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.compose.multiplatform) apply false
+}
+
+plugins.withType<YarnPlugin>().configureEach {
+    extensions.configure<YarnRootExtension> {
+        resolution("diff", "8.0.4")
+        resolution("serialize-javascript", "7.1.4")
+    }
+}
+
+plugins.withType<WasmYarnPlugin>().configureEach {
+    extensions.configure<WasmYarnRootExtension> {
+        resolution("diff", "8.0.4")
+        resolution("serialize-javascript", "7.1.4")
+    }
 }
 
 allprojects {

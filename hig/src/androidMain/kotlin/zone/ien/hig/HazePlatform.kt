@@ -75,9 +75,8 @@ internal actual class HazeNode actual constructor(
         drawContent()
 
         for (area in areas) {
-            // We need to boost the alpha as we don't have a blur effect
             drawRect(
-                color = tint.copy(alpha = 1f),
+                color = tint,
                 topLeft = area.topLeft,
                 size = area.size,
             )

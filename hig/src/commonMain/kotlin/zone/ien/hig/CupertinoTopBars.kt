@@ -521,11 +521,13 @@ private fun InlineTopAppBar(
     }
 
     if (isBackgroundAdaptive) {
-        LaunchedEffect(layer, colors, isLightTheme, systemBackgroundColor) {
+        val sampleLayer = rememberGraphicsLayer()
+        LaunchedEffect(layer, sampleLayer, colors, isLightTheme, systemBackgroundColor) {
             while (isActive) {
                 if (layer.size != IntSize.Zero) {
                     try {
-                        val averageLuminance = layer.toImageBitmap().averageLuminance(
+                        val averageLuminance = layer.averageLuminance(
+                            sampleLayer = sampleLayer,
                             cropX = currentTitleBounds.first,
                             cropWidth = currentTitleBounds.second.takeIf { it != 0 } ?: layer.size.width,
                             sampleWidth = 5,

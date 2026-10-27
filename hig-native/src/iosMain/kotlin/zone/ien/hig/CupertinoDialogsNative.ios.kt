@@ -98,15 +98,15 @@ internal fun UIAlertController(
                 updatedOnDismissRequest.value()
             }
         }
-    val buttonsList =
-        remember {
-            NativeAlertDialogButtonsScopeImpl(
-                onDismissRequest = dismissRequestGuard::request,
-            ).apply(buttons).buttons
-        }
+    val buttonsState = remember {
+        NativeAlertDialogButtonsState(dismissRequestGuard::request)
+    }
+    buttonsState.update(buttons)
+    val presentationSession = remember { PresentationControllerSession() }
 
-    val titles = buttonsList.fastMap { it.title }
-    val styles = buttonsList.fastMap { it.style }
+    val titles = buttonsState.actionTitles
+    val styles = buttonsState.actionStyles
+    val enabled = buttonsState.actionEnabled
 
     key(titles, styles) {
         PresentationController(
@@ -117,7 +117,7 @@ internal fun UIAlertController(
                         message = message,
                         preferredStyle = style,
                     ).apply {
-                        buttonsList.fastForEach {
+                        buttonsState.createActions().fastForEach {
                             addAction(it)
                         }
                     }
@@ -126,18 +126,13 @@ internal fun UIAlertController(
                 setTitle(title)
                 setMessage(message)
 
-                val uiActions = actions.filterIsInstance<UIAlertAction>()
-                if (uiActions.size == buttonsList.size) {
-                    uiActions.zip(buttonsList).fastForEach { (action, button) ->
-                        action.setEnabled(button.enabled)
-                    }
-                } else {
-                    println("Mismatch between number of actions and buttonsList")
-                }
+                buttonsState.updateEnabledActions(actions.filterIsInstance<UIAlertAction>())
             },
             onDismissRequest = dismissRequestGuard::request,
             title,
             message,
+            enabled,
+            session = presentationSession,
             configurePresentation = { presenter ->
                 if (anchorPopover) anchorPopoverTo(presenter)
             },
@@ -158,10 +153,31 @@ internal class AlertControllerDismissRequestGuard(
     }
 }
 
-private class NativeAlertDialogButtonsScopeImpl(
-    val onDismissRequest: () -> Unit,
-): NativeAlertDialogActionsScope {
-    val buttons = mutableListOf<UIAlertAction>()
+private data class NativeAlertDialogButtonDefinition(
+    val title: String,
+    val style: AlertActionStyle,
+    val enabled: Boolean,
+    val onClick: () -> Unit,
+)
+
+internal class NativeAlertDialogButtonsState(
+    private val onDismissRequest: () -> Unit,
+) : NativeAlertDialogActionsScope {
+    private var buttons = emptyList<NativeAlertDialogButtonDefinition>()
+
+    val actionTitles: List<String>
+        get() = buttons.fastMap { it.title }
+
+    val actionStyles: List<AlertActionStyle>
+        get() = buttons.fastMap { it.style }
+
+    val actionEnabled: List<Boolean>
+        get() = buttons.fastMap { it.enabled }
+
+    fun update(definitions: NativeAlertDialogActionsScope.() -> Unit) {
+        buttons = emptyList()
+        definitions(this)
+    }
 
     override fun action(
         onClick: () -> Unit,
@@ -169,18 +185,41 @@ private class NativeAlertDialogButtonsScopeImpl(
         enabled: Boolean,
         title: String,
     ) {
-        buttons +=
+        buttons =
+            buttons +
+            NativeAlertDialogButtonDefinition(
+                title = title,
+                style = style,
+                enabled = enabled,
+                onClick = onClick,
+            )
+    }
+
+    fun createActions(): List<UIAlertAction> =
+        buttons.mapIndexed { index, button ->
             UIAlertAction
                 .actionWithTitle(
-                    title = title,
-                    style = style.ui,
+                    title = button.title,
+                    style = button.style.ui,
                     handler = {
-                        onClick()
-                        onDismissRequest()
+                        invokeAction(index)
                     },
                 ).apply {
-                    setEnabled(enabled)
+                    setEnabled(button.enabled)
                 }
+        }
+
+    fun updateEnabledActions(actions: List<UIAlertAction>) {
+        actions.zip(buttons).fastForEach { (action, button) ->
+            action.setEnabled(button.enabled)
+        }
+    }
+
+    fun invokeAction(index: Int) {
+        buttons.getOrNull(index)?.takeIf { it.enabled }?.let { button ->
+            button.onClick()
+            onDismissRequest()
+        }
     }
 }
 

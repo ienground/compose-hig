@@ -21,6 +21,7 @@
 package zone.ien.hig
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import zone.ien.hig.theme.CupertinoColors
@@ -34,6 +35,14 @@ import zone.ien.hig.theme.isDark
  * reduced transparency.
  */
 object Accessibility
+
+internal val highContrastEnabledState = mutableStateOf<Boolean?>(null)
+
+/** 관찰한 시스템 고대비 설정을 갱신합니다. */
+@InternalCupertinoApi
+fun updateHighContrastState(enabled: Boolean) {
+    highContrastEnabledState.value = enabled
+}
 
 /**
  * Checks if high contrast mode is enabled in the system.

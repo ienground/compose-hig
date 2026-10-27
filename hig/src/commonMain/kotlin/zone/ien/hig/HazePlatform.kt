@@ -27,13 +27,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.drawPlainBackdrop
+import com.kyant.backdrop.effects.blur
+import zone.ien.hig.utils.LocalCupertinoBackdrop
 
 /**
  * Draw content within the provided [area]s blurred in a 'glassmorphism' style.
@@ -56,7 +64,16 @@ fun Modifier.haze(
     tint: Color = HazeDefaults.tint(backgroundColor),
     blurRadius: Dp = HazeDefaults.blurRadius,
 ): Modifier =
-    this then
+    LocalCupertinoBackdrop.current?.let { backdrop ->
+        drawPlainBackdrop(
+            backdrop = backdrop,
+            shape = { HazeAreasShape(area.toList()) },
+            effects = { blur(blurRadius.toPx()) },
+            onDrawSurface = {
+                area.forEach { drawRect(tint, topLeft = it.topLeft, size = it.size) }
+            },
+        )
+    } ?: then(
         HazeNodeElement(
             areas = area.toList(),
             tint = tint,
@@ -64,6 +81,21 @@ fun Modifier.haze(
             blurRadius = blurRadius,
             density = LocalDensity.current,
         )
+    )
+
+private class HazeAreasShape(
+    private val areas: List<Rect>,
+) : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline = Outline.Generic(
+        Path().apply {
+            areas.forEach { addRect(it) }
+        },
+    )
+}
 
 /**
  * Default values for the [haze] modifiers.

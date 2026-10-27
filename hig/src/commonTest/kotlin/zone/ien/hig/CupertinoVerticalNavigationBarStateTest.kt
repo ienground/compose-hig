@@ -4,7 +4,7 @@ import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.snapshots.Snapshot
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -170,7 +170,7 @@ class CupertinoVerticalNavigationBarStateTest {
         assertEquals(0f, state.pressProgress, 0.001f)
     }
 
-    private fun withAnimationClock(block: suspend AnimationClock.() -> Unit) = runBlocking {
+    private fun withAnimationClock(block: suspend AnimationClock.() -> Unit) = runTest {
         val clock = BroadcastFrameClock()
         val scope = CoroutineScope(coroutineContext + clock)
         try {

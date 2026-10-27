@@ -38,13 +38,13 @@ kotlin {
             api(projects.higCore)
 
             implementation(libs.compose.material3)
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
+            api(libs.compose.runtime)
+            api(libs.compose.foundation)
             implementation(libs.compose.ui.util)
             implementation(libs.datetime)
             implementation(libs.atomicfu)
-            implementation(libs.serialization)
-            implementation(libs.backdrop)
+            api(libs.serialization)
+            api(libs.backdrop)
             implementation(libs.capsule)
         }
         commonTest.dependencies {
