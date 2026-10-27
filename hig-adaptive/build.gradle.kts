@@ -29,10 +29,15 @@ plugins {
 kotlin {
 
     sourceSets {
+        jsTest {
+            resources.srcDir(rootProject.file("hig/src/jsTest/resources"))
+        }
         commonMain.dependencies {
             api(projects.hig)
             api(projects.higNative)
             api(libs.compose.material3)
+            api(libs.compose.adaptive)
+            api(libs.compose.adaptive.navigation3)
             implementation(projects.higCore)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
@@ -40,6 +45,13 @@ kotlin {
             implementation(libs.compose.ui.util)
             implementation(libs.backdrop)
             implementation(libs.capsule)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation("org.jetbrains.compose.ui:ui-test:${libs.plugins.compose.multiplatform.get().version}")
+        }
+        desktopTest.dependencies {
+            implementation(compose.desktop.currentOs)
         }
     }
 }

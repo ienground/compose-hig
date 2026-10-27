@@ -21,7 +21,6 @@
 package zone.ien.hig
 
 import androidx.compose.runtime.Composable
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toNSTimeZone
 import platform.Foundation.NSCalendar
@@ -32,6 +31,7 @@ import platform.Foundation.NSLocale
 import platform.Foundation.currentLocale
 import platform.Foundation.dateWithTimeIntervalSince1970
 import platform.Foundation.timeIntervalSince1970
+import kotlin.time.Instant
 
 actual typealias CalendarLocale = NSLocale
 

@@ -30,7 +30,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -75,6 +75,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -177,6 +178,10 @@ fun CupertinoDatePicker(
 class CupertinoDatePickerState private constructor(
     internal val stateData: DatePickerStateData,
 ) {
+    /** 선택할 수 있는 연도 범위. */
+    val yearRange: IntRange
+        get() = stateData.yearRange
+
     /**
      * Constructs a DatePickerState.
      *
@@ -201,7 +206,7 @@ class CupertinoDatePickerState private constructor(
             yearRange = yearRange,
         ),
     ) {
-        mSelectedDateMillis = initialSelectedDateMillis
+        mSelectedDateMillis = stateData.calendarModel.getCanonicalDate(initialSelectedDateMillis).utcTimeMillis
     }
 
     /**
@@ -227,10 +232,9 @@ class CupertinoDatePickerState private constructor(
     }
 
     /**
-     * Sets the selected date.
+     * 선택 날짜를 갱신하고 휠과 현재 표시 월을 함께 동기화한다.
      *
-     * @param dateMillis timestamp in _UTC_ milliseconds from the epoch that represents the date
-     * selection, or `null` to indicate no selection.
+     * @param dateMillis 선택할 날짜의 UTC 밀리초. 시간 부분은 UTC 자정으로 정규화한다.
      *
      * @throws IllegalArgumentException in case the given timestamps do not fall within the year
      * range this state was created with.
@@ -238,17 +242,25 @@ class CupertinoDatePickerState private constructor(
     fun setSelection(
         @Suppress("AutoBoxing") dateMillis: Long,
     ) {
-        if (isManual) {
-            mSelectedDateMillis = dateMillis
-        } else {
-            stateData.setSelection(startDateMillis = dateMillis, endDateMillis = null)
-        }
-
-        stateData.displayedMonth = stateData.calendarModel.getMonth(dateMillis)
+        stateData.setSelection(startDateMillis = dateMillis, endDateMillis = null)
+        mSelectedDateMillis = stateData.calendarModel.getCanonicalDate(dateMillis).utcTimeMillis
+        stateData.displayedMonth = stateData.calendarModel.getMonth(mSelectedDateMillis)
     }
 
+    private var _isManual by mutableStateOf(false)
+
     @InternalCupertinoApi
-    var isManual by mutableStateOf(false)
+    var isManual: Boolean
+        get() = _isManual
+        set(value) {
+            if (value == _isManual) return
+            if (value) {
+                mSelectedDateMillis = stateData.selectedDateFromWheel.utcTimeMillis
+            } else {
+                stateData.setSelection(mSelectedDateMillis, null)
+            }
+            _isManual = value
+        }
 
     private var mSelectedDateMillis: Long by mutableStateOf(0)
 
@@ -565,15 +577,16 @@ private fun CupertinoDatePickerPager(
                 onPrevMonthClicked = {
                     coroutineScope.launch {
                         monthsListState.animateScrollToItem(
-                            (monthsListState.firstVisibleItemIndex - 1).coerceAtLeast(1),
+                            (monthsListState.firstVisibleItemIndex - 1).coerceAtLeast(0),
                         )
                     }
                 },
                 onNextMonthClicked = {
                     coroutineScope.launch {
                         monthsListState.animateScrollToItem(
-                            monthsListState.firstVisibleItemIndex +
-                                if (monthsListState.isScrollInProgress) 2 else 1,
+                            (monthsListState.firstVisibleItemIndex +
+                                if (monthsListState.isScrollInProgress) 2 else 1)
+                                .coerceAtMost(state.stateData.totalMonthsInRange - 1),
                         )
                     }
                 },
@@ -650,6 +663,7 @@ private fun PagerDatePickerControls(
 ) {
     val calendarModel = state.stateData.calendarModel
     val locale = defaultLocale()
+    val isKorean = LocalLocale.current.language == "ko"
 
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
     val chevronRotation by animateFloatAsState(
@@ -685,11 +699,7 @@ private fun PagerDatePickerControls(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier =
-                Modifier.pointerInput(0) {
-                    detectTapGestures {
-                        onMonthSelectionClicked()
-                    }
-                },
+                Modifier.clickable(role = Role.Button, onClick = onMonthSelectionClicked),
         ) {
             CupertinoText(
                 text = month,
@@ -730,6 +740,7 @@ private fun PagerDatePickerControls(
             Row {
                 CupertinoIconButton(
                     onClick = onPrevMonthClicked,
+                    enabled = state.stateData.displayedMonthIndex > 0,
                 ) {
                     CupertinoIcon(
                         modifier =
@@ -742,12 +753,13 @@ private fun PagerDatePickerControls(
                             } else {
                                 CupertinoIcons.Default.ChevronBackward
                             },
-                        contentDescription = "Next Month",
+                        contentDescription = if (isKorean) "이전 달" else "Previous Month",
                         tint = colors.chevronsColor,
                     )
                 }
                 CupertinoIconButton(
                     onClick = onNextMonthClicked,
+                    enabled = state.stateData.displayedMonthIndex < state.stateData.totalMonthsInRange - 1,
                 ) {
                     CupertinoIcon(
                         modifier = Modifier.size(LargeChevronSize),
@@ -757,7 +769,7 @@ private fun PagerDatePickerControls(
                             } else {
                                 CupertinoIcons.Default.ChevronBackward
                             },
-                        contentDescription = "Next Month",
+                        contentDescription = if (isKorean) "다음 달" else "Next Month",
                         tint = colors.chevronsColor,
                     )
                 }
@@ -1286,25 +1298,28 @@ internal open class DatePickerStateData(
         calendarModel.getCanonicalDate(initialSelectedStartDateMillis)
     }
 
-    internal val monthState by lazy {
+    internal var monthState by mutableStateOf(
         CupertinoPickerState(
             infinite = true,
             initiallySelectedItemIndex = initialDate.month - 1,
-        )
-    }
+        ),
+    )
+        private set
 
-    internal val dayState by lazy {
+    internal var dayState by mutableStateOf(
         CupertinoPickerState(
             infinite = true,
             initiallySelectedItemIndex = initialDate.dayOfMonth - 1,
-        )
-    }
+        ),
+    )
+        private set
 
-    internal val yearState by lazy {
+    internal var yearState by mutableStateOf(
         CupertinoPickerState(
             initiallySelectedItemIndex = initialDate.year - yearRange.first,
-        )
-    }
+        ),
+    )
+        private set
 
     internal val monthNames by lazy {
         PlatformDateFormat.monthsNames(currentLocale())
@@ -1397,6 +1412,11 @@ internal open class DatePickerStateData(
             }
         }
         selectedEndDate.value = endDate
+        if (selectedDateFromWheel != startDate) {
+            monthState = CupertinoPickerState(infinite = true, initiallySelectedItemIndex = startDate.month - 1)
+            dayState = CupertinoPickerState(infinite = true, initiallySelectedItemIndex = startDate.dayOfMonth - 1)
+            yearState = CupertinoPickerState(initiallySelectedItemIndex = startDate.year - yearRange.first)
+        }
     }
 
     companion object {

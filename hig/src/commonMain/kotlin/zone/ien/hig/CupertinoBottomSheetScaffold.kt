@@ -197,6 +197,7 @@ fun CupertinoBottomSheetScaffold(
         sheetState = scaffoldState.bottomSheetState,
         bottomSheet = { layoutHeight ->
             CompositionLocalProvider(
+                LocalCupertinoSheetPresentation provides scaffoldState.bottomSheetState.presentationStyle,
                 LocalTopAppBarInsets provides
                     if (scaffoldState.bottomSheetState.presentationStyle == PresentationStyle.Fullscreen) {
                         CupertinoTopAppBarDefaults.windowInsets
@@ -348,11 +349,6 @@ private fun StandardBottomSheet(
                 }
         }
 
-    val largestDetentHeight =
-        sortedAnchors.lastOrNull()?.calculate(density, layoutHeight) ?: layoutHeight
-    val bottomPadding = with(density) {
-        (layoutHeight - largestDetentHeight).coerceAtLeast(0f).toDp()
-    }
     val partialDetentHeight =
         remember(state.presentationStyle, density, layoutHeight) {
             (state.presentationStyle as? PresentationStyle.Modal)
@@ -445,32 +441,7 @@ private fun StandardBottomSheet(
                             BottomSheetMaxWidth
                         },
                 ).fillMaxWidth()
-                .graphicsLayer {
-                    translationY = -SheetBottomInset.toPx() * insetProgress * hiddenVisibilityProgress
-                }
-                .drawBackdrop(
-                    backdrop = backdrop,
-                    shape = { sheetVisualShape },
-                    effects = {
-                        blur(blurRadius.toPx())
-                    },
-                    highlight = { Highlight.Default.copy(alpha = 0.35f) },
-                    onDrawSurface = { drawRect(containerColor) },
-                ).glassEdge(sheetVisualShape, softShadow = true)
-                .requiredHeightIn(min = peekHeight)
-                .nestedScroll(
-                    remember(state.swipeableState) {
-                        ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
-                            sheetState = state,
-                            orientation = orientation,
-                            onFling = { scope.launch { state.settle(it) } },
-                        )
-                    },
-                ).swipeableV2(
-                    state = state.swipeableState,
-                    orientation = orientation,
-                    enabled = sheetSwipeEnabled,
-                ).swipeAnchors(
+                .swipeAnchors(
                     state.swipeableState,
                     possibleValues =
                         buildSet(2) {
@@ -505,7 +476,45 @@ private fun StandardBottomSheet(
 
                         else -> null
                     }
-                }.then(
+                }.layout { measurable, constraints ->
+                    val viewportHeight = constraints.maxHeight
+                    val visibleHeight =
+                        (viewportHeight - (state.offset ?: viewportHeight.toFloat()))
+                            .roundToInt()
+                            .coerceIn(0, viewportHeight)
+                    val placeable = measurable.measure(
+                        constraints.copy(minHeight = 0, maxHeight = visibleHeight),
+                    )
+                    layout(placeable.width, viewportHeight) {
+                        placeable.placeRelative(0, 0)
+                    }
+                }
+                .graphicsLayer {
+                    translationY = -SheetBottomInset.toPx() * insetProgress * hiddenVisibilityProgress
+                }
+                .drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { sheetVisualShape },
+                    effects = {
+                        blur(blurRadius.toPx())
+                    },
+                    highlight = { Highlight.Default.copy(alpha = 0.35f) },
+                    onDrawSurface = { drawRect(containerColor) },
+                ).glassEdge(sheetVisualShape, softShadow = true)
+                .requiredHeightIn(min = peekHeight)
+                .nestedScroll(
+                    remember(state.swipeableState) {
+                        ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
+                            sheetState = state,
+                            orientation = orientation,
+                            onFling = { scope.launch { state.settle(it) } },
+                        )
+                    },
+                ).swipeableV2(
+                    state = state.swipeableState,
+                    orientation = orientation,
+                    enabled = sheetSwipeEnabled,
+                ).then(
                     if (isHiddenAndIdle) {
                         Modifier.clearAndSetSemantics { }
                     } else {
@@ -518,9 +527,7 @@ private fun StandardBottomSheet(
         contentColor = contentColor,
     ) {
         Box(
-            Modifier
-                .fillMaxWidth()
-                .padding(bottom = bottomPadding),
+            Modifier.fillMaxWidth(),
         ) {
             CompositionLocalProvider(
                 LocalContainerColor provides containerColor,

@@ -46,7 +46,11 @@ kotlin {
 
     androidLibrary {
         namespace = "zone.ien.hig${projectName}"
-        compileSdk = (findProperty("android.compileSdk") as String).toInt()
+        compileSdk {
+            version = release((findProperty("android.compileSdk") as String).toInt()) {
+                minorApiLevel = (findProperty("android.compileSdkMinor") as String).toInt()
+            }
+        }
         minSdk = (findProperty("android.minSdk") as String).toInt()
         lint {
             targetSdk = (findProperty("android.targetSdk") as String).toInt()
@@ -82,13 +86,28 @@ kotlin {
     }
 
     js(IR) {
-        browser()
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                    useConfigDirectory(rootProject.file("karma.config.d"))
+                }
+            }
+        }
         binaries.executable()
     }
 
     @Suppress("OPT_IN_USAGE")
     wasmJs {
-        browser()
+        binaries.executable()
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                    useConfigDirectory(rootProject.file("karma.config.d"))
+                }
+            }
+        }
     }
 
     sourceSets {

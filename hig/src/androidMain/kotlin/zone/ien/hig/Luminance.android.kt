@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.asImageBitmap
  * @return The scaled [ImageBitmap]
  */
 actual fun ImageBitmap.scale(width: Int, height: Int): ImageBitmap {
-    return Bitmap.createScaledBitmap(this.asAndroidBitmap(), 5, 5, false)
+    return Bitmap.createScaledBitmap(this.asAndroidBitmap(), width, height, false)
         .copy(Bitmap.Config.ARGB_8888, false)
         .asImageBitmap()
 }

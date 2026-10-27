@@ -51,9 +51,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import zone.ien.hig.theme.CupertinoTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /**
  * Creates a [CupertinoTimePickerState] for a time picker that is remembered across compositions
@@ -359,7 +356,7 @@ class CupertinoTimePickerState internal constructor(
         get() =
             amPmState.selectedItemIndex == 1
 
-    internal val hourState =
+    internal var hourState by mutableStateOf(
         CupertinoPickerState(
             infinite = true,
             initiallySelectedItemIndex =
@@ -368,15 +365,20 @@ class CupertinoTimePickerState internal constructor(
                 } else {
                     initialHour % 12
                 },
-        )
+        ),
+    )
+        private set
 
-    internal val minuteState =
+    internal var minuteState by mutableStateOf(
         CupertinoPickerState(
             infinite = true,
             initiallySelectedItemIndex = initialMinute,
-        )
+        ),
+    )
+        private set
 
-    internal val amPmState = CupertinoPickerState()
+    internal var amPmState by mutableStateOf(CupertinoPickerState(initiallySelectedItemIndex = if (initialHour >= 12) 1 else 0))
+        private set
 
     @InternalCupertinoApi
     var manualHour: Int by mutableStateOf(initialHour)
@@ -392,17 +394,24 @@ class CupertinoTimePickerState internal constructor(
         set(value) {
             if (_isManual != value) {
                 if (value) {
-                    manualHour = hourState.currentSelectedItem(hoursList.size)
-                    manualMinute = minuteState.currentSelectedItem(60)
+                    manualHour = hour
+                    manualMinute = minute
                 } else {
-                    CoroutineScope(Dispatchers.Unconfined).launch {
-                        hourState.scrollToItem(manualHour)
-                        minuteState.scrollToItem(manualMinute)
-                    }
+                    setSelection(manualHour, manualMinute)
                 }
                 _isManual = value
             }
         }
+
+    internal fun setSelection(hour: Int, minute: Int) {
+        require(hour in 0..23) { "hour should be in [0..23] range" }
+        require(minute in 0..59) { "minute should be in [0..59] range" }
+        manualHour = hour
+        manualMinute = minute
+        hourState = CupertinoPickerState(infinite = true, initiallySelectedItemIndex = if (is24Hour) hour else hour % 12)
+        minuteState = CupertinoPickerState(infinite = true, initiallySelectedItemIndex = minute)
+        amPmState = CupertinoPickerState(initiallySelectedItemIndex = if (hour >= 12) 1 else 0)
+    }
 
     companion object {
         /**

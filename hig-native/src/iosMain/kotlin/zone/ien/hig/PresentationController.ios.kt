@@ -27,13 +27,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.interop.LocalUIViewController
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.CompletableDeferred
 import zone.ien.hig.theme.CupertinoTheme
+import platform.UIKit.UIAlertController
 import platform.UIKit.UIPresentationController
 import platform.UIKit.UIViewController
 import platform.UIKit.UIViewControllerAnimatedTransitioningProtocol
 import platform.UIKit.UIViewControllerInteractiveTransitioningProtocol
 import platform.UIKit.UIViewControllerTransitioningDelegateProtocol
 import platform.UIKit.transitioningDelegate
+import platform.UIKit.popoverPresentationController
 import platform.darwin.NSObject
 import platform.darwin.NSUInteger
 
@@ -47,7 +51,47 @@ private val EmptyTransitioningDelegate =
 private class ControllerHolder<T: UIViewController>(
     val controller: T,
     val transitioningDelegateProtocol: UIViewControllerTransitioningDelegateProtocol,
-)
+    val dismissRequestGuard: PresentationControllerDismissGuard,
+) {
+    var isPresentationRequested: Boolean = false
+}
+
+internal class PresentationControllerDismissGuard(
+    private val onDismissRequest: () -> Unit,
+) {
+    private var isDisposed = false
+    private var wasRequested = false
+
+    fun request() {
+        if (!isDisposed && !wasRequested) {
+            wasRequested = true
+            onDismissRequest()
+        }
+    }
+
+    fun dispose() {
+        isDisposed = true
+    }
+}
+
+internal class PresentationControllerSession {
+    private var pendingDismissal: CompletableDeferred<Unit>? = null
+
+    suspend fun awaitPendingDismissal() {
+        pendingDismissal?.await()
+    }
+
+    fun beginDismissal(): CompletableDeferred<Unit> {
+        val current = pendingDismissal
+        if (current != null && !current.isCompleted) return current
+        return CompletableDeferred<Unit>().also { pendingDismissal = it }
+    }
+
+    fun completeDismissal(completion: CompletableDeferred<Unit>) {
+        completion.complete(Unit)
+        if (pendingDismissal === completion) pendingDismissal = null
+    }
+}
 
 @Composable
 internal fun <T: UIViewController> PresentationController(
@@ -55,19 +99,27 @@ internal fun <T: UIViewController> PresentationController(
     update: T.() -> Unit,
     onDismissRequest: () -> Unit,
     vararg updateKeys: Any?,
+    session: PresentationControllerSession,
+    configurePresentation: T.(UIViewController) -> Unit = {},
 ) {
     val dark = CupertinoTheme.colorScheme.isDark
+    val controller = LocalUIViewController.current
+    val tController = remember(controller) { factory() }
 
     val updatedOnDismissRequest by rememberUpdatedState(onDismissRequest)
-
-    val tController = remember { factory() }
+    val dismissRequestGuard =
+        remember(tController) {
+            PresentationControllerDismissGuard {
+                updatedOnDismissRequest()
+            }
+        }
 
     val currentDelegate =
         tController.transitioningDelegate
             ?: EmptyTransitioningDelegate
 
     val delegate =
-        remember(currentDelegate) {
+        remember(tController, currentDelegate) {
             object: NSObject(), UIViewControllerTransitioningDelegateProtocol {
                 override fun animationControllerForPresentedController(
                     presented: UIViewController,
@@ -95,7 +147,7 @@ internal fun <T: UIViewController> PresentationController(
                 override fun animationControllerForDismissedController(
                     dismissed: UIViewController,
                 ): UIViewControllerAnimatedTransitioningProtocol? {
-                    updatedOnDismissRequest()
+                    if (dismissed == tController) dismissRequestGuard.request()
                     return currentDelegate.animationControllerForDismissedController(dismissed)
                 }
 
@@ -104,26 +156,40 @@ internal fun <T: UIViewController> PresentationController(
         }
 
     val controllerHolder =
-        remember {
+        remember(tController) {
             tController.transitioningDelegate = delegate
 
-            ControllerHolder(tController, delegate)
+            ControllerHolder(tController, delegate, dismissRequestGuard)
         }
 
-    val controller = LocalUIViewController.current
-
-    LaunchedEffect(controllerHolder.controller, dark, *updateKeys) {
+    LaunchedEffect(controllerHolder.controller, controller, dark, *updateKeys) {
+        session.awaitPendingDismissal()
         controllerHolder.controller.applyTheme(dark)
         update(controllerHolder.controller)
+        if (!controllerHolder.isPresentationRequested && controller.presentedViewController != controllerHolder.controller) {
+            controllerHolder.controller.configurePresentation(controller)
+            controllerHolder.isPresentationRequested = true
+            controller.presentViewController(controllerHolder.controller, true) {}
+        }
     }
 
-    DisposableEffect(controller) {
-        controller.presentViewController(controllerHolder.controller, true) {
-        }
+    DisposableEffect(controller, controllerHolder) {
         onDispose {
+            controllerHolder.dismissRequestGuard.dispose()
             if (controller.presentedViewController == controllerHolder.controller) {
-                controller.dismissViewControllerAnimated(true, null)
+                val dismissalCompletion = session.beginDismissal()
+                controller.dismissViewControllerAnimated(true) {
+                    session.completeDismissal(dismissalCompletion)
+                }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalForeignApi::class)
+internal fun UIAlertController.anchorPopoverTo(presenter: UIViewController) {
+    popoverPresentationController?.apply {
+        sourceView = presenter.view
+        sourceRect = presenter.view.bounds
     }
 }

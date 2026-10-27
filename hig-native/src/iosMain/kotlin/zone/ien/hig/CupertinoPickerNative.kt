@@ -22,16 +22,25 @@ package zone.ien.hig
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
+import androidx.compose.ui.util.fastMap
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.ObjCSignatureOverride
 import zone.ien.hig.theme.CupertinoTheme
 import platform.UIKit.UIPickerView
+import platform.UIKit.UIPickerViewDataSourceProtocol
+import platform.UIKit.UIPickerViewDelegateProtocol
+import platform.darwin.NSObject
 
 @Composable
+@OptIn(InternalCupertinoApi::class)
 @ExperimentalCupertinoApi
 fun <T> CupertinoPickerNative(
     state: CupertinoPickerState,
@@ -45,9 +54,33 @@ fun <T> CupertinoPickerNative(
     enabled: Boolean = true,
     content: (T) -> String,
 ) {
-    UIKitView(
+    DisposableEffect(state, items.size) {
+        state.setNativePickerActive(true, items.size)
+        onDispose { state.setNativePickerActive(false, 0) }
+    }
+
+    val titles = items.fastMap(content)
+    val selectedIndex = if (items.isEmpty()) 0 else state.currentSelectedItem(items.size)
+    val adapter = remember(state) {
+        NativePickerAdapter { state.selectFromNative(it) }
+    }
+
+    UIKitView<UIPickerView>(
         factory = {
-            UIPickerView()
+            UIPickerView().apply {
+                dataSource = adapter
+                delegate = adapter
+            }
+        },
+        update = {
+            adapter.update(
+                picker = it,
+                titles = titles,
+                selectedIndex = selectedIndex,
+                enabled = enabled,
+                animated = state.consumeNativeSelectionAnimation(),
+            )
+            it.backgroundColor = containerColor.toUIColor()
         },
         modifier = modifier.height(height),
         properties =
@@ -56,4 +89,70 @@ fun <T> CupertinoPickerNative(
                 isNativeAccessibilityEnabled = true,
             ),
     )
+}
+
+@OptIn(ExperimentalForeignApi::class)
+internal class NativePickerAdapter(
+    private val onSelectionChanged: (Int) -> Unit,
+) : NSObject(), UIPickerViewDataSourceProtocol, UIPickerViewDelegateProtocol {
+    private var titles: List<String> = emptyList()
+    private var enabled = true
+    private var selectedIndex: Int? = null
+
+    fun update(
+        picker: UIPickerView,
+        titles: List<String>,
+        selectedIndex: Int,
+        enabled: Boolean,
+        animated: Boolean = false,
+    ) {
+        picker.dataSource = this
+        picker.delegate = this
+        this.enabled = enabled
+        picker.userInteractionEnabled = enabled
+        val titlesChanged = this.titles != titles
+        if (titlesChanged) {
+            this.titles = titles
+            picker.reloadAllComponents()
+        }
+        if (titles.isNotEmpty()) {
+            val boundedIndex = selectedIndex.coerceIn(0, titles.lastIndex)
+            if (titlesChanged || this.selectedIndex != boundedIndex || animated) {
+                picker.selectRow(
+                    row = boundedIndex.toLong(),
+                    inComponent = 0L,
+                    animated = animated,
+                )
+                this.selectedIndex = boundedIndex
+            }
+        }
+    }
+
+    override fun numberOfComponentsInPickerView(pickerView: UIPickerView): Long = 1L
+
+    override fun pickerView(
+        pickerView: UIPickerView,
+        numberOfRowsInComponent: Long,
+    ): Long = if (numberOfRowsInComponent == 0L) titles.size.toLong() else 0L
+
+    @ObjCSignatureOverride
+    override fun pickerView(
+        pickerView: UIPickerView,
+        titleForRow: Long,
+        forComponent: Long,
+    ): String? =
+        if (forComponent == 0L) {
+            titles.getOrNull(titleForRow.toInt())
+        } else {
+            null
+        }
+
+    @ObjCSignatureOverride
+    override fun pickerView(
+        pickerView: UIPickerView,
+        didSelectRow: Long,
+        inComponent: Long,
+    ) {
+        if (enabled && inComponent == 0L) onSelectionChanged(didSelectRow.toInt())
+    }
 }

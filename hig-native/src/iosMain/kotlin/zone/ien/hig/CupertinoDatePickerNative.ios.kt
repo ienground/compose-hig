@@ -34,6 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitInteropInteractionMode
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.atTime
+import kotlinx.datetime.toInstant
 import zone.ien.hig.theme.CupertinoTheme
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -46,8 +51,8 @@ import platform.Foundation.NSDate
 import platform.Foundation.NSLocale
 import platform.Foundation.NSSelectorFromString
 import platform.Foundation.NSTimeZone
-import platform.Foundation.currentLocale
 import platform.Foundation.dateWithTimeIntervalSince1970
+import platform.Foundation.currentLocale
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.timeZoneWithName
 import platform.UIKit.UIControlEventValueChanged
@@ -86,6 +91,7 @@ actual fun CupertinoDatePickerNative(
         mode = UIDatePickerMode.UIDatePickerModeDate,
         style = style,
         containerColor = containerColor,
+        yearRange = state.yearRange,
     )
 }
 
@@ -98,6 +104,7 @@ actual fun CupertinoDatePickerNative(
  * @param modifier the [Modifier] to be applied to this date picker
  * @param style the date picker style, either wheel or pager
  * @param containerColor the color to apply to the background of the date picker
+ * @param yearRange 허용되는 연도 범위. `null`이면 날짜 범위를 제한하지 않습니다.
  */
 @OptIn(ExperimentalForeignApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -108,6 +115,7 @@ internal fun CupertinoDatePickerNativeImpl(
     modifier: Modifier,
     style: DatePickerStyle,
     containerColor: Color,
+    yearRange: IntRange? = null,
 ) {
     val updatedOnChange by rememberUpdatedState(onChange)
 
@@ -117,17 +125,16 @@ internal fun CupertinoDatePickerNativeImpl(
                 millis = millis,
                 mode = mode,
                 style = style,
+                yearRange = yearRange,
             ) {
                 updatedOnChange(it)
             }
         }
 
-    val size =
-        remember(datePicker) {
-            datePicker
-                .sizeThatFits(cValue { CGSizeZero })
-                .useContents { DpSize(width.dp, height.dp) }
-        }
+    val nativeStyle = style.toNativeStyle()
+    val size = remember(datePicker, nativeStyle) {
+        datePicker.measureSizeForStyle(nativeStyle)
+    }
 
     val dark = CupertinoTheme.colorScheme.isDark
 
@@ -141,12 +148,8 @@ internal fun CupertinoDatePickerNativeImpl(
             modifier
                 .size(size),
         update = {
-            it.preferredDatePickerStyle =
-                when (style) {
-                    is DatePickerStyle.Wheel -> UIDatePickerStyle.UIDatePickerStyleWheels
-                    is DatePickerStyle.Pager -> UIDatePickerStyle.UIDatePickerStyleInline
-                }
-            it.setDate(NSDate.dateWithTimeIntervalSince1970(millis / 1000.0), animated = false)
+            it.preferredDatePickerStyle = nativeStyle
+            datePicker.updateRangeAndSelection(yearRange, millis)
             (it.subviews.firstOrNull() as UIView?)?.backgroundColor = containerColor.toUIColor()
             it.applyTheme(dark)
         },
@@ -156,6 +159,19 @@ internal fun CupertinoDatePickerNativeImpl(
                 isNativeAccessibilityEnabled = true,
             ),
     )
+}
+
+private fun DatePickerStyle.toNativeStyle(): UIDatePickerStyle =
+    when (this) {
+        is DatePickerStyle.Wheel -> UIDatePickerStyle.UIDatePickerStyleWheels
+        is DatePickerStyle.Pager -> UIDatePickerStyle.UIDatePickerStyleInline
+    }
+
+@OptIn(ExperimentalForeignApi::class)
+internal fun UIDatePicker.measureSizeForStyle(style: UIDatePickerStyle): DpSize {
+    preferredDatePickerStyle = style
+    return sizeThatFits(cValue { CGSizeZero })
+        .useContents { DpSize(width.dp, height.dp) }
 }
 
 /**
@@ -171,8 +187,12 @@ private class DatePicker(
     millis: Long,
     mode: UIDatePickerMode,
     style: DatePickerStyle,
+    yearRange: IntRange?,
     private val onChange: (Long) -> Unit,
 ): UIDatePicker(CGRectMake(0.0, 0.0, 0.0, 0.0)) {
+    private var appliedYearRange = yearRange
+    private var isUpdatingSelection = false
+
     init {
         timeZone = NSTimeZone.timeZoneWithName("UTC")
         locale = NSLocale.currentLocale
@@ -189,6 +209,7 @@ private class DatePicker(
                 is DatePickerStyle.Wheel -> UIDatePickerStyle.UIDatePickerStyleWheels
                 is DatePickerStyle.Pager -> UIDatePickerStyle.UIDatePickerStyleInline
             }
+        applyYearRange(yearRange)
         addTarget(
             target = this,
             action = NSSelectorFromString("changed:"),
@@ -196,10 +217,44 @@ private class DatePicker(
         )
     }
 
+    fun updateRangeAndSelection(
+        yearRange: IntRange?,
+        millis: Long,
+    ) {
+        isUpdatingSelection = true
+        try {
+            if (appliedYearRange != yearRange) {
+                applyYearRange(yearRange)
+                appliedYearRange = yearRange
+            }
+            setDate(NSDate.dateWithTimeIntervalSince1970(millis / 1000.0), animated = false)
+        } finally {
+            isUpdatingSelection = false
+        }
+    }
+
     @OptIn(BetaInteropApi::class)
     @ObjCAction
     @Suppress("UNUSED")
     fun changed(v: DatePicker) {
-        onChange((v.date.timeIntervalSince1970 * 1000).toLong())
+        if (!isUpdatingSelection) onChange((v.date.timeIntervalSince1970 * 1000).toLong())
+    }
+}
+
+/** UIDatePicker에 UTC 기준 연도 경계를 적용합니다. `null`이면 기존 날짜 제한을 해제합니다. */
+@OptIn(ExperimentalForeignApi::class)
+internal fun UIDatePicker.applyYearRange(yearRange: IntRange?) {
+    minimumDate = null
+    maximumDate = null
+
+    if (yearRange != null) {
+        val minimumMillis = LocalDate(yearRange.first, 1, 1).atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
+        val maximumMillis =
+            LocalDate(yearRange.last, 12, 31)
+                .atTime(23, 59, 59, 999_000_000)
+                .toInstant(TimeZone.UTC)
+                .toEpochMilliseconds()
+        minimumDate = NSDate.dateWithTimeIntervalSince1970(minimumMillis / 1000.0)
+        maximumDate = NSDate.dateWithTimeIntervalSince1970(maximumMillis / 1000.0)
     }
 }

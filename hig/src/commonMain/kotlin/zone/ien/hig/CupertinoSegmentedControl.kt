@@ -20,10 +20,10 @@
 
 package zone.ien.hig
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
@@ -460,7 +460,8 @@ fun CupertinoSegmentedControlTab(
                     if (isOverlay) {
                         Modifier.clearAndSetSemantics {}
                     } else {
-                        Modifier.clickable(
+                        Modifier.selectable(
+                            selected = isSelected,
                             onClick = {
                                 val index = registry?.tabs?.indexOf(token)
                                 if (index != null && index != -1) {

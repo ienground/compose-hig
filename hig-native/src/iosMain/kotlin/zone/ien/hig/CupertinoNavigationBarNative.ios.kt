@@ -13,7 +13,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onPlaced
@@ -23,13 +22,52 @@ import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
+import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
+import platform.CoreGraphics.CGRect
+import platform.CoreGraphics.CGRectMake
 import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UITabBar
 import zone.ien.hig.navigation.IosBarHeightCache
 import zone.ien.hig.navigation.LocalIosTabBarPadding
 import zone.ien.hig.navigation.TabBarManager
+
+@Composable
+internal fun SyncNativeTabBarItems(
+    items: List<CupertinoNavigationBarItemData>,
+    selectedTabIndex: () -> Int,
+    tabBarManager: TabBarManager,
+) {
+    val selectedIndex = selectedTabIndex()
+    LaunchedEffect(items, selectedIndex) {
+        tabBarManager.setItems(items, selectedIndex)
+    }
+}
+
+@OptIn(ExperimentalForeignApi::class)
+internal class LayoutObservingTabBar : UITabBar(CGRectMake(0.0, 0.0, 0.0, 0.0)) {
+    var onLayoutChanged: ((CValue<CGRect>) -> Unit)? = null
+
+    private var lastFrame: List<Double>? = null
+
+    override fun layoutSubviews() {
+        super.layoutSubviews()
+        val currentFrame = frame
+        val frameValues = currentFrame.useContents {
+            listOf(origin.x, origin.y, size.width, size.height)
+        }
+        if (lastFrame != frameValues) {
+            lastFrame = frameValues
+            onLayoutChanged?.invoke(currentFrame)
+        }
+    }
+
+    override fun safeAreaInsetsDidChange() {
+        super.safeAreaInsetsDidChange()
+        onLayoutChanged?.invoke(frame)
+    }
+}
 
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalForeignApi::class)
 @Composable
@@ -50,7 +88,7 @@ actual fun CupertinoNavigationBarNative(
     val iosTabBarPaddingState = LocalIosTabBarPadding.current
 
     val tabBarView = remember {
-        UITabBar().apply {
+        LayoutObservingTabBar().apply {
             translatesAutoresizingMaskIntoConstraints = false
         }
     }
@@ -65,18 +103,15 @@ actual fun CupertinoNavigationBarNative(
         )
     }
 
-    LaunchedEffect(items, selectedTabIndex) {
-        tabBarManager.setItems(items, selectedTabIndex())
-    }
+    SyncNativeTabBarItems(items, selectedTabIndex, tabBarManager)
 
-    val initialSafeAreaBottom = remember { 0.dp }
     val cachedTabBarHeight = remember { IosBarHeightCache.lastTabBarHeight }
 
     var topLeft by remember { mutableStateOf(DpOffset.Zero) }
     var positionInRoot by remember { mutableStateOf(DpOffset.Zero) }
     var tabBarWidth by remember { mutableStateOf(0.dp) }
     var tabBarHeight by remember {
-        val tabBarHeight = initialSafeAreaBottom + cachedTabBarHeight
+        val tabBarHeight = cachedTabBarHeight
         if (tabBarHeight.value > 0f) {
             iosTabBarPaddingState.value = PaddingValues(bottom = tabBarHeight)
         }
@@ -84,6 +119,24 @@ actual fun CupertinoNavigationBarNative(
     }
 
     DisposableEffect(tabBarView, viewController) {
+        tabBarView.onLayoutChanged = { frame ->
+            frame.useContents {
+                topLeft = DpOffset(x = origin.x.dp, y = origin.y.dp)
+                tabBarWidth = size.width.dp
+
+                val safeAreaBottom = if (isLiquidGlassEnabled) 0.dp else viewController.view.safeAreaInsets.useContents { bottom.dp }
+                val newTabBarHeight = size.height.dp + safeAreaBottom
+
+                IosBarHeightCache.updateTabBarHeight(size.height.dp)
+
+                if (tabBarHeight != newTabBarHeight) {
+                    tabBarHeight = newTabBarHeight
+                    if (newTabBarHeight.value > 0f) {
+                        iosTabBarPaddingState.value = PaddingValues(bottom = newTabBarHeight)
+                    }
+                }
+            }
+        }
         viewController.view.addSubview(tabBarView)
 
         NSLayoutConstraint.activateConstraints(
@@ -98,32 +151,12 @@ actual fun CupertinoNavigationBarNative(
                 ),
             )
         )
+        viewController.view.setNeedsLayout()
+        viewController.view.layoutIfNeeded()
 
         onDispose {
+            tabBarView.onLayoutChanged = null
             tabBarView.removeFromSuperview()
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        repeat(15) { // 최대 15프레임 동안 안정화 시도
-            tabBarView.frame.useContents {
-                topLeft = DpOffset(x = origin.x.dp, y = origin.y.dp)
-                tabBarWidth = size.width.dp
-
-                val safeAreaBottom = if (isLiquidGlassEnabled) 0.dp else viewController.view.safeAreaInsets.useContents { bottom.dp }
-                val newTabBarHeight = size.height.dp + safeAreaBottom
-
-                IosBarHeightCache.updateTabBarHeight(size.height.dp)
-
-                if (tabBarHeight != newTabBarHeight) {
-                    tabBarHeight = newTabBarHeight
-
-                    if (newTabBarHeight.value > 0f) {
-                        iosTabBarPaddingState.value = PaddingValues(bottom = newTabBarHeight)
-                    }
-                }
-            }
-            withFrameMillis { }
         }
     }
 

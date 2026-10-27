@@ -27,9 +27,12 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.compose.ui)
-            implementation(libs.compose.foundation)
-            implementation(libs.capsule)
+            api(libs.compose.ui)
+            api(libs.compose.foundation)
+            api(libs.capsule)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
     }
 }

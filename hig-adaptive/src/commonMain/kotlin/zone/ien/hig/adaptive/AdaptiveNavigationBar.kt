@@ -277,7 +277,13 @@ fun AdaptiveNavigationBarNative(
                             val selected = index == selectedTabIndex()
                             NavigationBarItem(
                                 selected = selected,
-                                onClick = item.onClick,
+                                onClick = {
+                                    dispatchNavigationBarItemClick(
+                                        index = index,
+                                        onTabSelected = onTabSelected,
+                                        onItemClick = item.onClick,
+                                    )
+                                },
                                 icon = {
                                     Icon(
                                         painter = (if (selected) item.selectedIcon else null) ?: item.icon,
@@ -324,8 +330,11 @@ fun RowScope.AdaptiveNavigationBarItem(
     val navState = LocalNavigationBarState.current
     val selected = navState?.let { it.selectedTabIndex() == index } ?: false
     val resolvedOnClick: () -> Unit = {
-        navState?.onTabSelected(index)
-        onClick()
+        dispatchNavigationBarItemClick(
+            index = index,
+            onTabSelected = { navState?.onTabSelected(it) },
+            onItemClick = onClick,
+        )
     }
 
     AdaptiveWidget(
@@ -358,6 +367,15 @@ fun RowScope.AdaptiveNavigationBarItem(
             )
         }
     )
+}
+
+internal inline fun dispatchNavigationBarItemClick(
+    index: Int,
+    onTabSelected: (Int) -> Unit,
+    onItemClick: () -> Unit,
+) {
+    onTabSelected(index)
+    onItemClick()
 }
 
 /**

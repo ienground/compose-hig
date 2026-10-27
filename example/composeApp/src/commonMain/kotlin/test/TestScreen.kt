@@ -1,5 +1,6 @@
 package test
 
+import zone.ien.hig.CupertinoTopAppBarDefaults
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -98,7 +99,7 @@ fun TestScreen(
                                 CupertinoLiquidIconButton(
                                     onClick = { expanded = true },
                                     backdrop = backdrop,
-                                    modifier = Modifier.padding(start = 16.dp)
+                                    modifier = Modifier.padding(CupertinoTopAppBarDefaults.navigationIconPadding)
                                 ) {
                                     CupertinoIcon(
                                         imageVector = CupertinoIcons.Default.ChevronBackward,

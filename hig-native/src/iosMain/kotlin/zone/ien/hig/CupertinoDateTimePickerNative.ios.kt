@@ -50,6 +50,7 @@ actual fun CupertinoDateTimePickerNative(
             modifier = modifier,
             style = style,
             containerColor = containerColor,
+            yearRange = state.yearRange,
         )
     }
 }

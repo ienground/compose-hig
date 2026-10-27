@@ -24,7 +24,7 @@ import platform.UIKit.UIAccessibilityDarkerSystemColorsEnabled
 import platform.UIKit.UIAccessibilityIsReduceTransparencyEnabled
 
 actual val Accessibility.isHighContrastEnabled: Boolean
-    get() = UIAccessibilityDarkerSystemColorsEnabled()
+    get() = highContrastEnabledState.value.let { UIAccessibilityDarkerSystemColorsEnabled() }
 
 actual val Accessibility.isReduceTransparencyEnabled: Boolean
     get() = UIAccessibilityIsReduceTransparencyEnabled()

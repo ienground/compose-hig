@@ -19,16 +19,16 @@
 package zone.ien.hig.swipebox
 
 import androidx.compose.animation.core.SpringSpec
-import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalDensity
 import zone.ien.hig.InternalCupertinoApi
 import zone.ien.hig.CupertinoSwipeBoxDefaults
 import kotlinx.coroutines.CoroutineScope
@@ -40,6 +40,15 @@ enum class SwipeBoxStates {
     EndFullyExpanded,
     StartFullyExpanded,
 }
+
+internal data class SwipeBoxFlingConfiguration(
+    val positionalThreshold: (distance: Float) -> Float,
+    val velocityThreshold: Float,
+    val animationSpec: SpringSpec<Float>,
+)
+
+internal val swipeBoxFlingConfigurations =
+    mutableStateMapOf<AnchoredDraggableState<SwipeBoxStates>, SwipeBoxFlingConfiguration>()
 
 /**
  * TODO javadocs
@@ -57,16 +66,24 @@ fun rememberCupertinoSwipeBoxState(
     openSwipeBoxState: MutableState<AnchoredDraggableState<SwipeBoxStates>?> = mutableStateOf(null),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ): AnchoredDraggableState<SwipeBoxStates> {
-    val density = LocalDensity.current
-
-    val anchoredDraggableState =  remember(key) {
-        AnchoredDraggableState(
-            initialValue = initialValue,
-            snapAnimationSpec = animationSpec,
-            decayAnimationSpec = splineBasedDecay(density),
+    val anchoredDraggableState = remember(key) {
+        AnchoredDraggableState(initialValue = initialValue)
+    }
+    val flingConfiguration = remember(positionalThreshold, velocityThreshold, animationSpec) {
+        SwipeBoxFlingConfiguration(
             positionalThreshold = positionalThreshold,
-            velocityThreshold = { velocityThreshold }
+            velocityThreshold = velocityThreshold,
+            animationSpec = animationSpec,
         )
+    }
+
+    DisposableEffect(anchoredDraggableState, flingConfiguration) {
+        swipeBoxFlingConfigurations[anchoredDraggableState] = flingConfiguration
+        onDispose {
+            if (swipeBoxFlingConfigurations[anchoredDraggableState] === flingConfiguration) {
+                swipeBoxFlingConfigurations.remove(anchoredDraggableState)
+            }
+        }
     }
 
     ScrollEffect(

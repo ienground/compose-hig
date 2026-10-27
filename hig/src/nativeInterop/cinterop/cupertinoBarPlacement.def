@@ -1,0 +1,60 @@
+language = Objective-C
+package = zone.ien.hig.uikit
+---
+#import <UIKit/UIKit.h>
+
+static inline CGRect HIGStatusRegion(UIView *view) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 270100
+    if (@available(iOS 27.1, *)) {
+        CGRect result = CGRectNull;
+        CGFloat width = CGRectGetWidth(view.bounds);
+        for (UIViewReservedRegion *region in [view reservedRegionsOfKind:UIViewReservedRegionKind.occlusionRegionKind]) {
+            CGRect frame = region.frame;
+            if (region.active && CGRectGetMinX(frame) >= width / 2 && CGRectGetMaxX(frame) >= width - 1 &&
+                CGRectGetHeight(frame) > 0 && CGRectGetWidth(frame) > 0) {
+                result = CGRectIsNull(result) ? frame : CGRectUnion(result, frame);
+            }
+        }
+        return CGRectIsNull(result) ? CGRectZero : result;
+    }
+#endif
+    return CGRectZero;
+}
+
+static inline CGRect HIGStatusOcclusion(UIView *view) {
+    CGRect statusFrame = HIGStatusRegion(view);
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 270100
+    if (@available(iOS 27.1, *)) {
+        CGRect occlusion = CGRectNull;
+        for (UIViewReservedRegion *region in [view reservedRegionsOfKind:UIViewReservedRegionKind.occlusionRegionKind]) {
+            CGRect frame = UIEdgeInsetsInsetRect(region.frame, region.margins);
+            if (region.active && CGRectContainsRect(statusFrame, frame) &&
+                !CGRectEqualToRect(statusFrame, region.frame)) {
+                occlusion = CGRectIsNull(occlusion) ? frame : CGRectUnion(occlusion, frame);
+            }
+        }
+        if (!CGRectIsNull(occlusion)) return occlusion;
+    }
+#endif
+    return CGRectZero;
+}
+
+static inline NSObject *HIGObserveHinge(UIView *view, void (^handler)(BOOL hasHinge, BOOL isOpen)) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 270100
+    if (@available(iOS 27.1, *)) {
+        UIHingeInteraction *interaction = [[UIHingeInteraction alloc] initWithUpdateHandler:^(UIHingeInteraction *interaction, UIHingeInteractionUpdate *update) {
+            handler(update.hinge != nil, update.hinge.status == UIHingeStatusPartiallyOpen ||
+                update.hinge.status == UIHingeStatusFullyOpen);
+        }];
+        [view addInteraction:interaction];
+        return interaction;
+    }
+#endif
+    return nil;
+}
+
+static inline void HIGRemoveHingeObserver(UIView *view, NSObject *observer) {
+    if (observer != nil) {
+        [view removeInteraction:(id<UIInteraction>)observer];
+    }
+}

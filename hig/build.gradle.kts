@@ -26,22 +26,33 @@ plugins {
 }
 
 kotlin {
+    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>().configureEach {
+        if (konanTarget.family == org.jetbrains.kotlin.konan.target.Family.IOS) {
+            compilations.getByName("main").cinterops.create("cupertinoBarPlacement") {
+                definitionFile.set(project.file("src/nativeInterop/cinterop/cupertinoBarPlacement.def"))
+            }
+        }
+    }
     sourceSets {
         commonMain.dependencies {
             api(projects.higCore)
 
             implementation(libs.compose.material3)
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
+            api(libs.compose.runtime)
+            api(libs.compose.foundation)
             implementation(libs.compose.ui.util)
             implementation(libs.datetime)
             implementation(libs.atomicfu)
-            implementation(libs.serialization)
-            implementation(libs.backdrop)
+            api(libs.serialization)
+            api(libs.backdrop)
             implementation(libs.capsule)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation("org.jetbrains.compose.ui:ui-test:${libs.plugins.compose.multiplatform.get().version}")
+        }
+        desktopTest.dependencies {
+            implementation(compose.desktop.currentOs)
         }
     }
 }

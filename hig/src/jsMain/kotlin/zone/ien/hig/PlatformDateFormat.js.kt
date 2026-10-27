@@ -21,10 +21,10 @@ package zone.ien.hig
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.text.intl.Locale
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
+import kotlinx.datetime.number
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import zone.ien.hig.CalendarDate
@@ -34,6 +34,7 @@ import zone.ien.hig.Midnight
 import zone.ien.hig.MillisecondsIn24Hours
 import zone.ien.hig.datePatternAsInputFormat
 import zone.ien.hig.toCalendarDate
+import kotlin.time.Instant
 import kotlin.js.Date
 
 actual typealias CalendarLocale = Locale
@@ -233,6 +234,7 @@ internal actual object PlatformDateFormat {
                 locales = locale.toLanguageTag(),
                 options =
                     dateLocaleOptions {
+                        timeZone = "UTC"
                         month = SHORT
                     },
             )
@@ -242,6 +244,7 @@ internal actual object PlatformDateFormat {
                 locales = locale.toLanguageTag(),
                 options =
                     dateLocaleOptions {
+                        timeZone = "UTC"
                         month = LONG
                     },
             )
@@ -251,10 +254,10 @@ internal actual object PlatformDateFormat {
             .replace("yy", date.year.toString().takeLast(2), ignoreCase = true)
             .replace("MMMM", monthLong)
             .replace("MMM", monthShort)
-            .replace("MM", date.monthNumber.toStringWithLeadingZero())
-            .replace("M", date.monthNumber.toString())
-            .replace("dd", date.dayOfMonth.toStringWithLeadingZero(), ignoreCase = true)
-            .replace("d", date.dayOfMonth.toString(), ignoreCase = true)
+            .replace("MM", date.month.number.toStringWithLeadingZero())
+            .replace("M", date.month.number.toString())
+            .replace("dd", date.day.toStringWithLeadingZero(), ignoreCase = true)
+            .replace("d", date.day.toString(), ignoreCase = true)
             .replace("hh", date.hour.toStringWithLeadingZero(), ignoreCase = true)
             .replace("h", date.hour.toString(), ignoreCase = true)
             .replace("ii", date.minute.toStringWithLeadingZero(), ignoreCase = true)
@@ -274,6 +277,7 @@ internal actual object PlatformDateFormat {
             locales = locale.toLanguageTag(),
             options =
                 dateLocaleOptions {
+                    timeZone = "UTC"
                     when {
                         skeleton.contains("y", true) -> NUMERIC
                         else -> null
@@ -359,26 +363,16 @@ internal actual object PlatformDateFormat {
     }
 
     actual fun getDateInputFormat(locale: CalendarLocale): DateInputFormat {
-        val date = Date(year = 2000, month = 10, day = 23)
-
-        val shortDate = date.toLocaleDateString(locale.toLanguageTag())
-
-        val pattern =
-            shortDate
-                .replace("2000", "yyyy")
-                .replace("11", "MM") // 10 -> 11 not an error. month is index
-                .replace("23", "dd")
-
-        return datePatternAsInputFormat(pattern)
+        return datePatternAsInputFormat(dateInputPattern(locale.toLanguageTag()))
     }
 
     actual fun weekdayNames(locale: CalendarLocale): List<Pair<String, String>> {
-        val now = Date.now()
+        val firstSunday = Date.UTC(2000, 0, 2)
 
         val week =
             List(DaysInWeek) {
-                Date(now + MillisecondsIn24Hours * it)
-            }.sortedBy { it.getDay() } // sunday to saturday
+                Date(firstSunday + MillisecondsIn24Hours * it)
+            }.sortedBy { it.getUTCDay() } // sunday to saturday
 
         val mondayToSunday = week.drop(1) + week.first()
 
@@ -389,6 +383,7 @@ internal actual object PlatformDateFormat {
                         locales = locale.toLanguageTag(),
                         options =
                             dateLocaleOptions {
+                                timeZone = "UTC"
                                 weekday = format
                             },
                     )
@@ -478,5 +473,28 @@ internal fun getIs24HourFormat(localeTag: String): Int =
                 return locale.hourCycle === 'h23' || locale.hourCycle === 'h24' ? 1: 0;
             }
             return -1;
+        }""",
+    )
+
+@Suppress("UnsafeCastFromDynamic")
+private fun dateInputPattern(localeTag: String): String =
+    js(
+        """{
+            const formatter = new Intl.DateTimeFormat(localeTag, {
+                calendar: "gregory",
+                timeZone: "UTC",
+                year: "numeric",
+                month: "numeric",
+                day: "numeric"
+            });
+            const parts = formatter.formatToParts(new Date(Date.UTC(2000, 10, 23)));
+            return parts.map(part => {
+                switch (part.type) {
+                    case "year": return "yyyy";
+                    case "month": return "MM";
+                    case "day": return "dd";
+                    default: return part.value;
+                }
+            }).join("");
         }""",
     )

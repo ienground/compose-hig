@@ -95,7 +95,7 @@ fun AdaptiveAlertDialogNative(
                         .fastFirstOrNull { it.style == AlertActionStyle.Cancel }
                         ?.let {
                             {
-                                m.confirmButton.invoke(
+                                m.dismissButton.invoke(
                                     it.style,
                                     it.enabled,
                                     it.onClick,

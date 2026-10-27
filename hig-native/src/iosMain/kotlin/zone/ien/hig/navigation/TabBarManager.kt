@@ -24,11 +24,14 @@ internal class TabBarManager(
     private val tabBar: UITabBar,
     onItemSelected: (Int) -> Unit,
 ) {
-    private val uiTabBarDelegate = UITabBarDelegate(
-        onItemSelected = onItemSelected,
-    )
-
     private var currentItems = emptyList<CupertinoNavigationBarItemData>()
+
+    private val uiTabBarDelegate = UITabBarDelegate(
+        onItemSelected = { index ->
+            onItemSelected(index)
+            currentItems.getOrNull(index)?.onClick?.invoke()
+        },
+    )
 
     init {
         tabBar.delegate = uiTabBarDelegate
@@ -38,7 +41,12 @@ internal class TabBarManager(
         items: List<CupertinoNavigationBarItemData>,
         selectedIndex: Int,
     ) {
-        if (items.isEmpty()) return
+        if (items.isEmpty()) {
+            tabBar.items = null
+            tabBar.selectedItem = null
+            currentItems = emptyList()
+            return
+        }
 
         if (items != currentItems) {
             val uiKitItems = items.mapIndexed { index, item ->
