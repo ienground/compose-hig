@@ -137,7 +137,6 @@ fun LazyListState.isTopBarTransparent(topPadding: Dp = 0.dp): Boolean {
             }
         }
 
-    layoutInfo.visibleItemsInfo.first().offset
     return remember {
         derivedStateOf {
             !canScrollBackward ||

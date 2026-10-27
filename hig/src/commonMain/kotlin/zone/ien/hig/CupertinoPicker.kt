@@ -125,6 +125,9 @@ class CupertinoPickerState(
     }
 
     internal var changedProgrammatically by mutableStateOf(false)
+    private var nativeSelectedItemIndex by mutableStateOf<Int?>(null)
+    private var isNativePickerActive by mutableStateOf(false)
+    private var nativePickerItemCount by mutableStateOf<Int?>(null)
 
     /**
      * Current selected item index.
@@ -139,13 +142,14 @@ class CupertinoPickerState(
      * - [currentSelectedItem] function should be used to get current selected item index at the moment.
      * */
     val selectedItemIndex: Int by derivedStateOf {
-        (
-            if (infinite) {
-                selectedItem?.index?.minus(INFINITE_OFFSET)
-            } else {
-                selectedItem?.index
-            }
-        ) ?: initiallySelectedItemIndex
+        nativeSelectedItemIndex
+            ?: (
+                if (infinite) {
+                    selectedItem?.index?.minus(INFINITE_OFFSET)
+                } else {
+                    selectedItem?.index
+                }
+            ) ?: initiallySelectedItemIndex
     }
 
     /**
@@ -218,7 +222,11 @@ class CupertinoPickerState(
     suspend fun scrollToItem(index: Int) {
         changedProgrammatically = true
         try {
-            lazyListState.scrollToItem(if (infinite) INFINITE_OFFSET + index else index)
+            if (isNativePickerActive || nativeSelectedItemIndex != null) {
+                requestSelection(index)
+            } else {
+                lazyListState.scrollToItem(if (infinite) INFINITE_OFFSET + index else index)
+            }
         } finally {
             changedProgrammatically = false
         }
@@ -230,11 +238,69 @@ class CupertinoPickerState(
     suspend fun animateScrollToItem(index: Int) {
         changedProgrammatically = true
         try {
-            lazyListState.animateScrollToItem(index)
+            if (isNativePickerActive || nativeSelectedItemIndex != null) {
+                requestSelection(index)
+            } else {
+                lazyListState.animateScrollToItem(index)
+            }
         } finally {
             changedProgrammatically = false
         }
     }
+
+    /** 네이티브 피커에서 선택한 항목을 이 상태에 반영합니다.
+     *
+     * @param index 네이티브 피커의 유한 항목 목록에서 선택한 인덱스
+     */
+    @InternalCupertinoApi
+    fun selectFromNative(index: Int) {
+        val itemsCount = nativePickerItemCount
+        require(itemsCount != null && index in 0 until itemsCount)
+        requestSelection(index)
+    }
+
+    /**
+     * 네이티브 피커가 이 상태를 사용하는지 설정합니다.
+     *
+     * @param active 네이티브 피커가 이 상태에 연결되었는지 여부
+     * @param itemsCount 네이티브 피커에 현재 표시되는 항목 수
+     */
+    @InternalCupertinoApi
+    fun setNativePickerActive(
+        active: Boolean,
+        itemsCount: Int,
+    ) {
+        require(itemsCount >= 0)
+        isNativePickerActive = active
+        nativePickerItemCount = itemsCount.takeIf { active }
+    }
+
+    private fun requestSelection(index: Int) {
+        if (!infinite) {
+            require(index >= 0)
+            nativePickerItemCount?.let { itemsCount ->
+                require(index < itemsCount)
+            }
+        } else {
+            require(index >= -INFINITE_OFFSET)
+            require(index <= Int.MAX_VALUE - INFINITE_OFFSET)
+        }
+        val lazyListIndex = if (infinite) INFINITE_OFFSET + index else index
+        nativeSelectedItemIndex = index
+        lazyListState.requestScrollToItem(lazyListIndex)
+    }
+
+    internal fun clearNativeSelection() {
+        nativeSelectedItemIndex = null
+    }
+
+    internal val nativeSelectionIsApplied: Boolean
+        get() =
+            nativeSelectedItemIndex?.let { nativeIndex ->
+                selectedItem?.index?.let { layoutIndex ->
+                    (if (infinite) layoutIndex - INFINITE_OFFSET else layoutIndex) == nativeIndex
+                }
+            } == true
 
     internal suspend fun animateScrollToItemFromUser(index: Int) {
         lazyListState.animateScrollToItem(index)
@@ -328,6 +394,14 @@ fun <T: Any> CupertinoWheelPicker(
     }
 
     LaunchedEffect(state, items.size) {
+        snapshotFlow { state.nativeSelectionIsApplied }
+            .distinctUntilChanged()
+            .collect { applied ->
+                if (applied) state.clearNativeSelection()
+            }
+    }
+
+    LaunchedEffect(state, items.size) {
         var previousIndex = selectedItemState.value
         var lastFeedbackIndex: Int? = null
         var lastFeedbackNanos: Long? = null
@@ -367,7 +441,9 @@ fun <T: Any> CupertinoWheelPicker(
     }
 
     LaunchedEffect(state.isScrollInProgress) {
-        if (!state.isScrollInProgress) {
+        if (state.isScrollInProgress) {
+            if (!state.changedProgrammatically) state.clearNativeSelection()
+        } else {
             state.scrollToItem(state.selectedItemIndex.modSign(items.size))
             state.changedProgrammatically = false
         }

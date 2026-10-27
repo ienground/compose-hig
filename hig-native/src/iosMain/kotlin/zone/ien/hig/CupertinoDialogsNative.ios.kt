@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.util.fastForEach
@@ -76,11 +77,10 @@ actual fun CupertinoActionSheetNative(
             message = message,
             style = UIAlertControllerStyleActionSheet,
             buttons = buttons,
+            anchorPopover = true,
         )
     }
 }
-
-private var isAlertControllerBeingDismissed = false
 
 @Composable
 internal fun UIAlertController(
@@ -89,15 +89,20 @@ internal fun UIAlertController(
     message: String?,
     style: UIAlertActionStyle,
     buttons: NativeAlertDialogActionsScope.() -> Unit,
+    anchorPopover: Boolean = false,
 ) {
+    val updatedOnDismissRequest = rememberUpdatedState(onDismissRequest)
+    val dismissRequestGuard =
+        remember {
+            AlertControllerDismissRequestGuard {
+                updatedOnDismissRequest.value()
+            }
+        }
     val buttonsList =
         remember {
-            NativeAlertDialogButtonsScopeImpl(onDismissRequest = {
-                if (!isAlertControllerBeingDismissed) {
-                    isAlertControllerBeingDismissed = true
-                    onDismissRequest()
-                }
-            }).apply(buttons).buttons
+            NativeAlertDialogButtonsScopeImpl(
+                onDismissRequest = dismissRequestGuard::request,
+            ).apply(buttons).buttons
         }
 
     val titles = buttonsList.fastMap { it.title }
@@ -130,10 +135,26 @@ internal fun UIAlertController(
                     println("Mismatch between number of actions and buttonsList")
                 }
             },
-            onDismissRequest = onDismissRequest,
+            onDismissRequest = dismissRequestGuard::request,
             title,
             message,
+            configurePresentation = { presenter ->
+                if (anchorPopover) anchorPopoverTo(presenter)
+            },
         )
+    }
+}
+
+internal class AlertControllerDismissRequestGuard(
+    private val onDismissRequest: () -> Unit,
+) {
+    private var wasRequested = false
+
+    fun request() {
+        if (!wasRequested) {
+            wasRequested = true
+            onDismissRequest()
+        }
     }
 }
 

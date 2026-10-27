@@ -65,7 +65,10 @@ fun AdaptiveDatePicker(
 ) {
     val materialState =
         key(state) {
-            rememberDatePickerState(state.selectedDateMillis)
+            rememberDatePickerState(
+                initialSelectedDateMillis = state.selectedDateMillis,
+                yearRange = state.yearRange,
+            )
         }
 
     LaunchedEffect(state, materialState) {

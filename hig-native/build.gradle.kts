@@ -36,5 +36,9 @@ kotlin {
             implementation(libs.capsule)
             implementation(libs.backdrop)
         }
+
+        iosTest.dependencies {
+            implementation(kotlin("test"))
+        }
     }
 }

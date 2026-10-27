@@ -27,13 +27,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.interop.LocalUIViewController
+import kotlinx.cinterop.ExperimentalForeignApi
 import zone.ien.hig.theme.CupertinoTheme
+import platform.UIKit.UIAlertController
 import platform.UIKit.UIPresentationController
 import platform.UIKit.UIViewController
 import platform.UIKit.UIViewControllerAnimatedTransitioningProtocol
 import platform.UIKit.UIViewControllerInteractiveTransitioningProtocol
 import platform.UIKit.UIViewControllerTransitioningDelegateProtocol
 import platform.UIKit.transitioningDelegate
+import platform.UIKit.popoverPresentationController
 import platform.darwin.NSObject
 import platform.darwin.NSUInteger
 
@@ -55,6 +58,7 @@ internal fun <T: UIViewController> PresentationController(
     update: T.() -> Unit,
     onDismissRequest: () -> Unit,
     vararg updateKeys: Any?,
+    configurePresentation: T.(UIViewController) -> Unit = {},
 ) {
     val dark = CupertinoTheme.colorScheme.isDark
 
@@ -118,6 +122,7 @@ internal fun <T: UIViewController> PresentationController(
     }
 
     DisposableEffect(controller) {
+        controllerHolder.controller.configurePresentation(controller)
         controller.presentViewController(controllerHolder.controller, true) {
         }
         onDispose {
@@ -125,5 +130,13 @@ internal fun <T: UIViewController> PresentationController(
                 controller.dismissViewControllerAnimated(true, null)
             }
         }
+    }
+}
+
+@OptIn(ExperimentalForeignApi::class)
+internal fun UIAlertController.anchorPopoverTo(presenter: UIViewController) {
+    popoverPresentationController?.apply {
+        sourceView = presenter.view
+        sourceRect = presenter.view.bounds
     }
 }

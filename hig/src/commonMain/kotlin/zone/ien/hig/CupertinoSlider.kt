@@ -23,6 +23,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,12 +50,22 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -81,8 +92,74 @@ import zone.ien.hig.theme.White
 import zone.ien.hig.utils.DampedDragAnimation
 import zone.ien.hig.utils.CupertinoGlassDefaults
 import kotlin.math.abs
-import kotlin.math.absoluteValue
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.roundToInt
+
+private fun sliderKeyboardValue(
+    currentValue: Float,
+    key: Key,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int,
+    isLtr: Boolean,
+): Float? {
+    val intervalCount = if (steps > 0) steps + 1 else 100
+    val delta = (valueRange.endInclusive - valueRange.start) / intervalCount
+    val direction = if (isLtr) 1f else -1f
+
+    return when (key) {
+        Key.DirectionRight -> currentValue + delta * direction
+        Key.DirectionLeft -> currentValue - delta * direction
+        Key.MoveHome -> valueRange.start
+        Key.MoveEnd -> valueRange.endInclusive
+        else -> null
+    }?.coerceIn(valueRange)
+}
+
+private fun isSliderAdjustmentKey(key: Key): Boolean =
+    key == Key.DirectionRight ||
+        key == Key.DirectionLeft ||
+        key == Key.MoveHome ||
+        key == Key.MoveEnd
+
+private fun coerceRangeSliderValue(
+    value: ClosedFloatingPointRange<Float>,
+    valueRange: ClosedFloatingPointRange<Float>,
+): ClosedFloatingPointRange<Float> {
+    val start = value.start.coerceIn(valueRange)
+    val end = value.endInclusive.coerceIn(valueRange)
+    return if (start <= end) start..end else end..start
+}
+
+private fun rangeSliderThumbSteps(
+    steps: Int,
+    valueRange: ClosedFloatingPointRange<Float>,
+    thumbValueRange: ClosedFloatingPointRange<Float>,
+): Int {
+    if (steps <= 0) return 0
+
+    val valueRangeLength = valueRange.endInclusive - valueRange.start
+    if (valueRangeLength <= 0f) return 0
+
+    val stepSize = valueRangeLength / (steps + 1)
+    if (stepSize <= 0f) return 0
+    val firstStepIndex = floor(((thumbValueRange.start - valueRange.start) / stepSize).toDouble()).toInt() + 1
+    val lastStepIndex = ceil(((thumbValueRange.endInclusive - valueRange.start) / stepSize).toDouble()).toInt() - 1
+    return (lastStepIndex - firstStepIndex + 1).coerceIn(0, steps)
+}
+
+private fun snapSliderValueWithinRange(
+    targetValue: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    getSnappedValue: (Float) -> Float,
+): Float {
+    val boundedValue = targetValue.coerceIn(valueRange)
+    return if (boundedValue == valueRange.start || boundedValue == valueRange.endInclusive) {
+        boundedValue
+    } else {
+        getSnappedValue(boundedValue).coerceIn(valueRange)
+    }
+}
 
 /**
  * Sliders allow users to make selections from a range of values.
@@ -370,7 +447,7 @@ private fun SliderImpl(
     thumb: @Composable (DampedDragAnimation, LayerBackdrop) -> Unit,
     track: @Composable (DampedDragAnimation, LayerBackdrop) -> Unit,
 ) {
-    val updatedValue by rememberUpdatedState(value)
+    val updatedValue by rememberUpdatedState(value.coerceIn(valueRange))
     val updatedEnabled by rememberUpdatedState(enabled)
     val trackBackdrop = rememberLayerBackdrop()
     val inactiveTickColor by colors.tickColor(enabled, active = false)
@@ -378,6 +455,7 @@ private fun SliderImpl(
 
     val density = LocalDensity.current
     val haptic = LocalHapticFeedback.current
+    val isLtr by rememberUpdatedState(LocalLayoutDirection.current == LayoutDirection.Ltr)
 
     var thumbWidth by remember { mutableStateOf(0f) }
     var trackWidth by remember { mutableStateOf(0) }
@@ -394,16 +472,66 @@ private fun SliderImpl(
 
     BoxWithConstraints(
         contentAlignment = Alignment.CenterStart,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                if (!enabled) disabled()
+                progressBarRangeInfo = ProgressBarRangeInfo(updatedValue, valueRange, steps)
+                setProgress { targetValue ->
+                    if (!enabled) {
+                        false
+                    } else {
+                        val snappedValue = getSnappedValue(targetValue.coerceIn(valueRange))
+                        if (snappedValue == updatedValue) {
+                            false
+                        } else {
+                            onValueChange(snappedValue)
+                            onValueChangeFinished?.invoke()
+                            true
+                        }
+                    }
+                }
+            }
+            .onKeyEvent { event ->
+                if (!enabled) {
+                    return@onKeyEvent false
+                }
+
+                when (event.type) {
+                    KeyEventType.KeyDown -> {
+                        val targetValue = sliderKeyboardValue(
+                            currentValue = updatedValue,
+                            key = event.key,
+                            valueRange = valueRange,
+                            steps = steps,
+                            isLtr = isLtr,
+                        ) ?: return@onKeyEvent false
+                        val snappedValue = getSnappedValue(targetValue)
+                        if (snappedValue != updatedValue) {
+                            onValueChange(snappedValue)
+                        }
+                        true
+                    }
+                    KeyEventType.KeyUp -> {
+                        if (isSliderAdjustmentKey(event.key)) {
+                            onValueChangeFinished?.invoke()
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                    else -> false
+                }
+            }
+            .focusable(enabled, interactionSource)
     ) {
         trackWidth = constraints.maxWidth
 
-        val isLtr by rememberUpdatedState(LocalLayoutDirection.current == LayoutDirection.Ltr)
         val animationScope = rememberCoroutineScope()
         var didDrag by remember { mutableStateOf(false) }
 
         var currentVirtualValue by remember { mutableStateOf(0f) }
-        var prevValue by remember(value) { mutableStateOf(value) }
+        var prevValue by remember(updatedValue) { mutableStateOf(updatedValue) }
 
         val dampedDragAnimation = remember(animationScope) {
             DampedDragAnimation(
@@ -583,8 +711,9 @@ private fun RangeSliderImpl(
     endThumb: @Composable (DampedDragAnimation, LayerBackdrop) -> Unit,
     track: @Composable (DampedDragAnimation, DampedDragAnimation, LayerBackdrop) -> Unit,
 ) {
-    val updatedStartValue by rememberUpdatedState(value.start.absoluteValue)
-    val updatedEndValue by rememberUpdatedState(value.endInclusive.absoluteValue)
+    val coercedValue = coerceRangeSliderValue(value, valueRange)
+    val updatedStartValue by rememberUpdatedState(coercedValue.start)
+    val updatedEndValue by rememberUpdatedState(coercedValue.endInclusive)
 
     val updatedEnabled by rememberUpdatedState(enabled)
     val trackBackdrop = rememberLayerBackdrop()
@@ -621,8 +750,8 @@ private fun RangeSliderImpl(
 
         var currentVirtualStartValue by remember { mutableStateOf(0f) }
         var currentVirtualEndValue by remember { mutableStateOf(0f) }
-        var prevStartValue by remember(value.start.absoluteValue) { mutableStateOf(value.start.absoluteValue) }
-        var prevEndValue by remember(value.endInclusive.absoluteValue) { mutableStateOf(value.endInclusive.absoluteValue) }
+        var prevStartValue by remember(updatedStartValue, valueRange) { mutableStateOf(updatedStartValue) }
+        var prevEndValue by remember(updatedEndValue, valueRange) { mutableStateOf(updatedEndValue) }
 
         val startDampedDragAnimation = remember(animationScope) {
             DampedDragAnimation(
@@ -838,45 +967,173 @@ private fun RangeSliderImpl(
         }
 
         Box(
-            modifier = Modifier.graphicsLayer {
-                startThumbWidth = size.width
-
-                val actualTranslationX = -startThumbWidth / 2f + trackWidth * startDampedDragAnimation.progress
-
-                translationX = when (actualTranslationX) {
-                    in -startThumbWidth / 2..startThumbWidth / 4 -> {
-                        (actualTranslationX + startThumbWidth / 2) / 3
-                    }
-                    in trackWidth - endThumbWidth * 5 / 4 .. trackWidth - endThumbWidth / 2 -> {
-                        trackWidth - endThumbWidth * 5 / 4 + (actualTranslationX - (trackWidth - endThumbWidth * 5 / 4)) / 3
-                    }
-                    else -> {
-                        actualTranslationX
+            modifier = Modifier
+                .semantics {
+                    if (!enabled) disabled()
+                    val thumbValueRange = valueRange.start..updatedEndValue
+                    val thumbSteps = rangeSliderThumbSteps(steps, valueRange, thumbValueRange)
+                    progressBarRangeInfo = ProgressBarRangeInfo(updatedStartValue, thumbValueRange, thumbSteps)
+                    setProgress { targetValue ->
+                        if (!enabled) {
+                            false
+                        } else {
+                            val snappedValue = snapSliderValueWithinRange(
+                                targetValue,
+                                thumbValueRange,
+                                getSnappedValue,
+                            )
+                            if (snappedValue == updatedStartValue) {
+                                false
+                            } else {
+                                startDampedDragAnimation.animateToValue(snappedValue)
+                                onValueChange(snappedValue..updatedEndValue)
+                                onValueChangeFinished?.invoke()
+                                true
+                            }
+                        }
                     }
                 }
-            }
+                .onKeyEvent { event ->
+                    if (!enabled) {
+                        return@onKeyEvent false
+                    }
+
+                    when (event.type) {
+                        KeyEventType.KeyDown -> {
+                            val targetValue = sliderKeyboardValue(
+                                currentValue = updatedStartValue,
+                                key = event.key,
+                                valueRange = valueRange,
+                                steps = steps,
+                                isLtr = isLtr,
+                            ) ?: return@onKeyEvent false
+                            val thumbValueRange = valueRange.start..updatedEndValue
+                            val snappedValue = snapSliderValueWithinRange(
+                                targetValue,
+                                thumbValueRange,
+                                getSnappedValue,
+                            )
+                            if (snappedValue != updatedStartValue) {
+                                startDampedDragAnimation.animateToValue(snappedValue)
+                                onValueChange(snappedValue..updatedEndValue)
+                            }
+                            true
+                        }
+                        KeyEventType.KeyUp -> {
+                            if (isSliderAdjustmentKey(event.key)) {
+                                onValueChangeFinished?.invoke()
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                        else -> false
+                    }
+                }
+                .focusable(enabled, startInteractionSource)
+                .graphicsLayer {
+                    startThumbWidth = size.width
+
+                    val actualTranslationX = -startThumbWidth / 2f + trackWidth * startDampedDragAnimation.progress
+
+                    translationX = when (actualTranslationX) {
+                        in -startThumbWidth / 2..startThumbWidth / 4 -> {
+                            (actualTranslationX + startThumbWidth / 2) / 3
+                        }
+                        in trackWidth - endThumbWidth * 5 / 4 .. trackWidth - endThumbWidth / 2 -> {
+                            trackWidth - endThumbWidth * 5 / 4 + (actualTranslationX - (trackWidth - endThumbWidth * 5 / 4)) / 3
+                        }
+                        else -> {
+                            actualTranslationX
+                        }
+                    }
+                }
         ) {
             startThumb(startDampedDragAnimation, trackBackdrop)
         }
 
         Box(
-            modifier = Modifier.graphicsLayer {
-                endThumbWidth = size.width
-
-                val actualTranslationX = -startThumbWidth / 2f + trackWidth * endDampedDragAnimation.progress
-
-                translationX = when (actualTranslationX) {
-                    in -startThumbWidth / 2..startThumbWidth / 4 -> {
-                        (actualTranslationX + startThumbWidth / 2) / 3
-                    }
-                    in trackWidth - endThumbWidth * 5 / 4 .. trackWidth - endThumbWidth / 2 -> {
-                        trackWidth - endThumbWidth * 5 / 4 + (actualTranslationX - (trackWidth - endThumbWidth * 5 / 4)) / 3
-                    }
-                    else -> {
-                        actualTranslationX
+            modifier = Modifier
+                .semantics {
+                    if (!enabled) disabled()
+                    val thumbValueRange = updatedStartValue..valueRange.endInclusive
+                    val thumbSteps = rangeSliderThumbSteps(steps, valueRange, thumbValueRange)
+                    progressBarRangeInfo = ProgressBarRangeInfo(updatedEndValue, thumbValueRange, thumbSteps)
+                    setProgress { targetValue ->
+                        if (!enabled) {
+                            false
+                        } else {
+                            val snappedValue = snapSliderValueWithinRange(
+                                targetValue,
+                                thumbValueRange,
+                                getSnappedValue,
+                            )
+                            if (snappedValue == updatedEndValue) {
+                                false
+                            } else {
+                                endDampedDragAnimation.animateToValue(snappedValue)
+                                onValueChange(updatedStartValue..snappedValue)
+                                onValueChangeFinished?.invoke()
+                                true
+                            }
+                        }
                     }
                 }
-            }
+                .onKeyEvent { event ->
+                    if (!enabled) {
+                        return@onKeyEvent false
+                    }
+
+                    when (event.type) {
+                        KeyEventType.KeyDown -> {
+                            val targetValue = sliderKeyboardValue(
+                                currentValue = updatedEndValue,
+                                key = event.key,
+                                valueRange = valueRange,
+                                steps = steps,
+                                isLtr = isLtr,
+                            ) ?: return@onKeyEvent false
+                            val thumbValueRange = updatedStartValue..valueRange.endInclusive
+                            val snappedValue = snapSliderValueWithinRange(
+                                targetValue,
+                                thumbValueRange,
+                                getSnappedValue,
+                            )
+                            if (snappedValue != updatedEndValue) {
+                                endDampedDragAnimation.animateToValue(snappedValue)
+                                onValueChange(updatedStartValue..snappedValue)
+                            }
+                            true
+                        }
+                        KeyEventType.KeyUp -> {
+                            if (isSliderAdjustmentKey(event.key)) {
+                                onValueChangeFinished?.invoke()
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                        else -> false
+                    }
+                }
+                .focusable(enabled, endInteractionSource)
+                .graphicsLayer {
+                    endThumbWidth = size.width
+
+                    val actualTranslationX = -startThumbWidth / 2f + trackWidth * endDampedDragAnimation.progress
+
+                    translationX = when (actualTranslationX) {
+                        in -startThumbWidth / 2..startThumbWidth / 4 -> {
+                            (actualTranslationX + startThumbWidth / 2) / 3
+                        }
+                        in trackWidth - endThumbWidth * 5 / 4 .. trackWidth - endThumbWidth / 2 -> {
+                            trackWidth - endThumbWidth * 5 / 4 + (actualTranslationX - (trackWidth - endThumbWidth * 5 / 4)) / 3
+                        }
+                        else -> {
+                            actualTranslationX
+                        }
+                    }
+                }
         ) {
             endThumb(endDampedDragAnimation, trackBackdrop)
         }

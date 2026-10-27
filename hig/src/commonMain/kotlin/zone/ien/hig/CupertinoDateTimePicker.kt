@@ -23,6 +23,7 @@ package zone.ien.hig
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.width
@@ -34,10 +35,12 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.collect
 import zone.ien.hig.theme.CupertinoTheme
 
 /**
@@ -110,7 +114,47 @@ fun CupertinoDateTimePicker(
                 modifier = modifier,
             )
 
-        is DatePickerStyle.Pager -> TODO("Pager datetime picker is not yet implemented. Use wheel or native (ios)")
+        is DatePickerStyle.Pager ->
+            CupertinoDateTimePickerPager(state, style, containerColor, modifier)
+    }
+}
+
+@OptIn(InternalCupertinoApi::class, ExperimentalCupertinoApi::class)
+@Composable
+private fun CupertinoDateTimePickerPager(
+    state: CupertinoDateTimePickerState,
+    style: DatePickerStyle.Pager,
+    containerColor: Color,
+    modifier: Modifier,
+) {
+    val dateState = remember(state) {
+        CupertinoDatePickerState(state.selectedDateTimeMillis, state.stateData.yearRange)
+    }
+    val timeState = remember(state) {
+        CupertinoTimePickerState(state.selectedHour, state.selectedMinute, state.stateData.is24Hour)
+    }
+
+    LaunchedEffect(state, dateState, timeState) {
+        state.isManual = true
+        var synchronizedSelection = state.selectedDateTimeMillis
+        snapshotFlow {
+            state.selectedDateTimeMillis to
+                (dateState.selectedDateMillis + (timeState.hour * 60L + timeState.minute) * 60_000L)
+        }.collect { (selection, displayedSelection) ->
+            if (selection != synchronizedSelection) {
+                dateState.setSelection(selection)
+                timeState.setSelection(state.selectedHour, state.selectedMinute)
+                synchronizedSelection = selection
+            } else if (displayedSelection != selection) {
+                state.setSelection(displayedSelection)
+                synchronizedSelection = state.selectedDateTimeMillis
+            }
+        }
+    }
+
+    Column(modifier.background(containerColor)) {
+        CupertinoDatePicker(state = dateState, style = style, containerColor = containerColor)
+        CupertinoTimePicker(state = timeState, containerColor = containerColor)
     }
 }
 
@@ -472,9 +516,9 @@ internal class DateTimePickerStateData(
 
     val selectedHour: Int by derivedStateOf(structuralEqualityPolicy()) {
         if (!is24Hour && isEvening) {
-            12 + hourState.selectedItemIndex
+            12 + hourState.currentSelectedItem(Hours12.size)
         } else {
-            hourState.selectedItemIndex
+            hourState.currentSelectedItem(if (is24Hour) Hours24.size else Hours12.size)
         }
     }
 
@@ -487,13 +531,14 @@ internal class DateTimePickerStateData(
         ((initialDisplayedMonthMillis - start) / MillisecondsIn24Hours).toInt()
     }
 
-    internal val dateState by lazy {
+    internal var dateState by mutableStateOf(
         CupertinoPickerState(
             initiallySelectedItemIndex = todayIndex,
-        )
-    }
+        ),
+    )
+        private set
 
-    internal val hourState by lazy {
+    internal var hourState by mutableStateOf(
         CupertinoPickerState(
             infinite = true,
             initiallySelectedItemIndex =
@@ -502,19 +547,20 @@ internal class DateTimePickerStateData(
                 } else {
                     initialDisplayedHour % 12
                 },
-        )
-    }
+        ),
+    )
+        private set
 
-    internal val minuteState by lazy {
+    internal var minuteState by mutableStateOf(
         CupertinoPickerState(
             infinite = true,
             initiallySelectedItemIndex = initialDisplayedMinute,
-        )
-    }
+        ),
+    )
+        private set
 
-    internal val amPmState by lazy {
-        CupertinoPickerState()
-    }
+    internal var amPmState by mutableStateOf(CupertinoPickerState(initiallySelectedItemIndex = if (initialDisplayedHour >= 12) 1 else 0))
+        private set
 
     /**
      * Initialize the state with the provided initial selections.
@@ -622,6 +668,19 @@ internal class DateTimePickerStateData(
             }
         }
         selectedEndDate.value = endDate
+        val rangeStart = calendarModel.getDate(yearRange.first, 1, 1).utcTimeMillis
+        val dateIndex = ((startDate.utcTimeMillis - rangeStart) / MillisecondsIn24Hours).toInt()
+        if (dateState.selectedItemIndex != dateIndex) {
+            dateState = CupertinoPickerState(initiallySelectedItemIndex = dateIndex)
+        }
+    }
+
+    internal fun setTime(hour: Int, minute: Int) {
+        require(hour in 0..23) { "hour should be in [0..23] range" }
+        require(minute in 0..59) { "minute should be in [0..59] range" }
+        hourState = CupertinoPickerState(infinite = true, initiallySelectedItemIndex = if (is24Hour) hour else hour % 12)
+        minuteState = CupertinoPickerState(infinite = true, initiallySelectedItemIndex = minute)
+        amPmState = CupertinoPickerState(initiallySelectedItemIndex = if (hour >= 12) 1 else 0)
     }
 
     companion object {
@@ -661,7 +720,7 @@ internal class DateTimePickerStateData(
  * A state object that can be hoisted to observe the date picker state. See
  * [rememberCupertinoDateTimePickerState].
  *
- * The state's [selectedDateTimeMillis] will provide a timestamp that represents the _start_ of the day.
+ * [selectedDateTimeMillis]는 선택한 날짜와 시간을 분 단위 UTC 타임스탬프로 제공한다.
  */
 @OptIn(InternalCupertinoApi::class)
 @Stable
@@ -669,14 +728,15 @@ internal class DateTimePickerStateData(
 class CupertinoDateTimePickerState private constructor(
     internal val stateData: DateTimePickerStateData,
 ) {
+    /** 선택할 수 있는 연도 범위. */
+    val yearRange: IntRange
+        get() = stateData.yearRange
+
     /**
-     * Constructs a DatePickerState.
+     * 날짜와 시간의 초기 선택 상태를 만든다.
      *
-     * @param initialSelectedDateMillis timestamp in _UTC_ milliseconds from the epoch that
-     * represents an initial selection of a date. Provide a `null` to indicate no selection. Note
-     * that the state's
-     * [selectedDateTimeMillis] will provide a timestamp that represents the _start_ of the day, which
-     * may be different than the provided initialSelectedDateMillis.
+     * @param initialSelectedDateMillis 초기 날짜를 나타내는 UTC 밀리초. 날짜 부분에
+     * [initialHour]와 [initialMinute]를 결합해 초기 시각을 결정한다.
      * @param yearRange an [IntRange] that holds the year range that the date picker will be limited
      * to
      * @see rememberCupertinoDateTimePickerState
@@ -702,8 +762,8 @@ class CupertinoDateTimePickerState private constructor(
     )
 
     /**
-     * A timestamp that represents the _start_ of the day of the selected date in _UTC_ milliseconds
-     * from the epoch including [selectedHour] and [selectedMinute]
+     * 선택한 날짜와 [selectedHour], [selectedMinute]를 결합한 UTC 밀리초.
+     * 초와 밀리초 부분은 포함하지 않는다.
      *
      * @see [setSelection]
      */
@@ -719,7 +779,7 @@ class CupertinoDateTimePickerState private constructor(
     val selectedMinute: Int by derivedStateOf(structuralEqualityPolicy()) {
         if (isManual) {
             val start = stateData.calendarModel.getCanonicalDate(mSelectedDateTimeMillis)
-            ((mSelectedDateTimeMillis - start.utcTimeMillis) % 60).toInt()
+            ((mSelectedDateTimeMillis - start.utcTimeMillis) / 60_000 % 60).toInt()
         } else {
             stateData.selectedMinute.modSign(Minutes.size)
         }
@@ -728,22 +788,35 @@ class CupertinoDateTimePickerState private constructor(
     val selectedHour: Int by derivedStateOf(structuralEqualityPolicy()) {
         if (isManual) {
             val start = stateData.calendarModel.getCanonicalDate(mSelectedDateTimeMillis)
-            ((mSelectedDateTimeMillis - start.utcTimeMillis) / 60).toInt()
+            ((mSelectedDateTimeMillis - start.utcTimeMillis) / 3_600_000).toInt()
         } else {
-            stateData.selectedHour.modSign(if (stateData.is24Hour) Hours24.size else Hours12.size)
+            stateData.selectedHour
         }
     }
 
-    private var mSelectedDateTimeMillis: Long by mutableStateOf(stateData.initialSelectedStartDateMillis)
+    private var mSelectedDateTimeMillis: Long by mutableStateOf(
+        stateData.selectedStartDate.utcTimeMillis + (stateData.initialDisplayedHour * 60L + stateData.initialDisplayedMinute) * 60_000L,
+    )
+
+    private var _isManual by mutableStateOf(false)
 
     @InternalCupertinoApi
-    var isManual: Boolean by mutableStateOf(false)
+    var isManual: Boolean
+        get() = _isManual
+        set(value) {
+            if (value == _isManual) return
+            if (value) {
+                mSelectedDateTimeMillis = selectedDateTimeMillis
+            } else {
+                updateWheelSelection(mSelectedDateTimeMillis)
+            }
+            _isManual = value
+        }
 
     /**
-     * Sets the selected date.
+     * 타임스탬프의 날짜와 시·분을 선택하고 현재 표시 모드와 휠 상태에 함께 반영한다.
      *
-     * @param dateMillis timestamp in _UTC_ milliseconds from the epoch that represents the date
-     * selection, or `null` to indicate no selection.
+     * @param dateMillis 선택할 UTC 밀리초. 초와 밀리초 부분은 제외한다.
      *
      * @throws IllegalArgumentException in case the given timestamps do not fall within the year
      * range this state was created with.
@@ -751,11 +824,15 @@ class CupertinoDateTimePickerState private constructor(
     fun setSelection(
         @Suppress("AutoBoxing") dateMillis: Long,
     ) {
-        if (isManual) {
-            mSelectedDateTimeMillis = dateMillis
-        } else {
-            stateData.setSelection(startDateMillis = dateMillis, endDateMillis = null)
-        }
+        updateWheelSelection(dateMillis)
+        mSelectedDateTimeMillis = stateData.selectedStartDate.utcTimeMillis + (stateData.selectedHour * 60L + stateData.selectedMinute) * 60_000L
+    }
+
+    private fun updateWheelSelection(dateMillis: Long) {
+        val date = stateData.calendarModel.getCanonicalDate(dateMillis)
+        val elapsed = dateMillis - date.utcTimeMillis
+        stateData.setSelection(startDateMillis = dateMillis, endDateMillis = null)
+        stateData.setTime((elapsed / 3_600_000).toInt(), (elapsed / 60_000 % 60).toInt())
     }
 
     companion object {
