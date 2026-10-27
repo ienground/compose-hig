@@ -33,6 +33,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -46,12 +48,13 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -232,6 +235,7 @@ fun CupertinoTopAppBar(
             verticalPlacement != null -> windowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Top)
                 .union(WindowInsets(top = verticalPlacement.topBarInset, right = verticalPlacement.width))
             barPlacement != null -> WindowInsets(top = barPlacement.top, right = barPlacement.horizontalStatusWidth)
+            !LocalCupertinoRightSystemArea.current -> windowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Top)
             else -> windowInsets
         },
         isCenterAligned = verticalPlacement == null && isCenterAligned,
@@ -245,7 +249,7 @@ fun CupertinoTopAppBar(
             modifier = Modifier
                 .layoutId(CupertinoVerticalTopBar)
                 .width(verticalPlacement.width)
-                .offset(x = verticalPlacement.width / 2 - verticalPlacement.centerFromRight)
+                .absoluteOffset(x = verticalPlacement.width / 2 - verticalPlacement.centerFromRight)
                 .fillMaxHeight()
                 .padding(top = verticalPlacement.top, bottom = verticalPlacement.bottom),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -558,10 +562,25 @@ private fun InlineTopAppBar(
         }
     }
 
+    val extendTopBlur = LocalCupertinoVerticalBarPlacement.current?.width == 0.dp
+    val measuredTopBarHeight = LocalTopBarHeight.current.value ?: 0f
+    val topBarPadding = maxOf(
+        windowInsets.asPaddingValues().calculateTopPadding() +
+            with(LocalDensity.current) { topAppBarHeightPx.toDp() } + TopAppBarBottomPadding,
+        with(LocalDensity.current) { measuredTopBarHeight.toDp() },
+    )
+    val topBlurHeight by animateDpAsState(
+        targetValue = resolveCupertinoTopBlurHeight(TopAppBarHeight, topBarPadding),
+        animationSpec = cupertinoTween(240),
+        label = "CupertinoTopBlurHeight",
+    )
     Box {
         Box(
-            modifier = Modifier
-                .matchParentSize()
+            modifier = (if (extendTopBlur) {
+                Modifier.matchParentSize().wrapContentHeight(Alignment.Top, unbounded = true).height(topBlurHeight)
+            } else {
+                Modifier.matchParentSize()
+            })
                 .drawPlainBackdrop(
                     backdrop = backdrop,
                     shape = { RectangleShape },
@@ -574,14 +593,22 @@ private fun InlineTopAppBar(
 
     layout(color) uniform half4 tint;
     uniform float tintIntensity;
+    uniform float height;
+    uniform float fadeHeight;
+    uniform float solidFraction;
 
     half4 main(float2 coord) {
-        return mix(content.eval(coord), tint, tintIntensity);
+        float progress = clamp((coord.y - height + fadeHeight) / max(fadeHeight, 1.0), 0.0, 1.0);
+        float alpha = fadeHeight > 0.0 ? 1.0 - smoothstep(solidFraction, 1.0, progress) : 1.0;
+        return mix(content.eval(coord), tint, tintIntensity) * alpha;
     }""",
                             "content"
                         ) {
                             setColorUniform("tint", backgroundTint.copy(alpha = 1f))
                             setFloatUniform("tintIntensity", backgroundOpacity * backgroundTint.alpha)
+                            setFloatUniform("height", size.height)
+                            setFloatUniform("fadeHeight", if (extendTopBlur) TopAppBarHeight.toPx() else 0f)
+                            setFloatUniform("solidFraction", CupertinoTopBlurSolidFraction)
                         }
                     },
                     onDrawBackdrop = { drawBackdrop ->
@@ -884,3 +911,11 @@ object CupertinoTopAppBarDefaults {
             actionIconContentColor,
         )
 }
+
+internal const val CupertinoTopBlurSolidFraction = 0.42f
+
+internal fun resolveCupertinoTopBlurHeight(fadeHeight: Dp, topBarPadding: Dp): Dp =
+    if (fadeHeight <= 0.dp) 0.dp else maxOf(
+        fadeHeight,
+        topBarPadding + fadeHeight * (1f - CupertinoTopBlurSolidFraction),
+    )

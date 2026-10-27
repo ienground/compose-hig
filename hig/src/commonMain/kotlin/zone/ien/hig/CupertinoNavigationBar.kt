@@ -43,7 +43,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -197,7 +197,7 @@ fun CupertinoNavigationBar(
             modifier = modifier
                 .layoutId(CupertinoVerticalBottomBar)
                 .width(verticalPlacement.width)
-                .offset(x = verticalPlacement.width / 2 - verticalPlacement.centerFromRight)
+                .absoluteOffset(x = verticalPlacement.width / 2 - verticalPlacement.centerFromRight)
                 .padding(bottom = verticalPlacement.bottom),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp),

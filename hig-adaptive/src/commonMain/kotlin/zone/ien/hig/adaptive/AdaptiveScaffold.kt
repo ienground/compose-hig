@@ -43,7 +43,16 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import zone.ien.hig.LocalCupertinoRightSystemArea
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
@@ -91,6 +100,9 @@ fun AdaptiveScaffold(
     adaptation: AdaptationScope<ScaffoldAdaptation, ScaffoldAdaptation>.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
+    val currentContent by rememberUpdatedState(content)
+    val retainedContent = remember { movableContentOf<PaddingValues> { currentContent(it) } }
+    val paneWindowInsets = contentWindowInsets.forCurrentPane()
     AdaptiveWidget(
         adaptation = remember {
             ScaffoldAdaptationImpl()
@@ -106,8 +118,8 @@ fun AdaptiveScaffold(
                 floatingActionButtonPosition = floatingActionButtonPosition,
                 containerColor = it.containerColor,
                 contentColor = it.contentColor,
-                contentWindowInsets = contentWindowInsets,
-                content = content
+                contentWindowInsets = paneWindowInsets,
+                content = retainedContent
             )
         },
         material = {
@@ -123,8 +135,8 @@ fun AdaptiveScaffold(
                 },
                 containerColor = it.containerColor,
                 contentColor = it.contentColor,
-                contentWindowInsets = contentWindowInsets,
-                content = content
+                contentWindowInsets = paneWindowInsets,
+                content = retainedContent
             )
         }
     )
@@ -153,6 +165,9 @@ fun AdaptiveScaffold(
     adaptation: AdaptationScope<ScaffoldAdaptation, ScaffoldAdaptation>.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val currentContent by rememberUpdatedState(content)
+    val retainedContent = remember { movableContentOf<PaddingValues> { currentContent(it) } }
+    val paneWindowInsets = contentWindowInsets.forCurrentPane()
     val fallbackBackdrop = rememberDefaultBackdrop()
     BoxWithConstraints(modifier = modifier) {
         if (maxWidth >= AdaptiveSidebarWidthBreakpoint) {
@@ -183,7 +198,7 @@ fun AdaptiveScaffold(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .windowInsetsPadding(contentWindowInsets)
+                                        .windowInsetsPadding(paneWindowInsets)
                                         .padding(horizontal = AdaptiveSidebarHorizontalPadding),
                                     content = sidebarContent,
                                 )
@@ -201,7 +216,7 @@ fun AdaptiveScaffold(
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .windowInsetsPadding(contentWindowInsets)
+                                    .windowInsetsPadding(paneWindowInsets)
                                     .padding(horizontal = AdaptiveSidebarHorizontalPadding),
                                 content = sidebarContent,
                             )
@@ -236,9 +251,9 @@ fun AdaptiveScaffold(
                     snackbarHost = snackbarHost,
                     floatingActionButton = floatingActionButton,
                     floatingActionButtonPosition = floatingActionButtonPosition,
-                    contentWindowInsets = contentWindowInsets,
+                    contentWindowInsets = paneWindowInsets,
                     adaptation = adaptation,
-                    content = content,
+                    content = retainedContent,
                 )
             }
         } else {
@@ -249,9 +264,9 @@ fun AdaptiveScaffold(
                 snackbarHost = snackbarHost,
                 floatingActionButton = floatingActionButton,
                 floatingActionButtonPosition = floatingActionButtonPosition,
-                contentWindowInsets = contentWindowInsets,
+                contentWindowInsets = paneWindowInsets,
                 adaptation = adaptation,
-                content = content,
+                content = retainedContent,
             )
         }
     }
@@ -290,6 +305,9 @@ fun AdaptiveScaffold(
     contentWindowInsets: WindowInsets = CupertinoScaffoldDefaults.contentWindowInsets,
     content: @Composable (PaddingValues) -> Unit
 ) {
+    val currentContent by rememberUpdatedState(content)
+    val retainedContent = remember { movableContentOf<PaddingValues> { currentContent(it) } }
+    val paneWindowInsets = contentWindowInsets.forCurrentPane()
     AdaptiveWidget(
 
         cupertino = {
@@ -306,8 +324,8 @@ fun AdaptiveScaffold(
                 contentColor = contentColor.takeOrElse {
                     CupertinoScaffoldDefaults.contentColor
                 },
-                contentWindowInsets = contentWindowInsets,
-                content = content
+                contentWindowInsets = paneWindowInsets,
+                content = retainedContent
             )
         },
         material = {
@@ -327,8 +345,8 @@ fun AdaptiveScaffold(
                 contentColor = contentColor.takeOrElse {
                     MaterialTheme.colorScheme.onBackground
                 },
-                contentWindowInsets = contentWindowInsets,
-                content = content
+                contentWindowInsets = paneWindowInsets,
+                content = retainedContent
             )
         }
     )
@@ -398,3 +416,49 @@ private class ScaffoldAdaptationImpl :
 private val AdaptiveSidebarWidth = 256.dp
 private val AdaptiveSidebarHorizontalPadding = 12.dp
 private val AdaptiveSidebarWidthBreakpoint = 600.dp
+
+@Composable
+private fun WindowInsets.forCurrentPane(): WindowInsets =
+    if (LocalCupertinoRightSystemArea.current) this
+    else only(WindowInsetsSides.Left + WindowInsetsSides.Vertical)
+
+/**
+ * 중간 너비부터 두 콘텐츠를 나란히 배치하고 좁은 창에서는 세로로 배치합니다.
+ * 동일한 콘텐츠 슬롯을 유지하므로 너비가 바뀌어도 내부 remember 상태가 유지됩니다.
+ * [firstPaneFraction]은 가로 배치에서 첫 콘텐츠가 차지할 비율입니다.
+ * 높이가 제한된 세로 배치에서는 첫 콘텐츠를 절반 이내로 측정해 두 콘텐츠의 공간을 확보합니다.
+ */
+@ExperimentalAdaptiveApi
+@Composable
+fun AdaptivePaneLayout(
+    modifier: Modifier = Modifier,
+    firstPaneFraction: Float = 0.5f,
+    minHorizontalWidth: Dp = AdaptiveSidebarWidthBreakpoint,
+    first: @Composable () -> Unit,
+    second: @Composable () -> Unit,
+) {
+    require(firstPaneFraction > 0f && firstPaneFraction < 1f)
+    Layout(
+        modifier = modifier,
+        content = { Box { first() }; Box { second() } },
+    ) { measurables, constraints ->
+        val horizontal = constraints.hasBoundedWidth && constraints.maxWidth >= minHorizontalWidth.roundToPx()
+        val firstWidth = if (horizontal) (constraints.maxWidth * firstPaneFraction).toInt() else constraints.maxWidth
+        val loose = constraints.copy(minWidth = 0, minHeight = 0)
+        val firstPane = measurables[0].measure(loose.copy(
+            maxWidth = firstWidth,
+            maxHeight = if (!horizontal && constraints.hasBoundedHeight) constraints.maxHeight / 2 else constraints.maxHeight,
+        ))
+        val secondPane = measurables[1].measure(loose.copy(
+            maxWidth = if (horizontal) constraints.maxWidth - firstWidth else constraints.maxWidth,
+            maxHeight = if (horizontal || !constraints.hasBoundedHeight) constraints.maxHeight
+                else (constraints.maxHeight - firstPane.height).coerceAtLeast(0),
+        ))
+        val width = constraints.constrainWidth(if (horizontal) constraints.maxWidth else maxOf(firstPane.width, secondPane.width))
+        val height = constraints.constrainHeight(if (horizontal) maxOf(firstPane.height, secondPane.height) else firstPane.height + secondPane.height)
+        layout(width, height) {
+            firstPane.placeRelative(0, 0)
+            secondPane.placeRelative(if (horizontal) firstWidth else 0, if (horizontal) 0 else firstPane.height)
+        }
+    }
+}

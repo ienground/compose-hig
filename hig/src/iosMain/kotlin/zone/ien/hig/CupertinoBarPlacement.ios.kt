@@ -25,6 +25,7 @@ internal actual fun rememberCupertinoVerticalBarPlacement(): State<CupertinoVert
     DisposableEffect(controller) {
         val parent = controller.view
         var hasHinge = false
+        var isHingeOpen = false
         val observer = object : UIView(parent.bounds) {
             override fun layoutSubviews() {
                 super.layoutSubviews()
@@ -61,6 +62,10 @@ internal actual fun rememberCupertinoVerticalBarPlacement(): State<CupertinoVert
                     val cameraFrame = HIGStatusOcclusion(parent)
                     val centerFromRight = cameraFrame.useContents {
                         when {
+                            isHingeOpen && statusWidth > 0.0 -> maxOf(
+                                viewWidth - statusLeft - statusWidth / 2,
+                                CupertinoVerticalBarControlWidth.value.toDouble(),
+                            )
                             size.width > 0.0 -> viewWidth - origin.x - size.width / 2
                             statusWidth > 0.0 -> viewWidth - statusLeft - statusWidth / 2
                             else -> null
@@ -87,8 +92,9 @@ internal actual fun rememberCupertinoVerticalBarPlacement(): State<CupertinoVert
             autoresizingMask = UIViewAutoresizingFlexibleWidth or UIViewAutoresizingFlexibleHeight
         }
         parent.addSubview(observer)
-        val hingeObserver = HIGObserveHinge(parent) {
-            hasHinge = it
+        val hingeObserver = HIGObserveHinge(parent) { available, open ->
+            hasHinge = available
+            isHingeOpen = open
             observer.setNeedsLayout()
         }
         onDispose {

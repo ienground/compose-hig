@@ -18,7 +18,8 @@
 
 
 @file:OptIn(
-    ExperimentalCupertinoApi::class
+    ExperimentalCupertinoApi::class,
+    ExperimentalAdaptiveApi::class,
 )
 /*
  * Copyright (c) 2023 Compose Cupertino project and open source contributors.
@@ -84,6 +85,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
@@ -165,6 +167,7 @@ import zone.ien.hig.MenuDivider
 import zone.ien.hig.MenuSection
 import zone.ien.hig.PresentationDetent
 import zone.ien.hig.PresentationStyle
+import zone.ien.hig.adaptive.AdaptivePaneLayout
 import zone.ien.hig.adaptive.AdaptiveNavigationBar
 import zone.ien.hig.adaptive.AdaptiveNavigationBarItem
 import zone.ien.hig.adaptive.AdaptiveNavigationBarNative
@@ -355,7 +358,7 @@ internal fun Body(
     ProvideSectionStyle(
         SectionStyle.InsetGrouped
     ) {
-        var searchValue by remember {
+        var searchValue by rememberSaveable {
             mutableStateOf("")
         }
 
@@ -389,38 +392,41 @@ internal fun Body(
 
 //            /*
 
-            item(key = "appearance") {
-                CupertinoSection {
-                    SectionItem(
-                        trailingContent = {
-                            CupertinoSwitch(
-                                checked = uiState.item.invertLayoutDirection,
-                                onCheckedChange = { onItemValueChanged(uiState.item.copy(invertLayoutDirection = it)) },
-                                backdrop = backdrop,
-                            )
-                        }
-                    ) {
-                        Text("Toggle layout direction")
-                    }
-
-                    SectionItem {
-                        ColorButtons(
-                            onColorsChanged = { light, dark ->
-                                onItemValueChanged(uiState.item.copy(accentColors = Pair(light, dark)))
+            item(key = "appearance-and-links") {
+                AdaptivePaneLayout(
+                    first = {
+                        CupertinoSection {
+                            SectionItem(
+                                trailingContent = {
+                                    CupertinoSwitch(
+                                        checked = uiState.item.invertLayoutDirection,
+                                        onCheckedChange = { onItemValueChanged(uiState.item.copy(invertLayoutDirection = it)) },
+                                        backdrop = backdrop,
+                                    )
+                                }
+                            ) {
+                                Text("Toggle layout direction")
                             }
-                        )
-                    }
-                }
-            }
 
-            item(key = "links") {
-                LinksWithIcons(
-                    onSheetClicked = {
-                        coroutineScope.launch {
-                            scaffoldState.bottomSheetState.show()
+                            SectionItem {
+                                ColorButtons(
+                                    onColorsChanged = { light, dark ->
+                                        onItemValueChanged(uiState.item.copy(accentColors = Pair(light, dark)))
+                                    }
+                                )
+                            }
                         }
                     },
-                    onNavigate = onNavigate,
+                    second = {
+                        LinksWithIcons(
+                            onSheetClicked = {
+                                coroutineScope.launch {
+                                    scaffoldState.bottomSheetState.show()
+                                }
+                            },
+                            onNavigate = onNavigate,
+                        )
+                    },
                 )
             }
 

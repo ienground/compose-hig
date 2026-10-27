@@ -33,6 +33,8 @@ kotlin {
             api(projects.hig)
             api(projects.higNative)
             api(libs.compose.material3)
+            api(libs.compose.adaptive)
+            api(libs.compose.adaptive.navigation3)
             implementation(projects.higCore)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

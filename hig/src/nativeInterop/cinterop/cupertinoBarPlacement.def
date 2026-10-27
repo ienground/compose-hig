@@ -39,11 +39,12 @@ static inline CGRect HIGStatusOcclusion(UIView *view) {
     return CGRectZero;
 }
 
-static inline NSObject *HIGObserveHinge(UIView *view, void (^handler)(BOOL)) {
+static inline NSObject *HIGObserveHinge(UIView *view, void (^handler)(BOOL hasHinge, BOOL isOpen)) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 270100
     if (@available(iOS 27.1, *)) {
         UIHingeInteraction *interaction = [[UIHingeInteraction alloc] initWithUpdateHandler:^(UIHingeInteraction *interaction, UIHingeInteractionUpdate *update) {
-            handler(update.hinge != nil);
+            handler(update.hinge != nil, update.hinge.status == UIHingeStatusPartiallyOpen ||
+                update.hinge.status == UIHingeStatusFullyOpen);
         }];
         [view addInteraction:interaction];
         return interaction;

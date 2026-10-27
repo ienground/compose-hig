@@ -29,3 +29,6 @@ internal object CupertinoVerticalBottomBar
 internal val CupertinoVerticalBarControlWidth = 48.dp
 
 internal val LocalCupertinoBarControlWidth = compositionLocalOf<Dp?> { null }
+
+/** 현재 pane이 화면 오른쪽의 시스템 예약 영역에 닿는지 지정합니다. 기본값은 단일 화면입니다. */
+val LocalCupertinoRightSystemArea = compositionLocalOf { true }

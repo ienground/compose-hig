@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.MutableWindowInsets
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -105,7 +107,7 @@ import com.kyant.backdrop.effects.runtimeShaderEffect
  * components will work together correctly.
  *
  * Duo에서는 시스템 예약 영역에 맞춰 버튼과 탭을 세로로 배치합니다.
- * 힌지가 있는 기기에서는 주 콘텐츠의 스크롤 방향에 따라 상단 제목과 배경을 숨기거나 표시합니다.
+ * 오른쪽 세로 바가 배치될 때는 주 콘텐츠의 스크롤 방향에 따라 상단 제목과 배경을 숨기거나 표시합니다.
  *
  * @param modifier the [Modifier] to be applied to this scaffold
  * @param topBar top app bar of the screen, typically a [CupertinoTopAppBar]
@@ -188,28 +190,31 @@ fun CupertinoScaffold(
     hasNavigationTitle: Boolean = false,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val barPlacement = if (LocalCupertinoSheetPresentation.current is PresentationStyle.Modal) {
+    val ownsRightSystemArea = LocalCupertinoRightSystemArea.current
+    val barPlacement = if (!ownsRightSystemArea || LocalCupertinoSheetPresentation.current is PresentationStyle.Modal) {
         null
     } else {
         val placement by rememberCupertinoVerticalBarPlacement()
         placement
     }
     val verticalBarPlacement = barPlacement?.takeIf { it.width > 0.dp }
+    val paneWindowInsets = if (ownsRightSystemArea) contentWindowInsets else
+        contentWindowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Vertical)
     val layoutWindowInsets = if (verticalBarPlacement != null) {
-        contentWindowInsets.union(WindowInsets(right = verticalBarPlacement!!.width))
+        paneWindowInsets.union(WindowInsets(right = verticalBarPlacement.width))
     } else {
-        contentWindowInsets
+        paneWindowInsets
     }
     val remainingWindowInsets = remember(layoutWindowInsets) {
         MutableWindowInsets(layoutWindowInsets)
     }
-    var isTopBarHidden by remember(barPlacement != null) { mutableStateOf(false) }
+    var isTopBarHidden by remember(verticalBarPlacement != null) { mutableStateOf(false) }
     val topBarVisibility = animateFloatAsState(
-        targetValue = if (isTopBarHidden) 0f else 1f,
-        animationSpec = androidx.compose.animation.core.tween(220),
+        targetValue = if (verticalBarPlacement != null && isTopBarHidden) 0f else 1f,
+        animationSpec = cupertinoTween(240),
         label = "CupertinoTopBarVisibility",
     )
-    val currentBarPlacement by rememberUpdatedState(barPlacement)
+    val currentBarPlacement by rememberUpdatedState(verticalBarPlacement)
     val scrollOffset = remember { mutableStateOf(0f) }
     val scrollSource = remember { mutableStateOf<ScrollableState?>(null) }
     val density = LocalDensity.current
@@ -218,7 +223,7 @@ fun CupertinoScaffold(
         animationSpec = spring(dampingRatio = 1f, stiffness = 600f),
         label = "TopScrollEdge",
     )
-    val scrollConnection = remember(barPlacement != null) {
+    val scrollConnection = remember(verticalBarPlacement != null) {
         object : NestedScrollConnection {
             override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
                 if (currentBarPlacement != null && consumed.y != 0f &&
