@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3AdaptiveApi::class)
+
 /*
  * Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
  * Copyright (c) 2025. Scott Lanoue.
@@ -20,6 +22,7 @@
 
 package adaptive
 
+import zone.ien.hig.CupertinoTopAppBarDefaults
 import RootDetails
 import RootUiState
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +42,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import zone.ien.hig.adaptive.isAdaptiveListDetailExpanded
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -109,35 +114,37 @@ fun AdaptiveWidgetsScreen(
         topBar = {
             AdaptiveTopAppBar(
                 navigationIcon = {
-                    AdaptiveWidget(
-                        cupertino = {
-                            CupertinoLiquidIconButton(
-                                onClick = navigateBack,
-                                backdrop = backdrop,
-                                modifier = Modifier.padding(start = 16.dp)
-                            ) {
-                                CupertinoIcon(
-                                    imageVector = CupertinoIcons.Default.ChevronBackward,
-                                    contentDescription = null
-                                )
-                            }
-                        },
-                        material = {
-                            IconButton(
-                                onClick = navigateBack,
-                            ) {
-                                Icon(
-                                    imageVector =
-                                        if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
-                                            Icons.AutoMirrored.Default.ArrowBack
-                                        } else {
-                                            Icons.AutoMirrored.Default.ArrowForward
-                                        },
-                                    contentDescription = "Back",
-                                )
-                            }
-                        },
-                    )
+                    if (!isAdaptiveListDetailExpanded) {
+                        AdaptiveWidget(
+                            cupertino = {
+                                CupertinoLiquidIconButton(
+                                    onClick = navigateBack,
+                                    backdrop = backdrop,
+                                    modifier = Modifier.padding(CupertinoTopAppBarDefaults.navigationIconPadding)
+                                ) {
+                                    CupertinoIcon(
+                                        imageVector = CupertinoIcons.Default.ChevronBackward,
+                                        contentDescription = null
+                                    )
+                                }
+                            },
+                            material = {
+                                IconButton(
+                                    onClick = navigateBack,
+                                ) {
+                                    Icon(
+                                        imageVector =
+                                            if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
+                                                Icons.AutoMirrored.Default.ArrowBack
+                                            } else {
+                                                Icons.AutoMirrored.Default.ArrowForward
+                                            },
+                                        contentDescription = "Back",
+                                    )
+                                }
+                            },
+                        )
+                    }
                 },
                 title = {
                     Text("Adaptive")
@@ -220,7 +227,7 @@ fun AdaptiveWidgetsScreen(
             }
 
             item {
-                var checked by remember { mutableStateOf(false) }
+                var checked by rememberSaveable { mutableStateOf(false) }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
@@ -242,7 +249,7 @@ fun AdaptiveWidgetsScreen(
             }
 
             item {
-                var v by remember {
+                var v by rememberSaveable {
                     mutableStateOf(.5f)
                 }
 
@@ -250,7 +257,7 @@ fun AdaptiveWidgetsScreen(
             }
 
             item {
-                var v by remember {
+                var v by rememberSaveable {
                     mutableStateOf(.5f)
                 }
 
@@ -332,8 +339,8 @@ fun AdaptiveWidgetsScreen(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    var a by remember { mutableStateOf(true) }
-                    var b by remember { mutableStateOf(false) }
+                    var a by rememberSaveable { mutableStateOf(true) }
+                    var b by rememberSaveable { mutableStateOf(false) }
                     var c by remember { mutableStateOf(ToggleableState.Indeterminate) }
 
                     AdaptiveCheckbox(checked = a, onCheckedChange = { a = it })

@@ -1,9 +1,14 @@
+@file:OptIn(ExperimentalMaterial3AdaptiveApi::class)
+
 package haptic
 
+import zone.ien.hig.CupertinoTopAppBarDefaults
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import zone.ien.hig.adaptive.isAdaptiveListDetailExpanded
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -48,11 +53,13 @@ fun HapticFeedbackScreen(navigateBack: () -> Unit) {
             CupertinoTopAppBar(
                 title = { CupertinoText("Haptic Feedback") },
                 navigationIcon = {
-                    CupertinoNavigateBackLiquidButton(
-                        onClick = navigateBack,
-                        backdrop = backdrop,
-                        modifier = Modifier.padding(start = 16.dp),
-                    )
+                    if (!isAdaptiveListDetailExpanded) {
+                        CupertinoNavigateBackLiquidButton(
+                            onClick = navigateBack,
+                            backdrop = backdrop,
+                            modifier = Modifier.padding(CupertinoTopAppBarDefaults.navigationIconPadding),
+                        )
+                    }
                 },
                 backdrop = backdrop,
             )

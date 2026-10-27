@@ -26,6 +26,13 @@ plugins {
 }
 
 kotlin {
+    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget>().configureEach {
+        if (konanTarget.family == org.jetbrains.kotlin.konan.target.Family.IOS) {
+            compilations.getByName("main").cinterops.create("cupertinoBarPlacement") {
+                definitionFile.set(project.file("src/nativeInterop/cinterop/cupertinoBarPlacement.def"))
+            }
+        }
+    }
     sourceSets {
         commonMain.dependencies {
             api(projects.higCore)

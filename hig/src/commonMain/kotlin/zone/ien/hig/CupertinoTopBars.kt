@@ -33,8 +33,13 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -43,10 +48,13 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -189,6 +197,9 @@ fun cupertinoTranslucentTopBarColor(
  * typically be an [CupertinoIconButton].
  * @param actions the actions displayed at the end of the top app bar. This should typically be
  * [CupertinoIconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
+ * [CupertinoScaffold] 안에서는 Duo의 시스템 예약 영역에 맞춰 내비게이션 버튼과 액션을
+ * 오른쪽 세로 영역으로 옮깁니다. 제목은 상단에 유지하며 스캐폴드의 스크롤 동작을 따릅니다.
+ *
  * @param windowInsets a window insets that app bar will respect.
  * @param isTransparent top bar is usually transparent if scroll container reached or almost reached top.
  * [ScrollableState.isTopBarTransparent] and [LazyListState.isTopBarTransparent] can be used to track it
@@ -212,19 +223,51 @@ fun CupertinoTopAppBar(
     backdrop: LayerBackdrop = LocalCupertinoBackdrop.current ?: rememberDefaultBackdrop(),
     colors: CupertinoTopAppBarColors = CupertinoTopAppBarDefaults.topAppBarColors(),
 ) {
+    val barPlacement = LocalCupertinoVerticalBarPlacement.current
+    val verticalPlacement = barPlacement?.takeIf { it.width > 0.dp }
     InlineTopAppBar(
         title = title,
         subtitle = subtitle,
         modifier = modifier,
-        navigationIcon = navigationIcon,
-        actions = actions,
-        windowInsets = windowInsets,
-        isCenterAligned = isCenterAligned,
+        navigationIcon = if (verticalPlacement == null) navigationIcon else ({}),
+        actions = if (verticalPlacement == null) actions else ({}),
+        windowInsets = when {
+            verticalPlacement != null -> windowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Top)
+                .union(WindowInsets(top = verticalPlacement.topBarInset, right = verticalPlacement.width))
+            barPlacement != null -> WindowInsets(top = barPlacement.top, right = barPlacement.horizontalStatusWidth)
+            !LocalCupertinoRightSystemArea.current -> windowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Top)
+            else -> windowInsets
+        },
+        isCenterAligned = verticalPlacement == null && isCenterAligned,
         colors = colors,
         isBackgroundAdaptive = isBackgroundAdaptive,
         isBackgroundGradient = isBackgroundGradient,
         backdrop = backdrop
     )
+    if (verticalPlacement != null) {
+        Column(
+            modifier = Modifier
+                .layoutId(CupertinoVerticalTopBar)
+                .width(verticalPlacement.width)
+                .absoluteOffset(x = verticalPlacement.width / 2 - verticalPlacement.centerFromRight)
+                .fillMaxHeight()
+                .padding(top = verticalPlacement.top, bottom = verticalPlacement.bottom),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            CompositionLocalProvider(LocalCupertinoBarControlWidth provides CupertinoVerticalBarControlWidth) {
+                Box(contentAlignment = Alignment.Center) { navigationIcon() }
+                FlowRow(
+                    modifier = Modifier.width(CupertinoVerticalBarControlWidth),
+                    maxItemsInEachRow = 1,
+                    horizontalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    actions()
+                }
+            }
+        }
+    }
 }
 
 internal val LocalNavigationTitleVisible = compositionLocalOf { mutableStateOf(false) }
@@ -519,10 +562,25 @@ private fun InlineTopAppBar(
         }
     }
 
+    val extendTopBlur = LocalCupertinoVerticalBarPlacement.current?.width == 0.dp
+    val measuredTopBarHeight = LocalTopBarHeight.current.value ?: 0f
+    val topBarPadding = maxOf(
+        windowInsets.asPaddingValues().calculateTopPadding() +
+            with(LocalDensity.current) { topAppBarHeightPx.toDp() } + TopAppBarBottomPadding,
+        with(LocalDensity.current) { measuredTopBarHeight.toDp() },
+    )
+    val topBlurHeight by animateDpAsState(
+        targetValue = resolveCupertinoTopBlurHeight(TopAppBarHeight, topBarPadding),
+        animationSpec = cupertinoTween(240),
+        label = "CupertinoTopBlurHeight",
+    )
     Box {
         Box(
-            modifier = Modifier
-                .matchParentSize()
+            modifier = (if (extendTopBlur) {
+                Modifier.matchParentSize().wrapContentHeight(Alignment.Top, unbounded = true).height(topBlurHeight)
+            } else {
+                Modifier.matchParentSize()
+            })
                 .drawPlainBackdrop(
                     backdrop = backdrop,
                     shape = { RectangleShape },
@@ -535,14 +593,22 @@ private fun InlineTopAppBar(
 
     layout(color) uniform half4 tint;
     uniform float tintIntensity;
+    uniform float height;
+    uniform float fadeHeight;
+    uniform float solidFraction;
 
     half4 main(float2 coord) {
-        return mix(content.eval(coord), tint, tintIntensity);
+        float progress = clamp((coord.y - height + fadeHeight) / max(fadeHeight, 1.0), 0.0, 1.0);
+        float alpha = fadeHeight > 0.0 ? 1.0 - smoothstep(solidFraction, 1.0, progress) : 1.0;
+        return mix(content.eval(coord), tint, tintIntensity) * alpha;
     }""",
                             "content"
                         ) {
                             setColorUniform("tint", backgroundTint.copy(alpha = 1f))
                             setFloatUniform("tintIntensity", backgroundOpacity * backgroundTint.alpha)
+                            setFloatUniform("height", size.height)
+                            setFloatUniform("fadeHeight", if (extendTopBlur) TopAppBarHeight.toPx() else 0f)
+                            setFloatUniform("solidFraction", CupertinoTopBlurSolidFraction)
                         }
                     },
                     onDrawBackdrop = { drawBackdrop ->
@@ -787,6 +853,18 @@ private val TopAppBarTitleInset = 16.dp - TopAppBarHorizontalPadding
 
 @Immutable
 object CupertinoTopAppBarDefaults {
+    /** 액션 버튼 바깥 여백. 오른쪽 세로 영역에서는 공통 버튼 너비를 유지합니다. */
+    val actionPadding: PaddingValues
+        @Composable get() = PaddingValues(
+            horizontal = if ((LocalCupertinoVerticalBarPlacement.current?.width ?: 0.dp) > 0.dp) 0.dp else 4.dp,
+        )
+
+    /** 내비게이션 버튼의 시작 여백. 오른쪽 세로 영역에서는 중심 정렬을 유지합니다. */
+    val navigationIconPadding: PaddingValues
+        @Composable get() = PaddingValues(
+            start = if ((LocalCupertinoVerticalBarPlacement.current?.width ?: 0.dp) > 0.dp) 0.dp else 16.dp,
+        )
+
     /**
      * Default insets to be used and consumed by the top app bars
      */
@@ -833,3 +911,11 @@ object CupertinoTopAppBarDefaults {
             actionIconContentColor,
         )
 }
+
+internal const val CupertinoTopBlurSolidFraction = 0.42f
+
+internal fun resolveCupertinoTopBlurHeight(fadeHeight: Dp, topBarPadding: Dp): Dp =
+    if (fadeHeight <= 0.dp) 0.dp else maxOf(
+        fadeHeight,
+        topBarPadding + fadeHeight * (1f - CupertinoTopBlurSolidFraction),
+    )

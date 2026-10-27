@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3AdaptiveApi::class)
+
 /*
  * Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
  * Copyright (c) 2025. Scott Lanoue.
@@ -20,6 +22,7 @@
 
 package icons
 
+import zone.ien.hig.CupertinoTopAppBarDefaults
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -33,11 +36,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import zone.ien.hig.adaptive.isAdaptiveListDetailExpanded
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -898,7 +904,7 @@ fun IconsScreen(
     navigateBack: () -> Unit
 ) {
     val backdrop = rememberDefaultBackdrop()
-    var isOutlined by remember { mutableStateOf(true) }
+    var isOutlined by rememberSaveable { mutableStateOf(true) }
     val pagerState = rememberPagerState { 2 }
 
     LaunchedEffect(isOutlined){
@@ -909,25 +915,27 @@ fun IconsScreen(
         topBar = {
             CupertinoTopAppBar(
                 navigationIcon = {
-                    AdaptiveWidget(
-                        cupertino = {
-                            CupertinoNavigateBackLiquidButton(
-                                onClick = navigateBack,
-                                backdrop = backdrop,
-                                modifier = Modifier.padding(start = 16.dp)
-                            )
-                        },
-                        material = {
-                            IconButton(
-                                onClick = navigateBack
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Back"
+                    if (!isAdaptiveListDetailExpanded) {
+                        AdaptiveWidget(
+                            cupertino = {
+                                CupertinoNavigateBackLiquidButton(
+                                    onClick = navigateBack,
+                                    backdrop = backdrop,
+                                    modifier = Modifier.padding(CupertinoTopAppBarDefaults.navigationIconPadding)
                                 )
+                            },
+                            material = {
+                                IconButton(
+                                    onClick = navigateBack
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Back"
+                                    )
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 },
                 title = {
                     CupertinoSegmentedControl(

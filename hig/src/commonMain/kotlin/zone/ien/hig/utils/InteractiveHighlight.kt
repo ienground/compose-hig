@@ -49,7 +49,7 @@ class InteractiveHighlight(
         val width = size.width.coerceAtLeast(1f)
         val height = size.height.coerceAtLeast(1f)
         val progress = pressProgress.coerceIn(0f, 1f)
-        val scale = 1f + 4.dp.toPx() / height * progress
+        val scale = 1f + 4.dp.toPx() / minOf(width, height) * progress
         val maxOffset = minOf(width, height)
         val dragOffset = offset
         translationX = maxOffset * tanh(0.05f * dragOffset.x / maxOffset)

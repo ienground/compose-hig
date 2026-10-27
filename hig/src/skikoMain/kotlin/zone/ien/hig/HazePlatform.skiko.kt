@@ -22,10 +22,8 @@ package zone.ien.hig
 // Copyright 2023, Christopher Banes and the Haze project contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.asComposeRenderEffect
@@ -119,13 +117,12 @@ internal actual class HazeNode actual constructor(
         }
     }
 
-    @OptIn(InternalComposeUiApi::class)
     private fun createBlurImageFilter(blurRadius: Dp): ImageFilter {
         val blurRadiusPx =
             with(density) {
                 blurRadius.toPx()
             }
-        val sigma = BlurEffect.convertRadiusToSigma(blurRadiusPx)
+        val sigma = if (blurRadiusPx > 0f) 0.57735f * blurRadiusPx + 0.5f else 0f
         return ImageFilter.makeBlur(
             sigmaX = sigma,
             sigmaY = sigma,
