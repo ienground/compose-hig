@@ -21,7 +21,7 @@ Compose-HIG는 [Apple Human Interface Guidelines](https://developer.apple.com/de
 
 [alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino)와 [slanos/compose-cupertino](https://github.com/slanos/compose-cupertino)를 바탕으로 배경 레이어 기반 Liquid Glass 렌더링, 추가 컨트롤, 적응형 내비게이션을 확장했습니다. 대부분의 UI는 Compose로 렌더링하며, iOS 네이티브 컨트롤은 `hig-native`에서 별도로 제공합니다.
 
-이 문서와 설치 예제는 현재 프로젝트 버전인 **`27.2.0-alpha01`**을 기준으로 합니다. [설치](#installation)와 [호환성](#compatibility)을 참고하세요.
+이 문서와 설치 예제는 현재 프로젝트 버전인 **`27.2.0`**을 기준으로 합니다. [설치](#installation)와 [호환성](#compatibility)을 참고하세요.
 
 <a id="contents"></a>
 
@@ -123,7 +123,7 @@ dependencyResolutionManagement {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("zone.ien.hig:hig:27.2.0-alpha01")
+            implementation("zone.ien.hig:hig:27.2.0")
         }
     }
 }
@@ -133,7 +133,7 @@ kotlin {
 
 ```toml
 [versions]
-hig = "27.2.0-alpha01"
+hig = "27.2.0"
 
 [libraries]
 hig = { module = "zone.ien.hig:hig", version.ref = "hig" }

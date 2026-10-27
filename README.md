@@ -21,7 +21,7 @@ Compose-HIG brings [Apple’s Human Interface Guidelines](https://developer.appl
 
 The project extends [alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino) and [slanos/compose-cupertino](https://github.com/slanos/compose-cupertino) with backdrop-based Liquid Glass rendering, additional controls, and adaptive navigation. Most UI is rendered by Compose; native iOS controls are provided separately in `hig-native`.
 
-This README and its installation examples use the current project version, **`27.2.0-alpha01`**. See [installation](#installation) and [compatibility](#compatibility).
+This README and its installation examples use the current project version, **`27.2.0`**. See [installation](#installation) and [compatibility](#compatibility).
 
 <a id="contents"></a>
 
@@ -123,7 +123,7 @@ For an existing Compose Multiplatform project, add the core UI dependency to `co
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("zone.ien.hig:hig:27.2.0-alpha01")
+            implementation("zone.ien.hig:hig:27.2.0")
         }
     }
 }
@@ -133,7 +133,7 @@ Alternatively, use a [Gradle version catalog](https://docs.gradle.org/current/us
 
 ```toml
 [versions]
-hig = "27.2.0-alpha01"
+hig = "27.2.0"
 
 [libraries]
 hig = { module = "zone.ien.hig:hig", version.ref = "hig" }
