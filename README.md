@@ -21,7 +21,7 @@ Compose-HIG brings [Apple’s Human Interface Guidelines](https://developer.appl
 
 The project extends [alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino) and [slanos/compose-cupertino](https://github.com/slanos/compose-cupertino) with backdrop-based Liquid Glass rendering, additional controls, and adaptive navigation. Most UI is rendered by Compose; native iOS controls are provided separately in `hig-native`.
 
-This README and its installation examples use the current project version, **`27.2.0`**. See [installation](#installation) and [compatibility](#compatibility).
+This README describes the current project APIs. Installation examples use version placeholders. See [installation](#installation) and [compatibility](#compatibility).
 
 <a id="contents"></a>
 
@@ -77,7 +77,7 @@ The deployed web demo and earlier video may differ from the current checkout.
 
 [![iPhone Duo: closed and open layouts, segmented controls, and a bottom sheet](docs/assets/compose-hig-duo-demo.gif)](docs/assets/compose-hig-duo-demo.mp4)
 
-[Watch or download the iPhone Duo MP4](docs/assets/compose-hig-duo-demo.mp4). Recorded from this source build on iOS 27.1 iPhone Duo simulators. The video joins separate recordings of the closed and open configurations with a cut. The open configuration shows the sample’s list-detail navigation and a modal bottom sheet.
+[Watch or download the iPhone Duo MP4](docs/assets/compose-hig-duo-demo.mp4). Recorded from this source build on iOS 27.1 iPhone Duo simulators. The video joins separate recordings of the closed and open configurations with a cut. The open configuration combines Compose-HIG with Compose Adaptive (Compose Multiplatform Material 3 Adaptive) and Navigation 3 for list-detail navigation, and also shows a modal bottom sheet.
 
 | Closed: right-side controls | Open: list and detail |
 |-----------------------------|-----------------------|
@@ -141,13 +141,15 @@ dependencyResolutionManagement {
 }
 ```
 
-For an existing Compose Multiplatform project, add the core UI dependency to `commonMain`:
+Replace `{current version}` with the version you want to use, then add the core UI dependency to `commonMain`:
 
 ```kotlin
+val hig = "{current version}"
+
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("zone.ien.hig:hig:27.2.0")
+            implementation("zone.ien.hig:hig:${hig}")
         }
     }
 }
@@ -157,7 +159,7 @@ Alternatively, use a [Gradle version catalog](https://docs.gradle.org/current/us
 
 ```toml
 [versions]
-hig = "27.2.0"
+hig = "{current version}"
 
 [libraries]
 hig = { module = "zone.ien.hig:hig", version.ref = "hig" }
@@ -424,6 +426,8 @@ For Navigation 3, `rememberAdaptiveListDetailSceneStrategy<T>()` defaults to two
 <a id="duo"></a>
 
 ### iPhone Duo Layouts
+
+The sample combines Compose-HIG with [Compose Adaptive](hig-adaptive/build.gradle.kts) (`org.jetbrains.compose.material3.adaptive`) and Navigation 3. Compose Adaptive supplies window-size directives and the list-detail scene strategy; Compose-HIG adds Cupertino styling and pane-specific system-area handling.
 
 `CupertinoScaffold` observes the iOS status region, camera occlusion, safe-area insets, and hinge state to choose bar placement. On Duo, this allows content and controls to share the available screen without placing actions over the reserved system area.
 

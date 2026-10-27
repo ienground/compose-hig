@@ -21,7 +21,7 @@ Compose-HIG는 [Apple Human Interface Guidelines](https://developer.apple.com/de
 
 [alexzhirkevich/compose-cupertino](https://github.com/alexzhirkevich/compose-cupertino)와 [slanos/compose-cupertino](https://github.com/slanos/compose-cupertino)를 바탕으로 배경 레이어 기반 Liquid Glass 렌더링, 추가 컨트롤, 적응형 내비게이션을 확장했습니다. 대부분의 UI는 Compose로 렌더링하며, iOS 네이티브 컨트롤은 `hig-native`에서 별도로 제공합니다.
 
-이 문서와 설치 예제는 현재 프로젝트 버전인 **`27.2.0`**을 기준으로 합니다. [설치](#installation)와 [호환성](#compatibility)을 참고하세요.
+이 문서는 현재 프로젝트 API를 기준으로 하며, 설치 예제에는 버전 placeholder를 사용합니다. [설치](#installation)와 [호환성](#compatibility)을 참고하세요.
 
 <a id="contents"></a>
 
@@ -77,7 +77,7 @@ https://github.com/user-attachments/assets/4cc67248-f666-4ba1-9f32-988356b96b2f
 
 [![iPhone Duo: 접힌·펼친 레이아웃, 세그먼트 컨트롤, 하단 시트](docs/assets/compose-hig-duo-demo.gif)](docs/assets/compose-hig-duo-demo.mp4)
 
-[iPhone Duo MP4 시연 영상 재생 및 다운로드](docs/assets/compose-hig-duo-demo.mp4). 현재 소스를 빌드해 iOS 27.1의 iPhone Duo 시뮬레이터에서 촬영했습니다. 접힌 상태와 펼친 상태를 각각 촬영해 컷으로 연결했습니다. 펼친 상태에서는 샘플의 목록·상세 내비게이션과 모달 하단 시트를 보여줍니다.
+[iPhone Duo MP4 시연 영상 재생 및 다운로드](docs/assets/compose-hig-duo-demo.mp4). 현재 소스를 빌드해 iOS 27.1의 iPhone Duo 시뮬레이터에서 촬영했습니다. 접힌 상태와 펼친 상태를 각각 촬영해 컷으로 연결했습니다. 펼친 상태에서는 Compose-HIG를 Compose Adaptive(Compose Multiplatform Material 3 Adaptive) 및 Navigation 3와 조합한 목록·상세 내비게이션과 모달 하단 시트를 보여줍니다.
 
 | 접힌 상태: 오른쪽 컨트롤 | 펼친 상태: 목록과 상세 |
 |--------------------------|------------------------|
@@ -141,13 +141,15 @@ dependencyResolutionManagement {
 }
 ```
 
-기존 Compose Multiplatform 프로젝트의 `commonMain`에 기본 UI 의존성을 추가하세요.
+`{current version}`을 사용할 버전으로 바꾼 뒤 `commonMain`에 기본 UI 의존성을 추가하세요.
 
 ```kotlin
+val hig = "{current version}"
+
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("zone.ien.hig:hig:27.2.0")
+            implementation("zone.ien.hig:hig:${hig}")
         }
     }
 }
@@ -157,7 +159,7 @@ kotlin {
 
 ```toml
 [versions]
-hig = "27.2.0"
+hig = "{current version}"
 
 [libraries]
 hig = { module = "zone.ien.hig:hig", version.ref = "hig" }
@@ -424,6 +426,8 @@ Navigation 3용 `rememberAdaptiveListDetailSceneStrategy<T>()`는 기본적으�
 <a id="duo"></a>
 
 ### iPhone Duo 레이아웃
+
+샘플은 Compose-HIG를 [Compose Adaptive](hig-adaptive/build.gradle.kts)(`org.jetbrains.compose.material3.adaptive`) 및 Navigation 3와 조합합니다. Compose Adaptive는 창 크기에 따른 directive와 목록·상세 Scene 전략을 제공하고, Compose-HIG는 Cupertino 스타일과 패널별 시스템 영역 처리를 적용합니다.
 
 `CupertinoScaffold`는 iOS 상태 영역, 카메라 가림 영역, safe-area 인셋, 힌지 상태를 관찰해 바 배치를 결정합니다. Duo에서는 시스템 예약 영역에 액션이 겹치지 않도록 콘텐츠와 컨트롤을 배치합니다.
 
