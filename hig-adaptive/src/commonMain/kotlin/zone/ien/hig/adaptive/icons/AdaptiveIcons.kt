@@ -18,13 +18,6 @@
 
 package zone.ien.hig.adaptive.icons
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ExitToApp
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.outlined.List
-import androidx.compose.material.icons.automirrored.outlined.Send
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -129,194 +122,194 @@ val AdaptiveIcons.Outlined.AccountBox
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.AccountBox },
+            material = { MaterialSymbols.AccountBox },
             cupertino = { CupertinoIcons.Outlined.PersonCropSquare },
         )
 val AdaptiveIcons.Outlined.AccountCircle
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.AccountCircle },
+            material = { MaterialSymbols.AccountCircle },
             cupertino = { CupertinoIcons.Outlined.PersonCropCircle },
         )
 val AdaptiveIcons.Outlined.Add
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Add },
+            material = { MaterialSymbols.Add },
             cupertino = { CupertinoIcons.Outlined.Plus },
         )
 val AdaptiveIcons.Outlined.AddCircle
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.AddCircle },
+            material = { MaterialSymbols.AddCircle },
             cupertino = { CupertinoIcons.Outlined.PlusCircle },
         )
 
 // val AdaptiveIcons.Outlined.ArrowBack
 //    @Composable
 //    get() = AdaptiveIcons.icon(
-//        material = Icons.Outlined.ArrowBack,
+//        material = MaterialSymbols.ArrowBack,
 //        cupertino = CupertinoIcons.Outlined.ChevronBackward
 //    )
 // val AdaptiveIcons.Outlined.ArrowDropDown
 //    @Composable
 //    get() = AdaptiveIcons.icon(
-//        material = Icons.Outlined.ArrowDropDown,
+//        material = MaterialSymbols.ArrowDropDown,
 //        cupertino = CupertinoIcons.Outlined.ArrowDropDown
 //    )
 // val AdaptiveIcons.Outlined.ArrowForward
 //    @Composable
 //    get() = AdaptiveIcons.icon(
-//        material = Icons.Outlined.ArrowForward,
+//        material = MaterialSymbols.ArrowForward,
 //        cupertino = CupertinoIcons.Outlined.ArrowForward
 //    )
 val AdaptiveIcons.Outlined.Build
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Build },
+            material = { MaterialSymbols.Build },
             cupertino = { CupertinoIcons.Outlined.WrenchAndScrewdriver },
         )
 val AdaptiveIcons.Outlined.Call
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Call },
+            material = { MaterialSymbols.Call },
             cupertino = { CupertinoIcons.Outlined.Phone },
         )
 val AdaptiveIcons.Outlined.Check
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Check },
+            material = { MaterialSymbols.Check },
             cupertino = { CupertinoIcons.Outlined.Checkmark },
         )
 val AdaptiveIcons.Outlined.CheckCircle
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.CheckCircle },
+            material = { MaterialSymbols.CheckCircle },
             cupertino = { CupertinoIcons.Outlined.CheckmarkCircle },
         )
 val AdaptiveIcons.Outlined.Clear
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Clear },
+            material = { MaterialSymbols.Clear },
             cupertino = { CupertinoIcons.Outlined.XmarkCircle },
         )
 val AdaptiveIcons.Outlined.Close
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Close },
+            material = { MaterialSymbols.Close },
             cupertino = { CupertinoIcons.Outlined.Xmark },
         )
 val AdaptiveIcons.Outlined.Create
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Create },
+            material = { MaterialSymbols.Create },
             cupertino = { CupertinoIcons.Outlined.SquareAndPencil },
         )
 val AdaptiveIcons.Outlined.DateRange
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.DateRange },
+            material = { MaterialSymbols.DateRange },
             cupertino = { CupertinoIcons.Outlined.Calendar },
         )
 val AdaptiveIcons.Outlined.Delete
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Delete },
+            material = { MaterialSymbols.Delete },
             cupertino = { CupertinoIcons.Outlined.Trash },
         )
 val AdaptiveIcons.Outlined.Done
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Done },
+            material = { MaterialSymbols.Done },
             cupertino = { CupertinoIcons.Outlined.Checkmark },
         )
 val AdaptiveIcons.Outlined.Edit
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Edit },
+            material = { MaterialSymbols.Edit },
             cupertino = { CupertinoIcons.Outlined.Pencil },
         )
 val AdaptiveIcons.Outlined.Email
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Email },
+            material = { MaterialSymbols.Email },
             cupertino = { CupertinoIcons.Outlined.Envelope },
         )
 val AdaptiveIcons.Outlined.ExitToApp
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.AutoMirrored.Outlined.ExitToApp },
+            material = { MaterialSymbols.ExitToApp },
             cupertino = { CupertinoIcons.Outlined.RectanglePortraitAndArrowForward },
         )
 val AdaptiveIcons.Outlined.Face
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Face },
+            material = { MaterialSymbols.Face },
             cupertino = { CupertinoIcons.Outlined.FaceSmiling },
         )
 val AdaptiveIcons.Outlined.Favorite
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Favorite },
+            material = { MaterialSymbols.Favorite },
             cupertino = { CupertinoIcons.Outlined.Heart },
         )
 val AdaptiveIcons.Outlined.FavoriteBorder
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.FavoriteBorder },
+            material = { MaterialSymbols.FavoriteBorder },
             cupertino = { CupertinoIcons.Outlined.Heart },
         )
 val AdaptiveIcons.Outlined.Home
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Home },
+            material = { MaterialSymbols.Home },
             cupertino = { CupertinoIcons.Outlined.House },
         )
 val AdaptiveIcons.Outlined.Info
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Info },
+            material = { MaterialSymbols.Info },
             cupertino = { CupertinoIcons.Outlined.InfoCircle },
         )
 val AdaptiveIcons.Outlined.KeyboardArrowDown
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.KeyboardArrowDown },
+            material = { MaterialSymbols.KeyboardArrowDown },
             cupertino = { CupertinoIcons.Outlined.ChevronDown },
         )
 val AdaptiveIcons.Outlined.KeyboardArrowLeft
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.AutoMirrored.Outlined.KeyboardArrowLeft },
+            material = { MaterialSymbols.KeyboardArrowLeft },
             cupertino = { CupertinoIcons.Outlined.ChevronBackward },
         )
 val AdaptiveIcons.Outlined.KeyboardArrowRight
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.AutoMirrored.Outlined.KeyboardArrowRight },
+            material = { MaterialSymbols.KeyboardArrowRight },
             cupertino = { CupertinoIcons.Outlined.ChevronForward },
         )
 
@@ -324,147 +317,147 @@ val AdaptiveIcons.Outlined.KeyboardArrowUp
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.KeyboardArrowUp },
+            material = { MaterialSymbols.KeyboardArrowUp },
             cupertino = { CupertinoIcons.Outlined.ChevronUp },
         )
 val AdaptiveIcons.Outlined.List
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.AutoMirrored.Outlined.List },
+            material = { MaterialSymbols.List },
             cupertino = { CupertinoIcons.Outlined.ListBullet },
         )
 val AdaptiveIcons.Outlined.LocationOn
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.LocationOn },
+            material = { MaterialSymbols.LocationOn },
             cupertino = { CupertinoIcons.Outlined.Location },
         )
 val AdaptiveIcons.Outlined.Lock
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Lock },
+            material = { MaterialSymbols.Lock },
             cupertino = { CupertinoIcons.Outlined.Lock },
         )
 val AdaptiveIcons.Outlined.MailOutline
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.MailOutline },
+            material = { MaterialSymbols.MailOutline },
             cupertino = { CupertinoIcons.Outlined.Envelope },
         )
 val AdaptiveIcons.Outlined.Menu
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Menu },
+            material = { MaterialSymbols.Menu },
             cupertino = { CupertinoIcons.Outlined.ListBullet },
         )
 val AdaptiveIcons.Outlined.MoreVert
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.MoreVert },
+            material = { MaterialSymbols.MoreVert },
             cupertino = { CupertinoIcons.Outlined.Ellipsis },
         )
 val AdaptiveIcons.Outlined.Notifications
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Notifications },
+            material = { MaterialSymbols.Notifications },
             cupertino = { CupertinoIcons.Outlined.Bell },
         )
 val AdaptiveIcons.Outlined.Person
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Person },
+            material = { MaterialSymbols.Person },
             cupertino = { CupertinoIcons.Outlined.Person },
         )
 val AdaptiveIcons.Outlined.Phone
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Phone },
+            material = { MaterialSymbols.Phone },
             cupertino = { CupertinoIcons.Outlined.Phone },
         )
 val AdaptiveIcons.Outlined.Place
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Place },
+            material = { MaterialSymbols.Place },
             cupertino = { CupertinoIcons.Outlined.Mappin },
         )
 val AdaptiveIcons.Outlined.PlayArrow
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.PlayArrow },
+            material = { MaterialSymbols.PlayArrow },
             cupertino = { CupertinoIcons.Outlined.Play },
         )
 val AdaptiveIcons.Outlined.Refresh
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Refresh },
+            material = { MaterialSymbols.Refresh },
             cupertino = { CupertinoIcons.Outlined.ArrowClockwise },
         )
 val AdaptiveIcons.Outlined.Search
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Search },
+            material = { MaterialSymbols.Search },
             cupertino = { CupertinoIcons.Outlined.MagnifyingGlass },
         )
 val AdaptiveIcons.Outlined.Send
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.AutoMirrored.Outlined.Send },
+            material = { MaterialSymbols.Send },
             cupertino = { CupertinoIcons.Outlined.Paperplane },
         )
 val AdaptiveIcons.Outlined.Settings
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Settings },
+            material = { MaterialSymbols.Settings },
             cupertino = { CupertinoIcons.Outlined.Gearshape },
         )
 val AdaptiveIcons.Outlined.Share
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Share },
+            material = { MaterialSymbols.Share },
             cupertino = { CupertinoIcons.Outlined.SquareAndArrowUp },
         )
 val AdaptiveIcons.Outlined.ShoppingCart
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.ShoppingCart },
+            material = { MaterialSymbols.ShoppingCart },
             cupertino = { CupertinoIcons.Outlined.Cart },
         )
 val AdaptiveIcons.Outlined.Star
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Star },
+            material = { MaterialSymbols.Star },
             cupertino = { CupertinoIcons.Outlined.Star },
         )
 val AdaptiveIcons.Outlined.ThumbUp
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.ThumbUp },
+            material = { MaterialSymbols.ThumbUp },
             cupertino = { CupertinoIcons.Outlined.HandThumbsup },
         )
 val AdaptiveIcons.Outlined.Warning
     @Composable
     get() =
         AdaptiveIcons.vector(
-            material = { Icons.Outlined.Warning },
+            material = { MaterialSymbols.Warning },
             cupertino = { CupertinoIcons.Outlined.ExclamationmarkTriangle },
         )
 

@@ -31,7 +31,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "zone.ien.hig.example.lib"
         compileSdk {
             version = release((findProperty("android.compileSdk") as String).toInt()) {
@@ -81,8 +81,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting
-        val desktopMain by getting
+        val desktopMain = getByName("desktopMain")
 
         commonMain.dependencies {
             implementation(projects.hig)
@@ -94,7 +93,6 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.compose.preview)
             implementation(libs.compose.resources)
-            implementation(compose.materialIconsExtended)
             implementation(libs.datetime)
             implementation(libs.serialization)
 

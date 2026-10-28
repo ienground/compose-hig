@@ -628,7 +628,7 @@ fun rememberCupertinoSheetState(
     }
 }
 
-private class HeightSerializer: KSerializer<PresentationDetent.Height> {
+internal class HeightSerializer: KSerializer<PresentationDetent.Height> {
     override val descriptor: SerialDescriptor
         get() = Float.serializer().descriptor
 

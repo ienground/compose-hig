@@ -70,10 +70,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -180,6 +176,7 @@ import zone.ien.hig.cancel
 import zone.ien.hig.default
 import zone.ien.hig.destructive
 import zone.ien.hig.icons.CupertinoIcons
+import zone.ien.hig.icons.filled.Gearshape
 import zone.ien.hig.icons.filled.Alarm
 import zone.ien.hig.icons.filled.Archivebox
 import zone.ien.hig.icons.filled.Banknote
@@ -1099,8 +1096,8 @@ private fun BottomBarSample(
     }
     var tab by remember { mutableStateOf(0) }
     val content = listOf(
-        "Profile" to Icons.Default.Delete,
-        "Setting" to Icons.Default.Settings,
+        "Profile" to CupertinoIcons.Filled.Trash,
+        "Setting" to CupertinoIcons.Filled.Gearshape,
     )
 
     if (isNative) {

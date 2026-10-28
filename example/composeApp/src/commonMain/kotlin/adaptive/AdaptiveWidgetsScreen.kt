@@ -36,9 +36,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -81,6 +78,8 @@ import zone.ien.hig.adaptive.AdaptiveTriStateCheckbox
 import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.icons.AccountCircle
+import zone.ien.hig.adaptive.icons.KeyboardArrowLeft
+import zone.ien.hig.adaptive.icons.KeyboardArrowRight
 import zone.ien.hig.adaptive.icons.AdaptiveIcons
 import zone.ien.hig.adaptive.icons.Add
 import zone.ien.hig.adaptive.icons.Create
@@ -135,9 +134,9 @@ fun AdaptiveWidgetsScreen(
                                     Icon(
                                         imageVector =
                                             if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
-                                                Icons.AutoMirrored.Default.ArrowBack
+                                                AdaptiveIcons.Outlined.KeyboardArrowLeft
                                             } else {
-                                                Icons.AutoMirrored.Default.ArrowForward
+                                                AdaptiveIcons.Outlined.KeyboardArrowRight
                                             },
                                         contentDescription = "Back",
                                     )
