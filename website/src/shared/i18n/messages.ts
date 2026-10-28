@@ -1,6 +1,8 @@
 import type { IenLanguage } from "@/shared/lib/ien-theme";
 
 const english: Record<string, string> = {
+  웹사이트: "Website",
+  "개발자 링크": "Developer links",
   "클릭: $clicks": "Clicks: $clicks",
   "선택한 탭: $selected": "Selected tab: $selected",
   서울: "Seoul",

@@ -7,16 +7,16 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { IenLanguageProvider } from "@/shared/lib/ien-theme-context";
-import type { IenLanguage } from "@/shared/lib/ien-theme";
+import { useSiteLanguage } from "@/shared/i18n";
 import { translate } from "@/shared/i18n/messages";
 import { catalog } from "@/features/component";
-import { repository, libraryVersion } from "@/shared/config/site";
+import { repository, libraryVersion, author } from "@/shared/config/site";
 
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? "/";
   const [query, setQuery] = useState("");
   const [dark, setDark] = useState(false);
-  const [language, setLanguage] = useState<IenLanguage>("en");
+  const [language, setLanguage] = useSiteLanguage();
   const t = (text: string) => translate(text, language);
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
@@ -143,6 +143,36 @@ export function SiteShell({ children }: { children: ReactNode }) {
               <span>
                 {t("Apple HIG를 위한 Compose Multiplatform 컴포넌트")}
               </span>
+              <div className="footer-author">
+                <a
+                  className="author-identity"
+                  href={author.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Image src={author.logo} alt="" width={44} height={44} />
+                  <div>
+                    <strong>{author.name}</strong>
+                    <span className="author-handle">{author.handle}</span>
+                  </div>
+                </a>
+                <nav aria-label={t("개발자 링크")}>
+                  <a
+                    href={author.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t("웹사이트")} ↗
+                  </a>
+                  <a
+                    href={author.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    GitHub ↗
+                  </a>
+                </nav>
+              </div>
             </footer>
           </main>
         </div>

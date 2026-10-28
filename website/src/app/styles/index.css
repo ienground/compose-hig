@@ -332,6 +332,7 @@ code {
   margin-bottom: 40px;
 }
 .page-footer {
+  flex-wrap: wrap;
   border-top: 1px solid var(--border);
   padding-top: 22px;
   margin-top: 48px;
@@ -718,4 +719,47 @@ figcaption {
     var(--ien-surface)
   );
   --ien-on-brand-weak: var(--ien-brand);
+}
+
+.footer-author {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-top: 8px;
+}
+.author-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+}
+.author-identity img {
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.author-identity strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.footer-author .author-handle {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+}
+.footer-author nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+@media (max-width: 560px) {
+  .footer-author {
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .footer-author nav {
+    width: 100%;
+    padding-left: 56px;
+  }
 }

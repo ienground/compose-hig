@@ -1,6 +1,9 @@
 package zone.ien.hig
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -21,9 +24,39 @@ import androidx.compose.ui.unit.LayoutDirection
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import zone.ien.hig.theme.CupertinoTheme
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCupertinoApi::class)
 class CupertinoScaffoldBottomBarTest {
+    @Test
+    fun nestedScaffoldReservesRightInsetOnlyOnce() = assertNestedRightInset(LayoutDirection.Ltr)
+
+    @Test
+    fun nestedScaffoldReservesPhysicalRightInsetOnlyOnceInRtl() = assertNestedRightInset(LayoutDirection.Rtl)
+
+    private fun assertNestedRightInset(direction: LayoutDirection) = runComposeUiTest {
+        setContent {
+            CupertinoTheme {
+                CompositionLocalProvider(LocalLayoutDirection provides direction) {
+                    CupertinoScaffold(
+                        modifier = Modifier.size(240.dp, 320.dp),
+                        contentWindowInsets = WindowInsets(right = 72.dp),
+                    ) { outerPadding ->
+                        CupertinoScaffold(
+                            modifier = Modifier.fillMaxSize().padding(outerPadding),
+                            contentWindowInsets = WindowInsets(right = 72.dp),
+                        ) { innerPadding ->
+                            Box(Modifier.fillMaxSize().padding(innerPadding)) {
+                                Box(Modifier.fillMaxSize().testTag("nested-body"))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        onNodeWithTag("nested-body").assertWidthIsEqualTo(168.dp)
+    }
+
     @Test
     fun customBottomBarUsesRightRailAndCameraCenter() = assertRightRail(LayoutDirection.Ltr)
 

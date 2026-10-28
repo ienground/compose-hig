@@ -365,7 +365,11 @@ fun CupertinoScaffold(
                             }
                         }
                     },
-                    content = content,
+                    content = { contentPadding ->
+                        CompositionLocalProvider(LocalCupertinoRightSystemArea provides false) {
+                            content(contentPadding)
+                        }
+                    },
                     snackbar = snackbarHost,
                     contentWindowInsets = remainingWindowInsets,
                     fab = floatingActionButton,
