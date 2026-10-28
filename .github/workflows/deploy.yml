@@ -19,11 +19,24 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install website dependencies
+        run: npm ci --prefix website
+
       - name: Build wasmJs
         run: ./gradlew :example:composeApp:wasmJsBrowserDistribution
+
+      - name: Build Next.js website
+        run: npm --prefix website run build
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: example/composeApp/build/dist/wasmJs/productionExecutable
+          folder: website/out
           branch: gh-pages
