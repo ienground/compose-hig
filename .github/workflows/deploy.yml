@@ -56,7 +56,19 @@ jobs:
 
       - name: Set preview expiration
         if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
-        run: python3 -c 'import time; from pathlib import Path; Path("website/out/expires-at.txt").write_text(str(int(time.time()) + 3 * 24 * 60 * 60))'
+        run: |
+          python3 -c 'import time; from pathlib import Path; Path("website/out/expires-at.txt").write_text(str(int(time.time()) + 3 * 24 * 60 * 60))'
+          mkdir -p "$RUNNER_TEMP/hig-pages-root"
+          cp website/out/.nojekyll "$RUNNER_TEMP/hig-pages-root/.nojekyll"
+
+      - name: Disable Jekyll at the GitHub Pages root
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: ${{ runner.temp }}/hig-pages-root
+          branch: gh-pages
+          clean: false
+          force: false
 
       - name: Deploy temporary dev preview
         if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
