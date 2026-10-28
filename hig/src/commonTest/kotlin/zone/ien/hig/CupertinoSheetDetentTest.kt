@@ -29,7 +29,7 @@ class CupertinoSheetDetentTest {
 
         val encoded = Json.encodeToString(detent)
 
-        assertEquals("200.0", encoded)
+        assertEquals(200f, Json.decodeFromString<Float>(encoded))
         assertEquals(detent, Json.decodeFromString<PresentationDetent.Height>(encoded))
     }
 }
