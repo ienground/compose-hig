@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { translate } from "@/shared/i18n/messages";
 import { catalog } from "@/features/component";
 import ComponentPage from "@/pages/component";
 
@@ -13,7 +14,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const component = catalog.find((item) => item.id === slug);
-  return { title: component?.name, description: component?.description };
+  return {
+    title: component?.name,
+    description: component ? translate(component.description) : undefined,
+  };
 }
 export default async function Page({
   params,

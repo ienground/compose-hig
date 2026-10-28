@@ -356,9 +356,9 @@ export const catalog: Component[] = [
     "하단 시트를 열고 드래그하거나 버튼으로 닫아 보세요.",
     [text("label", "시트 제목", "하단 시트 열기")],
     (p) =>
-      "val state = rememberCupertinoBottomSheetScaffoldState()\nval scope = rememberCoroutineScope()\nCupertinoBottomSheetScaffold(\n    scaffoldState = state,\n    sheetContent = {\n        CupertinoBottomSheetContent { padding ->\n            Column(Modifier.padding(padding).padding(24.dp)) {\n                CupertinoText(" +
+      "val state = rememberCupertinoBottomSheetScaffoldState()\nval scope = rememberCoroutineScope()\nCupertinoBottomSheetScaffold(\n    colors = CupertinoBottomSheetScaffoldDefaults.colors(containerColor = Color.Transparent),\n    scaffoldState = state,\n    sheetContent = {\n        CupertinoBottomSheetContent { padding ->\n            Column(Modifier.padding(padding).padding(24.dp)) {\n                CupertinoText(" +
       quote(p.label) +
-      ')\n                CupertinoButton(onClick = { scope.launch { state.bottomSheetState.hide() } }) {\n                    CupertinoText("닫기")\n                }\n            }\n        }\n    },\n) { padding ->\n    Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {\n        CupertinoButton(onClick = { scope.launch { state.bottomSheetState.show() } }) {\n            CupertinoText(' +
+      ')\n                CupertinoButton(onClick = { scope.launch { state.bottomSheetState.hide() } }) {\n                    CupertinoText("닫기")\n                }\n            }\n        }\n    },\n) { padding ->\n    Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {\n        Image(painterResource(Res.drawable.glass_landscape), contentDescription = null, modifier = Modifier.matchParentSize().layerBackdrop(backdrop), contentScale = ContentScale.Crop)\n        CupertinoButton(onClick = { scope.launch { state.bottomSheetState.show() } }) {\n            CupertinoText(' +
       quote(p.label) +
       ")\n        }\n    }\n}",
     "CupertinoBottomSheetScaffold.kt",
@@ -456,12 +456,12 @@ export const catalog: Component[] = [
             ? top
             : index === 1
               ? bottom
-              : `CupertinoScaffold(\n    topBar = { ${top} },\n    bottomBar = {\n${bottom
+              : `CupertinoScaffold(\n    containerColor = Color.Transparent,\n    topBar = { ${top} },\n    bottomBar = {\n${bottom
                   .split("\n")
                   .map((line) => "        " + line)
                   .join(
                     "\n",
-                  )}\n    },\n) { padding ->\n    Box(Modifier.fillMaxSize().padding(padding)) {\n        CupertinoText("선택한 탭: $selected")\n    }\n}`,
+                  )}\n    },\n) { padding ->\n    Box(Modifier.fillMaxSize()) {\n        Image(painterResource(Res.drawable.glass_landscape), contentDescription = null, modifier = Modifier.matchParentSize().layerBackdrop(backdrop), contentScale = ContentScale.Crop)\n        CupertinoText("선택한 탭: $selected")\n    }\n}`,
         );
       },
       [
@@ -483,3 +483,13 @@ export const catalog: Component[] = [
     "@sample",
   ),
 ];
+
+export function hasBackdrop(component: Component): boolean {
+  const defaults = Object.fromEntries(
+    component.controls.map((control) => [control.key, control.value]),
+  );
+  return (
+    component.snippet(defaults).includes("backdrop") ||
+    ["alert-dialog", "action-sheet", "bottom-sheet"].includes(component.id)
+  );
+}

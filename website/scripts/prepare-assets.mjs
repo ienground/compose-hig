@@ -23,6 +23,7 @@ await cp(
 );
 await mkdir(new URL("media/", publicRoot), { recursive: true });
 for (const name of [
+  "compose-hig.svg",
   "compose-hig-duo-open.png",
   "compose-hig-duo-closed.png",
   "compose-hig-duo-sheet.png",

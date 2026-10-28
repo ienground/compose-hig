@@ -1,12 +1,29 @@
-import type { Component, Props } from "./catalog";
+import { translate } from "@/shared/i18n/messages";
+import type { CodeBlockLine } from "@/shared/reui/code-block/code-block-highlight";
+import type { IenLanguage } from "@/shared/lib/ien-theme";
+import { hasBackdrop, type Component, type Props } from "./catalog";
+
+export type InitialExamples = Record<
+  IenLanguage,
+  { code: string; lines: CodeBlockLine[] }
+>;
 
 export function createCode(
   component: Component,
   props: Props,
   dark: boolean,
   accent: string,
+  language: IenLanguage = "en",
 ) {
-  const body = component.snippet(props);
+  const source = component.snippet(props);
+  const body =
+    language === "ko"
+      ? source
+      : source.replace(/"((?:\\.|[^"\\])*)"/g, (literal, text: string) => {
+          if (Object.values(props).includes(text)) return literal;
+          const translated = translate(text, language);
+          return translated === text ? literal : JSON.stringify(translated);
+        });
   let imports =
     "import androidx.compose.runtime.*\nimport androidx.compose.foundation.layout.*\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.unit.dp\nimport zone.ien.hig.*\nimport zone.ien.hig.theme.*";
   if (/CupertinoIcons/.test(body))
@@ -22,10 +39,8 @@ export function createCode(
   if (component.id === "swipe-box")
     imports +=
       "\nimport androidx.compose.foundation.rememberScrollState\nimport cupertino.RecentCallsSwipeChapter";
-  const usesBackdrop = body.includes("backdrop");
-  const imageBackground =
-    component.id.startsWith("liquid-") ||
-    component.id === "floating-action-button";
+  const usesBackdrop = hasBackdrop(component);
+  const imageBackground = usesBackdrop;
   if (imageBackground) {
     imports +=
       "\nimport androidx.compose.foundation.Image\nimport androidx.compose.ui.layout.ContentScale\nimport org.jetbrains.compose.resources.painterResource\nimport zone.ien.hig.composeapp.generated.resources.Res\nimport zone.ien.hig.composeapp.generated.resources.glass_landscape";
@@ -52,12 +67,18 @@ export function createCode(
   const background = imageBackground
     ? `Image(painterResource(Res.drawable.glass_landscape), contentDescription = null, modifier = Modifier.matchParentSize().layerBackdrop(backdrop), contentScale = ContentScale.Crop)`
     : `Box(Modifier.matchParentSize().layerBackdrop(backdrop).background(CupertinoTheme.colorScheme.systemGroupedBackground))`;
-  const content = usesBackdrop
+  const previewContent = usesBackdrop
     ? `val backdrop = rememberLayerBackdrop()\nBox(Modifier.fillMaxSize()) {\n    ${background}\n${laidOutBody
         .split("\n")
         .map((line) => "    " + line)
         .join("\n")}\n}`
     : laidOutBody;
+  const content = ["alert-dialog", "action-sheet"].includes(component.id)
+    ? `CupertinoScaffold(containerColor = Color.Transparent, contentWindowInsets = WindowInsets(0)) {\n${previewContent
+        .split("\n")
+        .map((line) => "    " + line)
+        .join("\n")}\n}`
+    : previewContent;
   return `${imports}\n\n@OptIn(ExperimentalCupertinoApi::class)\n@Composable\nfun Example() {\n    CupertinoTheme(colorScheme = ${dark ? "dark" : "light"}ColorScheme(accent = Color(0xFF${color}))) {\n${content
     .split("\n")
     .map((line) => "        " + line)

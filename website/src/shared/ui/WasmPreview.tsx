@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "@/shared/i18n";
 import { wasmPreview } from "@/shared/config/site";
 
 export function WasmPreview({
@@ -15,8 +16,9 @@ export function WasmPreview({
   resetKey?: number;
   title: string;
 }) {
+  const { language } = useTranslation();
   const fragment = new URLSearchParams(
-    Object.entries({ component, ...options }).map(([key, value]) => [
+    Object.entries({ component, ...options, language }).map(([key, value]) => [
       key,
       String(value),
     ]),

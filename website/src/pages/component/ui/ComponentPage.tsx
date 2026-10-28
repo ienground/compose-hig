@@ -1,8 +1,22 @@
+"use client";
+
+import { useTranslation } from "@/shared/i18n";
 import { notFound } from "next/navigation";
-import { catalog, Playground } from "@/features/component";
+import {
+  catalog,
+  Playground,
+  type InitialExamples,
+} from "@/features/component";
 import { repository } from "@/shared/config/site";
 
-export default function ComponentPage({ slug }: { slug: string }) {
+export default function ComponentPage({
+  slug,
+  initialExamples,
+}: {
+  slug: string;
+  initialExamples?: InitialExamples;
+}) {
+  const { t } = useTranslation();
   const component = catalog.find((item) => item.id === slug);
   if (!component) notFound();
   const source =
@@ -12,19 +26,25 @@ export default function ComponentPage({ slug }: { slug: string }) {
   return (
     <>
       <div className="page-heading">
-        <p className="eyebrow">컴포넌트 / {component.group}</p>
+        <p className="eyebrow">
+          {t("컴포넌트")} / {t(component.group)}
+        </p>
         <h1>{component.name}</h1>
-        <p id="description">{component.description}</p>
+        <p id="description">{t(component.description)}</p>
         <a
           id="source-link"
           href={`${repository}/blob/main/${source}`}
           target="_blank"
           rel="noopener noreferrer"
         >
-          {component.api} 소스 보기 ↗
+          {component.api} {t("소스 보기")} ↗
         </a>
       </div>
-      <Playground key={component.id} componentId={component.id} />
+      <Playground
+        key={component.id}
+        componentId={component.id}
+        initialExamples={initialExamples}
+      />
     </>
   );
 }

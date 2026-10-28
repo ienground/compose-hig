@@ -1,6 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "@/shared/i18n";
+import {
+  CodeBlock,
+  CodeBlockHeader,
+  CodeBlockTitle,
+  CodeBlockLanguage,
+  CodeBlockCopyButton,
+} from "@/shared/reui/code-block/code-block";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Input } from "@/shared/ui/input";
@@ -9,11 +17,23 @@ import { Separator } from "@/shared/ui/separator";
 import { Slider } from "@/shared/ui/slider";
 import { SelectField, previewWidths } from "@/shared/ui/SelectField";
 
-import { catalog, type Control, type Props } from "../model/catalog";
+import {
+  catalog,
+  hasBackdrop,
+  type Control,
+  type Props,
+} from "../model/catalog";
 import { WasmPreview } from "@/shared/ui/WasmPreview";
-import { createCode } from "../model/code";
+import { createCode, type InitialExamples } from "../model/code";
 
-export function Playground({ componentId }: { componentId: string }) {
+export function Playground({
+  componentId,
+  initialExamples,
+}: {
+  componentId: string;
+  initialExamples?: InitialExamples;
+}) {
+  const { t, language } = useTranslation();
   const component = catalog.find((item) => item.id === componentId)!;
   const defaults = () =>
     Object.fromEntries(
@@ -25,8 +45,24 @@ export function Playground({ componentId }: { componentId: string }) {
   const [width, setWidth] = useState("390");
   const [resetKey, setResetKey] = useState(0);
   const [status, setStatus] = useState("");
-  const [copied, setCopied] = useState("");
-  const code = createCode(component, props, dark, accent);
+  const localizedProps = Object.fromEntries(
+    Object.entries(props).map(([key, value]) => {
+      const control = component.controls.find((control) => control.key === key);
+      return [
+        key,
+        control?.type === "text" &&
+        value === control.value &&
+        typeof value === "string"
+          ? t(value)
+          : value,
+      ];
+    }),
+  );
+  const widths = previewWidths.map((option) => ({
+    ...option,
+    label: t(option.value === "full" ? "전체 너비" : option.label),
+  }));
+  const code = createCode(component, localizedProps, dark, accent, language);
   const renderControl = (
     control: Control,
     current: Props[string],
@@ -36,7 +72,7 @@ export function Playground({ componentId }: { componentId: string }) {
     return (
       <Label className="control" key={control.key} htmlFor={id}>
         <span>
-          {control.label}
+          {t(control.label)}
           {control.type === "range" && (
             <output className="control-output" htmlFor={id}>
               {current}
@@ -46,7 +82,7 @@ export function Playground({ componentId }: { componentId: string }) {
         {control.type === "select" ? (
           <SelectField
             id={id}
-            label={control.label}
+            label={t(control.label)}
             value={String(current)}
             onValueChange={change}
             options={(control.options ?? []).map((value) => ({
@@ -63,8 +99,8 @@ export function Playground({ componentId }: { componentId: string }) {
         ) : control.type === "range" ? (
           <Slider
             id={id}
-            aria-label={control.label}
-            thumbLabels={[control.label]}
+            aria-label={t(control.label)}
+            thumbLabels={[t(control.label)]}
             value={[Number(current)]}
             min={0}
             max={control.max}
@@ -86,19 +122,19 @@ export function Playground({ componentId }: { componentId: string }) {
     <section aria-label={`${component.name} Playground`}>
       <div className="section-heading">
         <h2>Playground</h2>
-        <span className="tag">실제 Compose · Wasm</span>
+        <span className="tag">{t("실제 Compose · Wasm")}</span>
       </div>
       <div className="playground">
         <div className="preview-column">
           <div className="preview-toolbar">
-            <span className="preview-label">미리보기</span>
+            <span className="preview-label">{t("미리보기")}</span>
             <label>
-              너비
+              {t("너비")}
               <SelectField
-                label="너비"
+                label={t("너비")}
                 value={width}
                 onValueChange={setWidth}
-                options={previewWidths}
+                options={widths}
               />
             </label>
             <Button
@@ -108,33 +144,38 @@ export function Playground({ componentId }: { componentId: string }) {
               onClick={() => {
                 setProps(defaults());
                 setResetKey((key) => key + 1);
-                setStatus("컴포넌트 상태를 초기화했습니다.");
+                setStatus(t("컴포넌트 상태를 초기화했습니다."));
               }}
             >
-              초기화 ↺
+              {t("초기화")} ↺
             </Button>
           </div>
           <div className="preview-stage">
             <WasmPreview
               component={component.id}
-              options={{ ...props, dark, accent }}
+              options={{
+                ...localizedProps,
+                dark,
+                accent,
+                background: hasBackdrop(component) ? "image" : "plain",
+              }}
               width={width}
               resetKey={resetKey}
-              title={`${component.name} 실시간 미리보기`}
+              title={`${component.name} ${t("실시간 미리보기")}`}
             />
           </div>
           <p className="preview-caption">
-            미리보기 안에서 직접 클릭하거나 드래그해 보세요.
+            {t("미리보기 안에서 직접 클릭하거나 드래그해 보세요.")}
           </p>
         </div>
         <form
           id="controls"
-          aria-label="컴포넌트 속성"
+          aria-label={t("컴포넌트 속성")}
           onSubmit={(event) => event.preventDefault()}
         >
-          <h3>속성</h3>
+          <h3>{t("속성")}</h3>
           {component.controls.map((control) =>
-            renderControl(control, props[control.key], (value) =>
+            renderControl(control, localizedProps[control.key], (value) =>
               setProps((previous) => ({ ...previous, [control.key]: value })),
             ),
           )}
@@ -159,40 +200,35 @@ export function Playground({ componentId }: { componentId: string }) {
       </div>
       <section className="code-section" aria-labelledby="code-heading">
         <div className="section-heading">
-          <h2 id="code-heading">사용 예제</h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            type="button"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(code);
-                setCopied(code);
-                setStatus("Kotlin 코드를 복사했습니다.");
-              } catch {
-                setStatus(
-                  "복사하지 못했습니다. 코드 영역에서 직접 선택해 복사하세요.",
-                );
-              }
-            }}
-          >
-            {copied === code ? "복사됨" : "코드 복사"}
-          </Button>
+          <h2 id="code-heading">{t("사용 예제")}</h2>
         </div>
-        <p>현재 Playground 설정에 맞춘 Kotlin 코드입니다.</p>
-        <pre>
-          <code>{code}</code>
-        </pre>
+        <p>{t("현재 Playground 설정에 맞춘 Kotlin 코드입니다.")}</p>
+        <CodeBlock
+          code={code}
+          language="kotlin"
+          lines={
+            initialExamples?.[language].code === code
+              ? initialExamples[language].lines
+              : undefined
+          }
+          showLineNumbers
+        >
+          <CodeBlockHeader>
+            <CodeBlockTitle>Example.kt</CodeBlockTitle>
+            <CodeBlockLanguage />
+            <CodeBlockCopyButton className="ml-auto" />
+          </CodeBlockHeader>
+        </CodeBlock>
         <p className="code-note">
-          예제는 <code>CupertinoTheme</code> 안에서 실행합니다.{" "}
-          <code>backdrop</code>을 사용하는 컴포넌트는 배경 콘텐츠에{" "}
-          <code>layerBackdrop</code>을 연결하세요.
+          {t(
+            "예제는 CupertinoTheme 안에서 실행합니다. backdrop을 사용하는 컴포넌트는 배경 콘텐츠에 layerBackdrop을 연결하세요.",
+          )}
         </p>
-        {(component.id.startsWith("liquid-") ||
-          component.id === "floating-action-button") && (
+        {hasBackdrop(component) && (
           <p className="code-note">
-            배경 이미지는 샘플앱의 <code>glass_landscape</code> 리소스입니다.
-            프로젝트 이미지로 바꿔 사용할 수 있습니다.
+            {t(
+              "배경 이미지는 샘플앱의 glass_landscape 리소스입니다. 프로젝트 이미지로 바꿔 사용할 수 있습니다.",
+            )}
           </p>
         )}
       </section>

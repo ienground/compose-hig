@@ -54,6 +54,7 @@ import zone.ien.hig.CupertinoAlertDialog
 import zone.ien.hig.CupertinoBorderedTextField
 import zone.ien.hig.CupertinoBottomSheetContent
 import zone.ien.hig.CupertinoBottomSheetScaffold
+import zone.ien.hig.CupertinoBottomSheetScaffoldDefaults
 import zone.ien.hig.CupertinoButton
 import zone.ien.hig.CupertinoButtonDefaults
 import zone.ien.hig.CupertinoButtonSize
@@ -102,6 +103,9 @@ private external fun option(key: String): String
 @JsFun("() => { document.getElementById('loading')?.remove(); }")
 private external fun previewReady()
 
+private fun previewText(korean: String, english: String): String =
+    if (option("language") == "ko") korean else english
+
 @Composable
 internal fun ComponentPlayground() {
     var revision by remember { mutableIntStateOf(0) }
@@ -125,7 +129,13 @@ internal fun ComponentPlayground() {
                 colorScheme = if (option("dark") == "true") darkColorScheme(accent = accent)
                 else lightColorScheme(accent = accent),
             ) {
-                PlaygroundPreview(component)
+                if (component == "alert-dialog" || component == "action-sheet") {
+                    CupertinoScaffold(containerColor = Color.Transparent, contentWindowInsets = WindowInsets(0)) {
+                        PlaygroundPreview(component)
+                    }
+                } else {
+                    PlaygroundPreview(component)
+                }
             }
         }
         LaunchedEffect(Unit) { previewReady() }
@@ -135,7 +145,7 @@ internal fun ComponentPlayground() {
 @Composable
 private fun PlaygroundPreview(component: String) {
     val enabled = option("enabled") != "false"
-    val label = option("label").ifEmpty { "계속" }
+    val label = option("label").ifEmpty { previewText("계속", "Continue") }
     val value = option("value").toFloatOrNull()?.coerceIn(0f, 1f) ?: .5f
     val size = CupertinoButtonSize.entries.find { it.name == option("size") } ?: CupertinoButtonSize.Regular
     val backdrop = rememberLayerBackdrop()
@@ -147,7 +157,7 @@ private fun PlaygroundPreview(component: String) {
     var clicks by remember { mutableIntStateOf(0) }
     var visible by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf("") }
-    val imageBackground = component.startsWith("liquid-") || component == "floating-action-button"
+    val imageBackground = option("background") == "image"
     val scroll = rememberScrollState()
     val scope = rememberCoroutineScope()
     val buttonColors = when (option("variant")) {
@@ -161,11 +171,8 @@ private fun PlaygroundPreview(component: String) {
         else -> CupertinoLiquidButtonDefaults.glassProminentButtonColors()
     }
     val screenComponent = component in listOf("scaffold", "top-bar", "navigation-bar", "bottom-sheet")
-    Box(Modifier.fillMaxSize().background(CupertinoTheme.colorScheme.systemGroupedBackground)) {
-        Box(
-            Modifier.matchParentSize().layerBackdrop(backdrop)
-                .background(CupertinoTheme.colorScheme.systemGroupedBackground),
-        ) {
+    val backgroundContent: @Composable (Modifier) -> Unit = { modifier ->
+        Box(modifier.background(CupertinoTheme.colorScheme.systemGroupedBackground)) {
             if (imageBackground) {
                 Image(
                     painter = painterResource(Res.drawable.glass_landscape),
@@ -175,6 +182,11 @@ private fun PlaygroundPreview(component: String) {
                 )
             }
         }
+    }
+    Box(Modifier.fillMaxSize().background(CupertinoTheme.colorScheme.systemGroupedBackground)) {
+        if (!screenComponent) {
+            backgroundContent(Modifier.matchParentSize().layerBackdrop(backdrop))
+        }
         Column(
             Modifier.fillMaxSize().verticalScroll(scroll).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
@@ -183,27 +195,27 @@ private fun PlaygroundPreview(component: String) {
             when (component) {
                 "button" -> {
                     CupertinoButton(onClick = { clicks++ }, enabled = enabled, size = size, colors = buttonColors) { CupertinoText(label) }
-                    CupertinoText("클릭: $clicks")
+                    CupertinoText(previewText("클릭: $clicks", "Clicks: $clicks"))
                 }
                 "liquid-button" -> {
                     CupertinoLiquidButton(onClick = { clicks++ }, enabled = enabled, size = size, colors = liquidColors, backdrop = backdrop) { CupertinoText(label) }
-                    CupertinoText("클릭: $clicks")
+                    CupertinoText(previewText("클릭: $clicks", "Clicks: $clicks"))
                 }
                 "icon-button" -> {
-                    CupertinoIconButton(onClick = { clicks++ }, enabled = enabled) { CupertinoIcon(CupertinoIcons.Filled.Heart, contentDescription = "좋아요") }
-                    CupertinoText("좋아요: $clicks")
+                    CupertinoIconButton(onClick = { clicks++ }, enabled = enabled) { CupertinoIcon(CupertinoIcons.Filled.Heart, contentDescription = previewText("좋아요", "Like")) }
+                    CupertinoText(previewText("좋아요: $clicks", "Likes: $clicks"))
                 }
                 "liquid-icon-button" -> {
-                    CupertinoLiquidIconButton(onClick = { clicks++ }, enabled = enabled, backdrop = backdrop) { CupertinoIcon(CupertinoIcons.Filled.Heart, contentDescription = "좋아요") }
-                    CupertinoText("좋아요: $clicks")
+                    CupertinoLiquidIconButton(onClick = { clicks++ }, enabled = enabled, backdrop = backdrop) { CupertinoIcon(CupertinoIcons.Filled.Heart, contentDescription = previewText("좋아요", "Like")) }
+                    CupertinoText(previewText("좋아요: $clicks", "Likes: $clicks"))
                 }
                 "switch" -> {
                     CupertinoSwitch(checked = checked, onCheckedChange = { checked = it }, enabled = enabled, backdrop = backdrop)
-                    CupertinoText(if (checked) "켜짐" else "꺼짐")
+                    CupertinoText(if (checked) previewText("켜짐", "On") else previewText("꺼짐", "Off"))
                 }
                 "checkbox" -> {
                     CupertinoCheckBox(checked = checked, onCheckedChange = { checked = it }, enabled = enabled)
-                    CupertinoText(if (checked) "선택됨" else "선택 안 됨")
+                    CupertinoText(if (checked) previewText("선택됨", "Checked") else previewText("선택 안 됨", "Unchecked"))
                 }
                 "tri-state-checkbox" -> {
                     val states = listOf(ToggleableState.Indeterminate, ToggleableState.On, ToggleableState.Off)
@@ -212,22 +224,22 @@ private fun PlaygroundPreview(component: String) {
                 }
                 "slider" -> {
                     CupertinoSlider(value = slider, onValueChange = { slider = it }, enabled = enabled, steps = option("steps").toIntOrNull()?.coerceIn(0, 10) ?: 0, backdrop = backdrop)
-                    CupertinoText("값: ${(slider * 100).toInt()}%")
+                    CupertinoText(previewText("값: ${(slider * 100).toInt()}%", "Value: ${(slider * 100).toInt()}%"))
                 }
                 "range-slider" -> {
                     CupertinoRangeSlider(value = range, onValueChange = { range = it }, enabled = enabled, backdrop = backdrop)
-                    CupertinoText("범위: ${(range.start * 100).toInt()}–${(range.endInclusive * 100).toInt()}%")
+                    CupertinoText(previewText("범위: ${(range.start * 100).toInt()}–${(range.endInclusive * 100).toInt()}%", "Range: ${(range.start * 100).toInt()}–${(range.endInclusive * 100).toInt()}%"))
                 }
                 "text-field" -> CupertinoTextField(value = text, onValueChange = { text = it }, enabled = enabled, isError = option("error") == "true", placeholder = { CupertinoText(label) }, singleLine = true)
                 "bordered-text-field" -> CupertinoBorderedTextField(value = text, onValueChange = { text = it }, enabled = enabled, isError = option("error") == "true", placeholder = { CupertinoText(label) }, singleLine = true)
                 "search-field" -> CupertinoSearchTextField(value = text, onValueChange = { text = it }, enabled = enabled, placeholder = { CupertinoText(label) })
                 "segmented-control" -> {
                     CupertinoSegmentedControl(selectedTabIndex = selected, backdrop = backdrop) {
-                        listOf("전체", "즐겨찾기", "최근").forEachIndexed { index, title ->
+                        listOf(previewText("전체", "All"), previewText("즐겨찾기", "Favorites"), previewText("최근", "Recent")).forEachIndexed { index, title ->
                             CupertinoSegmentedControlTab(isSelected = selected == index, onClick = { selected = index }) { CupertinoText(title) }
                         }
                     }
-                    CupertinoText("선택: ${selected + 1}")
+                    CupertinoText(previewText("선택: ${selected + 1}", "Selected: ${selected + 1}"))
                 }
                 "activity-indicator" -> {
                     if (option("determinate") == "true") CupertinoActivityIndicator(progress = value, size = 32.dp)
@@ -236,7 +248,7 @@ private fun PlaygroundPreview(component: String) {
                 "divider" -> {
                     CupertinoText(label)
                     CupertinoHorizontalDivider()
-                    CupertinoText("콘텐츠 사이를 구분합니다.")
+                    CupertinoText(previewText("콘텐츠 사이를 구분합니다.", "Separates content."))
                 }
                 "text" -> CupertinoText(label, style = when (option("style")) {
                     "largeTitle" -> CupertinoTheme.typography.largeTitle
@@ -247,15 +259,15 @@ private fun PlaygroundPreview(component: String) {
                 "icon" -> CupertinoIcon(CupertinoIcons.Filled.Heart, contentDescription = label, modifier = Modifier.size((24 + value * 48).dp), tint = CupertinoTheme.colorScheme.accent)
                 "section" -> ProvideSectionStyle(if (option("grouped") != "false") SectionStyle.InsetGrouped else SectionStyle.Grouped) {
                     CupertinoSection(title = { CupertinoText(label) }) {
-                        SectionItem(trailingContent = { CupertinoSwitch(checked = checked, onCheckedChange = { checked = it }, backdrop = backdrop) }) { CupertinoText("알림") }
-                        SectionLink(onClick = { clicks++ }) { CupertinoText("상세 보기 · $clicks") }
+                        SectionItem(trailingContent = { CupertinoSwitch(checked = checked, onCheckedChange = { checked = it }, backdrop = backdrop) }) { CupertinoText(previewText("알림", "Notifications")) }
+                        SectionLink(onClick = { clicks++ }) { CupertinoText(previewText("상세 보기 · $clicks", "View details · $clicks")) }
                     }
                 }
                 "wheel-picker" -> {
-                    val items = listOf("서울", "부산", "대구", "인천", "광주", "대전", "제주")
+                    val items = listOf(previewText("서울", "Seoul"), previewText("부산", "Busan"), previewText("대구", "Daegu"), previewText("인천", "Incheon"), previewText("광주", "Gwangju"), previewText("대전", "Daejeon"), previewText("제주", "Jeju"))
                     val state = rememberCupertinoPickerState()
                     PickerExample(items, state)
-                    CupertinoText("선택: ${items[state.selectedItemIndex(items.size)]}")
+                    CupertinoText(previewText("선택: ${items[state.selectedItemIndex(items.size)]}", "Selected: ${items[state.selectedItemIndex(items.size)]}"))
                 }
                 "time-picker" -> {
                     val state = rememberCupertinoTimePickerState()
@@ -269,66 +281,74 @@ private fun PlaygroundPreview(component: String) {
                         CupertinoButton(onClick = { visible = true }, enabled = enabled) { CupertinoText(label) }
                         if (component == "dropdown-menu") {
                             CupertinoDropdownMenu(expanded = visible, onDismissRequest = { visible = false }, backdrop = backdrop) {
-                                MenuAction(onClick = { result = "공유"; visible = false }) { CupertinoText("공유") }
+                                MenuAction(onClick = { result = previewText("공유", "Share"); visible = false }) { CupertinoText(previewText("공유", "Share")) }
                                 MenuDivider()
-                                MenuAction(onClick = { result = "삭제"; visible = false }) { CupertinoText("삭제") }
+                                MenuAction(onClick = { result = previewText("삭제", "Delete"); visible = false }) { CupertinoText(previewText("삭제", "Delete")) }
                             }
                         }
                     }
-                    if (component == "action-sheet") CupertinoActionSheet(visible = visible, onDismissRequest = { visible = false }, title = { CupertinoText(label) }, message = { CupertinoText("실행할 작업을 선택하세요.") }) {
-                        default(onClick = { result = "저장"; visible = false }) { CupertinoText("저장") }
-                        destructive(onClick = { result = "삭제"; visible = false }) { CupertinoText("삭제") }
-                        cancel(onClick = { visible = false }) { CupertinoText("취소") }
+                    if (component == "action-sheet") CupertinoActionSheet(visible = visible, onDismissRequest = { visible = false }, title = { CupertinoText(label) }, message = { CupertinoText(previewText("실행할 작업을 선택하세요.", "Choose an action.")) }) {
+                        default(onClick = { result = previewText("저장", "Save"); visible = false }) { CupertinoText(previewText("저장", "Save")) }
+                        destructive(onClick = { result = previewText("삭제", "Delete"); visible = false }) { CupertinoText(previewText("삭제", "Delete")) }
+                        cancel(onClick = { visible = false }) { CupertinoText(previewText("취소", "Cancel")) }
                     }
-                    if (visible && component == "alert-dialog") CupertinoAlertDialog(onDismissRequest = { visible = false }, title = { CupertinoText(label) }, message = { CupertinoText("변경 사항을 저장할까요?") }) {
-                        default(onClick = { result = "저장됨"; visible = false }) { CupertinoText("저장") }
-                        cancel(onClick = { visible = false }) { CupertinoText("취소") }
+                    if (visible && component == "alert-dialog") CupertinoAlertDialog(onDismissRequest = { visible = false }, title = { CupertinoText(label) }, message = { CupertinoText(previewText("변경 사항을 저장할까요?", "Would you like to save your changes?")) }) {
+                        default(onClick = { result = previewText("저장됨", "Saved"); visible = false }) { CupertinoText(previewText("저장", "Save")) }
+                        cancel(onClick = { visible = false }) { CupertinoText(previewText("취소", "Cancel")) }
                     }
-                    if (visible && component == "liquid-alert-dialog") CupertinoLiquidAlertDialog(onDismissRequest = { visible = false }, title = { CupertinoText(label) }, message = { CupertinoText("변경 사항을 저장할까요?") }, backdrop = backdrop) {
-                        default(onClick = { result = "저장됨"; visible = false }) { CupertinoText("저장") }
-                        cancel(onClick = { visible = false }) { CupertinoText("취소") }
+                    if (visible && component == "liquid-alert-dialog") CupertinoLiquidAlertDialog(onDismissRequest = { visible = false }, title = { CupertinoText(label) }, message = { CupertinoText(previewText("변경 사항을 저장할까요?", "Would you like to save your changes?")) }, backdrop = backdrop) {
+                        default(onClick = { result = previewText("저장됨", "Saved"); visible = false }) { CupertinoText(previewText("저장", "Save")) }
+                        cancel(onClick = { visible = false }) { CupertinoText(previewText("취소", "Cancel")) }
                     }
                     CupertinoText(result)
                 }
                 "swipe-box" -> RecentCallsSwipeChapter(scroll)
                 "floating-action-button" -> {
-                    CupertinoSmallFloatingActionButton(onClick = { clicks++ }, backdrop = backdrop) { CupertinoIcon(CupertinoIcons.Filled.Heart, contentDescription = "좋아요") }
-                    CupertinoText("클릭: $clicks")
+                    CupertinoSmallFloatingActionButton(onClick = { clicks++ }, backdrop = backdrop) { CupertinoIcon(CupertinoIcons.Filled.Heart, contentDescription = previewText("좋아요", "Like")) }
+                    CupertinoText(previewText("클릭: $clicks", "Clicks: $clicks"))
                 }
-                else -> if (!screenComponent) CupertinoText("컴포넌트를 찾을 수 없습니다.")
+                else -> if (!screenComponent) CupertinoText(previewText("컴포넌트를 찾을 수 없습니다.", "Component not found."))
             }
         }
         if (screenComponent) {
             val topBar: @Composable () -> Unit = { CupertinoTopAppBar(title = { CupertinoText(label) }, backdrop = backdrop, windowInsets = WindowInsets(0)) }
             val bottomBar: @Composable () -> Unit = {
                 CupertinoNavigationBar(backdrop = backdrop, selectedTabIndex = { selected }, onTabSelected = { selected = it }, tabsCount = 3, windowInsets = WindowInsets(0)) {
-                    listOf("홈", "즐겨찾기", "설정").forEachIndexed { index, title ->
+                    listOf(previewText("홈", "Home"), previewText("즐겨찾기", "Favorites"), previewText("설정", "Settings")).forEachIndexed { index, title ->
                         CupertinoNavigationBarItem(onClick = { selected = index }, icon = { CupertinoIcon(CupertinoIcons.Filled.Heart, contentDescription = null) }, label = { CupertinoText(title) })
                     }
                 }
             }
             if (component == "bottom-sheet") {
                 val state = rememberCupertinoBottomSheetScaffoldState()
-                CupertinoBottomSheetScaffold(scaffoldState = state, sheetContent = {
+                CupertinoBottomSheetScaffold(
+                    scaffoldState = state,
+                    colors = CupertinoBottomSheetScaffoldDefaults.colors(containerColor = Color.Transparent),
+                    sheetContent = {
                     CupertinoBottomSheetContent { padding ->
                         Column(Modifier.fillMaxWidth().padding(padding).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             CupertinoText(label)
-                            CupertinoText("아래로 드래그하거나 버튼으로 닫을 수 있습니다.")
-                            CupertinoButton(onClick = { scope.launch { state.bottomSheetState.hide() } }) { CupertinoText("닫기") }
+                            CupertinoText(previewText("아래로 드래그하거나 버튼으로 닫을 수 있습니다.", "Drag down or use the button to dismiss."))
+                            CupertinoButton(onClick = { scope.launch { state.bottomSheetState.hide() } }) { CupertinoText(previewText("닫기", "Close")) }
                         }
                     }
                 }) { padding ->
-                    Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                        CupertinoButton(onClick = { scope.launch { state.bottomSheetState.show() } }) { CupertinoText(label) }
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        backgroundContent(Modifier.matchParentSize().layerBackdrop(backdrop))
+                        CupertinoButton(modifier = Modifier.padding(padding), onClick = { scope.launch { state.bottomSheetState.show() } }) { CupertinoText(label) }
                     }
                 }
             } else CupertinoScaffold(
+                containerColor = Color.Transparent,
                 topBar = { if (component != "navigation-bar") topBar() },
                 bottomBar = { if (component != "top-bar") bottomBar() },
             ) { padding ->
-                Column(Modifier.fillMaxSize().background(CupertinoTheme.colorScheme.systemGroupedBackground).layerBackdrop(backdrop).padding(padding).padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                    CupertinoText("${listOf("홈", "즐겨찾기", "설정")[selected]}")
-                    CupertinoText("바를 눌러 화면 상태를 변경하세요.")
+                Box(Modifier.fillMaxSize()) {
+                    backgroundContent(Modifier.matchParentSize().layerBackdrop(backdrop))
+                    Column(Modifier.fillMaxSize().padding(padding).padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                        CupertinoText("${listOf(previewText("홈", "Home"), previewText("즐겨찾기", "Favorites"), previewText("설정", "Settings"))[selected]}")
+                        CupertinoText(previewText("바를 눌러 화면 상태를 변경하세요.", "Use the bar to switch screens."))
+                    }
                 }
             }
         }

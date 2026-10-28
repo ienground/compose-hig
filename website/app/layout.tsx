@@ -5,14 +5,15 @@ import "@/app/styles/registry.css";
 import "@/app/styles/index.css";
 
 export const metadata: Metadata = {
+  icons: { icon: "/media/compose-hig.svg" },
   title: { default: "Compose HIG · Playground", template: "%s · Compose HIG" },
   description:
-    "Compose HIG 컴포넌트를 직접 조작하고 Kotlin 코드와 iPhone Duo 샘플을 확인하세요.",
+    "Explore Compose HIG components, Kotlin examples, and the iPhone Duo sample app.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ko">
+    <html lang="en">
       <body>
         <SiteShell>{children}</SiteShell>
       </body>
