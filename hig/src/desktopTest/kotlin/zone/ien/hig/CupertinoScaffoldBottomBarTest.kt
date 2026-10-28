@@ -3,6 +3,8 @@ package zone.ien.hig
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
@@ -24,6 +26,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import zone.ien.hig.theme.CupertinoTheme
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCupertinoApi::class)
@@ -35,15 +38,20 @@ class CupertinoScaffoldBottomBarTest {
     fun nestedScaffoldReservesPhysicalRightInsetOnlyOnceInRtl() = assertNestedRightInset(LayoutDirection.Rtl)
 
     private fun assertNestedRightInset(direction: LayoutDirection) = runComposeUiTest {
+        var nestedTopBarOwnsRightArea = false
         setContent {
             CupertinoTheme {
                 CompositionLocalProvider(LocalLayoutDirection provides direction) {
                     CupertinoScaffold(
                         modifier = Modifier.size(240.dp, 320.dp),
                         contentWindowInsets = WindowInsets(right = 72.dp),
-                    ) { outerPadding ->
+                    ) {
                         CupertinoScaffold(
-                            modifier = Modifier.fillMaxSize().padding(outerPadding),
+                            modifier = Modifier.fillMaxSize(),
+                            topBar = {
+                                nestedTopBarOwnsRightArea = LocalCupertinoRightSystemArea.current
+                                Box(Modifier.fillMaxWidth().height(32.dp).testTag("nested-topbar"))
+                            },
                             contentWindowInsets = WindowInsets(right = 72.dp),
                         ) { innerPadding ->
                             Box(Modifier.fillMaxSize().padding(innerPadding)) {
@@ -54,6 +62,8 @@ class CupertinoScaffoldBottomBarTest {
                 }
             }
         }
+        runOnIdle { assertTrue(nestedTopBarOwnsRightArea) }
+        onNodeWithTag("nested-topbar").assertWidthIsEqualTo(240.dp)
         onNodeWithTag("nested-body").assertWidthIsEqualTo(168.dp)
     }
 

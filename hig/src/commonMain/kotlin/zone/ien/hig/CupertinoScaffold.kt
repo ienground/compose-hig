@@ -108,6 +108,7 @@ import com.kyant.backdrop.effects.runtimeShaderEffect
  *
  * Duo에서는 시스템 예약 영역에 맞춰 버튼과 탭을 세로로 배치합니다.
  * 오른쪽 세로 바가 배치될 때는 주 콘텐츠의 스크롤 방향에 따라 상단 제목과 배경을 숨기거나 표시합니다.
+ * 중첩 스캐폴드는 전체 폭을 유지하고, 가로 인셋은 가장 안쪽 본문에 한 번 적용합니다.
  *
  * @param modifier the [Modifier] to be applied to this scaffold
  * @param topBar top app bar of the screen, typically a [CupertinoTopAppBar]
@@ -365,11 +366,7 @@ fun CupertinoScaffold(
                             }
                         }
                     },
-                    content = { contentPadding ->
-                        CompositionLocalProvider(LocalCupertinoRightSystemArea provides false) {
-                            content(contentPadding)
-                        }
-                    },
+                    content = content,
                     snackbar = snackbarHost,
                     contentWindowInsets = remainingWindowInsets,
                     fab = floatingActionButton,
