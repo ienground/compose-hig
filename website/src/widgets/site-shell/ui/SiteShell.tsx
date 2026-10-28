@@ -10,7 +10,7 @@ import { IenLanguageProvider } from "@/shared/lib/ien-theme-context";
 import { useSiteLanguage } from "@/shared/i18n";
 import { translate } from "@/shared/i18n/messages";
 import { catalog } from "@/features/component";
-import { repository, libraryVersion, author } from "@/shared/config/site";
+import { repository, libraryVersion, author, basePath } from "@/shared/config/site";
 
 export function SiteShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? "/";
@@ -44,7 +44,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
           <Link className="brand" href="/">
             <Image
               className="brand-logo"
-              src="/media/compose-hig.svg"
+              src={`${basePath}/media/compose-hig.svg`}
               width={36}
               height={36}
               alt=""

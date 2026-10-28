@@ -12,6 +12,7 @@ if (!libraryVersion)
 
 const nextConfig: NextConfig = {
   output: "export",
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH ?? "",
   env: { NEXT_PUBLIC_HIG_VERSION: libraryVersion },
   agentRules: false,
   outputFileTracingRoot: process.cwd(),

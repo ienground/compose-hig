@@ -1,14 +1,25 @@
-name: Deploy to GitHub Pages
+name: Validate and deploy GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
 
 jobs:
   deploy:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    concurrency:
+      group: github-pages-publish
+      cancel-in-progress: false
     permissions:
       contents: write
+    env:
+      NEXT_PUBLIC_BASE_PATH: ${{ github.ref == 'refs/heads/dev' && '/preview/dev' || '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +47,58 @@ jobs:
         run: npm --prefix website run build
 
       - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: website/out
           branch: gh-pages
+          clean-exclude: preview
+
+      - name: Set preview expiration
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        run: python3 -c 'import time; from pathlib import Path; Path("website/out/expires-at.txt").write_text(str(int(time.time()) + 3 * 24 * 60 * 60))'
+
+      - name: Deploy temporary dev preview
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: website/out
+          branch: gh-pages
+          target-folder: preview/dev
+
+      - name: Report preview URL
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        run: echo '임시 미리보기 https://hig.ien.zone/preview/dev/ — 마지막 배포 후 3일이 지나면 정리됩니다.' >> "$GITHUB_STEP_SUMMARY"
+
+  cleanup:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: github-pages-publish
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Remove expired dev preview
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          import time
+          from pathlib import Path
+
+          preview = Path('preview/dev')
+          expires = preview / 'expires-at.txt'
+          if expires.is_file() and int(expires.read_text()) <= time.time():
+              subprocess.run(['git', 'rm', '-r', '--', str(preview)], check=True)
+              print('만료된 dev 미리보기를 삭제했습니다.')
+          PY
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'chore: 만료된 dev 미리보기 삭제'
+            git push origin HEAD:gh-pages
+          fi

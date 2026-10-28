@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shared/ui/tabs";
 import { SelectField, previewWidths } from "@/shared/ui/SelectField";
 import Image from "next/image";
 import { WasmPreview } from "@/shared/ui/WasmPreview";
-import { repository } from "@/shared/config/site";
+import { repository, basePath } from "@/shared/config/site";
 
 export default function SamplePage() {
   const { t } = useTranslation();
@@ -67,7 +67,7 @@ export default function SamplePage() {
                 ].map(([name, caption, alt]) => (
                   <figure key={name}>
                     <Image
-                      src={`/media/compose-hig-duo-${name}.png`}
+                      src={`${basePath}/media/compose-hig-duo-${name}.png`}
                       alt={t(alt)}
                       width={1000}
                       height={1000}
@@ -81,18 +81,18 @@ export default function SamplePage() {
                   controls
                   playsInline
                   preload="none"
-                  poster="/media/compose-hig-duo-open.png"
+                  poster={`${basePath}/media/compose-hig-duo-open.png`}
                   aria-label={t("iPhone Duo 샘플앱 시연 영상")}
                 >
                   <source
-                    src="/media/compose-hig-duo-demo.mp4"
+                    src={`${basePath}/media/compose-hig-duo-demo.mp4`}
                     type="video/mp4"
                   />
                   {t("이 브라우저는 영상을 재생하지 못합니다.")}
                 </video>
                 <figcaption>
                   {t("iPhone Duo 시연")} ·{" "}
-                  <a href="/media/compose-hig-duo-demo.mp4">
+                  <a href={`${basePath}/media/compose-hig-duo-demo.mp4`}>
                     {t("영상 파일 열기")} ↗
                   </a>
                 </figcaption>
