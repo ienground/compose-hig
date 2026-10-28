@@ -1,0 +1,35 @@
+1:"$Sreact.fragment"
+2:"static/chunks/877f29a7-f4f78c98ad66cc5a.js"
+3:"static/chunks/4512-205e7f75dea3a164.js"
+4:"static/chunks/2451-fd57e323941729f6.js"
+5:"static/chunks/5772-80f652bf5f5e1f8b.js"
+6:"static/chunks/8500-5a70aa66767247f6.js"
+7:"static/chunks/7193-f06514526beec3dc.js"
+8:"static/chunks/5696-4684021025b99242.js"
+9:"static/chunks/app/layout-b3a301ebe02cfbfc.js"
+a:I[2766,["2140","$2","4512","$3","2451","$4","5772","$5","8500","$6","7193","$7","5696","$8","7177","$9"],"SiteShell"]
+b:I[7121,[],""]
+c:I[4581,[],""]
+10:I[1304,[],"ClientPageRoot"]
+11:"static/chunks/app/sample/page-6e2e3ce6998bd84a.js"
+12:I[1081,["4512","$3","5772","$5","7193","$7","5917","$11"],"default"]
+15:I[484,[],"OutletBoundary"]
+16:"$Sreact.suspense"
+18:"ViewportBoundary"
+19:I[484,[],"$18"]
+1b:"MetadataBoundary"
+1c:I[484,[],"$1b"]
+1e:I[7123,[],"default",1]
+:HL["/_next/static/css/02fe77777aa01d21.css","style"]
+:HL["/_next/static/css/2c68c8fc6f02a1b7.css","style"]
+e:X
+f:[["children",{"s":"__PAGE__","h":512,"d":{"r":["$","$1","c",{"children":[["$","$L10",null,{"Component":"$12","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@13","$@14"]}}],null,["$","$L15",null,{"children":["$","$16",null,{"name":"Next.MetadataOutlet","children":"$@17"}]}]]}],"p":false,"v":null}}]]
+d:[["children",{"s":"sample","h":512,"d":{"r":["$","$1","c",{"children":[null,["$","$Lb",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],"p":false,"v":"$e"},"c":"$Qf"}]]
+0:{"P":null,"c":["","sample",""],"q":"","i":false,"t":{"t":{"s":"","h":528,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/02fe77777aa01d21.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/_next/static/css/2c68c8fc6f02a1b7.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","children":["$","body",null,{"children":["$","$La",null,{"children":["$","$Lb",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]}]]}],"p":false,"v":null},"c":"$Qd"},"h":{"r":["$","$1","h",{"children":[null,["$","$L19",null,{"children":"$L1a"}],["$","$L1c",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$16",null,{"name":"Next.Metadata","children":"$L1d"}]}],null]}],null]}],"p":false,"v":null}},"m":"$undefined","G":["$1e",[]],"S":true,"r":"$undefined","s":"$undefined","a":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"AgeqBCwYjZcWfLlTD6gCZ"}
+e:C
+13:{}
+14:"$f:0:1:d:r:props:children:0:props:serverProvidedParams:params"
+1a:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+1f:I[6869,[],"IconMark"]
+17:null
+1d:[["$","title","0",{"children":"Sample app & iPhone Duo · Compose HIG"}],["$","meta","1",{"name":"description","content":"Explore Compose HIG components, Kotlin examples, and the iPhone Duo sample app."}],["$","link","2",{"rel":"icon","href":"/media/compose-hig.svg"}],["$","$L1f","3",{}]]
