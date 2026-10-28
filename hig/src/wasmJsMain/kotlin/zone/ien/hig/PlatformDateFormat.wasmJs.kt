@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
+
 package zone.ien.hig
 
 import androidx.compose.runtime.Composable

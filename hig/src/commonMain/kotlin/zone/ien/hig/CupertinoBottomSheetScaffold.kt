@@ -473,8 +473,6 @@ private fun StandardBottomSheet(
                             (sheetSize.height - height).coerceAtLeast(0f)
                         }
                         is CupertinoSheetValue.Hidden -> layoutHeight
-
-                        else -> null
                     }
                 }.layout { measurable, constraints ->
                     val viewportHeight = constraints.maxHeight

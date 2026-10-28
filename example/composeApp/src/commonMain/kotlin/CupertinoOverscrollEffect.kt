@@ -27,23 +27,28 @@ import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
-import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.unit.toSize
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlin.coroutines.coroutineContext
@@ -120,8 +125,7 @@ class CupertinoOverscrollEffect(
      * Negative for bottom-right
      * Positive for top-left
      * Zero if within the scrollable range
-     * It will be mapped to the actual visible offset using the rubber banding rule inside
-     * [Modifier.offset] within [effectModifier]
+     * [node] 배치에서 러버 밴딩 규칙을 적용해 실제 표시 위치로 변환한다.
      */
     private var overscrollOffset: Offset by mutableStateOf(Offset.Zero)
 
@@ -136,21 +140,24 @@ class CupertinoOverscrollEffect(
             // this effect is considered to be in progress
             visibleOverscrollOffset.toOffset().getDistance() > 0.5f
 
-    override val effectModifier =
-        Modifier
-            .onPlaced {
-                scrollSize = it.size.toSize()
-            }.clipIfNeeded()
-            .offset {
-                visibleOverscrollOffset
+    override val node: DelegatableNode = object : Modifier.Node(), LayoutModifierNode, DrawModifierNode {
+        override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
+            val placeable = measurable.measure(constraints)
+            scrollSize = Size(placeable.width.toFloat(), placeable.height.toFloat())
+            return layout(placeable.width, placeable.height) {
+                val offset = visibleOverscrollOffset
+                placeable.placeRelativeWithLayer(offset.x, offset.y)
             }
-
-    private fun Modifier.clipIfNeeded(): Modifier =
-        if (applyClip) {
-            clipToBounds() then this
-        } else {
-            this
         }
+
+        override fun ContentDrawScope.draw() {
+            if (applyClip) {
+                clipRect { this@draw.drawContent() }
+            } else {
+                drawContent()
+            }
+        }
+    }
 
     private fun NestedScrollSource.toCupertinoScrollSource(): CupertinoScrollSource? =
         when (this) {
@@ -196,7 +203,7 @@ class CupertinoOverscrollEffect(
 
     /*
      * Returns the amount of scroll delta available after user performed scroll inside overscroll area
-     * It will update [overscroll] resulting in visual change because of [Modifier.offset] depending on it
+     * 오버스크롤 상태를 갱신하면 이를 읽는 [node]의 표시 위치도 바뀐다.
      */
     private fun availableDelta(
         delta: Offset,

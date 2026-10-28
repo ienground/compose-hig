@@ -21,8 +21,10 @@
 package zone.ien.hig
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 
 @Composable
+@ReadOnlyComposable
 internal actual fun defaultLocale(): CalendarLocale = java.util.Locale.getDefault()
 
 internal actual fun currentLocale(): CalendarLocale = java.util.Locale.getDefault()

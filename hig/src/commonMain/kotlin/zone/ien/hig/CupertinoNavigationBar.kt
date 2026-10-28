@@ -966,6 +966,7 @@ private fun CupertinoProminentNavigationBar(
 }
 
 @Composable
+@OptIn(ExperimentalCupertinoApi::class)
 fun RowScope.CupertinoNavigationBarItem(
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
@@ -1081,7 +1082,7 @@ fun RowScope.CupertinoNavigationBarItem(
                 if (navigationBarOptions?.usesManagedLayout == true && isProminent) {
                     Modifier
                         .drawBackdrop(
-                            backdrop = navigationBarOptions?.backdrop ?: rememberLayerBackdrop(),
+                            backdrop = navigationBarOptions.backdrop ?: rememberLayerBackdrop(),
                             shape = { ContinuousCapsule() },
                             effects = {
                                 colorControls(saturation = CupertinoGlassDefaults.saturation)

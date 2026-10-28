@@ -18,7 +18,6 @@
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     id("com.android.kotlin.multiplatform.library")
     id("org.jetbrains.kotlin.multiplatform")
@@ -44,7 +43,7 @@ kotlin {
         }
     }
 
-    androidLibrary {
+    android {
         namespace = "zone.ien.hig${projectName}"
         compileSdk {
             version = release((findProperty("android.compileSdk") as String).toInt()) {
@@ -52,6 +51,9 @@ kotlin {
             }
         }
         minSdk = (findProperty("android.minSdk") as String).toInt()
+        if (project.file("src/commonTest").isDirectory) {
+            withHostTest {}
+        }
         lint {
             targetSdk = (findProperty("android.targetSdk") as String).toInt()
         }
@@ -85,7 +87,7 @@ kotlin {
         }
     }
 
-    js(IR) {
+    js {
         browser {
             testTask {
                 useKarma {
@@ -112,17 +114,17 @@ kotlin {
 
     sourceSets {
 
-        val desktopMain by getting
-        val wasmJsMain by getting
+        val desktopMain = getByName("desktopMain")
+        val wasmJsMain = getByName("wasmJsMain")
 
-        val skikoMain by creating {
+        create("skikoMain") {
             dependsOn(commonMain.get())
             appleMain.get().dependsOn(this)
             desktopMain.dependsOn(this)
             jsMain.get().dependsOn(this)
             wasmJsMain.dependsOn(this)
         }
-        val nonIosMain by creating {
+        create("nonIosMain") {
             dependsOn(commonMain.get())
             macosMain.get().dependsOn(this)
             androidMain.get().dependsOn(this)
@@ -130,7 +132,7 @@ kotlin {
             jsMain.get().dependsOn(this)
             wasmJsMain.dependsOn(this)
         }
-        val nonDarwinMain by creating {
+        create("nonDarwinMain") {
             dependsOn(commonMain.get())
             androidMain.get().dependsOn(this)
             desktopMain.dependsOn(this)
@@ -138,13 +140,13 @@ kotlin {
             wasmJsMain.dependsOn(this)
         }
 
-        val darwinMain by creating {
+        create("darwinMain") {
             dependsOn(commonMain.get())
             iosMain.get().dependsOn(this)
             macosMain.get().dependsOn(this)
         }
 
-        val jvmMain by creating {
+        create("jvmMain") {
             dependsOn(commonMain.get())
             desktopMain.dependsOn(this)
             androidMain.get().dependsOn(this)

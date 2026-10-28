@@ -24,6 +24,7 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.time.DayOfWeek
 import java.time.Instant
+import java.time.Month
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -110,6 +111,7 @@ internal object LegacyDateFormat {
                     set(Calendar.DAY_OF_MONTH, 1)
                     set(Calendar.MONTH, it)
                 }.getDisplayName(Calendar.MONTH, Calendar.LONG_STANDALONE, locale)
+                ?: Month.of(it + 1).getDisplayName(TextStyle.FULL_STANDALONE, locale)
         }
 
     // https://android.googlesource.com/platform/frameworks/base/+/jb-release/core/java/android/text/format/DateFormat.java

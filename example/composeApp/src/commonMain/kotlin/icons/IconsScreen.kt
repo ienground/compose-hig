@@ -32,8 +32,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import zone.ien.hig.adaptive.isAdaptiveListDetailExpanded
@@ -64,6 +62,8 @@ import zone.ien.hig.adaptive.AdaptiveWidget
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.default
 import zone.ien.hig.icons.CupertinoIcons
+import zone.ien.hig.adaptive.icons.KeyboardArrowLeft
+import zone.ien.hig.icons.outlined.ChevronBackward
 import zone.ien.hig.icons.filled.Airtag
 import zone.ien.hig.icons.filled.Alarm
 import zone.ien.hig.icons.filled.Appletv
@@ -493,6 +493,8 @@ import zone.ien.hig.icons.outlined.CheckmarkMessage
 import zone.ien.hig.icons.outlined.CheckmarkSeal
 import zone.ien.hig.icons.outlined.CheckmarkShield
 import zone.ien.hig.icons.outlined.CheckmarkSquare
+import zone.ien.hig.adaptive.icons.AdaptiveIcons
+import zone.ien.hig.adaptive.icons.KeyboardArrowLeft
 import zone.ien.hig.icons.outlined.ChevronBackward
 import zone.ien.hig.icons.outlined.ChevronDown
 import zone.ien.hig.icons.outlined.ChevronForward
@@ -929,7 +931,7 @@ fun IconsScreen(
                                     onClick = navigateBack
                                 ) {
                                     Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        imageVector = AdaptiveIcons.Outlined.KeyboardArrowLeft,
                                         contentDescription = "Back"
                                     )
                                 }

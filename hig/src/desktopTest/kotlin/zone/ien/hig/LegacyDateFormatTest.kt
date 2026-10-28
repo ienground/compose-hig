@@ -31,4 +31,17 @@ class LegacyDateFormatTest {
             assertEquals(expected, LegacyDateFormat.monthsNames(calendar, Locale.US))
         }
     }
+
+    @Test
+    fun monthNamesFallBackWhenCalendarHasNoDisplayName() {
+        val calendar = object : GregorianCalendar(2024, Calendar.JANUARY, 1) {
+            override fun getDisplayName(field: Int, style: Int, locale: Locale): String? = null
+        }
+
+        val names = LegacyDateFormat.monthsNames(calendar, Locale.US)
+
+        assertEquals(12, names.size)
+        assertEquals("January", names.first())
+        assertEquals("December", names.last())
+    }
 }
