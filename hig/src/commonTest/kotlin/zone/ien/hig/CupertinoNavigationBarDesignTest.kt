@@ -23,9 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.theme.LocalColorScheme
+import zone.ien.hig.theme.lightColorScheme
 
-@OptIn(ExperimentalTestApi::class, ExperimentalCupertinoApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalCupertinoApi::class, InternalCupertinoApi::class)
 class CupertinoNavigationBarDesignTest {
     @Test
     fun verticallyCenteredTitleDoesNotQueryAlignmentLines() = runComposeUiTest {
@@ -35,7 +36,7 @@ class CupertinoNavigationBarDesignTest {
             maxOf(first, second)
         }
         setContent {
-            CupertinoTheme {
+            CompositionLocalProvider(LocalColorScheme provides lightColorScheme()) {
                 CupertinoTopAppBar(
                     modifier = Modifier.width(402.dp),
                     title = {
@@ -65,7 +66,7 @@ class CupertinoNavigationBarDesignTest {
     @Test
     fun leadingTitleWithoutButtonsKeepsSixteenPointMargin() = runComposeUiTest {
         setContent {
-            CupertinoTheme {
+            CompositionLocalProvider(LocalColorScheme provides lightColorScheme()) {
                 CupertinoTopAppBar(
                     modifier = Modifier.width(402.dp),
                     title = { Box(Modifier.size(80.dp, 22.dp).testTag("leading-title")) },
@@ -83,7 +84,7 @@ class CupertinoNavigationBarDesignTest {
         var titleStyle = TextStyle.Default
         var subtitleStyle = TextStyle.Default
         setContent {
-            CupertinoTheme {
+            CompositionLocalProvider(LocalColorScheme provides lightColorScheme()) {
                 CupertinoTopAppBar(
                     modifier = Modifier.width(402.dp),
                     windowInsets = WindowInsets(0),
@@ -116,7 +117,7 @@ class CupertinoNavigationBarDesignTest {
     fun horizontalTabPreservesIconSizeWithinReferenceSlot() = runComposeUiTest {
         var labelStyle = TextStyle.Default
         setContent {
-            CupertinoTheme {
+            CompositionLocalProvider(LocalColorScheme provides lightColorScheme()) {
                 Row {
                     CupertinoNavigationBarItem(
                         onClick = {},
@@ -142,7 +143,7 @@ class CupertinoNavigationBarDesignTest {
     @Test
     fun verticalTabKeepsItsCompactIconSize() = runComposeUiTest {
         setContent {
-            CupertinoTheme {
+            CompositionLocalProvider(LocalColorScheme provides lightColorScheme()) {
                 CompositionLocalProvider(
                     LocalCupertinoVerticalBarPlacement provides CupertinoVerticalBarPlacement(
                         width = 72.dp,

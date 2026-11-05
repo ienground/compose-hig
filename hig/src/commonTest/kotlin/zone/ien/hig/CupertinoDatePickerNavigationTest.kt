@@ -1,5 +1,6 @@
 package zone.ien.hig
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHasClickAction
@@ -11,11 +12,11 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Instant
-import zone.ien.hig.theme.CupertinoTheme
+import zone.ien.hig.theme.LocalColorScheme
 import zone.ien.hig.theme.darkColorScheme
 import zone.ien.hig.theme.lightColorScheme
 
-@OptIn(ExperimentalTestApi::class, ExperimentalCupertinoApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalCupertinoApi::class, InternalCupertinoApi::class)
 class CupertinoDatePickerNavigationTest {
     @Test
     fun selectedAndCurrentDaysUseDistinctReferenceColors() = runComposeUiTest {
@@ -23,7 +24,7 @@ class CupertinoDatePickerNavigationTest {
         val schemes = listOf(lightColorScheme(), darkColorScheme())
         setContent {
             schemes.forEach { scheme ->
-                CupertinoTheme(colorScheme = scheme) {
+                CompositionLocalProvider(LocalColorScheme provides scheme) {
                     val colors = CupertinoDatePickerDefaults.pagerColors()
                     val selectedBackground = colors.dayContainerColor(isToday = false, selected = true, enabled = true).value
                     val selectedForeground = colors.dayContentColor(isToday = false, selected = true, inRange = false, enabled = true).value
