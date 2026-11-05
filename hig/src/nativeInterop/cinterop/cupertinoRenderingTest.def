@@ -1,0 +1,46 @@
+language = Objective-C
+compilerOpts = -fobjc-arc
+package = zone.ien.hig.uikit.rendering.test
+---
+#import <QuartzCore/QuartzCore.h>
+#import <IOSurface/IOSurfaceRef.h>
+#import <Metal/Metal.h>
+#import <objc/runtime.h>
+
+@interface CMPDrawable : NSObject
+@property (nonatomic, readonly) IOSurfaceRef surface;
+@property (nonatomic, assign) BOOL isWaitingForCommandBufferCompletion;
+@end
+
+@interface CMPMetalLayer : CALayer
+@property (nonatomic, strong) id<MTLDevice> device;
+@property (nonatomic, assign) CGSize drawableSize;
+@property (nonatomic, readonly) NSInteger drawablesGeneration;
+- (CMPDrawable * _Nullable)nextDrawable;
+- (void)releaseDrawable:(CMPDrawable *)drawable;
+- (void)drainDrawables;
+@end
+
+// UI 없는 테스트 실행기에서는 Metal을 사용할 수 없어 텍스처 할당만 대체한다.
+// 버퍼 풀과 IOSurface 사용 상태는 실제 Compose 및 시스템 구현을 사용한다.
+static inline id HIGAllocateTestTexture(id self, SEL selector, MTLTextureDescriptor *descriptor,
+                                       IOSurfaceRef surface, NSUInteger plane) NS_RETURNS_RETAINED {
+    return [NSObject new];
+}
+
+static inline CMPMetalLayer *HIGCreateTestMetalLayer(void) {
+    CMPMetalLayer *layer = [[CMPMetalLayer alloc] init];
+    if (layer.device == nil) {
+        static Class allocatorClass;
+        static dispatch_once_t once;
+        dispatch_once(&once, ^{
+            allocatorClass = objc_allocateClassPair([NSObject class], "HIGTestTextureAllocator", 0);
+            SEL selector = @selector(newTextureWithDescriptor:iosurface:plane:);
+            const char *types = protocol_getMethodDescription(@protocol(MTLDevice), selector, YES, YES).types;
+            class_addMethod(allocatorClass, selector, (IMP)HIGAllocateTestTexture, types);
+            objc_registerClassPair(allocatorClass);
+        });
+        layer.device = (id<MTLDevice>)[allocatorClass new];
+    }
+    return layer;
+}

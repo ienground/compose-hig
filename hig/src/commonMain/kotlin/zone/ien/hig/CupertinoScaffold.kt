@@ -241,7 +241,11 @@ fun CupertinoScaffold(
     }
     val contentCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
     val hasSoftBottomEdge = LocalScaffoldSoftBottomEdge.current && verticalBarPlacement == null
-    val backgroundBackdrop = rememberLayerBackdrop { drawRect(containerColor) }
+    val sheetBackdrop = LocalCupertinoSheetBackdrop.current.takeIf { containerColor == Color.Transparent }
+    val backgroundBackdrop = rememberLayerBackdrop {
+        drawRect(containerColor)
+        drawContent()
+    }
     val contentBackdrop = rememberLayerBackdrop {
         drawRect(containerColor)
         drawContent()
@@ -303,6 +307,7 @@ fun CupertinoScaffold(
                 ScaffoldLayout(
                     contentBackdrop = contentBackdrop,
                     backgroundBackdrop = backgroundBackdrop,
+                    sheetBackdrop = sheetBackdrop,
                     contentCoordinates = contentCoordinates,
                     topBarHeightLocal = topBarHeight,
                     topBarVisibility = topBarVisibility,
@@ -471,6 +476,7 @@ fun CupertinoScaffold(
 private fun ScaffoldLayout(
     contentBackdrop: LayerBackdrop,
     backgroundBackdrop: LayerBackdrop,
+    sheetBackdrop: LayerBackdrop?,
     contentCoordinates: MutableState<LayoutCoordinates?>,
     appBarsState: AppBarsState,
     topBarHeightLocal: MutableState<Float>,
@@ -723,7 +729,20 @@ private fun ScaffoldLayout(
                                 .onGloballyPositioned { contentCoordinates.value = it },
                     ) {
                         Box(
-                            Modifier.matchParentSize().layerBackdrop(backgroundBackdrop),
+                            Modifier
+                                .matchParentSize()
+                                .layerBackdrop(backgroundBackdrop)
+                                .then(
+                                    if (sheetBackdrop != null) {
+                                        Modifier.drawPlainBackdrop(
+                                            backdrop = sheetBackdrop,
+                                            shape = { RectangleShape },
+                                            effects = {},
+                                        )
+                                    } else {
+                                        Modifier
+                                    },
+                                ),
                         )
                         CompositionLocalProvider(LocalCupertinoBackdrop provides backgroundBackdrop) {
                             content(innerPadding)

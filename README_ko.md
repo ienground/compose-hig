@@ -582,23 +582,26 @@ iOS에서는 `UIAlertController`를 사용하며, 다른 대상에서는 Compose
 
 ### iOS 네이티브 UI 깜빡임
 
-네이티브 메뉴, alert, action sheet를 표시할 때 Compose 콘텐츠가 잠시 사라지면 루트 `ComposeUIViewController`의 병렬 렌더링을 끄세요.
+네이티브 메뉴, alert, action sheet를 표시하는 UIKit 전환 중 Compose 콘텐츠가 깜빡이면, 메인 스레드에서 첫 `ComposeUIViewController`를 만들기 전에 `enableCupertinoParallelRenderingFix()`를 호출하세요.
 
 ```kotlin
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeUIViewController
+import platform.UIKit.UIViewController
+import zone.ien.hig.enableCupertinoParallelRenderingFix
 
-@OptIn(ExperimentalComposeUiApi::class)
-fun MainViewController() = ComposeUIViewController(
-    configure = {
-        parallelRendering = false
-    },
-) {
-    App()
+fun MainViewController(): UIViewController {
+    check(enableCupertinoParallelRenderingFix()) { "Compose 병렬 렌더링 보정을 적용하지 못했습니다" }
+    return ComposeUIViewController {
+        App()
+    }
 }
 ```
 
-여기서 `App()`은 애플리케이션의 루트 컴포저블입니다. 이 설정은 UIKit 표시 전환과 렌더링을 동기화하지만 전용 병렬 렌더링 경로를 비활성화하므로 성능에 영향을 줄 수 있습니다. 깜빡임이 발생할 때 적용하며 모든 통합에 필수인 초기화 설정은 아닙니다.
+여기서 `App()`은 애플리케이션의 루트 컴포저블입니다. 이 라이브러리의 iOS 전용 보정 함수는 Compose 1.12.2의 내부 `CMPMetalLayer` 버퍼 획득 경로에 프로세스 전체 보정을 한 번 적용하며, 반복 호출해도 중복 적용하지 않습니다. 합성 중이거나 GPU 작업이 끝나지 않은 버퍼를 재사용하지 않도록 하면서 병렬 렌더링과 기존 opaque·블러 설정은 유지합니다. 이 보정을 적용할 때는 `parallelRendering = false`를 설정할 필요가 없습니다.
+
+사용 가능한 버퍼를 우선 재사용하고 부족할 때만 최대 5개까지 늘리므로 메모리 사용량이 증가할 수 있습니다. 모든 버퍼가 사용 중이면 렌더링 스레드가 기다리거나 프레임을 건너뛸 수 있으며, 메인 스레드에서는 버퍼가 빌 때까지 기다리지 않습니다. 모든 깜빡임의 해결이나 성능 영향이 없음을 보장하는 설정은 아닙니다.
+
+메인 스레드가 아니거나 Compose 내부 구조가 호환되지 않으면 `false`를 반환하므로 위 예제의 `check`가 실패합니다. Compose 공식 API가 아닌 내부 구현 보정이므로 Compose 버전을 변경할 때 호환성과 보정 필요 여부를 다시 확인하세요. [iOS 예제](example/composeApp/src/iosMain/kotlin/main.ios.kt)를 참고하세요.
 
 <a id="development"></a>
 

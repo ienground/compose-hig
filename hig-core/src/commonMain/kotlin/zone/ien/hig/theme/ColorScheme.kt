@@ -289,7 +289,7 @@ internal object ColorSchemeTokens {
     val lightLink: Color = Color(0xFF007aFF)
     val lightSeparator: Color get() = color(
         accessible = Color(0x1E3C3C43),
-        default = Color(0x1E3C3C43)
+        default = Color.Black.copy(alpha = 0.12f)
     )
     val lightOpaqueSeparator: Color get() = color(
         accessible = Color(0xffc6c6c8),
@@ -312,7 +312,7 @@ internal object ColorSchemeTokens {
     )
     val lightSystemFill: Color get() = color(
         accessible = Color(0x47787880),
-        default = Color(0x33787880)
+        default = Color(0x33787878)
     )
     val lightSecondarySystemFill: Color get() = color(
         accessible = Color(0x3D787880),
@@ -331,7 +331,7 @@ internal object ColorSchemeTokens {
     val darkLabel: Color = Color.White
     val darkSecondaryLabel: Color get() = color(
         accessible = Color(0xb2ebebf5),
-        default = Color(0x99ebebf5)
+        default = Color(0xffebebf5).copy(alpha = 0.7f)
     )
     val darkTertiaryLabel: Color get() = color(
         accessible = Color(0x8cebebf5),
@@ -348,7 +348,7 @@ internal object ColorSchemeTokens {
     )
     val darkSeparator: Color get() = color(
         accessible = Color(0x7F545458),
-        default = Color(0x7F545458)
+        default = Color.White.copy(alpha = 0.17f)
     )
     val darkOpaqueSeparator: Color get() = color(
         accessible = Color(0xff38383a),

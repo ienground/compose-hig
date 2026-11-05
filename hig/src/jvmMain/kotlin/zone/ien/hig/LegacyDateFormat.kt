@@ -71,6 +71,10 @@ internal object LegacyDateFormat {
                         .localizedBy(locale)
                         .format(Instant.ofEpochMilli(utcTimeMillis).atOffset(ZoneOffset.UTC))
                 }
+                CupertinoDatePickerDefaults.MonthWeekdayDaySkeleton -> {
+                    val order = getDateInputFormat(locale).patternWithoutDelimiters.lowercase()
+                    if (order.indexOf('m') < order.indexOf('d')) "EEE MMM d" else "EEE d MMM"
+                }
                 CupertinoDatePickerDefaults.YearMonthSkeleton -> "LLLL yyyy"
                 else -> skeleton
             }

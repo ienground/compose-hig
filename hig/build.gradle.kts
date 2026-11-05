@@ -31,6 +31,12 @@ kotlin {
             compilations.getByName("main").cinterops.create("cupertinoBarPlacement") {
                 definitionFile.set(project.file("src/nativeInterop/cinterop/cupertinoBarPlacement.def"))
             }
+            compilations.getByName("main").cinterops.create("cupertinoRendering") {
+                definitionFile.set(project.file("src/nativeInterop/cinterop/cupertinoRendering.def"))
+            }
+            compilations.getByName("test").cinterops.create("cupertinoRenderingTest") {
+                definitionFile.set(project.file("src/nativeInterop/cinterop/cupertinoRenderingTest.def"))
+            }
         }
     }
     sourceSets {

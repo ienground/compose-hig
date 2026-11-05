@@ -88,7 +88,7 @@ enum class HigMenuOptions {
  * @param width the width of the menu
  * @param scrollState the scroll state for the menu
  * @param properties popup properties for the menu
- * @param backdrop the backdrop for the menu
+ * @param backdrop Compose 대체 구현에서 사용할 배경. 기본값은 가장 가까운 [CupertinoScaffold]의 본문입니다.
  * @param items list of menu items
  * @param sections list of menu sections
  */
@@ -105,7 +105,7 @@ expect fun CupertinoDropdownMenuNative(
     width: Dp = CupertinoDropdownMenuDefaults.DefaultWidth,
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(focusable = true, clippingEnabled = false),
-    backdrop: Backdrop,
+    backdrop: Backdrop = CupertinoDropdownMenuDefaults.rememberBackdrop(),
     items: List<CupertinoMenuItemData> = emptyList(),
     sections: List<CupertinoMenuSectionData> = emptyList(),
 )

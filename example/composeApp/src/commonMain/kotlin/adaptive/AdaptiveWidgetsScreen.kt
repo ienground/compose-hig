@@ -49,6 +49,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.LayoutDirection
@@ -58,7 +60,7 @@ import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoLiquidButtonDefaults
-import zone.ien.hig.CupertinoLiquidIconButton
+import zone.ien.hig.CupertinoNavigateBackLiquidButton
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveAlertDialog
 import zone.ien.hig.adaptive.AdaptiveButton
@@ -92,8 +94,6 @@ import zone.ien.hig.adaptive.icons.Share
 import zone.ien.hig.adaptive.icons.ThumbUp
 import zone.ien.hig.cancel
 import zone.ien.hig.default
-import zone.ien.hig.icons.CupertinoIcons
-import zone.ien.hig.icons.outlined.ChevronBackward
 import zone.ien.hig.rememberCupertinoDatePickerState
 
 @OptIn(
@@ -116,16 +116,12 @@ fun AdaptiveWidgetsScreen(
                     if (!isAdaptiveListDetailExpanded) {
                         AdaptiveWidget(
                             cupertino = {
-                                CupertinoLiquidIconButton(
+                                CupertinoNavigateBackLiquidButton(
                                     onClick = navigateBack,
                                     backdrop = backdrop,
                                     modifier = Modifier.padding(CupertinoTopAppBarDefaults.navigationIconPadding)
-                                ) {
-                                    CupertinoIcon(
-                                        imageVector = CupertinoIcons.Default.ChevronBackward,
-                                        contentDescription = null
-                                    )
-                                }
+                                        .semantics { contentDescription = "Back" },
+                                )
                             },
                             material = {
                                 IconButton(

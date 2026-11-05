@@ -107,6 +107,14 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
         }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+        val desktopTest by getting {
+            dependencies {
+                implementation("org.jetbrains.compose.ui:ui-test:${libs.plugins.compose.multiplatform.get().version}")
+            }
+        }
     }
 
     compilerOptions.freeCompilerArgs.add("-opt-in=kotlin.time.ExperimentalTime")

@@ -396,10 +396,9 @@ fun <T: Any> CupertinoWheelPicker(
     val listHeight = if (withRotation) height * (.4f * PI.toFloat()) else height
     val paddingValues =
         with(LocalDensity.current) {
-            remember(listHeight, state.selectedItemHeight, this) {
-                PaddingValues(
-                    vertical = ((listHeight.toPx() - state.selectedItemHeight).coerceAtLeast(0f) / 2).toDp(),
-                )
+            val itemHeight = state.selectedItemHeight.takeIf { it > 0 } ?: MinItemHeight.roundToPx()
+            remember(listHeight, itemHeight, this) {
+                PaddingValues(vertical = ((listHeight.toPx() - itemHeight).coerceAtLeast(0f) / 2).toDp())
             }
         }
 
@@ -456,18 +455,18 @@ fun <T: Any> CupertinoWheelPicker(
             }
     }
 
-    LaunchedEffect(state.isScrollInProgress) {
-        if (state.isScrollInProgress) {
-            if (!state.changedProgrammatically) state.clearNativeSelection()
-        } else {
-            val selectedIndex =
-                if (state.infinite) {
-                    state.selectedItemIndex
-                } else {
-                    state.selectedItemIndex.modSign(items.size)
-                }
-            state.scrollToItem(selectedIndex)
-            state.changedProgrammatically = false
+    LaunchedEffect(state, items.size) {
+        var wasScrolling = false
+        snapshotFlow { state.isScrollInProgress }.distinctUntilChanged().collect { isScrolling ->
+            if (isScrolling) {
+                if (!state.changedProgrammatically) state.clearNativeSelection()
+            } else if (wasScrolling) {
+                val selectedIndex = if (state.infinite) state.selectedItemIndex
+                    else state.selectedItemIndex.modSign(items.size)
+                state.scrollToItem(selectedIndex)
+                state.changedProgrammatically = false
+            }
+            wasScrolling = isScrolling
         }
     }
 
@@ -586,11 +585,11 @@ fun <T: Any> CupertinoWheelPicker(
                                             curvedLayer.translationY = radius * sin(angle) - itemOffsetFromCenter
                                             curvedLayer.translationX =
                                                 horizontalCurvature.coerceIn(-1f, 1f) *
-                                                    size.width * .12f * abs(sin(angle))
+                                                    size.width * .12f * depth
                                             curvedLayer.scaleX = perspectiveScale
                                             curvedLayer.scaleY = perspectiveScale
                                             curvedLayer.cameraDistance = radius * 8f
-                                            curvedLayer.alpha = .45f
+                                            curvedLayer.alpha = .6f
                                             val selectionTop = (size.height - state.selectedItemHeight) / 2f -
                                                 itemOffsetFromCenter
                                             val selectionBottom = selectionTop + state.selectedItemHeight

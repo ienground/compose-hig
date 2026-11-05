@@ -5,6 +5,7 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -24,6 +26,39 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCupertinoApi::class, ExperimentalTestApi::class)
 class CupertinoButtonIndicationTest {
+    @Test
+    fun labeledButtonSizesMatchDesignMetrics() = runComposeUiTest {
+        setContent {
+            Column {
+                CupertinoButton(
+                    onClick = {},
+                    modifier = Modifier.testTag("small-button"),
+                    size = CupertinoButtonSize.Small,
+                ) {
+                    CupertinoText(text = "Small")
+                }
+                CupertinoButton(
+                    onClick = {},
+                    modifier = Modifier.testTag("medium-button"),
+                    size = CupertinoButtonSize.Regular,
+                ) {
+                    CupertinoText(text = "Medium")
+                }
+                CupertinoButton(
+                    onClick = {},
+                    modifier = Modifier.testTag("large-button"),
+                    size = CupertinoButtonSize.Large,
+                ) {
+                    CupertinoText(text = "Large")
+                }
+            }
+        }
+
+        onNodeWithTag("small-button").assertHeightIsEqualTo(28.dp)
+        onNodeWithTag("medium-button").assertHeightIsEqualTo(34.dp)
+        onNodeWithTag("large-button").assertHeightIsEqualTo(50.dp)
+    }
+
     @Test
     fun filledButtonDrawsItsConfiguredIndicationColorWhilePressed() = runComposeUiTest {
         val interactionSource = MutableInteractionSource()

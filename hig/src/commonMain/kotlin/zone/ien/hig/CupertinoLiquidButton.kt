@@ -8,6 +8,7 @@ import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.interaction.PressInteraction
@@ -45,6 +47,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.drawBackdrop
@@ -106,7 +109,7 @@ fun CupertinoLiquidButton(
     size: CupertinoButtonSize = CupertinoButtonSize.Regular,
     colors: CupertinoLiquidButtonColors = glassButtonColors(),
     shape: Shape = size.shape(CupertinoTheme.shapes),
-    contentPadding: PaddingValues = size.contentPadding,
+    contentPadding: PaddingValues = size.liquidContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     backdrop: Backdrop,
     isBackgroundAdaptive: Boolean = true,
@@ -190,7 +193,7 @@ fun CupertinoLiquidButton(
         }
     }
 
-    Box(
+    BoxWithConstraints(
         modifier = modifier
             .then(if (barControlWidth != null) Modifier.width(barControlWidth) else Modifier)
             .heightIn(min = if (size == CupertinoButtonSize.Small) 32.dp else 44.dp)
@@ -202,10 +205,11 @@ fun CupertinoLiquidButton(
                 onClick = onClick,
             ),
         contentAlignment = Alignment.Center,
-        propagateMinConstraints = barControlWidth != null,
+        propagateMinConstraints = false,
     ) {
         Row(
             modifier = Modifier
+                .widthIn(min = minWidth)
                 .drawWithContent {
                     targetGraphicsLayer.record {
                         this@drawWithContent.drawContent()
@@ -293,7 +297,7 @@ fun CupertinoLiquidButton(
                         Modifier
                     }
                 )
-                .heightIn(min = if (size == CupertinoButtonSize.Small) 32.dp else 44.dp)
+                .heightIn(min = size.liquidMinimumHeight)
                 .padding(contentPadding),
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
@@ -301,7 +305,15 @@ fun CupertinoLiquidButton(
                 CompositionLocalProvider(
                     LocalContentColor provides if (isBackgroundAdaptive) contentColorAnimation.value else contentColor,
                 ) {
-                    ProvideTextStyle(size.textStyle(CupertinoTheme.typography)) {
+                    ProvideTextStyle(
+                        size.textStyle(CupertinoTheme.typography).let { textStyle ->
+                            if (size == CupertinoButtonSize.ExtraLarge) {
+                                textStyle
+                            } else {
+                                textStyle.copy(lineHeight = 18.sp)
+                            }
+                        }
+                    ) {
                         content()
                     }
                 }
@@ -322,6 +334,22 @@ fun CupertinoLiquidButton(
         }
     }
 }
+
+private val CupertinoButtonSize.liquidContentPadding: PaddingValues
+    get() = when (this) {
+        CupertinoButtonSize.Small -> PaddingValues(10.dp, 5.dp)
+        CupertinoButtonSize.Regular -> PaddingValues(12.dp, 8.dp)
+        CupertinoButtonSize.Large -> PaddingValues(20.dp, 16.dp)
+        CupertinoButtonSize.ExtraLarge -> contentPadding
+    }
+
+private val CupertinoButtonSize.liquidMinimumHeight
+    get() = when (this) {
+        CupertinoButtonSize.Small -> 28.dp
+        CupertinoButtonSize.Regular -> 34.dp
+        CupertinoButtonSize.Large -> 50.dp
+        CupertinoButtonSize.ExtraLarge -> 44.dp
+    }
 
 @ExperimentalCupertinoApi
 @Composable

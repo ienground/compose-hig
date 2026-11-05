@@ -8,6 +8,15 @@ import kotlin.test.assertEquals
 
 class LegacyDateFormatTest {
     @Test
+    fun dateTimeWheelSeparatesFieldsAndKeepsLocaleOrder() {
+        val date = java.time.Instant.parse("2026-09-30T00:00:00Z").toEpochMilli()
+        assertEquals("Wed Sep 30", LegacyDateFormat.formatWithSkeleton(
+            date, CupertinoDatePickerDefaults.MonthWeekdayDaySkeleton, Locale.US))
+        assertEquals("Wed 30 Sept", LegacyDateFormat.formatWithSkeleton(
+            date, CupertinoDatePickerDefaults.MonthWeekdayDaySkeleton, Locale.UK))
+    }
+
+    @Test
     fun monthNamesRemainInOrderFromJanuaryThirtyFirstInLeapAndCommonYears() {
         val expected =
             listOf(

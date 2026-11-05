@@ -80,22 +80,22 @@ enum class CupertinoButtonSize(
     Small(
         shape = { CircleShape },
         textStyle = { it.subhead },
-        contentPadding = PaddingValues(12.dp, 6.dp)
+        contentPadding = PaddingValues(10.dp, 4.dp)
     ),
     Regular(
         shape = { ContinuousCapsule() },
-        textStyle = { it.body },
-        contentPadding = PaddingValues(16.dp, 10.dp)
+        textStyle = { it.subhead },
+        contentPadding = PaddingValues(14.dp, 7.dp)
     ),
     Large(
         shape = { ContinuousCapsule() },
         textStyle = { it.body },
-        contentPadding = PaddingValues(24.dp, 18.dp)
+        contentPadding = PaddingValues(20.dp, 14.dp)
     ),
     ExtraLarge(
         shape = { CircleShape },
         textStyle = Large.textStyle,
-        contentPadding = Large.contentPadding
+        contentPadding = PaddingValues(24.dp, 18.dp)
     ),
 }
 
@@ -161,7 +161,7 @@ fun CupertinoButton(
         ProvideTextStyle(value = size.textStyle(CupertinoTheme.typography)) {
             Row(
                 Modifier
-                    .defaultMinSize(24.dp, 24.dp)
+                    .defaultMinSize(minWidth = 24.dp, minHeight = size.minimumHeight)
                     .padding(contentPadding)
                     .graphicsLayer {
                         if (colors.isPlain && enabled) {
@@ -178,6 +178,14 @@ fun CupertinoButton(
         }
     }
 }
+
+private val CupertinoButtonSize.minimumHeight
+    get() = when (this) {
+        CupertinoButtonSize.Small -> 28.dp
+        CupertinoButtonSize.Regular -> 34.dp
+        CupertinoButtonSize.Large -> 50.dp
+        CupertinoButtonSize.ExtraLarge -> 24.dp
+    }
 
 /**
  * Creates a composable icon button with Cupertino styling.

@@ -582,23 +582,26 @@ Sources: [version catalog](gradle/libs.versions.toml), [Gradle properties](gradl
 
 ### iOS Native UI Flickering
 
-If Compose content briefly disappears while presenting a native menu, alert, or action sheet, disable parallel rendering in the root `ComposeUIViewController`:
+If Compose content flickers during a UIKit transition that presents a native menu, alert, or action sheet, call `enableCupertinoParallelRenderingFix()` on the main thread before creating the first `ComposeUIViewController`.
 
 ```kotlin
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeUIViewController
+import platform.UIKit.UIViewController
+import zone.ien.hig.enableCupertinoParallelRenderingFix
 
-@OptIn(ExperimentalComposeUiApi::class)
-fun MainViewController() = ComposeUIViewController(
-    configure = {
-        parallelRendering = false
-    },
-) {
-    App()
+fun MainViewController(): UIViewController {
+    check(enableCupertinoParallelRenderingFix()) { "Compose 병렬 렌더링 보정을 적용하지 못했습니다" }
+    return ComposeUIViewController {
+        App()
+    }
 }
 ```
 
-Here `App()` is your application’s root composable. This workaround synchronizes rendering with UIKit presentation transitions, at the cost of disabling the dedicated parallel rendering path. Apply it when the flickering occurs; it is not required initialization for all integrations.
+Here `App()` is your application’s root composable. This library’s iOS-only fix patches Compose 1.12.2’s internal `CMPMetalLayer` drawable acquisition path once for the entire process; repeated calls do not apply the patch again. It prevents reuse of buffers that are still being composited or have unfinished GPU work while preserving parallel rendering and existing opaque and blur settings. With this fix applied, you do not need to set `parallelRendering = false`.
+
+The fix reuses idle buffers first and grows the pool only when needed, up to five buffers, which can increase memory usage. If all buffers are busy, the rendering thread may wait or skip a frame; the main thread does not wait for a buffer to become idle. This does not guarantee that every source of flickering is resolved or that there is no performance impact.
+
+The function returns `false` when called off the main thread or when Compose’s internal structure is incompatible, causing the example’s `check` to fail. This patches an internal implementation rather than using an official Compose API, so recheck compatibility and whether the fix is still needed whenever you change Compose versions. See the [iOS example](example/composeApp/src/iosMain/kotlin/main.ios.kt).
 
 <a id="development"></a>
 

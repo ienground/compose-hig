@@ -55,10 +55,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import zone.ien.hig.LocalContentColor
 import zone.ien.hig.CupertinoButtonTokens
@@ -507,7 +509,10 @@ fun LazySectionScope.textField(
     dividerPadding = dividerPadding,
     title = {
         ProvideTextStyle(
-            textStyle ?: CupertinoTheme.typography.body,
+            textStyle ?: CupertinoTheme.typography.body.copy(
+                fontWeight = FontWeight.Medium,
+                lineHeight = 20.sp,
+            ),
         ) {
             Box(
                 contentAlignment = Alignment.CenterStart,

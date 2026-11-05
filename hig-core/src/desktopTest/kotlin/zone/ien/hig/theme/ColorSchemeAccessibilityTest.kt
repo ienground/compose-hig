@@ -41,7 +41,7 @@ class ColorSchemeAccessibilityTest {
     fun darkSchemeUsesCurrentHighContrastPreference() {
         try {
             updateHighContrastState(false)
-            assertEquals(Color(0x99EBEBF5), darkColorScheme().secondaryLabel)
+            assertEquals(Color(0xFFEBEBF5).copy(alpha = 0.7f), darkColorScheme().secondaryLabel)
 
             updateHighContrastState(true)
             assertEquals(Color(0xB2EBEBF5), darkColorScheme().secondaryLabel)

@@ -3,9 +3,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -47,9 +44,6 @@ fun App(
     val viewModel: RootViewModel = koinViewModel()
     val uiState = viewModel.uiState
 
-    val theme by derivedStateOf {
-        if (uiState.item.isMaterial) Theme.Material3 else Theme.Cupertino
-    }
     val (lightAccent, darkAccent) = uiState.item.accentColors
     val isDark = uiState.item.isDark
     val direction = LocalLayoutDirection.current
@@ -70,7 +64,7 @@ fun App(
     ) {
 
         GeneratedAdaptiveTheme(
-            target = theme,
+            target = Theme.Cupertino,
             primaryColor = if (isDark) darkAccent else lightAccent,
             useDarkTheme = isDark
         ) {

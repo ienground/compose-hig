@@ -77,7 +77,7 @@ fun HapticFeedbackScreen(navigateBack: () -> Unit) {
                 CupertinoSection(
                     style = SectionStyle.InsetGrouped,
                     title = { CupertinoText("Cupertino") },
-                    caption = { CupertinoText("항목을 눌러 실행합니다. Cupertino 전용 타입은 iOS에서 지원합니다.") },
+                    caption = { CupertinoText("Tap an item to play feedback. Cupertino types are available on iOS.") },
                 ) {
                     cupertinoTypes.forEach { (label, type) ->
                         SectionLink(
@@ -93,7 +93,7 @@ fun HapticFeedbackScreen(navigateBack: () -> Unit) {
                 CupertinoSection(
                     style = SectionStyle.InsetGrouped,
                     title = { CupertinoText("Compose") },
-                    caption = { CupertinoText("기기와 플랫폼의 지원 여부에 따라 진동이 발생하지 않을 수 있습니다.") },
+                    caption = { CupertinoText("Feedback depends on device and platform support.") },
                 ) {
                     HapticFeedbackType.values().forEach { type ->
                         SectionLink(

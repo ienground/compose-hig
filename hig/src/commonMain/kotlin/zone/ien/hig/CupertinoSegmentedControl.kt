@@ -24,6 +24,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
@@ -71,6 +72,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEach
@@ -89,7 +91,6 @@ import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.White
 import zone.ien.hig.theme.isDark
 import zone.ien.hig.utils.DampedDragAnimation
-import zone.ien.hig.utils.CupertinoGlassDefaults
 import zone.ien.hig.utils.InteractiveHighlight
 import zone.ien.hig.utils.rememberDefaultBackdrop
 
@@ -128,13 +129,63 @@ fun CupertinoSegmentedControl(
     },
     tabs: @Composable () -> Unit,
 ) {
+    CupertinoSegmentedControl(
+        selectedTabIndex = selectedTabIndex,
+        size = CupertinoSegmentedControlSize.Large,
+        modifier = modifier,
+        colors = colors,
+        shape = shape,
+        backdrop = backdrop,
+        paddingValues = paddingValues,
+        indicator = indicator,
+        tabs = tabs,
+    )
+}
+
+/**
+ * 선택한 iOS 세그먼트 크기로 컨트롤을 표시합니다.
+ *
+ * @param selectedTabIndex 현재 선택된 탭의 인덱스
+ * @param size 컨트롤 크기
+ * @param modifier 컨트롤에 적용할 Modifier
+ * @param colors 컨트롤 색상
+ * @param shape 컨트롤과 선택 표시의 모양
+ * @param backdrop 배경 효과에 사용할 레이어
+ * @param paddingValues 컨트롤 바깥쪽 여백
+ * @param indicator 선택된 탭 표시 콘텐츠
+ * @param tabs 탭 콘텐츠
+ */
+@Composable
+@ExperimentalCupertinoApi
+fun CupertinoSegmentedControl(
+    selectedTabIndex: Int,
+    size: CupertinoSegmentedControlSize,
+    modifier: Modifier = Modifier,
+    colors: CupertinoSegmentedControlColors = CupertinoSegmentedControlDefaults.colors(),
+    shape: Shape = CupertinoSegmentedControlDefaults.shape,
+    backdrop: LayerBackdrop = rememberDefaultBackdrop(),
+    paddingValues: PaddingValues = CupertinoSegmentedControlDefaults.PaddingValues,
+    indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = @Composable { tabPositions ->
+        CupertinoSegmentedControlIndicator(
+            selectedTabIndex = selectedTabIndex,
+            tabPositions = tabPositions,
+            color = colors.indicatorColor,
+            shape = shape,
+            separatorColor = colors.separatorColor,
+            backdrop = backdrop,
+        )
+    },
+    tabs: @Composable () -> Unit,
+) {
     val registry = remember { SegmentedTabRegistry() }
     val tabCount = registry.tabs.size
     val density = LocalDensity.current
     var controlHeightPx by remember(density) {
-        mutableIntStateOf(with(density) { CupertinoSegmentedControlTokens.MinHeight.roundToPx() })
+        mutableIntStateOf(with(density) { size.height.roundToPx() })
     }
     val controlHeight = with(density) { controlHeightPx.toDp() }
+    val segmentInsetPx = with(density) { CupertinoSegmentedControlTokens.SegmentInset.toPx() }
+    val tabSpacingPx = with(density) { CupertinoSegmentedControlTokens.TabSpacing.toPx() }
     val animationScope = rememberCoroutineScope()
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
     var dragSettlingIndex by remember { mutableStateOf<Int?>(null) }
@@ -168,7 +219,9 @@ fun CupertinoSegmentedControl(
                         if (dragAmount != Offset.Zero) {
                             didDrag.value = true
                         }
-                        val itemStep = size.width.toFloat() / tabCount
+                        val itemWidth =
+                            (size.width - segmentInsetPx * 2f - tabSpacingPx * (tabCount - 1)) / tabCount
+                        val itemStep = itemWidth + tabSpacingPx
                         if (itemStep > 0f) {
                             updateValue(
                                 (
@@ -189,8 +242,11 @@ fun CupertinoSegmentedControl(
                 InteractiveHighlight(
                     animationScope = animationScope,
                     position = { size, _ ->
-                        val itemWidth = size.width / tabCount
-                        val center = itemWidth * (animation.value + 0.5f)
+                        val itemWidth =
+                            (size.width - segmentInsetPx * 2f - tabSpacingPx * (tabCount - 1)) / tabCount
+                        val center =
+                            segmentInsetPx + itemWidth / 2f +
+                                (itemWidth + tabSpacingPx) * animation.value
                         Offset(
                             if (isLtr) center else size.width - center,
                             size.height / 2f,
@@ -219,14 +275,30 @@ fun CupertinoSegmentedControl(
             modifier =
                 modifier
                     .padding(paddingValues)
-                    .heightIn(min = CupertinoSegmentedControlTokens.MinHeight)
+                    .heightIn(min = size.height)
                     .then(interactiveHighlight?.gestureModifier ?: Modifier)
                     .then(dampedDragAnimation?.modifier ?: Modifier),
         ) {
-            val itemWidth = if (tabCount > 0) maxWidth / tabCount else maxWidth
+            val itemWidth =
+                if (tabCount > 0) {
+                    (
+                        maxWidth -
+                            CupertinoSegmentedControlTokens.SegmentInset -
+                            CupertinoSegmentedControlTokens.SegmentInset -
+                            CupertinoSegmentedControlTokens.TabSpacing * (tabCount - 1)
+                    ) / tabCount
+                } else {
+                    maxWidth
+                }
             val tabPositions =
                 if (tabCount > 0) {
-                    List(tabCount) { index -> TabPosition(itemWidth * index, itemWidth) }
+                    List(tabCount) { index ->
+                        TabPosition(
+                            CupertinoSegmentedControlTokens.SegmentInset +
+                                (itemWidth + CupertinoSegmentedControlTokens.TabSpacing) * index,
+                            itemWidth,
+                        )
+                    }
                 } else {
                     emptyList()
                 }
@@ -264,12 +336,18 @@ fun CupertinoSegmentedControl(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .heightIn(min = CupertinoSegmentedControlTokens.MinHeight)
+                            .heightIn(min = size.height)
                             .onSizeChanged { size ->
                                 if (controlHeightPx != size.height) controlHeightPx = size.height
-                            },
+                            }
+                            .padding(CupertinoSegmentedControlTokens.SegmentInset),
+                    horizontalArrangement = Arrangement.spacedBy(CupertinoSegmentedControlTokens.TabSpacing),
                     verticalAlignment = Alignment.CenterVertically,
-                    content = { tabs() },
+                    content = {
+                        CompositionLocalProvider(LocalSegmentedControlHeight provides size.height) {
+                            tabs()
+                        }
+                    },
                 )
             }
         }
@@ -353,7 +431,7 @@ fun CupertinoSegmentedControlIndicator(
                     tabPositions = tabPositions,
                     selectedTabIndex = selectedTabIndex,
                     dragAnimation = sharedDragAnimation,
-                ).padding(CupertinoSegmentedControlTokens.IndicatorPadding)
+                ).padding(vertical = CupertinoSegmentedControlTokens.IndicatorVerticalInset)
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .graphicsLayer {
@@ -455,7 +533,11 @@ fun CupertinoSegmentedControlTab(
         modifier =
             modifier
                 .width(tabWidth)
-                .heightIn(min = CupertinoSegmentedControlTokens.MinHeight)
+                .heightIn(
+                    min = LocalSegmentedControlHeight.current -
+                        CupertinoSegmentedControlTokens.SegmentInset -
+                        CupertinoSegmentedControlTokens.SegmentInset,
+                )
                 .then(
                     if (isOverlay) {
                         Modifier.clearAndSetSemantics {}
@@ -478,13 +560,21 @@ fun CupertinoSegmentedControlTab(
         contentAlignment = Alignment.Center,
     ) {
         ProvideTextStyle(
-            CupertinoTheme.typography.caption1.copy(
-                fontWeight = FontWeight.SemiBold,
+            CupertinoTheme.typography.footnote.copy(
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                 fontStyle = FontStyle.Normal,
                 textAlign = TextAlign.Center,
             ),
-            content = content,
-        )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(CupertinoSegmentedControlTokens.TabContentPadding),
+                contentAlignment = Alignment.Center,
+            ) {
+                content()
+            }
+        }
     }
 }
 
@@ -496,8 +586,16 @@ class CupertinoSegmentedControlColors internal constructor(
 )
 
 internal object CupertinoSegmentedControlTokens {
-    val MinHeight = 44.dp
-    val IndicatorPadding = 4.dp
+    val SegmentInset = 2.dp
+    val TabSpacing = 4.dp
+    val IndicatorVerticalInset = 2.dp
+    val TabContentPadding = PaddingValues(horizontal = 6.dp, vertical = 3.dp)
+}
+
+/** iOS 세그먼트 컨트롤 크기입니다. */
+enum class CupertinoSegmentedControlSize(val height: Dp) {
+    Small(32.dp),
+    Large(50.dp),
 }
 
 @Immutable
@@ -516,7 +614,7 @@ object CupertinoSegmentedControlDefaults {
         containerColor: Color = CupertinoTheme.colorScheme.tertiarySystemFill,
         indicatorColor: Color =
             if (isDark()) {
-                CupertinoGlassDefaults.selection
+                Color.White.copy(alpha = 0.27f)
             } else {
                 CupertinoColors.White
             },
@@ -555,7 +653,11 @@ private fun Modifier.cupertinoTabIndicatorOffset(
                     dragAnimation?.value
                         ?.fastCoerceIn(0f, tabPositions.lastIndex.toFloat())
                         ?: safeSelectedIndex.toFloat()
-                val logicalLeft = currentTabPosition.width.toPx() * index
+                val fromIndex = index.toInt()
+                val fraction = index - fromIndex
+                val fromLeft = tabPositions[fromIndex].left.toPx()
+                val toLeft = tabPositions[(fromIndex + 1).coerceAtMost(tabPositions.lastIndex)].left.toPx()
+                val logicalLeft = fromLeft + (toLeft - fromLeft) * fraction
                 translationX =
                     if (isLtr) {
                         logicalLeft
@@ -608,4 +710,4 @@ private val LocalSegmentedOverlay =
     compositionLocalOf { false }
 
 private val LocalSegmentedControlHeight =
-    compositionLocalOf { CupertinoSegmentedControlTokens.MinHeight }
+    compositionLocalOf { CupertinoSegmentedControlSize.Large.height }

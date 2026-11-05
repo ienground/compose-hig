@@ -45,8 +45,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
-import zone.ien.hig.theme.CupertinoColors
-import zone.ien.hig.theme.Gray
+import zone.ien.hig.theme.CupertinoTheme
 import kotlin.math.roundToInt
 
 /**
@@ -67,8 +66,8 @@ import kotlin.math.roundToInt
 @ExperimentalCupertinoApi
 fun CupertinoActivityIndicator(
     modifier: Modifier = Modifier,
-    size: Dp = CupertinoActivityIndicatorDefaults.MinSize,
-    color: Color = CupertinoColors.Gray,
+    size: Dp = CupertinoActivityIndicatorDefaults.RegularSize,
+    color: Color = CupertinoActivityIndicatorDefaults.color,
     count: Int = CupertinoActivityIndicatorDefaults.PathCount,
     innerRadius: Float = 1 / 3f,
     strokeWidth: Dp = Dp.Unspecified,
@@ -97,12 +96,7 @@ fun CupertinoActivityIndicator(
         animationSpec = animationSpec,
     )
 
-    Canvas(
-        modifier =
-            modifier
-                .progressSemantics()
-                .size(size),
-    ) {
+    Canvas(modifier = modifier.progressSemantics().size(size)) {
         val canvasSize = this.size
 
         var canvasWidth = canvasSize.width
@@ -182,8 +176,8 @@ fun CupertinoActivityIndicator(
 fun CupertinoActivityIndicator(
     modifier: Modifier = Modifier,
     progress: Float = 1f,
-    size: Dp = CupertinoActivityIndicatorDefaults.MinSize,
-    color: Color = CupertinoColors.Gray,
+    size: Dp = CupertinoActivityIndicatorDefaults.RegularSize,
+    color: Color = CupertinoActivityIndicatorDefaults.color,
     count: Int = CupertinoActivityIndicatorDefaults.PathCount,
     innerRadius: Float = 1 / 3f,
     strokeWidth: Dp = Dp.Unspecified,
@@ -225,14 +219,13 @@ fun CupertinoActivityIndicator(
     )
 
     Canvas(
-        modifier =
-            modifier
-                .graphicsLayer {
-                    rotationZ = if (progress == 1f) rotation else StartRotation
-                }
+        modifier = modifier
+            .graphicsLayer {
+                rotationZ = if (progress == 1f) rotation else StartRotation
+            }
 //            .rotate(-90f)
-                .progressSemantics()
-                .size(size),
+            .progressSemantics()
+            .size(size),
     ) {
         val canvasSize = this.size
 
@@ -323,6 +316,12 @@ object CupertinoActivityIndicatorDefaults {
 
     val MinSize = 30.dp
 
+    val SmallSize = 14.dp
+
+    val RegularSize = 20.dp
+
+    val LargeSize = 35.dp
+
     const val PathCount: Int = 8
 
     const val DurationMillis: Int = 1000
@@ -330,7 +329,7 @@ object CupertinoActivityIndicatorDefaults {
     val color: Color
         @Composable
         @ReadOnlyComposable
-        get() = CupertinoColors.Gray
+        get() = CupertinoTheme.colorScheme.secondaryLabel
 }
 
 private const val StartRotation = -88f

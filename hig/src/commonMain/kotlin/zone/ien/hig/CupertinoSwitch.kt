@@ -125,7 +125,9 @@ fun CupertinoSwitch(
 
     val density = LocalDensity.current
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
-    val dragWidth = with(density) { 20.dp.toPx() }
+    val dragWidth = with(density) {
+        (CupertinoSwitchDefaults.Width - ThumbWidth - ThumbPadding - ThumbPadding).toPx()
+    }
     val animationScope = rememberCoroutineScope()
     var didDrag by remember { mutableStateOf(false) }
     var fraction by remember { mutableFloatStateOf(if (updatedChecked) 1f else 0f) }
@@ -218,7 +220,7 @@ fun CupertinoSwitch(
                     val fraction = dampedDragAnimation.value
                     drawRect(lerp(uncheckedTrackColor, checkedTrackColor, fraction))
                 }
-                .size(64.dp, 28.dp)
+                .size(CupertinoSwitchDefaults.Width, CupertinoSwitchDefaults.Height)
         )
 
         Box(
@@ -278,8 +280,9 @@ fun CupertinoSwitch(
                         )
                     },
                     layerBlock = {
-                        scaleX = dampedDragAnimation.scaleX
-                        scaleY = dampedDragAnimation.scaleY
+                        val progress = dampedDragAnimation.pressProgress
+                        scaleX = dampedDragAnimation.scaleX * lerp(1f, 58f / 57f, progress)
+                        scaleY = dampedDragAnimation.scaleY * lerp(1f, 38f / 36f, progress)
                         val velocity = dampedDragAnimation.velocity / 50f
                         scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
                         scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
@@ -290,7 +293,7 @@ fun CupertinoSwitch(
                         drawRect(thumbColor.copy(alpha = thumbColor.alpha * (1f - progress)))
                     }
                 )
-                .size(40.dp, 24.dp)
+                .size(ThumbWidth, CupertinoSwitchThumbHeight)
         ) {
             CompositionLocalProvider(
                 LocalContentColor provides colors.iconColor(enabled, checked).value,
@@ -410,9 +413,9 @@ class CupertinoSwitchColors internal constructor(
 object CupertinoSwitchDefaults {
     internal val EnabledThumbElevation = 4.dp
 
-    val Width: Dp = 51.dp
+    val Width: Dp = 64.dp
 
-    val Height: Dp = 31.dp
+    val Height: Dp = 28.dp
 
     internal val Shape: CornerBasedShape = CircleShape
 
@@ -448,6 +451,8 @@ object CupertinoSwitchDefaults {
 }
 
 private val ThumbPadding = 2.dp
+private val ThumbWidth = 38.dp
+private val CupertinoSwitchThumbHeight = 24.dp
 
 private val AspectRationAnimationSpec = cupertinoTween<Float>(durationMillis = 300)
 private val ColorAnimationSpec = cupertinoTween<Color>(durationMillis = 300)

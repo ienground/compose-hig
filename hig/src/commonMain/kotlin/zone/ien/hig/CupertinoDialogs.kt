@@ -52,6 +52,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -355,7 +356,7 @@ private fun CupertinoDialogPanel(
                         message?.let {
                             ProvideTextStyle(
                                 CupertinoTheme.typography.body.copy(
-                                    color = CupertinoTheme.colorScheme.secondaryLabel,
+                                    color = CupertinoTheme.colorScheme.label,
                                     textAlign = TextAlign.Start,
                                     fontWeight = FontWeight.Normal,
                                 ),
@@ -435,24 +436,18 @@ fun CupertinoActionSheet(
                                                         CupertinoDialogsTokens.ActionSheetTitlePaddingValues
                                                     },
                                             ),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    horizontalAlignment = Alignment.Start,
                                     verticalArrangement =
                                         Arrangement
                                             .spacedBy(CupertinoDialogsTokens.ActionSheetTitleMessageSpacing),
                                 ) {
                                     CompositionLocalProvider(
-                                        LocalContentColor provides CupertinoTheme.colorScheme.secondaryLabel,
+                                        LocalContentColor provides CupertinoTheme.colorScheme.label,
                                     ) {
                                         if (title != null) {
                                             ProvideTextStyle(
-                                                CupertinoTheme.typography.footnote.copy(
-                                                    fontWeight =
-                                                        if (message != null) {
-                                                            FontWeight.SemiBold
-                                                        } else {
-                                                            FontWeight.Normal
-                                                        },
-                                                    textAlign = TextAlign.Center,
+                                                CupertinoTheme.typography.headline.copy(
+                                                    textAlign = TextAlign.Start,
                                                 ),
                                             ) {
                                                 title()
@@ -460,8 +455,8 @@ fun CupertinoActionSheet(
                                         }
                                         if (message != null) {
                                             ProvideTextStyle(
-                                                CupertinoTheme.typography.footnote.copy(
-                                                    textAlign = TextAlign.Center,
+                                                CupertinoTheme.typography.body.copy(
+                                                    textAlign = TextAlign.Start,
                                                     fontWeight = FontWeight.Normal,
                                                 ),
                                             ) {
@@ -518,7 +513,7 @@ object CupertinoDialogsDefaults {
     val Shape: ContinuousRoundedRectangle
         @Composable
         @ReadOnlyComposable
-        get() = ContinuousRoundedRectangle(28.dp)
+        get() = ContinuousRoundedRectangle(34.dp)
 
     val AlertShape: ContinuousRoundedRectangle
         @Composable
@@ -820,7 +815,7 @@ internal class CupertinoAlertDialogButtonsScopeImpl(
                 if (isPrimary && style == AlertActionStyle.Default) {
                     accent
                 } else {
-                    colorScheme.tertiarySystemFill
+                    colorScheme.secondarySystemFill
                 }
             val buttonContentColor =
                 when {
@@ -865,7 +860,7 @@ internal class CupertinoAlertDialogButtonsScopeImpl(
                                 scaleX = scale
                                 scaleY = scale
                             }
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         val s =
@@ -1031,6 +1026,7 @@ private class CupertinoActionSheetImpl(
                         animationSpec = tween(100),
                     )
                     val selection = CupertinoGlassDefaults.selection
+                    val actionBackground = CupertinoTheme.colorScheme.secondarySystemFill
                     Box(
                         modifier =
                             Modifier
@@ -1043,12 +1039,6 @@ private class CupertinoActionSheetImpl(
                                             CupertinoDialogsTokens.ActionSheetButtonHeight
                                         },
                                 )
-                                .drawWithContent {
-                                    if (highlightAlpha > 0f) {
-                                        drawRect(selection.copy(alpha = selection.alpha * highlightAlpha))
-                                    }
-                                    drawContent()
-                                }
                                 .clickable(
                                     enabled = enabled,
                                     interactionSource = interactionSource,
@@ -1059,35 +1049,53 @@ private class CupertinoActionSheetImpl(
                         contentAlignment = Alignment.Center,
                         content = {
                             Box(
-                                Modifier.graphicsLayer {
-                                    scaleX = scale
-                                    scaleY = scale
-                                },
-                            ) {
-                                val s =
-                                    style.apply(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = if (pickerToolbarActive) CupertinoDialogsTokens.PickerActionHeight
+                                        else CupertinoDialogsTokens.ActionSheetButtonHeight)
+                                    .then(
                                         if (pickerToolbarActive) {
-                                            CupertinoTheme.typography.body
+                                            Modifier
                                         } else {
-                                            CupertinoTheme.typography.title3
+                                            Modifier
+                                                .clip(CircleShape)
+                                                .background(actionBackground)
                                         },
-                                        isDark(),
                                     )
+                                    .drawWithContent {
+                                        drawContent()
+                                        if (!pickerToolbarActive && highlightAlpha > 0f) {
+                                            drawRect(selection.copy(alpha = selection.alpha * highlightAlpha))
+                                        }
+                                    }
+                                    .graphicsLayer {
+                                        scaleX = scale
+                                        scaleY = scale
+                                    }
+                                    .then(
+                                        if (pickerToolbarActive) Modifier else Modifier.padding(horizontal = 16.dp),
+                                    ),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                val color = when {
+                                    !enabled -> CupertinoTheme.colorScheme.tertiaryLabel
+                                    pickerToolbarActive && style == AlertActionStyle.Cancel ->
+                                        CupertinoTheme.colorScheme.label
+                                    pickerToolbarActive ->
+                                        style.apply(CupertinoTheme.typography.body, isDark()).color
+                                    style == AlertActionStyle.Destructive -> CupertinoColors.systemRed(isDark())
+                                    else -> CupertinoTheme.colorScheme.label
+                                }
                                 ProvideTextStyle(
-                                    s.copy(
+                                    CupertinoTheme.typography.body.copy(
                                         fontWeight =
-                                            when {
-                                                pickerToolbarActive && style == AlertActionStyle.Cancel -> FontWeight.Normal
-                                                style == AlertActionStyle.Cancel -> FontWeight.SemiBold
-                                                else -> FontWeight.Normal
+                                            if (pickerToolbarActive && style == AlertActionStyle.Cancel) {
+                                                FontWeight.Normal
+                                            } else {
+                                                FontWeight.SemiBold
                                             },
-                                        color =
-                                            when {
-                                                !enabled -> CupertinoTheme.colorScheme.tertiaryLabel
-                                                pickerToolbarActive && style == AlertActionStyle.Cancel ->
-                                                    CupertinoTheme.colorScheme.label
-                                                else -> s.color
-                                            },
+                                        color = color,
+                                        textAlign = TextAlign.Center,
                                     ),
                                 ) {
                                     CompositionLocalProvider(
@@ -1123,7 +1131,7 @@ private class CupertinoActionSheetImpl(
             if (pickerToolbarActive) {
                 CupertinoDialogsTokens.PickerSheetInset
             } else {
-                CupertinoDialogsTokens.ActionSheetSidePadding
+                0.dp
             }
         val actionSheetInsets =
             if (pickerToolbarActive) {
@@ -1139,6 +1147,8 @@ private class CupertinoActionSheetImpl(
             Column(
                 modifier =
                     Modifier
+                        .widthIn(max = if (pickerToolbarActive) CupertinoDialogsTokens.ActionSheetMaxWidth
+                            else CupertinoDialogsTokens.ActionSheetPanelMaxWidth)
                         .windowInsetsPadding(actionSheetInsets),
             ) {
                 CupertinoSurface(
@@ -1147,8 +1157,16 @@ private class CupertinoActionSheetImpl(
                             .padding(
                                 start = surfaceInset,
                                 end = surfaceInset,
-                                top = CupertinoDialogsTokens.ActionSheetSidePadding,
+                                top = if (pickerToolbarActive) CupertinoDialogsTokens.PickerSheetTopInset else 0.dp,
                             )
+                            .widthIn(
+                                max = if (pickerToolbarActive) {
+                                    CupertinoDialogsTokens.ActionSheetMaxWidth
+                                } else {
+                                    CupertinoDialogsTokens.ActionSheetPanelMaxWidth
+                                },
+                            )
+                            .fillMaxWidth()
                             .then(
                                 if (backdrop != null) {
                                     Modifier.drawBackdrop(
@@ -1174,7 +1192,17 @@ private class CupertinoActionSheetImpl(
                     Column(
                         modifier =
                             Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .then(
+                                    if (pickerToolbarActive) {
+                                        Modifier
+                                    } else {
+                                        Modifier.padding(
+                                            horizontal = CupertinoDialogsTokens.ActionSheetSidePadding,
+                                            vertical = CupertinoDialogsTokens.ActionSheetSidePadding,
+                                        )
+                                    },
+                                ),
                     ) {
                         if (pickerToolbarActive) {
                             val cancelAction = buttons.first { it.first == AlertActionStyle.Cancel }
@@ -1238,8 +1266,8 @@ private class CupertinoActionSheetImpl(
                             buttons
                                 .filter { it.first != AlertActionStyle.Cancel }
                                 .fastForEachIndexed { i, btn ->
-                                    if (i > 0 || hasTitle) {
-                                        CupertinoHorizontalDivider()
+                                    if (i > 0) {
+                                        Spacer(Modifier.height(CupertinoDialogsTokens.ActionSheetButtonSpacing))
                                     }
                                     btn.second()
                                 }
@@ -1255,9 +1283,7 @@ private class CupertinoActionSheetImpl(
                                 modifier =
                                     Modifier
                                         .padding(
-                                            start = CupertinoDialogsTokens.ActionSheetSidePadding,
-                                            end = CupertinoDialogsTokens.ActionSheetSidePadding,
-                                            top = CupertinoDialogsTokens.ActionSheetSidePadding,
+                                            top = CupertinoDialogsTokens.ActionSheetButtonSpacing,
                                         )
                                         .then(
                                             if (backdrop != null) {
@@ -1312,25 +1338,28 @@ internal object CupertinoDialogsTokens {
     val AlertDialogButtonHeight: Dp = 48.dp
     val AlertDialogButtonSpacing: Dp = 8.dp
 
-    val ActionSheetTitlePaddingValues = PaddingValues(12.dp)
+    val ActionSheetTitlePaddingValues = PaddingValues(8.dp)
 
     val ActionSheetTitleAndMessagePaddingValues =
         PaddingValues(
-            top = 12.dp,
-            start = 12.dp,
-            end = 12.dp,
+            top = 8.dp,
+            start = 8.dp,
+            end = 8.dp,
             bottom = 24.dp,
         )
 
     val ActionSheetMaxWidth: Dp = 500.dp
-    val ActionSheetSidePadding = 8.dp
+    val ActionSheetPanelMaxWidth: Dp = 300.dp
+    val ActionSheetSidePadding = 14.dp
     val PickerSheetInset = 14.dp
     val PickerSheetBottomInset = 12.dp
+    val PickerSheetTopInset = 8.dp
     val PickerSheetShape = ContinuousRoundedRectangle(34.dp)
-    val ActionSheetButtonHeight: Dp = 56.dp
+    val ActionSheetButtonHeight: Dp = 48.dp
+    val ActionSheetButtonSpacing: Dp = 8.dp
     val PickerActionHeight: Dp = 44.dp
     val PickerToolbarHeight: Dp = 60.dp
-    val ActionSheetTitleMessageSpacing: Dp = 6.dp
+    val ActionSheetTitleMessageSpacing: Dp = 10.dp
     val ActionSheetWindowInsets: WindowInsets
         @Composable
         get() =

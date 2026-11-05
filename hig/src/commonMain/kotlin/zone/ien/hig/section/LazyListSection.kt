@@ -341,7 +341,6 @@ private fun LazyListScope.itemsAndCaption(
                 exitTransition = exitTransition,
             ) {
                 SectionCaption(
-                    lazy = true,
                     style = resolvedStyle(),
                     content = {
                         caption()
