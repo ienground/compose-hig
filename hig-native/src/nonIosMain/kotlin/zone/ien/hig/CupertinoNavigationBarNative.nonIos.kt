@@ -1,8 +1,6 @@
 package zone.ien.hig
 
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.kyant.backdrop.backdrops.LayerBackdrop
@@ -31,7 +29,7 @@ actual fun CupertinoNavigationBarNative(
             CupertinoNavigationBarItem(
                 onClick = item.onClick,
                 icon = {
-                    Icon(
+                    CupertinoIcon(
                         painter =
                             if (index == selectedTabIndex() && item.selectedIcon != null) item.selectedIcon
                             else item.icon
@@ -39,7 +37,7 @@ actual fun CupertinoNavigationBarNative(
                         contentDescription = item.label,
                     )
                 },
-                label = { Text(text = item.label) },
+                label = { CupertinoText(text = item.label) },
             )
         }
     }

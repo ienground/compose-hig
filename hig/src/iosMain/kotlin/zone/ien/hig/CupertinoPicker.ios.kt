@@ -18,4 +18,15 @@
 
 
 
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+
 package zone.ien.hig
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import platform.AudioToolbox.AudioServicesPlaySystemSound
+
+@Composable
+internal actual fun rememberPlatformPickerTickSound(): () -> Unit = remember {
+    { AudioServicesPlaySystemSound(1157u) }
+}

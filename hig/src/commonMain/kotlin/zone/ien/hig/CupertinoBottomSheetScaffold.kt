@@ -60,6 +60,7 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.expand
@@ -72,7 +73,6 @@ import androidx.compose.ui.util.fastMap
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.capsule.ContinuousRoundedRectangle
@@ -80,6 +80,7 @@ import zone.ien.hig.theme.CupertinoColors
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.CupertinoGlassDefaults
 import zone.ien.hig.utils.LocalCupertinoBackdrop
+import zone.ien.hig.utils.cupertinoGlassEffects
 import zone.ien.hig.utils.glassEdge
 import kotlinx.coroutines.launch
 import kotlin.math.max
@@ -404,18 +405,24 @@ private fun StandardBottomSheet(
         }
     val insetProgress = 1f - expansionProgress
     val horizontalInset = SheetHorizontalInset * insetProgress
+    val viewportWidth = with(LocalDensity.current) {
+        LocalWindowInfo.current.containerSize.width.toDp()
+    }
+    val sheetCornerRadius =
+        if (viewportWidth >= 600.dp) SheetTabletCornerRadius else SheetPhoneCornerRadius
     val sheetVisualShape =
         if (shape == CupertinoBottomSheetDefaults.shape) {
             ContinuousRoundedRectangle(
-                topStart = SheetCornerRadius,
-                topEnd = SheetCornerRadius,
-                bottomEnd = SheetCornerRadius * insetProgress,
-                bottomStart = SheetCornerRadius * insetProgress,
+                topStart = sheetCornerRadius,
+                topEnd = sheetCornerRadius,
+                bottomEnd = sheetCornerRadius * insetProgress,
+                bottomStart = sheetCornerRadius * insetProgress,
             )
         } else {
             shape
         }
     val blurRadius = CupertinoGlassDefaults.blurRadius
+    val sheetBackdrop = rememberLayerBackdrop()
 
     CupertinoSurface(
         modifier =
@@ -490,15 +497,7 @@ private fun StandardBottomSheet(
                 .graphicsLayer {
                     translationY = -SheetBottomInset.toPx() * insetProgress * hiddenVisibilityProgress
                 }
-                .drawBackdrop(
-                    backdrop = backdrop,
-                    shape = { sheetVisualShape },
-                    effects = {
-                        blur(blurRadius.toPx())
-                    },
-                    highlight = { Highlight.Default.copy(alpha = 0.35f) },
-                    onDrawSurface = { drawRect(containerColor) },
-                ).glassEdge(sheetVisualShape, softShadow = true)
+                .glassEdge(sheetVisualShape, softShadow = true)
                 .requiredHeightIn(min = peekHeight)
                 .nestedScroll(
                     remember(state.swipeableState) {
@@ -527,10 +526,29 @@ private fun StandardBottomSheet(
         Box(
             Modifier.fillMaxWidth(),
         ) {
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .layerBackdrop(sheetBackdrop)
+                    .drawBackdrop(
+                        backdrop = backdrop,
+                        shape = { sheetVisualShape },
+                        effects = {
+                            cupertinoGlassEffects(
+                                blurRadius.toPx(),
+                                CupertinoGlassDefaults.refractionHeight.toPx(),
+                                CupertinoGlassDefaults.refractionAmount.toPx(),
+                            )
+                        },
+                        highlight = { Highlight.Default.copy(alpha = 0.35f) },
+                        onDrawSurface = { drawRect(containerColor) },
+                    ),
+            )
             CompositionLocalProvider(
                 LocalContainerColor provides containerColor,
                 LocalContentColor provides contentColor,
                 LocalCupertinoSheetSurfaceDrawn provides true,
+                LocalCupertinoSheetBackdrop provides sheetBackdrop,
             ) {
                 content()
             }
@@ -774,9 +792,8 @@ private fun BottomSheetScaffoldAnchorChangeHandler(
 private enum class BottomSheetScaffoldLayoutSlot { Sheet }
 
 private val BottomSheetMaxWidth = 640.dp
-private val SheetHorizontalInset = 14.dp
-private val SheetBottomInset = 12.dp
-private val SheetCornerRadius = 34.dp
+private val SheetHorizontalInset = 6.dp
+private val SheetBottomInset = 6.dp
 private val BottomSheetMinTopPadding = 10.dp
 private val ScaffoldTopPadding = 10.dp
 

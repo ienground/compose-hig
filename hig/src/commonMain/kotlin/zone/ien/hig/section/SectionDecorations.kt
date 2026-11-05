@@ -25,8 +25,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -58,16 +56,6 @@ internal fun SectionTitle(
     autoPadding: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val additionalPadding =
-        when {
-            !lazy -> PaddingValues(0.dp)
-            style == SectionStyle.InsetGrouped ->
-                PaddingValues(
-                    horizontal = CupertinoSectionTokens.HorizontalPadding,
-                )
-            else -> PaddingValues(0.dp)
-        }
-
     val basePadding =
         PaddingValues(
             start =
@@ -81,11 +69,12 @@ internal fun SectionTitle(
             } else {
                 CupertinoSectionTokens.HorizontalPadding
             },
+            top = if (style == SectionStyle.Sidebar) 0.dp else 8.dp,
             bottom =
                 if (style == SectionStyle.Sidebar) {
                     CupertinoSectionTokens.SidebarVerticalPadding
                 } else {
-                    CupertinoSectionTokens.InlinePadding
+                    9.dp
                 },
         )
 
@@ -111,11 +100,10 @@ internal fun SectionTitle(
             Box(
                 modifier =
                     tapModifier
-                        .then(if (autoPadding) Modifier.padding(basePadding) else Modifier)
-                        .then(if (autoPadding) Modifier.padding(additionalPadding) else Modifier),
+                        .then(if (autoPadding) Modifier.padding(basePadding) else Modifier),
                 contentAlignment = Alignment.CenterStart,
             ) {
-                content(if (!autoPadding) basePadding + additionalPadding else ZeroPadding)
+                content(if (!autoPadding) basePadding else ZeroPadding)
 
                 if (style == SectionStyle.Sidebar && state != null && state.canCollapse) {
                     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
@@ -167,30 +155,10 @@ internal fun SectionTitle(
 private val ZeroPadding = PaddingValues(0.dp)
 
 @Composable
-private operator fun PaddingValues.plus(other: PaddingValues): PaddingValues {
-    val layoutDirection = LocalLayoutDirection.current
-
-    return PaddingValues(
-        top = calculateTopPadding() + other.calculateTopPadding(),
-        bottom = calculateBottomPadding() + other.calculateBottomPadding(),
-        start = calculateStartPadding(layoutDirection) + other.calculateStartPadding(layoutDirection),
-        end = calculateEndPadding(layoutDirection) + other.calculateEndPadding(layoutDirection),
-    )
-}
-
-@Composable
 internal fun SectionCaption(
     style: SectionStyle,
-    lazy: Boolean,
     content: @Composable () -> Unit,
 ) {
-    val addCorner =
-        if (style.inset && style.grouped && lazy) {
-            CupertinoSectionTokens.HorizontalPadding
-        } else {
-            0.dp
-        }
-
     CompositionLocalProvider(
         LocalContentColor provides CupertinoSectionDefaults.captionColor(style),
         LocalSectionStyle provides style,
@@ -199,8 +167,8 @@ internal fun SectionCaption(
             Box(
                 Modifier.padding(
                     PaddingValues(
-                        horizontal = CupertinoSectionTokens.HorizontalPadding + addCorner,
-                        vertical = CupertinoSectionTokens.InlinePadding,
+                        horizontal = CupertinoSectionTokens.HorizontalPadding,
+                        vertical = if (style.grouped) 7.dp else CupertinoSectionTokens.InlinePadding,
                     ),
                 ),
             ) {

@@ -19,4 +19,7 @@ package zone.ien.hig
 import androidx.compose.runtime.Composable
 
 @Composable
-internal actual fun rememberCupertinoPickerTickSound(): () -> Unit = {}
+internal actual fun rememberCupertinoPickerTickSound(): () -> Unit = rememberPlatformPickerTickSound()
+
+@Composable
+internal expect fun rememberPlatformPickerTickSound(): () -> Unit

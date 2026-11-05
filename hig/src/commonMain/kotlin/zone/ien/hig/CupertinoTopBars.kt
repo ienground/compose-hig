@@ -99,6 +99,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.LayerBackdrop
+import androidx.compose.foundation.shape.RoundedCornerShape
 import zone.ien.hig.utils.LocalCupertinoBackdrop
 import zone.ien.hig.utils.rememberDefaultBackdrop
 import com.kyant.backdrop.drawPlainBackdrop
@@ -112,6 +113,7 @@ import zone.ien.hig.isHighContrastEnabled
 import zone.ien.hig.section.CupertinoSectionDefaults
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.CupertinoGlassDefaults
+import zone.ien.hig.utils.cupertinoGlassEffects
 import zone.ien.hig.theme.darkColorScheme
 import zone.ien.hig.theme.lightColorScheme
 import kotlin.math.max
@@ -484,6 +486,8 @@ private fun InlineTopAppBar(
 ) {
     val navTitleVisible by LocalNavigationTitleVisible.current
     val scrollEdgeProgress = LocalTopScrollEdgeProgress.current
+    val isSheetToolbar = LocalCupertinoSheetBackdrop.current != null
+    val materialProgress = if (isSheetToolbar) 1f else scrollEdgeProgress
     val isLightTheme = !CupertinoTheme.colorScheme.isDark
 //    val layer = backdrop.graphicsLayer
     val layer = rememberGraphicsLayer()
@@ -513,9 +517,11 @@ private fun InlineTopAppBar(
     val gradientColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightGradientColor else darkGradientColor) }
     val titleColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightTitleColor else darkTitleColor) }
     val subtitleColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightSubtitleColor else darkSubtitleColor) }
-    val backgroundOpacity = 0.64f * scrollEdgeProgress
+    val backgroundOpacity = 0.64f * materialProgress
     val backgroundTint = if (isBackgroundGradient) {
         gradientColorAnimation.value
+    } else if (isSheetToolbar) {
+        CupertinoGlassDefaults.tint
     } else {
         CupertinoGlassDefaults.panelTint
     }
@@ -584,9 +590,17 @@ private fun InlineTopAppBar(
             })
                 .drawPlainBackdrop(
                     backdrop = backdrop,
-                    shape = { RectangleShape },
+                    shape = { if (isSheetToolbar) RoundedCornerShape(0.dp) else RectangleShape },
                     effects = {
-                        blur(TopAppBarBlurRadius.toPx() * scrollEdgeProgress)
+                        if (isSheetToolbar) {
+                            cupertinoGlassEffects(
+                                TopAppBarBlurRadius.toPx(),
+                                CupertinoGlassDefaults.refractionHeight.toPx(),
+                                CupertinoGlassDefaults.refractionAmount.toPx(),
+                            )
+                        } else {
+                            blur(TopAppBarBlurRadius.toPx() * scrollEdgeProgress)
+                        }
                         runtimeShaderEffect(
                             "MaterialTint",
                             """
@@ -633,10 +647,11 @@ private fun InlineTopAppBar(
                     visible = !navTitleVisible,
                     enter = fadeIn(tween(700)) + slideInVertically(tween(700)) { it / 2 },
                     exit = fadeOut(tween(700)) + slideOutVertically(tween(700)) { it / 2 },
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    modifier = Modifier.padding(vertical = if (subtitle == null) 4.dp else 3.dp)
                 ) {
                     Column(
                         horizontalAlignment = if (isCenterAligned) Alignment.CenterHorizontally else Alignment.Start,
+                        verticalArrangement = Arrangement.spacedBy(if (subtitle == null) 0.dp else 2.dp),
                         modifier = Modifier
                             .blur(
                                 radius = blurRadius.dp,
@@ -652,7 +667,7 @@ private fun InlineTopAppBar(
                     ) {
                         ProvideTextStyle(value =
                             if (subtitle == null) CupertinoTheme.typography.headline
-                            else CupertinoTheme.typography.subhead.copy(fontWeight = FontWeight.Bold)
+                            else CupertinoTheme.typography.subhead.copy(fontWeight = FontWeight.SemiBold)
                         ) {
                             CompositionLocalProvider(
                                 LocalContentColor provides titleColorAnimation.value,
@@ -660,7 +675,7 @@ private fun InlineTopAppBar(
                                 title()
                             }
                         }
-                        ProvideTextStyle(value = CupertinoTheme.typography.subhead) {
+                        ProvideTextStyle(value = CupertinoTheme.typography.caption1.copy(fontWeight = FontWeight.Medium)) {
                             CompositionLocalProvider(
                                 LocalContentColor provides subtitleColorAnimation.value,
                             ) {
@@ -678,7 +693,7 @@ private fun InlineTopAppBar(
             actions = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                     content = actions,
                 )
             },
@@ -719,7 +734,7 @@ private fun TopAppBarLayout(
     Layout(
         {
             Box(
-                Modifier.layoutId("navigationIcon"),
+                Modifier.layoutId("navigationIcon").padding(start = TopAppBarHorizontalPadding),
             ) {
                 CompositionLocalProvider(
                     LocalContentColor provides navigationIconContentColor,
@@ -730,7 +745,6 @@ private fun TopAppBarLayout(
                 modifier =
                     Modifier
                         .layoutId("title")
-                        .padding(horizontal = TopAppBarHorizontalPadding)
                         .then(if (hideTitleSemantics) Modifier.clearAndSetSemantics { } else Modifier),
             ) {
                 title()
@@ -756,13 +770,20 @@ private fun TopAppBarLayout(
             .first { it.layoutId == "actionIcons" }
             .measure(constraints.copy(minWidth = 0))
 
+        val sidePadding = TopAppBarHorizontalPadding.roundToPx()
+        val titleGap = 8.dp.roundToPx()
+        val leadingInset = navigationIconPlaceable.width + if (navigationIconPlaceable.width > sidePadding) titleGap else 0
+        val trailingInset = actionIconsPlaceable.width + if (actionIconsPlaceable.width > sidePadding) titleGap else 0
         val maxTitleWidth =
             if (constraints.maxWidth == Constraints.Infinity) {
                 constraints.maxWidth
             } else {
-                 val actionReservedWidth = actionIconsPlaceable.width + TopAppBarHorizontalPadding.roundToPx() * 2 // or fixed value 72.dp, etc.
-                (constraints.maxWidth - navigationIconPlaceable.width - actionReservedWidth)
-                    .coerceAtLeast(0)
+                val reservedWidth = if (titleHorizontalArrangement == Arrangement.Center) {
+                    2 * max(leadingInset, trailingInset)
+                } else {
+                    leadingInset + trailingInset
+                }
+                (constraints.maxWidth - reservedWidth).coerceAtLeast(0)
             }
 
         val titlePlaceable = measurables
@@ -780,10 +801,11 @@ private fun TopAppBarLayout(
         ).coerceIn(constraints.minHeight, constraints.maxHeight)
         val contentHeight = layoutHeight - bottomPadding
 
-        // Locate the title's baseline.
         val titleBaseline =
-            if (titlePlaceable[LastBaseline] != AlignmentLine.Unspecified) {
-                titlePlaceable[LastBaseline]
+            if (titleVerticalArrangement == Arrangement.Bottom && titleBottomPadding != 0) {
+                titlePlaceable[LastBaseline].let {
+                    if (it == AlignmentLine.Unspecified) 0 else it
+                }
             } else {
                 0
             }
@@ -794,23 +816,13 @@ private fun TopAppBarLayout(
                 x = 0,
                 y = (contentHeight - navigationIconPlaceable.height) / 2,
             )
-            // Title
-//            ((constraints.maxWidth - titlePlaceable.width) / 2)
-            val safeMargin = 4.dp.roundToPx()
             titlePlaceable.placeRelative(
                 x =
                     when (titleHorizontalArrangement) {
-                        Arrangement.Center -> if (constraints.maxWidth / 2 - (TopAppBarHorizontalPadding.roundToPx() + actionIconsPlaceable.width + safeMargin) >= titlePlaceable.width / 2) {
-                            (constraints.maxWidth - titlePlaceable.width) / 2
-                        } else {
-                            constraints.maxWidth - (TopAppBarHorizontalPadding.roundToPx() + actionIconsPlaceable.width + safeMargin) - titlePlaceable.width
-                        }
+                        Arrangement.Center -> (constraints.maxWidth - titlePlaceable.width) / 2
                         Arrangement.End ->
-                            constraints.maxWidth - titlePlaceable.width - actionIconsPlaceable.width
-                        // Arrangement.Start.
-                        // An TopAppBarTitleInset will make sure the title is offset in case the
-                        // navigation icon is missing.
-                        else -> max(TopAppBarTitleInset.roundToPx(), navigationIconPlaceable.width)
+                            constraints.maxWidth - titlePlaceable.width - trailingInset
+                        else -> leadingInset
                     },
                 y =
                     when (titleVerticalArrangement) {
@@ -843,28 +855,20 @@ private fun TopAppBarLayout(
 
 // internal val TopTitleAlphaEasing = CubicBezierEasing(.8f, 0f, .8f, .15f)
 
-private val TopAppBarHorizontalPadding = 4.dp
+private val TopAppBarHorizontalPadding = 16.dp
 private val TopAppBarHeight = 54.dp
 private val TopAppBarBottomPadding = 10.dp
 private val TopAppBarBlurRadius = 24.dp
 
-// A title inset when the App-Bar is a Medium or Large one. Also used to size a spacer when the
-// navigation icon is missing.
-private val TopAppBarTitleInset = 16.dp - TopAppBarHorizontalPadding
-
 @Immutable
 object CupertinoTopAppBarDefaults {
-    /** 액션 버튼 바깥 여백. 오른쪽 세로 영역에서는 공통 버튼 너비를 유지합니다. */
+    /** 상단 바가 여백을 적용하므로 액션 버튼에 추가 여백을 넣지 않습니다. */
     val actionPadding: PaddingValues
-        @Composable get() = PaddingValues(
-            horizontal = if ((LocalCupertinoVerticalBarPlacement.current?.width ?: 0.dp) > 0.dp) 0.dp else 4.dp,
-        )
+        @Composable get() = PaddingValues(0.dp)
 
-    /** 내비게이션 버튼의 시작 여백. 오른쪽 세로 영역에서는 중심 정렬을 유지합니다. */
+    /** 상단 바가 시작 여백을 적용하므로 내비게이션 버튼에 추가 여백을 넣지 않습니다. */
     val navigationIconPadding: PaddingValues
-        @Composable get() = PaddingValues(
-            start = if ((LocalCupertinoVerticalBarPlacement.current?.width ?: 0.dp) > 0.dp) 0.dp else 16.dp,
-        )
+        @Composable get() = PaddingValues(0.dp)
 
     /**
      * Default insets to be used and consumed by the top app bars

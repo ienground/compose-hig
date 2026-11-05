@@ -24,6 +24,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.width
@@ -51,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.collect
 import zone.ien.hig.theme.CupertinoTheme
 
@@ -278,8 +281,6 @@ private fun CupertinoDateTimePickerWheel(
             modifier = Modifier.widthIn(max = PickerMaxWidth),
             horizontalArrangement = Arrangement.Center,
         ) {
-            state.stateData.calendarModel.today
-
             val locale = defaultLocale()
             CupertinoWheelPicker(
                 state = state.stateData.dateState,
@@ -287,7 +288,7 @@ private fun CupertinoDateTimePickerWheel(
                 height = height,
                 modifier =
                     Modifier
-                        .weight(2f),
+                        .weight(3.5f),
                 indicator = {},
                 containerColor = containerColor,
                 horizontalCurvature = 1f,
@@ -304,6 +305,7 @@ private fun CupertinoDateTimePickerWheel(
                             )
                         },
                     textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                 )
             }
 
@@ -311,51 +313,28 @@ private fun CupertinoDateTimePickerWheel(
                 state = state.stateData.hourState,
                 items = if (state.stateData.is24Hour) Hours24 else Hours12,
                 height = height,
-                modifier =
-                    Modifier
-                        .width(
-                            if (state.stateData.is24Hour) {
-                                CupertinoTimePickerTokens.BlockWidth
-                            } else {
-                                CupertinoTimePickerTokens.BlockWidth * 2 / 3
-                            },
-                        ),
-                indicator = {},
-                containerColor = containerColor,
-                horizontalCurvature = 1f,
-            ) {
-                NumberPickerText(
-                    text = it,
-                    textAlign =
-                        if (state.stateData.is24Hour) {
-                            TextAlign.Center
-                        } else {
-                            TextAlign.End
-                        },
-                )
-            }
-            CupertinoWheelPicker(
-                state = state.stateData.minuteState,
-                items = Minutes,
-                height = height,
-                modifier =
-                    if (state.stateData.is24Hour) {
-                        Modifier.weight(1f)
-                    } else {
-                        Modifier.width(CupertinoTimePickerTokens.BlockWidth)
-                    },
+                modifier = Modifier.weight(1f),
                 indicator = {},
                 containerColor = containerColor,
                 horizontalCurvature = 0f,
             ) {
                 NumberPickerText(
                     text = it,
-                    textAlign =
-                        if (state.stateData.is24Hour) {
-                            TextAlign.Start
-                        } else {
-                            TextAlign.Center
-                        },
+                    textAlign = TextAlign.Center,
+                )
+            }
+            CupertinoWheelPicker(
+                state = state.stateData.minuteState,
+                items = Minutes,
+                height = height,
+                modifier = Modifier.weight(1f),
+                indicator = {},
+                containerColor = containerColor,
+                horizontalCurvature = if (state.stateData.is24Hour) -1f else 0f,
+            ) {
+                NumberPickerText(
+                    text = it,
+                    textAlign = TextAlign.Center,
                 )
             }
             if (!state.stateData.is24Hour) {
@@ -365,14 +344,14 @@ private fun CupertinoDateTimePickerWheel(
                     height = height,
                     modifier =
                         Modifier
-                            .weight(1f),
+                            .weight(1.2f),
                     indicator = {},
                     containerColor = containerColor,
                     horizontalCurvature = -1f,
                 ) {
                     PickerText(
                         text = if (it) AmPm.first else AmPm.second,
-                        textAlign = TextAlign.Start,
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
@@ -904,8 +883,8 @@ object CupertinoDatePickerDefaults {
     @Composable
     fun pagerTextStyles(
         headline: TextStyle = CupertinoTheme.typography.headline,
-        day: TextStyle = CupertinoTheme.typography.title3,
-        selectedDay: TextStyle = day.copy(fontWeight = FontWeight.Bold),
+        day: TextStyle = CupertinoTheme.typography.title3.copy(lineHeight = 24.sp),
+        selectedDay: TextStyle = day.copy(fontWeight = FontWeight.SemiBold),
         weekday: TextStyle =
             CupertinoTheme.typography.footnote
                 .copy(fontWeight = FontWeight.SemiBold),
@@ -927,9 +906,9 @@ object CupertinoDatePickerDefaults {
         todayContentColor: Color = CupertinoTheme.colorScheme.accent,
         dayContentColor: Color = CupertinoTheme.colorScheme.label,
         disabledDayContentColor: Color = dayContentColor.copy(alpha = 0.38f),
-        disabledSelectedDayContentColor: Color = todayContentColor.copy(alpha = 0.38f),
-        selectedDayContentColor: Color = todayContentColor,
-        selectedDayContainerColor: Color = todayContentColor.copy(alpha = CupertinoButtonTokens.BorderedButtonAlpha),
+        disabledSelectedDayContentColor: Color = CupertinoTheme.colorScheme.systemBackground.copy(alpha = 0.38f),
+        selectedDayContentColor: Color = CupertinoTheme.colorScheme.systemBackground,
+        selectedDayContainerColor: Color = CupertinoTheme.colorScheme.label,
         disabledSelectedDayContainerColor: Color = selectedDayContainerColor.copy(alpha = 0.38f),
         dayInSelectionRangeContentColor: Color = CupertinoTheme.colorScheme.label,
         dayInSelectionRangeContainerColor: Color = CupertinoTheme.colorScheme.label,

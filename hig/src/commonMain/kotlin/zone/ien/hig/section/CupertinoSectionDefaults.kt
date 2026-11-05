@@ -68,7 +68,7 @@ object CupertinoSectionDefaults {
 
     val PaddingValues = PaddingValues(
         horizontal = CupertinoSectionTokens.HorizontalPadding,
-        vertical = CupertinoSectionTokens.VerticalPadding
+        vertical = CupertinoSectionTokens.ContentVerticalPadding,
     )
 
     val DividerPadding = CupertinoSectionTokens.HorizontalPadding
@@ -128,7 +128,7 @@ object CupertinoSectionDefaults {
             style == SectionStyle.Sidebar -> CupertinoTheme.typography.subhead.copy(
                 fontWeight = FontWeight.SemiBold
             )
-            style.grouped -> CupertinoTheme.typography.footnote
+            style.grouped -> CupertinoTheme.typography.headline
             else -> CupertinoTheme.typography.subhead
                 .copy(fontWeight = FontWeight.SemiBold)
         }
@@ -229,8 +229,9 @@ internal object CupertinoSectionTokens {
     val SplitPadding = 12.dp
     val InlinePadding = 6.dp
     val VerticalPadding = 8.dp
-    val HorizontalPadding = 18.dp
-    val MinHeight = 45.dp
+    val ContentVerticalPadding = 4.dp
+    val HorizontalPadding = 16.dp
+    val MinHeight = 52.dp
     val SidebarHorizontalPadding = 12.dp
     val SidebarVerticalPadding = 6.dp
     val SidebarItemMinHeight = 44.dp

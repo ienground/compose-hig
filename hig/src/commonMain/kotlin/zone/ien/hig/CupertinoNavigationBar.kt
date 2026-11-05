@@ -1068,7 +1068,7 @@ fun RowScope.CupertinoNavigationBarItem(
     )
 
     Column(
-        verticalArrangement = if (isVertical) Arrangement.Center else Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
+        verticalArrangement = if (isVertical) Arrangement.Center else Arrangement.spacedBy(1.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .then(
@@ -1181,9 +1181,9 @@ fun RowScope.CupertinoNavigationBarItem(
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            propagateMinConstraints = true,
+            propagateMinConstraints = isVertical,
             modifier = Modifier
-                .size(20.dp)
+                .size(if (isVertical) 20.dp else 28.dp)
         ) {
             if (isManaged) {
                 CompositionLocalProvider(LocalContentColor provides managedIconColor) {
@@ -1196,9 +1196,9 @@ fun RowScope.CupertinoNavigationBarItem(
         if (!isVertical || verticalMotion != null) ProvideTextStyle(
             value = TextStyle(
                 fontFamily = FontFamily.Default,
-                fontSize = 11.sp,
-                lineHeight = 13.sp,
-                fontWeight = FontWeight.Medium,
+                fontSize = if (isVertical) 11.sp else 10.sp,
+                lineHeight = if (isVertical) 13.sp else 12.sp,
+                fontWeight = if (isVertical) FontWeight.Medium else FontWeight.SemiBold,
                 letterSpacing = 0.sp,
             )
         ) {

@@ -1191,13 +1191,13 @@ object CupertinoLiquidSliderDefaults {
     fun colors(
         thumbColor: Color = CupertinoColors.White,
         activeTrackColor: Color = CupertinoTheme.colorScheme.accent,
-        activeTickColor: Color = CupertinoTheme.colorScheme.separator,
-        inactiveTrackColor: Color = CupertinoTheme.colorScheme.separator,
+        activeTickColor: Color = CupertinoTheme.colorScheme.quaternaryLabel,
+        inactiveTrackColor: Color = CupertinoTheme.colorScheme.systemFill,
         inactiveTickColor: Color = activeTickColor,
         disabledThumbColor: Color = thumbColor,
-        disabledActiveTrackColor: Color = activeTrackColor.copy(alpha = .5f),
+        disabledActiveTrackColor: Color = activeTrackColor,
         disabledActiveTickColor: Color = activeTickColor,
-        disabledInactiveTrackColor: Color = inactiveTrackColor.copy(alpha = .5f),
+        disabledInactiveTrackColor: Color = inactiveTrackColor,
         disabledInactiveTickColor: Color = activeTickColor,
     ): CupertinoSliderColors =
         CupertinoSliderColors(
@@ -1524,9 +1524,9 @@ internal val TrackHeight = SliderTokens.InactiveTrackHeight
 internal object SliderTokens {
     val ThumbElevation = 6.dp
     val ThumbInnerElevation = 4.dp
-    val ThumbWidth = 40.0.dp
+    val ThumbWidth = 38.0.dp
     val ThumbHeight = 24.0.dp
     val ThumbShape = ContinuousCapsule()
     val InactiveTrackHeight = 6.0.dp
-    val TickMarksContainerSize = 1.5.dp
+    val TickMarksContainerSize = 2.0.dp
 }

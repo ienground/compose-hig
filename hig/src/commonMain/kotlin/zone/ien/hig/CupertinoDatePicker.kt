@@ -44,6 +44,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
@@ -353,12 +354,12 @@ class CupertinoDatePickerColors internal constructor(
     ): State<Color> {
         val target =
             when {
-                selected && isToday -> CupertinoColors.White
+                selected && isToday -> CupertinoColors.White.copy(alpha = if (enabled) 1f else 0.38f)
                 selected && enabled -> selectedDayContentColor
                 selected && !enabled -> disabledSelectedDayContentColor
                 inRange && enabled -> dayInSelectionRangeContentColor
                 inRange && !enabled -> disabledDayContentColor
-                isToday -> todayContentColor
+                isToday -> todayContentColor.copy(alpha = todayContentColor.alpha * if (enabled) 1f else 0.38f)
                 enabled -> dayContentColor
                 else -> disabledDayContentColor
             }
@@ -380,9 +381,10 @@ class CupertinoDatePickerColors internal constructor(
     ): State<Color> {
         val target =
             when {
-                selected && isToday -> selectedDayContentColor
+                selected && isToday -> todayContentColor.copy(alpha = if (enabled) 1f else 0.38f)
                 selected && enabled -> selectedDayContainerColor
                 selected -> disabledSelectedDayContainerColor
+                isToday -> todayContentColor.copy(alpha = if (enabled) 0.12f else 0.12f * 0.38f)
                 else -> Color.Transparent
             }
 
@@ -429,14 +431,14 @@ class CupertinoDatePickerColors internal constructor(
 @OptIn(ExperimentalCupertinoApi::class)
 private enum class DatePickerComponent(
     val key: Char,
-    val content: @Composable (CupertinoDatePickerState, Dp, Color, Float) -> Unit,
+    val content: @Composable (CupertinoDatePickerState, Dp, Color, Float, Modifier) -> Unit,
 ) {
-    Day('d', { state, height, containerColor, horizontalCurvature ->
+    Day('d', { state, height, containerColor, horizontalCurvature, modifier ->
         CupertinoWheelPicker(
             state = state.stateData.dayState,
             items = (1..state.stateData.daysInMonth).toList(),
             height = height,
-            modifier = Modifier.width(75.dp),
+            modifier = modifier,
             indicator = {},
             containerColor = containerColor,
             horizontalCurvature = horizontalCurvature,
@@ -448,32 +450,29 @@ private enum class DatePickerComponent(
         }
     }),
 
-    Month('m', { state, height, containerColor, horizontalCurvature ->
+    Month('m', { state, height, containerColor, horizontalCurvature, modifier ->
         CupertinoWheelPicker(
             state = state.stateData.monthState,
             items = state.stateData.monthNames,
             height = height,
-            modifier = Modifier.width(130.dp),
+            modifier = modifier,
             indicator = {},
             containerColor = containerColor,
             horizontalCurvature = horizontalCurvature,
         ) {
             PickerText(
                 text = it,
-                textAlign = TextAlign.Start,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = HorizontalPadding),
+                textAlign = if (horizontalCurvature == 0f) TextAlign.Center else TextAlign.Start,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             )
         }
     }),
-    Year('y', { state, height, containerColor, horizontalCurvature ->
+    Year('y', { state, height, containerColor, horizontalCurvature, modifier ->
         CupertinoWheelPicker(
             state = state.stateData.yearState,
             items = remember(state) { state.stateData.yearRange.toList() },
             height = height,
-            modifier = Modifier.width(85.dp),
+            modifier = modifier,
             indicator = {},
             containerColor = containerColor,
             horizontalCurvature = horizontalCurvature,
@@ -525,6 +524,7 @@ private fun CupertinoDatePickerWheel(
         contentAlignment = Alignment.Center,
     ) {
         Row(
+            modifier = Modifier.widthIn(max = 320.dp).fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
         ) {
             components.forEachIndexed { index, component ->
@@ -533,7 +533,12 @@ private fun CupertinoDatePickerWheel(
                     1 -> -1f
                     else -> 0f
                 }
-                component.content(state, height, containerColor, horizontalCurvature)
+                val weight = when (component) {
+                    DatePickerComponent.Month -> 150f
+                    DatePickerComponent.Day -> 54f
+                    DatePickerComponent.Year -> 86f
+                }
+                component.content(state, height, containerColor, horizontalCurvature, Modifier.weight(weight))
             }
         }
     }
@@ -1498,7 +1503,8 @@ private fun CupertinoMonthPicker(
             horizontalArrangement = Arrangement.Center,
         ) {
             components.forEachIndexed { index, component ->
-                component.content(delegatedState, height, containerColor, if (index == 0) 1f else -1f)
+                component.content(delegatedState, height, containerColor, if (index == 0) 1f else -1f,
+                    Modifier.width(if (component == DatePickerComponent.Month) 150.dp else 86.dp))
             }
         }
     }

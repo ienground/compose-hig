@@ -52,6 +52,8 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
@@ -68,9 +70,11 @@ import zone.ien.hig.CupertinoSheetState.Companion.Saver
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.CupertinoGlassDefaults
 import com.kyant.capsule.ContinuousRoundedRectangle
+import com.kyant.backdrop.backdrops.LayerBackdrop
 import kotlin.jvm.JvmName
 
 internal val LocalCupertinoSheetSurfaceDrawn = staticCompositionLocalOf { false }
+internal val LocalCupertinoSheetBackdrop = staticCompositionLocalOf<LayerBackdrop?> { null }
 internal val LocalCupertinoSheetPresentation = staticCompositionLocalOf<PresentationStyle?> { null }
 
 /**
@@ -157,12 +161,19 @@ object CupertinoBottomSheetDefaults {
     val containerColor: Color
         @Composable
         @ReadOnlyComposable
-        get() = CupertinoGlassDefaults.panelTint
+        get() = CupertinoGlassDefaults.tint
 
     val shape: Shape
         @Composable
         @ReadOnlyComposable
-        get() = ContinuousRoundedRectangle(34.dp)
+        get() {
+            val viewportWidth = with(LocalDensity.current) {
+                LocalWindowInfo.current.containerSize.width.toDp()
+            }
+            return ContinuousRoundedRectangle(
+                if (viewportWidth >= 600.dp) SheetTabletCornerRadius else SheetPhoneCornerRadius,
+            )
+        }
 
     @Composable
     fun DragHandle(
@@ -755,6 +766,8 @@ internal object CupertinoBottomSheetTokens {
     internal val MaxOverflow = 5.dp
 }
 
-internal val DragHandleHeight = 5.dp
-internal val DragHandleWidth = 38.dp
-internal val DragHandlePadding = 4.dp
+internal val DragHandleHeight = 4.dp
+internal val DragHandleWidth = 60.dp
+internal val DragHandlePadding = 3.dp
+internal val SheetPhoneCornerRadius = 38.dp
+internal val SheetTabletCornerRadius = 32.dp

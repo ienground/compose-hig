@@ -144,7 +144,7 @@ fun CupertinoLiquidAlertDialog(
                             message?.let {
                                 ProvideTextStyle(
                                     value = CupertinoTheme.typography.body.copy(
-                                        color = CupertinoTheme.colorScheme.secondaryLabel,
+                                        color = CupertinoTheme.colorScheme.label,
                                         textAlign = TextAlign.Start,
                                     ),
                                     content = it,

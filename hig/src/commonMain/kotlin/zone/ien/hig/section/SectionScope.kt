@@ -65,6 +65,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import zone.ien.hig.CupertinoButtonTokens
 import zone.ien.hig.CupertinoDatePickerDefaults
@@ -474,7 +475,10 @@ fun SectionScope.SectionTextField(
     modifier = modifier,
     title = {
         ProvideTextStyle(
-            textStyle ?: CupertinoTheme.typography.body,
+            textStyle ?: CupertinoTheme.typography.body.copy(
+                fontWeight = FontWeight.Medium,
+                lineHeight = 20.sp,
+            ),
         ) {
             Box(
                 contentAlignment = Alignment.CenterStart,

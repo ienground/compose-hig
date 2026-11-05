@@ -39,6 +39,7 @@
 
 package cupertino
 
+import IsIos
 import RootDetails
 import RootRoute
 import RootUiState
@@ -73,6 +74,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
@@ -87,6 +89,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -109,6 +113,7 @@ import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.CupertinoActionSheet
 import zone.ien.hig.CupertinoActionSheetNative
 import zone.ien.hig.CupertinoActivityIndicator
+import zone.ien.hig.CupertinoBadge
 import zone.ien.hig.CupertinoAlertDialogNative
 import zone.ien.hig.CupertinoBorderedTextField
 import zone.ien.hig.CupertinoBottomSheetContent
@@ -127,9 +132,11 @@ import zone.ien.hig.CupertinoDateTimePickerNative
 import zone.ien.hig.CupertinoDateTimePickerState
 import zone.ien.hig.CupertinoDropdownMenu
 import zone.ien.hig.CupertinoDropdownMenuNative
+import zone.ien.hig.CupertinoEmptyState
 import zone.ien.hig.CupertinoHorizontalDivider
 import zone.ien.hig.CupertinoIcon
 import zone.ien.hig.CupertinoIconButton
+import zone.ien.hig.CupertinoNavigateBackLiquidButton
 import zone.ien.hig.CupertinoLiquidAlertDialog
 import zone.ien.hig.CupertinoLiquidButton
 import zone.ien.hig.CupertinoLiquidButtonDefaults
@@ -139,14 +146,21 @@ import zone.ien.hig.CupertinoMenuSectionData
 import zone.ien.hig.CupertinoNavigationBarItemData
 import zone.ien.hig.CupertinoNavigationTitle
 import zone.ien.hig.CupertinoPickerState
+import zone.ien.hig.CupertinoPageControl
+import zone.ien.hig.CupertinoPopover
+import zone.ien.hig.CupertinoPopupButton
+import zone.ien.hig.CupertinoProgressIndicator
 import zone.ien.hig.CupertinoRangeSlider
 import zone.ien.hig.CupertinoSearchTextField
+import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoSearchTextFieldDefaults
 import zone.ien.hig.CupertinoSegmentedControl
 import zone.ien.hig.CupertinoSegmentedControlTab
 import zone.ien.hig.CupertinoSlider
 import zone.ien.hig.CupertinoSwipeBox
 import zone.ien.hig.CupertinoSwitch
+import zone.ien.hig.CupertinoStepper
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.CupertinoTextField
 import zone.ien.hig.CupertinoTimePicker
@@ -160,6 +174,7 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.HigMenuOptions
 import zone.ien.hig.MenuAction
 import zone.ien.hig.MenuDivider
+import zone.ien.hig.MenuPickerAction
 import zone.ien.hig.MenuSection
 import zone.ien.hig.PresentationDetent
 import zone.ien.hig.PresentationStyle
@@ -249,6 +264,122 @@ fun CupertinoWidgetsScreen(
     onItemValueChanged: (RootDetails) -> Unit,
     onNavigate: (NavKey) -> Unit,
 ) {
+    var query by rememberSaveable { mutableStateOf("") }
+    var categoryName by rememberSaveable { mutableStateOf<String?>(null) }
+    var showAppearance by rememberSaveable { mutableStateOf(false) }
+    val category = ComponentCategory.entries.firstOrNull { it.name == categoryName }
+    val components = remember(query, category) { filteredComponents(query, category) }
+    val listState = rememberLazyListState()
+    val backdrop = rememberLayerBackdrop()
+    val background = CupertinoTheme.colorScheme.systemGroupedBackground
+    val toolbarBackdrop = rememberLayerBackdrop {
+        drawRect(background)
+        drawContent()
+    }
+
+    CupertinoScaffold(
+        containerColor = CupertinoTheme.colorScheme.systemGroupedBackground,
+        topBar = {
+            CupertinoTopAppBar(
+                title = { CupertinoText(text = "Compose HIG") },
+                actions = {
+                    CupertinoLiquidIconButton(onClick = { showAppearance = !showAppearance }, backdrop = toolbarBackdrop) {
+                        CupertinoIcon(CupertinoIcons.Filled.Gearshape, contentDescription = "Appearance")
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        Box(Modifier.fillMaxSize().layerBackdrop(toolbarBackdrop)) {
+            Box(Modifier.matchParentSize().layerBackdrop(backdrop)
+                .background(CupertinoTheme.colorScheme.systemGroupedBackground))
+            CompositionLocalProvider(LocalDemoBackdrop provides backdrop) {
+                ProvideSectionStyle(SectionStyle.InsetGrouped) {
+                    LazyColumn(
+                        state = listState,
+                        contentPadding = padding + PaddingValues(bottom = 24.dp),
+                        modifier = Modifier.fillMaxSize()
+                            .cupertinoScrollEdge(listState).imePadding(),
+                    ) {
+                        item(key = "search") {
+                            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    CupertinoText(text = "Components", style = CupertinoTheme.typography.title1)
+                                    CupertinoText(text = "${components.size} / ${CatalogComponent.entries.size}",
+                                        style = CupertinoTheme.typography.footnote, color = CupertinoTheme.colorScheme.secondaryLabel)
+                                }
+                                CupertinoSearchTextField(
+                                    value = query,
+                                    onValueChange = { query = it },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    paddingValues = PaddingValues(0.dp),
+                                    placeholder = { CupertinoText(text = "Search components") },
+                                )
+                                DemoChoice("Category", listOf<ComponentCategory?>(null) + ComponentCategory.entries,
+                                    category, { categoryName = it?.name }) { it?.title ?: "All components" }
+                            }
+                        }
+                        if (showAppearance) {
+                            item(key = "appearance") {
+                                DemoSection("Appearance") {
+                                    DemoToggle("Dark mode", uiState.item.isDark) { onItemValueChanged(uiState.item.copy(isDark = it)) }
+                                    DemoToggle("Right-to-left layout", uiState.item.invertLayoutDirection) {
+                                        onItemValueChanged(uiState.item.copy(invertLayoutDirection = it))
+                                    }
+                                    CupertinoText(text = "Text size: ${(uiState.item.fontScale * 100).toInt()}%")
+                                    CupertinoSlider(value = uiState.item.fontScale,
+                                        onValueChange = { onItemValueChanged(uiState.item.copy(fontScale = it)) },
+                                        valueRange = 1f..2f, steps = 3, backdrop = LocalDemoBackdrop.current ?: rememberDefaultBackdrop())
+                                    ColorButtons { light, dark -> onItemValueChanged(uiState.item.copy(accentColors = light to dark)) }
+                                }
+                            }
+                        }
+                        if (components.isEmpty()) {
+                            item(key = "empty") {
+                                CupertinoEmptyState(
+                                    title = { CupertinoText(text = "No components found") },
+                                    description = { CupertinoText(text = "Try another name or API.") },
+                                    onAction = { query = ""; categoryName = null },
+                                    action = { CupertinoText(text = "Clear filters") },
+                                )
+                            }
+                        }
+                        components.groupBy { it.category }.forEach { (group, entries) ->
+                            section(title = { CupertinoText(text = group.title) }) {
+                                entries.forEach { component ->
+                                    link(onClick = { onNavigate(RootRoute.Component(component)) }) {
+                                        CupertinoText(text = component.title)
+                                    }
+                                }
+                            }
+                        }
+                        section(title = { CupertinoText(text = "Examples") }) {
+                            listOf(
+                                "Adaptive layouts" to RootRoute.Adaptive,
+                                "Sections & lists" to RootRoute.Sections,
+                                "SF Symbols" to RootRoute.Icons,
+                                "Haptic feedback" to RootRoute.HapticFeedback,
+                                "Integrated showcase" to RootRoute.Integration,
+                            ).forEach { (title, route) ->
+                                link(onClick = { onNavigate(route) }) { CupertinoText(text = title) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun CupertinoIntegrationScreen(
+    uiState: RootUiState,
+    onItemValueChanged: (RootDetails) -> Unit,
+    onNavigate: (NavKey) -> Unit,
+    navigateBack: () -> Unit,
+) {
 
     val scrollState = rememberLazyListState()
     val sheetListState = rememberLazyListState()
@@ -295,7 +426,8 @@ fun CupertinoWidgetsScreen(
             TopBarSample(
                 uiState = uiState,
                 onItemValueChanged = onItemValueChanged,
-                backdrop = popupBackdrop
+                backdrop = popupBackdrop,
+                navigateBack = navigateBack,
             )
         },
         bottomBar = {
@@ -486,6 +618,10 @@ internal fun Body(
                 }
             }
 
+            item(key = "ios27-additional-controls") {
+                Ios27AdditionalControlsChapter(backdrop = popupBackdrop)
+            }
+
             // TODO broken on web and desktop
             item(key = "pickers") {
                 PickersSection(
@@ -612,11 +748,101 @@ private fun PickersSection(
     }
 }
 
+@Composable
+internal fun Ios27AdditionalControlsChapter(backdrop: Backdrop) {
+    var count by rememberSaveable { mutableIntStateOf(4) }
+    var page by rememberSaveable { mutableIntStateOf(2) }
+    var menuExpanded by remember { mutableStateOf(false) }
+    var popoverExpanded by remember { mutableStateOf(false) }
+    var sortOrder by rememberSaveable { mutableStateOf("Name") }
+    CupertinoSection(title = { CupertinoText(text = "More controls".sectionTitle()) }) {
+        SectionItem(
+            trailingContent = {
+                CupertinoStepper(
+                    value = count,
+                    onValueChange = { count = it },
+                    valueRange = 0..10,
+                    decrementLabel = "Decrease quantity",
+                    incrementLabel = "Increase quantity",
+                )
+            },
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                CupertinoText(text = "Quantity")
+                CupertinoBadge { CupertinoText(text = count.toString()) }
+            }
+        }
+        SectionItem {
+            CupertinoProgressIndicator(
+                progress = count / 10f,
+                modifier = Modifier.fillMaxWidth(),
+                label = "Progress ${count * 10}%",
+            )
+        }
+        SectionItem {
+            CupertinoPageControl(
+                pageCount = 10,
+                currentPage = page,
+                onPageSelected = { page = it },
+                modifier = Modifier.fillMaxWidth(),
+                pageDescription = { index, total -> "Page ${index + 1} of $total" },
+            )
+        }
+        SectionItem(
+            trailingContent = {
+                CupertinoPopupButton(
+                    expanded = menuExpanded,
+                    onExpandedChange = { menuExpanded = it },
+                    backdrop = backdrop,
+                    title = { CupertinoText(text = sortOrder) },
+                ) {
+                    listOf("Name", "Date", "Size").forEach { option ->
+                        MenuPickerAction(
+                            isSelected = sortOrder == option,
+                            onClick = { sortOrder = option; menuExpanded = false },
+                            title = { CupertinoText(text = option) },
+                        )
+                    }
+                }
+            },
+        ) {
+            CupertinoText(text = "Sort")
+        }
+        SectionItem {
+            Box {
+                CupertinoButton(onClick = { popoverExpanded = true }) {
+                    CupertinoText(text = "Show popover")
+                }
+                CupertinoPopover(
+                    expanded = popoverExpanded,
+                    onDismissRequest = { popoverExpanded = false },
+                    width = 280.dp,
+                    backdrop = backdrop,
+                ) {
+                    CupertinoText(text = "Popover", style = CupertinoTheme.typography.headline)
+                    Spacer(Modifier.height(8.dp))
+                    CupertinoText(text = "The popover points to its anchor and adjusts at screen edges.")
+                }
+            }
+        }
+        SectionItem {
+            CupertinoEmptyState(
+                title = { CupertinoText(text = "No saved items") },
+                modifier = Modifier.fillMaxWidth().height(280.dp),
+                description = { CupertinoText(text = "New items will appear here.") },
+                icon = { CupertinoIcon(CupertinoIcons.Outlined.Bookmark, contentDescription = null, modifier = Modifier.size(49.dp)) },
+                onAction = { count = (count + 1).coerceAtMost(10) },
+                action = { CupertinoText(text = "Add item") },
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalCupertinoApi::class)
 @Composable
 internal fun Ios26SegmentedControlChapter() {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = remember { listOf("이벤트", "미리 알림") }
+    val tabs = remember { listOf("Events", "Reminders") }
 
     Column(
         modifier = Modifier
@@ -659,24 +885,24 @@ internal fun RecentCallsSwipeChapter(scrollableState: ScrollableState) {
             RecentCall(
                 id = 1,
                 initials = "A",
-                name = "샘플 연락처 A",
-                detail = "↙ 휴대전화",
-                date = "수요일",
+                name = "Alex Morgan",
+                detail = "↙ Mobile",
+                date = "Wednesday",
                 avatarColor = yellow,
             ),
             RecentCall(
                 id = 2,
                 initials = "B",
-                name = "샘플 연락처 B",
-                detail = "↗ 업무 전화",
+                name = "Sam Taylor",
+                detail = "↗ Work",
                 date = "2026. 7. 10.",
                 avatarColor = indigo,
             ),
             RecentCall(
                 id = 3,
                 initials = "C",
-                name = "샘플 연락처 C",
-                detail = "↙ 휴대전화",
+                name = "Jamie Chen",
+                detail = "↙ Mobile",
                 date = "2026. 7. 8.",
                 avatarColor = blue,
             ),
@@ -722,7 +948,7 @@ internal fun RecentCallsSwipeChapter(scrollableState: ScrollableState) {
                         color = CupertinoColors.systemBlue,
                         onClick = {},
                         icon = CupertinoIcons.Filled.Alarm,
-                        onClickLabel = "미리 알림",
+                        onClickLabel = "Reminders",
                     )
                 }
                 end(onClick = { calls.remove(call) }) {
@@ -730,7 +956,7 @@ internal fun RecentCallsSwipeChapter(scrollableState: ScrollableState) {
                         color = CupertinoColors.systemRed,
                         onClick = { calls.remove(call) },
                         icon = CupertinoIcons.Filled.Trash,
-                        onClickLabel = "삭제",
+                        onClickLabel = "Delete",
                     )
                 }
             },
@@ -1031,51 +1257,33 @@ private fun SwipeBoxExample(scrollableState: ScrollableState) {
 private fun TopBarSample(
     uiState: RootUiState,
     onItemValueChanged: (RootDetails) -> Unit,
-    backdrop: LayerBackdrop
+    backdrop: LayerBackdrop,
+    navigateBack: () -> Unit,
 ) {
     CupertinoTopAppBar(
-        actions = {
-            CupertinoLiquidButton(
-                onClick = {},
+        navigationIcon = {
+            CupertinoNavigateBackLiquidButton(
+                onClick = navigateBack,
                 backdrop = backdrop,
-                modifier = Modifier.padding(CupertinoTopAppBarDefaults.actionPadding).heightIn(min = 44.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                modifier = Modifier.semantics { contentDescription = "Back" },
+            )
+        },
+        actions = {
+            CupertinoLiquidIconButton(
+                onClick = { onItemValueChanged(uiState.item.copy(isDark = false)) },
+                backdrop = backdrop,
             ) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    repeat(2) {
-                        Box(
-                            modifier = Modifier.size(36.dp).clickable(
-                                interactionSource = null,
-                                indication = null,
-                                onClick = { onItemValueChanged(uiState.item.copy(isDark = !uiState.item.isDark)) }
-                            ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            AnimatedContent(uiState.item.isDark) {
-                                if (it) {
-                                    CupertinoIcon(
-                                        imageVector = CupertinoIcons.Default.SunMax,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                } else {
-                                    CupertinoIcon(
-                                        imageVector = CupertinoIcons.Default.MoonStars,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+                CupertinoIcon(CupertinoIcons.Default.SunMax, contentDescription = "Light appearance")
+            }
+            CupertinoLiquidIconButton(
+                onClick = { onItemValueChanged(uiState.item.copy(isDark = true)) },
+                backdrop = backdrop,
+            ) {
+                CupertinoIcon(CupertinoIcons.Default.MoonStars, contentDescription = "Dark appearance")
             }
         },
         title = {
-            CupertinoText("HIG")
+            CupertinoText(text = "Showcase")
         }
     )
 }
@@ -1100,7 +1308,7 @@ private fun BottomBarSample(
         "Setting" to CupertinoIcons.Filled.Gearshape,
     )
 
-    if (isNative) {
+    if (isNative && IsIos) {
         AdaptiveNavigationBarNative(
             selectedTabIndex = { tab },
             onTabSelected = { tab = it },
@@ -1152,21 +1360,21 @@ private fun BottomBarSample(
 }
 
 @Composable
-private fun SheetSample(
+internal fun SheetSample(
     scaffoldState: CupertinoBottomSheetScaffoldState,
     sheetListState: LazyListState,
     sheetSectionColor: Color,
     backdrop: LayerBackdrop,
 ) {
-
     val coroutineScope = rememberCoroutineScope()
+    var selectedItem by rememberSaveable { mutableStateOf<Int?>(null) }
 
     CupertinoBottomSheetContent(
         topBar = {
             CupertinoTopAppBar(
                 backdrop = backdrop,
                 title = {
-                    CupertinoText("Bottom Sheet")
+                    CupertinoText(text = selectedItem?.let { "Selected item ${it + 1}" } ?: "Bottom sheet")
                 },
                 actions = {
                     CupertinoLiquidButton(
@@ -1178,7 +1386,7 @@ private fun SheetSample(
                         },
                         backdrop = backdrop,
                     ) {
-                        CupertinoText("Done")
+                        CupertinoText(text = "Done")
                     }
                 },
             )
@@ -1194,8 +1402,8 @@ private fun SheetSample(
                 color = sheetSectionColor
             ) {
                 repeat(100) {
-                    link(onClick = {}) {
-                        CupertinoText("Item $it")
+                    link(onClick = { selectedItem = it }) {
+                        CupertinoText(text = "Item ${it + 1}${if (selectedItem == it) " · Selected" else ""}")
                     }
                 }
             }

@@ -81,6 +81,45 @@ const icon =
   'CupertinoIcon(CupertinoIcons.Filled.Heart, contentDescription = "좋아요")';
 export const catalog: Component[] = [
   entry(
+    "stepper", "Stepper", "입력", "CupertinoStepper",
+    "범위 안에서 값을 한 단계씩 늘리거나 줄입니다.", [enabled],
+    (p) => state("var count by remember { mutableIntStateOf(0) }",
+      `CupertinoStepper(value = count, onValueChange = { count = it }, valueRange = 0..10, enabled = ${p.enabled})`),
+  ),
+  entry(
+    "page-control", "Page Control", "선택", "CupertinoPageControl",
+    "현재 페이지와 이동 가능한 페이지를 점으로 표시합니다.", [],
+    () => state("var page by remember { mutableIntStateOf(0) }",
+      'CupertinoPageControl(\n    pageCount = 10,\n    currentPage = page,\n    onPageSelected = { page = it },\n    pageDescription = { index, total -> "${index + 1}/${total}페이지" },\n)'),
+  ),
+  entry(
+    "progress-indicator", "Progress Indicator", "상태", "CupertinoProgressIndicator",
+    "4dp 트랙과 설명으로 작업 진행률을 표시합니다.", [value, text("label", "설명", "불러오는 중")],
+    (p) => `CupertinoProgressIndicator(progress = ${p.value}f, label = ${quote(p.label)})`,
+  ),
+  entry(
+    "badge", "Badge", "상태", "CupertinoBadge",
+    "숫자나 짧은 상태를 캡슐 모양 배지로 표시합니다.", [text("label", "내용", "3")],
+    (p) => `CupertinoBadge { CupertinoText(text = ${quote(p.label)}) }`,
+  ),
+  entry(
+    "empty-state", "Empty State", "상태", "CupertinoEmptyState",
+    "콘텐츠가 없는 화면에 제목, 설명, 아이콘과 동작을 배치합니다.", [text("label", "제목", "저장된 항목 없음")],
+    (p) => `CupertinoEmptyState(\n    title = { CupertinoText(text = ${quote(p.label)}) },\n    description = { CupertinoText(text = "새 항목을 추가해 보세요.") },\n)`,
+  ),
+  entry(
+    "popup-button", "Pop-up Button", "선택", "CupertinoPopupButton",
+    "현재 선택값을 표시하고 체크 표시가 있는 선택 메뉴를 엽니다.", [enabled],
+    (p) => state("var expanded by remember { mutableStateOf(false) }\nvar selected by remember { mutableIntStateOf(0) }",
+      `CupertinoPopupButton(\n    expanded = expanded,\n    onExpandedChange = { expanded = it },\n    enabled = ${p.enabled},\n    title = { CupertinoText(text = "선택 "+ (selected + 1)) },\n) {\n    repeat(3) { index ->\n        MenuPickerAction(\n            isSelected = selected == index,\n            onClick = { selected = index; expanded = false },\n            title = { CupertinoText(text = "항목 "+ (index + 1)) },\n        )\n    }\n}`),
+  ),
+  entry(
+    "popover", "Popover", "오버레이", "CupertinoPopover",
+    "기준 요소를 가리키는 화살표가 있는 팝오버를 표시합니다.", [text("label", "버튼", "팝오버 열기")],
+    (p) => state("var expanded by remember { mutableStateOf(false) }",
+      `Box {\n    CupertinoButton(onClick = { expanded = true }) { CupertinoText(text = ${quote(p.label)}) }\n    CupertinoPopover(expanded = expanded, onDismissRequest = { expanded = false }) {\n        CupertinoText(text = "추가 정보를 표시합니다.")\n    }\n}`),
+  ),
+  entry(
     "button",
     "Button",
     "액션",

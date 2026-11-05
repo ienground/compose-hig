@@ -50,6 +50,14 @@ import zone.ien.hig.cancel
 import zone.ien.hig.destructive
 import zone.ien.hig.CupertinoActionSheet
 import zone.ien.hig.CupertinoActivityIndicator
+import zone.ien.hig.CupertinoBadge
+import zone.ien.hig.CupertinoEmptyState
+import zone.ien.hig.CupertinoPageControl
+import zone.ien.hig.CupertinoPopover
+import zone.ien.hig.CupertinoPopupButton
+import zone.ien.hig.CupertinoProgressIndicator
+import zone.ien.hig.CupertinoStepper
+import zone.ien.hig.MenuPickerAction
 import zone.ien.hig.CupertinoAlertDialog
 import zone.ien.hig.CupertinoBorderedTextField
 import zone.ien.hig.CupertinoBottomSheetContent
@@ -212,6 +220,51 @@ private fun PlaygroundPreview(component: String) {
                 "switch" -> {
                     CupertinoSwitch(checked = checked, onCheckedChange = { checked = it }, enabled = enabled, backdrop = backdrop)
                     CupertinoText(if (checked) previewText("켜짐", "On") else previewText("꺼짐", "Off"))
+                }
+                "stepper" -> {
+                    CupertinoStepper(
+                        value = clicks,
+                        onValueChange = { clicks = it },
+                        valueRange = 0..10,
+                        enabled = enabled,
+                        decrementLabel = previewText("줄이기", "Decrease"),
+                        incrementLabel = previewText("늘리기", "Increase"),
+                    )
+                    CupertinoText(text = clicks.toString())
+                }
+                "page-control" -> CupertinoPageControl(
+                    pageCount = 10,
+                    currentPage = clicks.coerceIn(0, 9),
+                    onPageSelected = { clicks = it },
+                    pageDescription = { index, total -> previewText("${index + 1}/${total}페이지", "Page ${index + 1} of $total") },
+                )
+                "progress-indicator" -> CupertinoProgressIndicator(progress = value, label = label)
+                "badge" -> CupertinoBadge { CupertinoText(text = label) }
+                "empty-state" -> CupertinoEmptyState(
+                    title = { CupertinoText(text = label) },
+                    description = { CupertinoText(text = previewText("새 항목을 추가해 보세요.", "Add a new item to get started.")) },
+                    icon = { CupertinoIcon(CupertinoIcons.Filled.Heart, contentDescription = null, modifier = Modifier.size(49.dp)) },
+                )
+                "popup-button" -> CupertinoPopupButton(
+                    expanded = visible,
+                    onExpandedChange = { visible = it },
+                    enabled = enabled,
+                    backdrop = backdrop,
+                    title = { CupertinoText(text = "${previewText("선택", "Selection")} ${selected + 1}") },
+                ) {
+                    repeat(3) { index ->
+                        MenuPickerAction(
+                            isSelected = selected == index,
+                            onClick = { selected = index; visible = false },
+                            title = { CupertinoText(text = "${previewText("항목", "Item")} ${index + 1}") },
+                        )
+                    }
+                }
+                "popover" -> Box {
+                    CupertinoButton(onClick = { visible = true }) { CupertinoText(text = label) }
+                    CupertinoPopover(expanded = visible, onDismissRequest = { visible = false }, backdrop = backdrop) {
+                        CupertinoText(text = previewText("추가 정보를 표시합니다.", "Additional information."))
+                    }
                 }
                 "checkbox" -> {
                     CupertinoCheckBox(checked = checked, onCheckedChange = { checked = it }, enabled = enabled)

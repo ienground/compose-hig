@@ -11,6 +11,8 @@ import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoText
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveListDetailPane
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.adaptive.adaptivePaneAnimation
 import zone.ien.hig.adaptive.isAdaptiveListDetailExpanded
 import zone.ien.hig.adaptive.rememberAdaptiveListDetailSceneStrategy
@@ -24,6 +26,9 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import cupertino.CupertinoWidgetsScreen
+import cupertino.CatalogComponent
+import cupertino.ComponentDetailScreen
+import cupertino.CupertinoIntegrationScreen
 import icons.IconsScreen
 import haptic.HapticFeedbackScreen
 import kotlinx.serialization.Serializable
@@ -38,6 +43,8 @@ sealed interface RootRoute: NavKey {
     @Serializable data object Icons: RootRoute
     @Serializable data object Sections: RootRoute
     @Serializable data object HapticFeedback: RootRoute
+    @Serializable data object Integration: RootRoute
+    @Serializable data class Component(val component: CatalogComponent): RootRoute
 }
 
 val rootConfig = SavedStateConfiguration {
@@ -48,11 +55,13 @@ val rootConfig = SavedStateConfiguration {
             subclass(RootRoute.Icons::class, RootRoute.Icons.serializer())
             subclass(RootRoute.Sections::class, RootRoute.Sections.serializer())
             subclass(RootRoute.HapticFeedback::class, RootRoute.HapticFeedback.serializer())
+            subclass(RootRoute.Integration::class, RootRoute.Integration.serializer())
+            subclass(RootRoute.Component::class, RootRoute.Component.serializer())
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalCupertinoApi::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
 @Composable
 fun RootNavigationGraph(
     modifier: Modifier = Modifier,
@@ -78,7 +87,7 @@ fun RootNavigationGraph(
                         AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
                             CupertinoScaffold { padding ->
                                 Box(Modifier.fillMaxSize().padding(padding).padding(24.dp), contentAlignment = Alignment.Center) {
-                                    CupertinoText("메뉴에서 화면을 선택하세요.")
+                                    CupertinoText("Select a component from the catalog.")
                                 }
                             }
                         }
@@ -107,10 +116,39 @@ fun RootNavigationGraph(
                 metadata = ListDetailSceneStrategy.detailPane() + paneAnimation,
             ) {
                 AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
-                    AdaptiveWidgetsScreen(
+                    val settings = viewModel.uiState.item
+                    GeneratedAdaptiveTheme(
+                        target = if (settings.isMaterial) Theme.Material3 else Theme.Cupertino,
+                        primaryColor = if (settings.isDark) settings.accentColors.second else settings.accentColors.first,
+                        useDarkTheme = settings.isDark,
+                    ) {
+                        AdaptiveWidgetsScreen(
+                            uiState = viewModel.uiState,
+                            onItemValueChanged = viewModel::updateUiState,
+                            navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                        )
+                    }
+                }
+            }
+            entry<RootRoute.Component>(
+                metadata = ListDetailSceneStrategy.detailPane() + paneAnimation,
+            ) { route ->
+                AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                    ComponentDetailScreen(
+                        component = route.component,
+                        navigateBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
+                    )
+                }
+            }
+            entry<RootRoute.Integration>(
+                metadata = ListDetailSceneStrategy.detailPane() + paneAnimation,
+            ) {
+                AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                    CupertinoIntegrationScreen(
                         uiState = viewModel.uiState,
                         onItemValueChanged = viewModel::updateUiState,
-                        navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                        onNavigate = { route -> backStack.add(route) },
+                        navigateBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
                     )
                 }
             }

@@ -900,7 +900,7 @@ object CupertinoBorderedTextFieldDefaults {
         @Composable
         get() = ContinuousRoundedRectangle(14.dp)
 
-    val PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+    val PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 4.dp)
 
     /**
      * Creates a [CupertinoTextFieldColors] that represents the default input text, container, and content
@@ -963,7 +963,7 @@ object CupertinoBorderedTextFieldDefaults {
         disabledTrailingIconColor: Color = focusedTrailingIconColor,
         errorTrailingIconColor: Color = focusedTrailingIconColor,
         focusedPlaceholderColor: Color = CupertinoTheme.colorScheme.secondaryLabel,
-        unfocusedPlaceholderColor: Color = focusedPlaceholderColor,
+        unfocusedPlaceholderColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
         disabledPlaceholderColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
         errorPlaceholderColor: Color = focusedPlaceholderColor,
     ): CupertinoTextFieldColors =
@@ -1083,7 +1083,7 @@ object CupertinoTextFieldDefaults {
         disabledTrailingIconColor: Color = focusedTrailingIconColor,
         errorTrailingIconColor: Color = focusedTrailingIconColor,
         focusedPlaceholderColor: Color = CupertinoTheme.colorScheme.secondaryLabel,
-        unfocusedPlaceholderColor: Color = focusedPlaceholderColor,
+        unfocusedPlaceholderColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
         disabledPlaceholderColor: Color = CupertinoTheme.colorScheme.tertiaryLabel,
         errorPlaceholderColor: Color = focusedPlaceholderColor,
     ): CupertinoTextFieldColors =

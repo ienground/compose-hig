@@ -169,7 +169,6 @@ fun CupertinoSection(
                     if (caption != null) {
                         SectionCaption(
                             style = style,
-                            lazy = false,
                             content = caption,
                         )
                         if (!style.grouped) {
