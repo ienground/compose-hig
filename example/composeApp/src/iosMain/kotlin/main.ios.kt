@@ -22,17 +22,20 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.window.ComposeUIViewController
 import platform.UIKit.UIViewController
+import zone.ien.hig.enableCupertinoParallelRenderingFix
 
 actual val IsIos: Boolean
     get() = true
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun MainViewController(): UIViewController =
-    ComposeUIViewController(
+fun MainViewController(): UIViewController {
+    check(enableCupertinoParallelRenderingFix()) { "Compose 병렬 렌더링 보정을 적용하지 못했습니다" }
+    return ComposeUIViewController(
         configure = {
-            onFocusBehavior = OnFocusBehavior.DoNothing
-            parallelRendering = false
+//            onFocusBehavior = OnFocusBehavior.DoNothing
+//            parallelRendering = false
         },
     ) {
         App()
     }
+}

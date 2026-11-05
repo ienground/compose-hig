@@ -14,3 +14,5 @@ xcuserdata
 /.kotlin/
 gpg_private.asc
 public_key.asc
+ref
+docs/ios27.fig

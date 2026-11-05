@@ -1,0 +1,146 @@
+language = Objective-C
+package = zone.ien.hig.uikit.rendering
+compilerOpts = -fobjc-arc
+---
+/*
+ * Copyright 2026 The Android Open Source Project
+ * Copyright 2026 IENGROUND of IENLAB.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#import <Foundation/Foundation.h>
+#import <QuartzCore/QuartzCore.h>
+#import <Metal/Metal.h>
+#import <IOSurface/IOSurfaceRef.h>
+#import <objc/runtime.h>
+
+@protocol HIGMetalLayerAccess
+- (id<MTLDevice>)device;
+- (IOSurfaceRef)IOSurface CF_RETURNS_RETAINED;
+- (id)nextDrawable;
+@end
+
+@protocol HIGDrawableAccess
+- (IOSurfaceRef)surface;
+- (CFTimeInterval)presentedTime;
+- (BOOL)isWaitingForCommandBufferCompletion;
+- (instancetype)initWithTexture:(id<MTLTexture>)texture size:(CGSize)size surface:(IOSurfaceRef)surface;
+@end
+
+static inline BOOL HIGMatchesMethods(Class cls, Protocol *protocol) {
+    unsigned int count = 0;
+    struct objc_method_description *methods = protocol_copyMethodDescriptionList(protocol, YES, YES, &count);
+    BOOL matches = count > 0;
+    for (unsigned int i = 0; matches && i < count; i++) {
+        Method method = class_getInstanceMethod(cls, methods[i].name);
+        if (method == NULL) {
+            matches = NO;
+            break;
+        }
+        NSMethodSignature *expected = [NSMethodSignature signatureWithObjCTypes:methods[i].types];
+        NSMethodSignature *actual = [NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(method)];
+        matches = expected.numberOfArguments == actual.numberOfArguments &&
+                  strcmp(expected.methodReturnType, actual.methodReturnType) == 0;
+        for (NSUInteger j = 0; matches && j < expected.numberOfArguments; j++) {
+            matches = strcmp([expected getArgumentTypeAtIndex:j], [actual getArgumentTypeAtIndex:j]) == 0;
+        }
+    }
+    free(methods);
+    return matches;
+}
+
+static inline BOOL HIGMatchesIvar(Class cls, const char *name, const char *type) {
+    Ivar ivar = class_getInstanceVariable(cls, name);
+    return ivar != NULL && strcmp(ivar_getTypeEncoding(ivar), type) == 0;
+}
+
+// Compose 1.12.2 CMPMetalLayer의 버퍼 수명 관리와 같은 잠금을 사용한다.
+static inline id HIGFindIdleDrawable(NSObject<HIGMetalLayerAccess> *layer, Class drawableClass) {
+    NSLock *lock = [layer valueForKey:@"drawablesLock"];
+    [lock lock];
+    @try {
+        id<HIGDrawableAccess> last = [layer valueForKey:@"lastPresentedDrawable"];
+        if ([last isWaitingForCommandBufferCompletion]) return nil;
+
+        NSMutableSet *available = [layer valueForKey:@"availableDrawables"];
+        id<HIGDrawableAccess> result = nil;
+        CFTimeInterval oldestTime = INFINITY;
+        for (id<HIGDrawableAccess> drawable in available) {
+            if (![drawable isWaitingForCommandBufferCompletion] && !IOSurfaceIsInUse([drawable surface]) &&
+                [drawable presentedTime] < oldestTime) {
+                result = drawable;
+                oldestTime = [drawable presentedTime];
+            }
+        }
+        if (result != nil) {
+            [available removeObject:result];
+            return result;
+        }
+
+        NSUInteger count = [[layer valueForKey:@"totalDrawables"] unsignedIntegerValue];
+        if (count >= 5) return nil;
+        IOSurfaceRef surface = [layer IOSurface];
+        if (surface == NULL) return nil;
+
+        // drawableSize 접근자는 메인 스레드 전용이다. 잠금 안에서 생성한 surface의 크기를 사용한다.
+        NSUInteger width = IOSurfaceGetWidth(surface);
+        NSUInteger height = IOSurfaceGetHeight(surface);
+        MTLTextureDescriptor *descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
+                                                                                          width:width
+                                                                                         height:height
+                                                                                      mipmapped:NO];
+        descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
+        id<MTLTexture> texture = [[layer device] newTextureWithDescriptor:descriptor iosurface:surface plane:0];
+        if (texture != nil) {
+            result = [(id<HIGDrawableAccess>)[drawableClass alloc] initWithTexture:texture
+                                                                            size:CGSizeMake(width, height)
+                                                                         surface:surface];
+            if (result != nil) [layer setValue:@(count + 1) forKey:@"totalDrawables"];
+        }
+        CFRelease(surface);
+        return result;
+    } @finally {
+        [lock unlock];
+    }
+}
+
+static inline BOOL HIGEnableParallelRenderingFix(void) {
+    if (![NSThread isMainThread]) return NO;
+    static BOOL installed = NO;
+    if (installed) return YES;
+
+    Class layerClass = NSClassFromString(@"CMPMetalLayer");
+    Class drawableClass = NSClassFromString(@"CMPDrawable");
+    if (layerClass == Nil || drawableClass == Nil ||
+        !HIGMatchesMethods(layerClass, @protocol(HIGMetalLayerAccess)) ||
+        !HIGMatchesMethods(drawableClass, @protocol(HIGDrawableAccess)) ||
+        !HIGMatchesIvar(layerClass, "_drawablesLock", "@\"NSLock\"") ||
+        !HIGMatchesIvar(layerClass, "_availableDrawables", "@\"NSMutableSet\"") ||
+        !HIGMatchesIvar(layerClass, "_totalDrawables", @encode(NSUInteger)) ||
+        !HIGMatchesIvar(layerClass, "_lastPresentedDrawable", "@\"CMPDrawable\"")) return NO;
+
+    IMP replacement = imp_implementationWithBlock(^id(NSObject<HIGMetalLayerAccess> *layer) {
+        CFTimeInterval start = CACurrentMediaTime();
+        while (YES) {
+            id drawable = HIGFindIdleDrawable(layer, drawableClass);
+            if (drawable != nil) return drawable;
+            // 메인 스레드를 막으면 Core Animation도 버퍼 사용을 끝낼 수 없다.
+            if ([NSThread isMainThread] || CACurrentMediaTime() - start >= 1.0) return (id)nil;
+            [NSThread sleepForTimeInterval:0.001];
+        }
+    });
+    method_setImplementation(class_getInstanceMethod(layerClass, @selector(nextDrawable)), replacement);
+    installed = YES;
+    return YES;
+}
