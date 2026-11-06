@@ -778,12 +778,7 @@ private fun TopAppBarLayout(
             if (constraints.maxWidth == Constraints.Infinity) {
                 constraints.maxWidth
             } else {
-                val reservedWidth = if (titleHorizontalArrangement == Arrangement.Center) {
-                    2 * max(leadingInset, trailingInset)
-                } else {
-                    leadingInset + trailingInset
-                }
-                (constraints.maxWidth - reservedWidth).coerceAtLeast(0)
+                (constraints.maxWidth - leadingInset - trailingInset).coerceAtLeast(0)
             }
 
         val titlePlaceable = measurables
@@ -819,7 +814,12 @@ private fun TopAppBarLayout(
             titlePlaceable.placeRelative(
                 x =
                     when (titleHorizontalArrangement) {
-                        Arrangement.Center -> (constraints.maxWidth - titlePlaceable.width) / 2
+                        Arrangement.Center -> ((constraints.maxWidth - titlePlaceable.width) / 2)
+                            .coerceIn(
+                                leadingInset,
+                                (constraints.maxWidth - trailingInset - titlePlaceable.width)
+                                    .coerceAtLeast(leadingInset),
+                            )
                         Arrangement.End ->
                             constraints.maxWidth - titlePlaceable.width - trailingInset
                         else -> leadingInset
