@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.CompositionLocalProvider
@@ -67,9 +68,8 @@ import zone.ien.hig.cupertinoScrollEdge
 import zone.ien.hig.theme.CupertinoTheme
 
 @Composable
-fun ComponentDetailScreen(component: CatalogComponent, navigateBack: () -> Unit) {
+fun ComponentDetailScreen(component: CatalogComponent, scrollState: ScrollState = rememberScrollState(), navigateBack: () -> Unit) {
     var revision by rememberSaveable(component) { mutableIntStateOf(0) }
-    val scrollState = rememberScrollState()
     val background = CupertinoTheme.colorScheme.systemGroupedBackground
     val backdrop = rememberLayerBackdrop {
         drawRect(background)

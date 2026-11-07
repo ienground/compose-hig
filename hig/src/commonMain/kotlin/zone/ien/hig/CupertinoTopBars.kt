@@ -78,6 +78,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -272,7 +273,7 @@ fun CupertinoTopAppBar(
 }
 
 internal val LocalNavigationTitleVisible = compositionLocalOf { mutableStateOf(false) }
-internal val LocalTopScrollEdgeProgress = compositionLocalOf { 0f }
+internal val LocalTopScrollEdgeProgress = compositionLocalOf<State<Float>> { mutableStateOf(0f) }
 internal val LocalNavigationTitleProgress = compositionLocalOf { mutableStateOf(1f) }
 
 private class ClipShape(
@@ -487,7 +488,6 @@ private fun InlineTopAppBar(
     val navTitleVisible by LocalNavigationTitleVisible.current
     val scrollEdgeProgress = LocalTopScrollEdgeProgress.current
     val isSheetToolbar = LocalCupertinoSheetBackdrop.current != null
-    val materialProgress = if (isSheetToolbar) 1f else scrollEdgeProgress
     val isLightTheme = !CupertinoTheme.colorScheme.isDark
 //    val layer = backdrop.graphicsLayer
     val layer = rememberGraphicsLayer()
@@ -517,7 +517,6 @@ private fun InlineTopAppBar(
     val gradientColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightGradientColor else darkGradientColor) }
     val titleColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightTitleColor else darkTitleColor) }
     val subtitleColorAnimation = remember { ColorAnimatable(if (isLightTheme) lightSubtitleColor else darkSubtitleColor) }
-    val backgroundOpacity = 0.64f * materialProgress
     val backgroundTint = if (isBackgroundGradient) {
         gradientColorAnimation.value
     } else if (isSheetToolbar) {
@@ -599,7 +598,7 @@ private fun InlineTopAppBar(
                                 CupertinoGlassDefaults.refractionAmount.toPx(),
                             )
                         } else {
-                            blur(TopAppBarBlurRadius.toPx() * scrollEdgeProgress)
+                            blur(TopAppBarBlurRadius.toPx() * scrollEdgeProgress.value)
                         }
                         runtimeShaderEffect(
                             "MaterialTint",
@@ -620,7 +619,8 @@ private fun InlineTopAppBar(
                             "content"
                         ) {
                             setColorUniform("tint", backgroundTint.copy(alpha = 1f))
-                            setFloatUniform("tintIntensity", backgroundOpacity * backgroundTint.alpha)
+                            val materialProgress = if (isSheetToolbar) 1f else scrollEdgeProgress.value
+                            setFloatUniform("tintIntensity", 0.64f * materialProgress * backgroundTint.alpha)
                             setFloatUniform("height", size.height)
                             setFloatUniform("fadeHeight", if (extendTopBlur) TopAppBarHeight.toPx() else 0f)
                             setFloatUniform("solidFraction", CupertinoTopBlurSolidFraction)
@@ -703,7 +703,7 @@ private fun InlineTopAppBar(
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .height(1.dp)
-                .alpha(scrollEdgeProgress)
+                .graphicsLayer { alpha = scrollEdgeProgress.value }
                 .background(
                     CupertinoGlassDefaults.border.copy(
                         alpha = if (Accessibility.isHighContrastEnabled) {

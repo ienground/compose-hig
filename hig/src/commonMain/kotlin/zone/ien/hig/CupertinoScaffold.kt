@@ -54,6 +54,8 @@ import zone.ien.hig.utils.LocalCupertinoBackdropCoordinates
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.foundation.lazy.LazyListState
@@ -219,8 +221,13 @@ fun CupertinoScaffold(
     val scrollOffset = remember { mutableStateOf(0f) }
     val scrollSource = remember { mutableStateOf<ScrollableState?>(null) }
     val density = LocalDensity.current
-    val scrollEdgeProgress by animateFloatAsState(
-        (scrollOffset.value / with(density) { 24.dp.toPx() }).coerceIn(0f, 1f),
+    val scrollEdgeTarget by remember(density) {
+        derivedStateOf(structuralEqualityPolicy()) {
+            (scrollOffset.value / with(density) { 24.dp.toPx() }).coerceIn(0f, 1f)
+        }
+    }
+    val scrollEdgeProgress = animateFloatAsState(
+        scrollEdgeTarget,
         animationSpec = spring(dampingRatio = 1f, stiffness = 600f),
         label = "TopScrollEdge",
     )
@@ -1000,14 +1007,14 @@ fun Modifier.cupertinoScrollEdge(state: ScrollableState): Modifier {
     }
     LaunchedEffect(state, distance) {
         snapshotFlow {
-            when (state) {
+            (when (state) {
                 is LazyListState ->
                     if (state.firstVisibleItemIndex == 0) state.firstVisibleItemScrollOffset.toFloat() else distance
                 is LazyGridState ->
                     if (state.firstVisibleItemIndex == 0) state.firstVisibleItemScrollOffset.toFloat() else distance
                 is ScrollState -> state.value.toFloat()
                 else -> if (state.canScrollBackward) distance else 0f
-            }
+            }).coerceIn(0f, distance)
         }.collect { offset.value = it }
     }
     return this
