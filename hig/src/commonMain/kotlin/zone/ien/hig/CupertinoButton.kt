@@ -20,9 +20,11 @@
 
 package zone.ien.hig
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,11 +38,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -61,6 +65,10 @@ import zone.ien.hig.theme.DefaultAlpha
 import zone.ien.hig.theme.Shapes
 import zone.ien.hig.theme.Typography
 import zone.ien.hig.utils.CupertinoGlassDefaults
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 /**
  * Represents the size configuration for Cupertino buttons.
@@ -134,18 +142,24 @@ fun CupertinoButton(
     border: BorderStroke? = null,
     shape: Shape = size.shape(CupertinoTheme.shapes),
     contentPadding: PaddingValues = size.contentPadding,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource = remember { CupertinoButtonInteractionSource() },
     content: @Composable RowScope.() -> Unit
 ) {
-    val pressed by interactionSource.collectIsPressedAsState()
+    val pressed by if (colors.isPlain && enabled) {
+        if (interactionSource is CupertinoButtonInteractionSource) interactionSource.isPressed
+        else interactionSource.collectIsPressedAsState()
+    } else {
+        rememberUpdatedState(false)
+    }
+    val animatedAlpha = remember { Animatable(1f) }
+    LaunchedEffect(pressed) {
+        val targetAlpha = if (pressed) CupertinoButtonTokens.PressedPlainButonAlpha else 1f
+        if (animatedAlpha.value != targetAlpha) animatedAlpha.animateTo(targetAlpha)
+    }
 
-    val animatedAlpha by animateFloatAsState(
-        targetValue = if (pressed)
-            CupertinoButtonTokens.PressedPlainButonAlpha
-        else 1f
-    )
-
-    val indication = rememberCupertinoIndication(colors.indicationColor)
+    val indication = if (colors.indicationColor.alpha > 0f) {
+        rememberCupertinoIndication(colors.indicationColor)
+    } else null
 
     CupertinoSurface(
         onClick = onClick,
@@ -167,7 +181,7 @@ fun CupertinoButton(
                         if (colors.isPlain && enabled) {
                             alpha = if (pressed)
                                 CupertinoButtonTokens.PressedPlainButonAlpha
-                            else animatedAlpha
+                            else animatedAlpha.value
                         }
                     }
                 ,
@@ -176,6 +190,31 @@ fun CupertinoButton(
                 content = content
             )
         }
+    }
+}
+
+internal class CupertinoButtonInteractionSource : MutableInteractionSource {
+    private val lock = SynchronizedObject()
+    private val presses = mutableListOf<PressInteraction.Press>()
+    private val pressed = mutableStateOf(false)
+    val isPressed: State<Boolean> get() = pressed
+    override val interactions = MutableSharedFlow<Interaction>(
+        extraBufferCapacity = 16,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+
+    override fun tryEmit(interaction: Interaction): Boolean = synchronized(lock) {
+        when (interaction) {
+            is PressInteraction.Press -> presses.add(interaction)
+            is PressInteraction.Release -> presses.remove(interaction.press)
+            is PressInteraction.Cancel -> presses.remove(interaction.press)
+        }
+        pressed.value = presses.isNotEmpty()
+        interactions.tryEmit(interaction)
+    }
+
+    override suspend fun emit(interaction: Interaction) {
+        tryEmit(interaction)
     }
 }
 
@@ -216,7 +255,7 @@ fun CupertinoIconButton(
     enabled: Boolean = true,
     colors: CupertinoButtonColors = plainButtonColors(),
     border: BorderStroke? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource = remember { CupertinoButtonInteractionSource() },
     content: @Composable () -> Unit
 ) {
     CupertinoButton(

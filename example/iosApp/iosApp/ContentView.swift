@@ -13,8 +13,17 @@ struct ComposeView: UIViewControllerRepresentable {
 
 struct ContentView: View {
     var body: some View {
-        ComposeView()
-                .ignoresSafeArea()
+        if ProcessInfo.processInfo.arguments.contains("--hig-uikit-reference") {
+            PickerReferenceView().ignoresSafeArea()
+        } else {
+            ComposeView().ignoresSafeArea()
+        }
     }
 }
 
+
+
+struct PickerReferenceView: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> UIViewController { PickerReferenceController() }
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+}

@@ -23,19 +23,22 @@ import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.window.ComposeUIViewController
 import platform.UIKit.UIViewController
 import zone.ien.hig.enableCupertinoParallelRenderingFix
+import platform.Foundation.NSProcessInfo
 
 actual val IsIos: Boolean
     get() = true
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun MainViewController(): UIViewController {
-    check(enableCupertinoParallelRenderingFix()) { "Compose 병렬 렌더링 보정을 적용하지 못했습니다" }
+    if (!NSProcessInfo.processInfo.arguments.contains("--hig-original-renderer")) {
+        check(enableCupertinoParallelRenderingFix()) { "Compose 병렬 렌더링 보정을 적용하지 못했습니다" }
+    }
     return ComposeUIViewController(
         configure = {
 //            onFocusBehavior = OnFocusBehavior.DoNothing
-//            parallelRendering = false
+            parallelRendering = !NSProcessInfo.processInfo.arguments.contains("--hig-serial-renderer")
         },
     ) {
-        App()
+        if (NSProcessInfo.processInfo.arguments.contains("--hig-stress")) DeviceStressScreen() else App()
     }
 }

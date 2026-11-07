@@ -29,6 +29,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.uikit.LocalUIViewController
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CompletableDeferred
+import platform.Foundation.NSSelectorFromString
 import zone.ien.hig.theme.CupertinoTheme
 import platform.UIKit.UIAlertController
 import platform.UIKit.UIPresentationController
@@ -46,6 +47,12 @@ private val EmptyTransitioningDelegate =
         NSObject(), UIViewControllerTransitioningDelegateProtocol {
         override fun hash(): NSUInteger = 123u
     }
+
+@OptIn(ExperimentalForeignApi::class)
+internal inline fun <T> UIViewControllerTransitioningDelegateProtocol.callIfImplemented(
+    selector: String,
+    block: (UIViewControllerTransitioningDelegateProtocol) -> T,
+): T? = if (respondsToSelector(NSSelectorFromString(selector))) block(this) else null
 
 @Suppress("UNUSED")
 private class ControllerHolder<T: UIViewController>(
@@ -126,29 +133,32 @@ internal fun <T: UIViewController> PresentationController(
                     presentingController: UIViewController,
                     sourceController: UIViewController,
                 ): UIViewControllerAnimatedTransitioningProtocol? =
-                    currentDelegate
-                        .animationControllerForPresentedController(presented, presentingController, sourceController)
+                    currentDelegate.callIfImplemented(
+                        "animationControllerForPresentedController:presentingController:sourceController:",
+                    ) { it.animationControllerForPresentedController(presented, presentingController, sourceController) }
 
                 override fun interactionControllerForPresentation(
                     animator: UIViewControllerAnimatedTransitioningProtocol,
-                ): UIViewControllerInteractiveTransitioningProtocol? = currentDelegate.interactionControllerForPresentation(animator)
+                ): UIViewControllerInteractiveTransitioningProtocol? = currentDelegate.callIfImplemented(
+                    "interactionControllerForPresentation:",
+                ) { it.interactionControllerForPresentation(animator) }
 
                 override fun presentationControllerForPresentedViewController(
                     presented: UIViewController,
                     presentingViewController: UIViewController?,
                     sourceViewController: UIViewController,
                 ): UIPresentationController? =
-                    currentDelegate.presentationControllerForPresentedViewController(
-                        presented,
-                        presentingViewController,
-                        sourceViewController,
-                    )
+                    currentDelegate.callIfImplemented(
+                        "presentationControllerForPresentedViewController:presentingViewController:sourceViewController:",
+                    ) { it.presentationControllerForPresentedViewController(presented, presentingViewController, sourceViewController) }
 
                 override fun animationControllerForDismissedController(
                     dismissed: UIViewController,
                 ): UIViewControllerAnimatedTransitioningProtocol? {
                     if (dismissed == tController) dismissRequestGuard.request()
-                    return currentDelegate.animationControllerForDismissedController(dismissed)
+                    return currentDelegate.callIfImplemented(
+                        "animationControllerForDismissedController:",
+                    ) { it.animationControllerForDismissedController(dismissed) }
                 }
 
                 override fun hash(): NSUInteger = 1u

@@ -2,6 +2,11 @@ package zone.ien.hig
 
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -11,17 +16,137 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.timeIntervalSince1970
+import platform.Foundation.NSLocale
 import platform.UIKit.UIAlertController
 import platform.UIKit.UIAlertControllerStyleActionSheet
 import platform.UIKit.UIDatePicker
+import platform.UIKit.UIDatePickerMode
+import platform.UIKit.UIDatePickerStyle
 import platform.UIKit.UIPickerView
 import platform.UIKit.UIUserInterfaceIdiomPad
 import platform.UIKit.UIViewController
+import platform.UIKit.UIViewControllerTransitioningDelegateProtocol
+import platform.darwin.NSObject
 import platform.UIKit.UIScreen
 import platform.UIKit.popoverPresentationController
 
 @OptIn(ExperimentalForeignApi::class)
 class CupertinoNativeControlsTest {
+    @Test
+    fun wheelModesShareMeasuredSizeWithinEachLocale() {
+        listOf("en_US", "ko_KR", "ar_SA", "ja_JP", "de_DE").forEach { locale ->
+            val sizes = listOf(
+                UIDatePickerMode.UIDatePickerModeDate,
+                UIDatePickerMode.UIDatePickerModeTime,
+                UIDatePickerMode.UIDatePickerModeDateAndTime,
+            ).map { mode ->
+                UIDatePicker().apply {
+                    this.locale = NSLocale(localeIdentifier = locale)
+                    preferredDatePickerStyle = UIDatePickerStyle.UIDatePickerStyleWheels
+                    datePickerMode = mode
+                }.measureSizeForStyle(UIDatePickerStyle.UIDatePickerStyleWheels)
+            }
+            assertTrue(sizes.first().width.value > 0 && sizes.first().height.value > 0, locale)
+            assertEquals(1, sizes.distinct().size, "$locale: $sizes")
+        }
+    }
+
+    @Test
+    fun pickerCreationBudgetResumesOneWaiterPerDisplayFrame() {
+        var now = 0.0
+        val budget = NativePickerCreationBudget { now }
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val resumed = mutableListOf<Int>()
+        budget.retainClient()
+        try {
+            val initial = assertNotNull(budget.beginImmediately())
+            repeat(2) { index ->
+                scope.launch {
+                    val slot = budget.awaitSlot()
+                    resumed += index
+                    budget.complete(slot)
+                }
+            }
+            assertNull(budget.beginImmediately())
+            budget.advanceFrame(1.0)
+            assertTrue(resumed.isEmpty())
+            budget.complete(initial)
+            budget.advanceFrame(0.0)
+            assertTrue(resumed.isEmpty())
+            now = 1.0
+            budget.advanceFrame(1.0)
+            assertEquals(listOf(0), resumed)
+            budget.advanceFrame(1.0)
+            assertEquals(listOf(0), resumed)
+            now = 2.0
+            budget.advanceFrame(2.0)
+            assertEquals(listOf(0, 1), resumed)
+        } finally {
+            scope.cancel()
+            budget.releaseClient()
+        }
+    }
+
+    @Test
+    fun pickerCreationBudgetSkipsCancelledWaitersAndClearsWhenForgotten() {
+        val budget = NativePickerCreationBudget { 0.0 }
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        budget.retainClient()
+        try {
+            var cancelledResumed = false
+            val cancelled = scope.launch { budget.awaitSlot(); cancelledResumed = true }
+            cancelled.cancel()
+            var nextResumed = false
+            scope.launch {
+                val slot = budget.awaitSlot()
+                nextResumed = true
+                budget.complete(slot)
+            }
+            budget.advanceFrame(1.0)
+            assertFalse(cancelledResumed)
+            assertTrue(nextResumed)
+            val abandoned = scope.launch { budget.awaitSlot() }
+            budget.releaseClient()
+            assertTrue(abandoned.isCancelled)
+            budget.retainClient()
+            val newSlot = assertNotNull(budget.beginImmediately())
+            budget.complete(newSlot)
+        } finally {
+            scope.cancel()
+            budget.releaseClient()
+        }
+    }
+
+    @Test
+    fun absentOptionalTransitionDelegateMethodsAreNotInvoked() {
+        val delegate = object : NSObject(), UIViewControllerTransitioningDelegateProtocol {}
+        listOf(
+            "animationControllerForPresentedController:presentingController:sourceController:",
+            "interactionControllerForPresentation:",
+            "presentationControllerForPresentedViewController:presentingViewController:sourceViewController:",
+            "animationControllerForDismissedController:",
+        ).forEach { selector ->
+            assertNull(delegate.callIfImplemented(selector) { error("구현되지 않은 선택적 메서드 호출: $selector") })
+        }
+    }
+
+    @Test
+    fun implementedOptionalTransitionDelegateMethodsAreForwarded() {
+        var calls = 0
+        val delegate = object : NSObject(), UIViewControllerTransitioningDelegateProtocol {
+            override fun animationControllerForDismissedController(
+                dismissed: UIViewController,
+            ): platform.UIKit.UIViewControllerAnimatedTransitioningProtocol? {
+                calls++
+                return null
+            }
+        }
+        assertNull(delegate.callIfImplemented("animationControllerForDismissedController:") {
+            it.animationControllerForDismissedController(UIViewController())
+        })
+        assertEquals(1, calls)
+    }
+
     @Test
     fun uidatePickerAppliesInclusiveUtcYearBoundsAndUpdatesThem() {
         val picker = UIDatePicker(CGRectMake(0.0, 0.0, 0.0, 0.0))
