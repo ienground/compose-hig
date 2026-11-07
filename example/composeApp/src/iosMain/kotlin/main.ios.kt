@@ -36,7 +36,7 @@ fun MainViewController(): UIViewController {
     return ComposeUIViewController(
         configure = {
 //            onFocusBehavior = OnFocusBehavior.DoNothing
-//            parallelRendering = false
+            parallelRendering = !NSProcessInfo.processInfo.arguments.contains("--hig-serial-renderer")
         },
     ) {
         if (NSProcessInfo.processInfo.arguments.contains("--hig-stress")) DeviceStressScreen() else App()

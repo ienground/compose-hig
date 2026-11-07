@@ -1,6 +1,7 @@
 import SwiftUI
 import QuartzCore
 import Darwin
+import os
 import shared
 
 
@@ -51,17 +52,20 @@ final class HIGStressMonitor: NSObject {
     private var lastNativeCount = -1
     private var oldIdleTimerDisabled = false
     private let writer = DispatchQueue(label: "zone.ien.hig.stress-report")
+    private let traceLog = OSLog(subsystem: "zone.ien.hig.stress", category: .pointsOfInterest)
 
     func startIfRequested() {
         guard ProcessInfo.processInfo.arguments.contains("--hig-stress") else { return }
         oldIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
         UIApplication.shared.isIdleTimerDisabled = true
+        os_signpost(.begin, log: traceLog, name: "HIGStressPhase", "%{public}@", phase)
         observers.append(NotificationCenter.default.addObserver(forName: .init("HIGStressPhase"), object: nil, queue: .main) { [weak self] note in
             MainActor.assumeIsolated {
                 guard let self, let name = note.userInfo?["case"] as? String else { return }
                 self.closePhase()
                 self.phase = name
                 self.start = CACurrentMediaTime()
+                os_signpost(.begin, log: self.traceLog, name: "HIGStressPhase", "%{public}@", name)
                 self.previous = nil
                 self.firstCallbackDelayMs = nil
                 self.intervals = []
@@ -78,7 +82,9 @@ final class HIGStressMonitor: NSObject {
                 self.closePhase()
                 self.link?.invalidate()
                 self.link = nil
-                UIApplication.shared.isIdleTimerDisabled = self.oldIdleTimerDisabled
+                if !ProcessInfo.processInfo.arguments.contains("--hig-keep-awake") {
+                    UIApplication.shared.isIdleTimerDisabled = self.oldIdleTimerDisabled
+                }
                 self.save(true)
             }
         })
@@ -125,6 +131,7 @@ final class HIGStressMonitor: NSObject {
     }
 
     private func closePhase() {
+        os_signpost(.end, log: traceLog, name: "HIGStressPhase", "%{public}@", phase)
         var info = mach_task_basic_info()
         var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size) / 4
         let status = withUnsafeMutablePointer(to: &info) { pointer in

@@ -38,13 +38,47 @@ import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.Test
 import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.adaptive.AdaptiveTheme
+import zone.ien.hig.adaptive.CupertinoThemeSpec
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.Theme
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.theme.darkColorScheme
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCupertinoApi::class)
 class ComponentCatalogUiTest {
+    @Test
+    @OptIn(ExperimentalAdaptiveApi::class)
+    fun iconCatalogCreatesOnlyDisplayedIconsAndKeepsSelection() = runComposeUiTest {
+        val hiddenIcons = listOf("outlined", "filled").map { style ->
+            Class.forName("zone.ien.hig.icons.$style.XmarkShieldKt")
+                .getDeclaredField("_xmarkShield").apply { isAccessible = true }
+        }
+        hiddenIcons.forEach { assertNull(it.get(null)) }
+        mainClock.autoAdvance = false
+        setContent {
+            AdaptiveTheme(target = Theme.Cupertino, cupertino = CupertinoThemeSpec.Default()) {
+                Box(Modifier.size(400.dp, 800.dp)) { icons.IconsScreen {} }
+            }
+        }
+        mainClock.advanceTimeBy(500)
+        onNodeWithContentDescription("Airplane").assertIsDisplayed().performClick()
+        mainClock.advanceTimeBy(500)
+        onNodeWithText("CupertinoIcon.Outlined.Airplane").assertIsDisplayed()
+        hiddenIcons.forEach { assertNull(it.get(null), "화면 밖 아이콘을 미리 생성했습니다") }
+        onNodeWithText("Close").performClick()
+        mainClock.advanceTimeBy(500)
+        onNodeWithText("Filled").performClick()
+        mainClock.advanceTimeBy(1000)
+        onNodeWithContentDescription("Airtag").assertIsDisplayed().performClick()
+        mainClock.advanceTimeBy(500)
+        onNodeWithText("CupertinoIcon.Filled.Airtag").assertIsDisplayed()
+        hiddenIcons.forEach { assertNull(it.get(null), "화면 밖 아이콘을 미리 생성했습니다") }
+    }
+
     @Test
     fun menuRendersOverPhotoAndKeepsActions() = runComposeUiTest {
         mainClock.autoAdvance = false
