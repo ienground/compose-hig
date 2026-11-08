@@ -46,4 +46,5 @@ kotlin {
 
 tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>().configureEach {
     standalone.set(false)
+    providers.environmentVariable("CI_IOS_SIMULATOR_UDID").orNull?.let { device.set(it) }
 }
