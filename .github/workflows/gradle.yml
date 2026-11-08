@@ -40,5 +40,16 @@ jobs:
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+      - name: Boot iOS Simulator
+        if: matrix.target == 'iosSimulatorArm64Test'
+        timeout-minutes: 5
+        run: |
+          simulator_udid=$(xcrun simctl list devices available -j | jq -r '[.devices | to_entries[] | select(.key | contains(".iOS-")) | .value[] | select(.deviceTypeIdentifier | contains(".iPhone-"))][0].udid // empty')
+          if [ -z "$simulator_udid" ]; then
+            echo "::error::사용 가능한 iPhone 시뮬레이터가 없습니다."
+            exit 1
+          fi
+          xcrun simctl bootstatus "$simulator_udid" -b
+          echo "CI_IOS_SIMULATOR_UDID=$simulator_udid" >> "$GITHUB_ENV"
       - name: Run tests
         run: ./gradlew ${{ matrix.target }}
