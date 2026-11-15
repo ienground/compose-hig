@@ -38,6 +38,7 @@ kotlin {
             api(libs.compose.material3)
             api(libs.compose.adaptive)
             api(libs.compose.adaptive.navigation3)
+            implementation(libs.compose.navigation3)
             implementation(projects.higCore)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
@@ -53,4 +54,10 @@ kotlin {
             implementation(compose.desktop.currentOs)
         }
     }
+}
+
+// UI 전환 테스트는 부팅된 시뮬레이터의 시스템 서비스를 사용합니다.
+tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>().configureEach {
+    standalone.set(false)
+    providers.environmentVariable("CI_IOS_SIMULATOR_UDID").orNull?.let { device.set(it) }
 }

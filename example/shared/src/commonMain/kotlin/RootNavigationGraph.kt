@@ -13,7 +13,6 @@ import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.adaptive.AdaptiveListDetailPane
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
 import zone.ien.hig.adaptive.Theme
-import zone.ien.hig.adaptive.adaptivePaneAnimation
 import zone.ien.hig.adaptive.isAdaptiveListDetailExpanded
 import zone.ien.hig.adaptive.rememberAdaptiveListDetailSceneStrategy
 import androidx.compose.runtime.Composable
@@ -24,6 +23,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.defaultPopTransitionSpec
 import androidx.savedstate.serialization.SavedStateConfiguration
 import cupertino.CupertinoWidgetsScreen
 import cupertino.CatalogComponent
@@ -71,8 +71,8 @@ fun RootNavigationGraph(
     val listDetailStrategy = rememberAdaptiveListDetailSceneStrategy<NavKey>(
         shouldHandleSinglePaneLayout = false,
     )
-    val paneAnimation = adaptivePaneAnimation()
     NavDisplay(
+        predictivePopTransitionSpec = { defaultPopTransitionSpec<NavKey>().invoke(this) },
         sceneStrategies = listOf(listDetailStrategy),
         backStack = backStack,
         modifier = modifier,
@@ -92,7 +92,7 @@ fun RootNavigationGraph(
                             }
                         }
                     }
-                }) + ListDetailSceneStrategy.preferredPaneSize(width = 0.4f) + paneAnimation,
+                }) + ListDetailSceneStrategy.preferredPaneSize(width = 0.4f),
             ) {
                 AdaptiveListDetailPane(ListDetailPaneScaffoldRole.List) {
                     val isExpanded = isAdaptiveListDetailExpanded
@@ -113,7 +113,7 @@ fun RootNavigationGraph(
                 }
             }
             entry<RootRoute.Adaptive>(
-                metadata = ListDetailSceneStrategy.detailPane() + paneAnimation,
+                metadata = ListDetailSceneStrategy.detailPane(),
             ) {
                 AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
                     val settings = viewModel.uiState.item
@@ -131,7 +131,7 @@ fun RootNavigationGraph(
                 }
             }
             entry<RootRoute.Component>(
-                metadata = ListDetailSceneStrategy.detailPane() + paneAnimation,
+                metadata = ListDetailSceneStrategy.detailPane(),
             ) { route ->
                 AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
                     ComponentDetailScreen(
@@ -141,7 +141,7 @@ fun RootNavigationGraph(
                 }
             }
             entry<RootRoute.Integration>(
-                metadata = ListDetailSceneStrategy.detailPane() + paneAnimation,
+                metadata = ListDetailSceneStrategy.detailPane(),
             ) {
                 AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
                     CupertinoIntegrationScreen(
@@ -153,7 +153,7 @@ fun RootNavigationGraph(
                 }
             }
             entry<RootRoute.Icons>(
-                metadata = ListDetailSceneStrategy.detailPane() + paneAnimation,
+                metadata = ListDetailSceneStrategy.detailPane(),
             ) {
                 AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
                     IconsScreen(
@@ -162,7 +162,7 @@ fun RootNavigationGraph(
                 }
             }
             entry<RootRoute.Sections>(
-                metadata = ListDetailSceneStrategy.detailPane() + paneAnimation,
+                metadata = ListDetailSceneStrategy.detailPane(),
             ) {
                 AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
                     SectionsScreen(
@@ -171,7 +171,7 @@ fun RootNavigationGraph(
                 }
             }
             entry<RootRoute.HapticFeedback>(
-                metadata = ListDetailSceneStrategy.detailPane() + paneAnimation,
+                metadata = ListDetailSceneStrategy.detailPane(),
             ) {
                 AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
                     HapticFeedbackScreen(

@@ -1,7 +1,7 @@
 [versions]
 agp = "9.3.1"
 kotlin = "2.4.21"
-lib-version-name = "27.2.6"
+lib-version-name = "27.2.7-dev01"
 
 # plugin
 compose-plugin = "1.12.2"
@@ -17,6 +17,7 @@ capsule = "2.1.4"
 haze = "2.1.0"
 
 # functionality
+kotlinx-coroutines = "1.11.0"
 datetime = "0.8.0"
 material-kolor = "5.0.1"
 
@@ -27,6 +28,7 @@ atomicfu = "0.33.0"
 koin = "4.2.2"
 
 [libraries]
+kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 compose-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "compose-adaptive" }
 compose-adaptive-navigation3 = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation3", version.ref = "compose-adaptive" }
 
@@ -74,6 +76,7 @@ kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", v
 koin = ["koin-compose", "koin-core", "koin-viewmodel", "koin-compose-nav3"]
 
 [plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }

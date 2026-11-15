@@ -27,7 +27,7 @@ export default function SamplePage() {
         </p>
         <a
           id="source-link"
-          href={`${repository}/tree/main/example/composeApp`}
+          href={`${repository}/tree/main/example/shared`}
           target="_blank"
           rel="noopener noreferrer"
         >

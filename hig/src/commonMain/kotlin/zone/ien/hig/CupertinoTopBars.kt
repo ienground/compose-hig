@@ -731,10 +731,12 @@ private fun TopAppBarLayout(
     navigationIcon: @Composable () -> Unit,
     actions: @Composable () -> Unit,
 ) {
+    val transition = LocalTopBarTransition.current
     Layout(
         {
             Box(
-                Modifier.layoutId("navigationIcon").padding(start = TopAppBarHorizontalPadding),
+                Modifier.layoutId("navigationIcon").padding(start = TopAppBarHorizontalPadding)
+                    .then(transition?.modifier(TopBarTransition.Slot.NavigationIcon) ?: Modifier),
             ) {
                 CompositionLocalProvider(
                     LocalContentColor provides navigationIconContentColor,
@@ -753,7 +755,8 @@ private fun TopAppBarLayout(
                 modifier =
                     Modifier
                         .layoutId("actionIcons")
-                        .padding(end = TopAppBarHorizontalPadding),
+                        .padding(end = TopAppBarHorizontalPadding)
+                        .then(transition?.modifier(TopBarTransition.Slot.Actions) ?: Modifier),
             ) {
                 CompositionLocalProvider(
                     LocalContentColor provides actionIconContentColor,

@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 const root = new URL("../", import.meta.url);
 const distribution = new URL(
-  "../example/composeApp/build/dist/wasmJs/productionExecutable/",
+  "../example/shared/build/dist/wasmJs/productionExecutable/",
   root,
 );
 const publicRoot = new URL("public/", root);

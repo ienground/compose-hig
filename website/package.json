@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --webpack --port 4802",
-    "build:wasm": "cd .. && ./gradlew :example:composeApp:wasmJsBrowserDistribution",
+    "build:wasm": "cd .. && ./gradlew :example:shared:wasmJsBrowserDistribution",
     "prepare:assets": "node scripts/prepare-assets.mjs",
     "prebuild": "npm run prepare:assets",
     "build": "next build --webpack",
