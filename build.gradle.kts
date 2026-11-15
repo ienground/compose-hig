@@ -28,6 +28,7 @@ plugins {
     id(libs.plugins.kotlin.multiplatform.get().pluginId) apply false
     id(libs.plugins.android.application.get().pluginId) apply false
 
+    id(libs.plugins.kotlin.jvm.get().pluginId) apply false
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.compose.multiplatform) apply false
 }

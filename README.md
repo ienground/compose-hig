@@ -56,7 +56,7 @@ This README describes the current project APIs. Installation examples use versio
 
 ## Preview
 
-Explore the **[interactive WasmJS showcase](https://hig.ien.zone)**, built from the [sample application](example/composeApp/).
+Explore the **[interactive WasmJS showcase](https://hig.ien.zone)**, built from the [sample application](example/shared/).
 
 [![Compose-HIG iOS sample: swipe actions, segmented selection, and grouped lists](docs/assets/compose-hig-ios-demo.gif)](docs/assets/compose-hig-ios-demo.mp4)
 
@@ -186,7 +186,7 @@ kotlin {
 | [`zone.ien.hig:hig-adaptive`](https://central.sonatype.com/artifact/zone.ien.hig/hig-adaptive) | Cupertino/Material 3 adaptation; includes `hig` and `hig-native` |
 | [`zone.ien.hig:hig-icons-extended`](https://central.sonatype.com/artifact/zone.ien.hig/hig-icons-extended) | Additional Cupertino vectors |
 
-For local development, use project dependencies as the [sample does](example/composeApp/build.gradle.kts), or follow the [Maven Local instructions](#development).
+For local development, use project dependencies as the [sample does](example/shared/build.gradle.kts), or follow the [Maven Local instructions](#development).
 
 <a id="quick-start"></a>
 
@@ -234,7 +234,7 @@ fun SettingsScreen() {
 }
 ```
 
-Call `SettingsScreen()` from your platform’s Compose host. Apply the scaffold’s `PaddingValues` to avoid overlapping its bars and insets. Explore the [Cupertino showcase](example/composeApp/src/commonMain/kotlin/cupertino/CupertinoWidgetsScreen.kt) for a complete integration.
+Call `SettingsScreen()` from your platform’s Compose host. Apply the scaffold’s `PaddingValues` to avoid overlapping its bars and insets. Explore the [Cupertino showcase](example/shared/src/commonMain/kotlin/cupertino/CupertinoWidgetsScreen.kt) for a complete integration.
 
 <a id="examples"></a>
 
@@ -388,7 +388,7 @@ fun AccountList() {
 }
 ```
 
-Use `stickySection` for sticky headers or `CupertinoSection` for non-lazy content. `ProvideSectionStyle` shares `Sidebar`, `InsetGrouped` (default), `Grouped`, `Inset`, or `Plain` styling. Pass `rememberSectionState()` for collapsible sidebar sections. The [section showcase](example/composeApp/src/commonMain/kotlin/sections/SectionsScreen.kt) demonstrates these variants.
+Use `stickySection` for sticky headers or `CupertinoSection` for non-lazy content. `ProvideSectionStyle` shares `Sidebar`, `InsetGrouped` (default), `Grouped`, `Inset`, or `Plain` styling. Pass `rememberSectionState()` for collapsible sidebar sections. The [section showcase](example/shared/src/commonMain/kotlin/sections/SectionsScreen.kt) demonstrates these variants.
 
 <a id="adaptive"></a>
 
@@ -421,7 +421,15 @@ fun AdaptiveAction(onClick: () -> Unit) {
 
 The default is Cupertino on iOS and Material 3 on other platforms. Set `target = Theme.Cupertino` or `Theme.Material3` to override it. `MaterialThemeSpec` and `CupertinoThemeSpec` configure colors, shapes, and typography. Widget `adaptation` blocks provide `cupertino { ... }` and `material { ... }` customization.
 
-For Navigation 3, `rememberAdaptiveListDetailSceneStrategy<T>()` defaults to two panes from medium width, `BackNavigationBehavior.PopLatest`, and `shouldHandleSinglePaneLayout = true`. Use `AdaptiveListDetailPane(role)` to scope right-side system-area handling to the appropriate pane, `isAdaptiveListDetailExpanded` to inspect the target layout, and `adaptivePaneAnimation()` for 160 ms fades and 240 ms bounds animation. These helpers require `ExperimentalMaterial3AdaptiveApi`; roles, preferred widths, and placeholder content remain caller-provided entry metadata. See [implementation](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt) and [sample navigation](example/composeApp/src/commonMain/kotlin/RootNavigationGraph.kt).
+For Navigation 3, `rememberAdaptiveListDetailSceneStrategy<T>()` defaults to two panes from medium width, `BackNavigationBehavior.PopLatest`, and `shouldHandleSinglePaneLayout = true`. Use `AdaptiveListDetailPane(role)` to scope right-side system-area handling to the appropriate pane, `isAdaptiveListDetailExpanded` to inspect the target layout, and `adaptivePaneAnimation()` for 160 ms fades and 240 ms bounds animation. These helpers require `ExperimentalMaterial3AdaptiveApi`; roles, preferred widths, and placeholder content remain caller-provided entry metadata. See [implementation](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt) and [sample navigation](example/shared/src/commonMain/kotlin/RootNavigationGraph.kt).
+
+To transition Navigation 3 top-bar controls separately from the screen body, wrap `NavDisplay` with `ProvideNavigationTopBarTransition(this)` inside `SharedTransitionLayout`, and pass the same scope to `NavDisplay(sharedTransitionScope = this@SharedTransitionLayout)`. Back buttons participate in shared transitions only when actual content exists. Actions retain each screen's placement, with visual scaling applied only during entrance and exit.
+
+- **During a back gesture:** Existing buttons and actions remain visible while incoming controls stay hidden. Cancelling the gesture preserves the existing state.
+- **Exit:** Once back navigation is committed, controls fade out while scaling from 1× to 1.15× only at the end of the screen transition, for up to approximately 200 ms. If less time remains, the exit finishes within that remaining time.
+- **Entrance:** After the screen transition fully completes, incoming controls fade in at their own position over approximately 300 ms while scaling down from 1.15× to their original size.
+
+When returning to a screen without controls, outgoing controls grow and disappear in place instead of moving toward an empty slot. Omit absent `navigationIcon` and `actions` callbacks or pass `null`. The [sample navigation](example/shared/src/commonMain/kotlin/RootNavigationGraph.kt) includes this setup.
 
 <a id="duo"></a>
 
@@ -443,7 +451,7 @@ For list-detail screens, use `rememberAdaptiveListDetailSceneStrategy<T>()` with
 
 Hinge observation is guarded for **iOS 27.1 or later** and a build SDK exposing `UIHingeInteraction`; the observer treats partially and fully open hinges as open. The media above verifies the closed and open simulator configurations, not physical hardware or every intermediate hinge angle.
 
-Implementation references: [iOS placement](hig/src/iosMain/kotlin/zone/ien/hig/CupertinoBarPlacement.ios.kt), [guarded UIKit bridge](hig/src/nativeInterop/cinterop/cupertinoBarPlacement.def), [pane ownership](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt), and [sample navigation](example/composeApp/src/commonMain/kotlin/RootNavigationGraph.kt).
+Implementation references: [iOS placement](hig/src/iosMain/kotlin/zone/ien/hig/CupertinoBarPlacement.ios.kt), [guarded UIKit bridge](hig/src/nativeInterop/cinterop/cupertinoBarPlacement.def), [pane ownership](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt), and [sample navigation](example/shared/src/commonMain/kotlin/RootNavigationGraph.kt).
 
 <a id="native"></a>
 
@@ -524,7 +532,7 @@ Public component functions generally live in `zone.ien.hig`; themes in `zone.ien
 - [`ColorScheme`](hig-core/src/commonMain/kotlin/zone/ien/hig/theme/ColorScheme.kt), `lightColorScheme()`, `darkColorScheme()`, and [`CupertinoColors`](hig-core/src/commonMain/kotlin/zone/ien/hig/theme/CupertinoColors.kt) expose semantic and system colors. Several `CupertinoColors` values, including `systemRed`, are extension properties and need their imports.
 - [`SectionState`](hig/src/commonMain/kotlin/zone/ien/hig/section/SectionState.kt) exposes `isCollapsed`, mutable `canCollapse`, and `toggle()`, `collapse()`, `expand()`. `rememberSectionState(initiallyCollapsed = false, canCollapse = true)` saves section state.
 - [`rememberCupertinoSwipeBoxState`](hig/src/commonMain/kotlin/zone/ien/hig/swipebox/CupertinoSwipeBoxState.kt) creates the `AnchoredDraggableState<SwipeBoxStates>` accepted by `CupertinoSwipeBox`.
-- [`CupertinoIcons`](hig/src/commonMain/kotlin/zone/ien/hig/icons/CupertinoIcons.kt) groups vectors into `Outlined` and `Filled`; import each icon extension from its corresponding package. See the [icon sample](example/composeApp/src/commonMain/kotlin/icons/IconsScreen.kt).
+- [`CupertinoIcons`](hig/src/commonMain/kotlin/zone/ien/hig/icons/CupertinoIcons.kt) groups vectors into `Outlined` and `Filled`; import each icon extension from its corresponding package. See the [icon sample](example/shared/src/commonMain/kotlin/icons/IconsScreen.kt).
 - [`LocalCupertinoRightSystemArea`](hig/src/commonMain/kotlin/zone/ien/hig/CupertinoBarPlacement.kt) is a `CompositionLocal<Boolean>` defaulting to `true`. It indicates whether the current pane owns the right-side system area; `AdaptiveListDetailPane` scopes it for list-detail layouts. See [Duo integration](#duo).
 - [`Accessibility`](hig-core/src/commonMain/kotlin/zone/ien/hig/Accessibility.kt) exposes `isHighContrastEnabled` and `isReduceTransparencyEnabled`; [`rememberCupertinoHapticFeedback()`](hig-core/src/commonMain/kotlin/zone/ien/hig/CupertinoHapticFeedback.kt) returns Compose `HapticFeedback`.
 
@@ -601,13 +609,13 @@ Here `App()` is your application’s root composable. This library’s iOS-only 
 
 The fix reuses idle buffers first and grows the pool only when needed, up to five buffers, which can increase memory usage. If all buffers are busy, the rendering thread may wait or skip a frame; the main thread does not wait for a buffer to become idle. This does not guarantee that every source of flickering is resolved or that there is no performance impact.
 
-The function returns `false` when called off the main thread or when Compose’s internal structure is incompatible, causing the example’s `check` to fail. This patches an internal implementation rather than using an official Compose API, so recheck compatibility and whether the fix is still needed whenever you change Compose versions. See the [iOS example](example/composeApp/src/iosMain/kotlin/main.ios.kt).
+The function returns `false` when called off the main thread or when Compose’s internal structure is incompatible, causing the example’s `check` to fail. This patches an internal implementation rather than using an official Compose API, so recheck compatibility and whether the fix is still needed whenever you change Compose versions. See the [iOS example](example/shared/src/iosMain/kotlin/main.ios.kt).
 
 <a id="development"></a>
 
 ## Development
 
-Run commands from the repository root with the included Gradle wrapper. The [sample build](example/composeApp/build.gradle.kts) uses local module dependencies, so it exercises this checkout rather than a published binary.
+Run commands from the repository root with the included Gradle wrapper. The [sample build](example/shared/build.gradle.kts) uses local module dependencies, so it exercises this checkout rather than a published binary.
 
 ```shell
 ./gradlew :hig:tasks :hig-adaptive:tasks --all
@@ -619,9 +627,9 @@ Run commands from the repository root with the included Gradle wrapper. The [sam
 Sample launch/build commands:
 
 ```shell
-./gradlew :example:composeApp:run
-./gradlew :example:composeApp:wasmJsBrowserDevelopmentRun
-./gradlew :example:composeApp:wasmJsBrowserDistribution
+./gradlew :example:desktopApp:run
+./gradlew :example:shared:wasmJsBrowserDevelopmentRun
+./gradlew :example:shared:wasmJsBrowserDistribution
 ./gradlew :example:androidApp:assembleDebug
 ```
 
@@ -635,7 +643,7 @@ To install source-version artifacts locally:
 
 Full multiplatform assembly and local publication require the corresponding platform toolchains. Build and test commands above describe the available tasks; they are not a claim that all platforms were run during documentation maintenance. The [CI workflow](.github/workflows/gradle.yml) defines desktop, JS, iOS simulator, and macOS Native test jobs; [deployment](.github/workflows/deploy.yml) builds the WasmJS distribution.
 
-Useful entry points: [application theme](example/composeApp/src/commonMain/kotlin/App.kt), [Cupertino controls](example/composeApp/src/commonMain/kotlin/cupertino/CupertinoWidgetsScreen.kt), [adaptive controls](example/composeApp/src/commonMain/kotlin/adaptive/AdaptiveWidgetsScreen.kt), [sections](example/composeApp/src/commonMain/kotlin/sections/SectionsScreen.kt), and [haptics](example/composeApp/src/commonMain/kotlin/haptic/HapticFeedbackScreen.kt).
+Useful entry points: [application theme](example/shared/src/commonMain/kotlin/App.kt), [Cupertino controls](example/shared/src/commonMain/kotlin/cupertino/CupertinoWidgetsScreen.kt), [adaptive controls](example/shared/src/commonMain/kotlin/adaptive/AdaptiveWidgetsScreen.kt), [sections](example/shared/src/commonMain/kotlin/sections/SectionsScreen.kt), and [haptics](example/shared/src/commonMain/kotlin/haptic/HapticFeedbackScreen.kt).
 
 <a id="license"></a>
 

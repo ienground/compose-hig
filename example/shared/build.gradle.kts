@@ -17,7 +17,6 @@
  */
 
 
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
@@ -31,8 +30,11 @@ plugins {
 }
 
 kotlin {
+    jvmToolchain(21)
+
     android {
-        namespace = "zone.ien.hig.example.lib"
+        namespace = "zone.ien.hig.example.shared"
+        minSdk = (findProperty("android.minSdk") as String).toInt()
         compileSdk {
             version = release((findProperty("android.compileSdk") as String).toInt()) {
                 minorApiLevel = (findProperty("android.compileSdkMinor") as String).toInt()
@@ -61,7 +63,7 @@ kotlin {
         }
     }
 
-    jvm("desktop")
+    jvm()
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
@@ -81,8 +83,6 @@ kotlin {
     }
 
     sourceSets {
-        val desktopMain = getByName("desktopMain")
-
         commonMain.dependencies {
             implementation(projects.hig)
             implementation(projects.higAdaptive)
@@ -104,14 +104,12 @@ kotlin {
             implementation(libs.backdrop)
             implementation(libs.capsule)
         }
-        desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
-        }
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
-        val desktopTest by getting {
+        val jvmTest by getting {
             dependencies {
+                implementation(compose.desktop.currentOs)
                 implementation("org.jetbrains.compose.ui:ui-test:${libs.plugins.compose.multiplatform.get().version}")
             }
         }
@@ -124,14 +122,6 @@ dependencies {
     androidRuntimeClasspath(libs.compose.ui.tooling)
 }
 
-compose.desktop {
-    application {
-        mainClass = "MainKt"
-
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "zone.ien.hig.example"
-            packageVersion = "1.0.0"
-        }
-    }
+compose.resources {
+    packageOfResClass = "zone.ien.hig.composeapp.generated.resources"
 }

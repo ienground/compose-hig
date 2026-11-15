@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import zone.ien.hig.LocalCupertinoRightSystemArea
+import zone.ien.hig.LocalTopBarTransition
 import zone.ien.hig.cupertinoTween
 
 /**
@@ -73,6 +74,7 @@ val isAdaptiveListDetailExpanded: Boolean
  * entry 콘텐츠에 역할별 시스템 영역 정책을 적용합니다.
  * 두 pane에서는 실제 오른쪽 pane에만 오른쪽 바와 인셋을 적용합니다.
  * 단일 pane은 기존 동작을 유지하며 RTL 배치도 반영합니다.
+ * 두 pane의 상단 바는 서로 연결하지 않고 기존 pane 전환을 사용합니다.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
@@ -82,9 +84,11 @@ fun AdaptiveListDetailPane(
 ) {
     val rightRole = if (LocalLayoutDirection.current == LayoutDirection.Ltr)
         ListDetailPaneScaffoldRole.Detail else ListDetailPaneScaffoldRole.List
-    val ownsRightSystemArea = !isAdaptiveListDetailExpanded || role == rightRole
+    val isExpanded = isAdaptiveListDetailExpanded
+    val ownsRightSystemArea = !isExpanded || role == rightRole
     CompositionLocalProvider(
         LocalCupertinoRightSystemArea provides (LocalCupertinoRightSystemArea.current && ownsRightSystemArea),
+        LocalTopBarTransition provides LocalTopBarTransition.current.takeUnless { isExpanded },
         content = content,
     )
 }

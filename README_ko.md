@@ -56,7 +56,7 @@ Compose-HIG는 [Apple Human Interface Guidelines](https://developer.apple.com/de
 
 ## 미리보기
 
-[샘플 앱](example/composeApp/)으로 제작한 **[WasmJS 인터랙티브 데모](https://hig.ien.zone)**를 확인하세요.
+[샘플 앱](example/shared/)으로 제작한 **[WasmJS 인터랙티브 데모](https://hig.ien.zone)**를 확인하세요.
 
 [![Compose-HIG iOS 샘플: 스와이프 액션, 세그먼트 선택, 그룹 목록](docs/assets/compose-hig-ios-demo.gif)](docs/assets/compose-hig-ios-demo.mp4)
 
@@ -186,7 +186,7 @@ kotlin {
 | [`zone.ien.hig:hig-adaptive`](https://central.sonatype.com/artifact/zone.ien.hig/hig-adaptive) | Cupertino/Material 3 전환, `hig`와 `hig-native` 포함 |
 | [`zone.ien.hig:hig-icons-extended`](https://central.sonatype.com/artifact/zone.ien.hig/hig-icons-extended) | 추가 Cupertino 벡터 아이콘 |
 
-로컬 개발에서는 [샘플처럼](example/composeApp/build.gradle.kts) 프로젝트 의존성을 사용하거나 [Maven Local 안내](#development)를 참고하세요.
+로컬 개발에서는 [샘플처럼](example/shared/build.gradle.kts) 프로젝트 의존성을 사용하거나 [Maven Local 안내](#development)를 참고하세요.
 
 <a id="quick-start"></a>
 
@@ -234,7 +234,7 @@ fun SettingsScreen() {
 }
 ```
 
-플랫폼별 Compose 호스트에서 `SettingsScreen()`을 호출하세요. Scaffold가 전달한 `PaddingValues`를 적용하면 바 및 인셋 영역과 콘텐츠가 겹치는 것을 피할 수 있습니다. 전체 통합 예제는 [Cupertino 쇼케이스](example/composeApp/src/commonMain/kotlin/cupertino/CupertinoWidgetsScreen.kt)를 참고하세요.
+플랫폼별 Compose 호스트에서 `SettingsScreen()`을 호출하세요. Scaffold가 전달한 `PaddingValues`를 적용하면 바 및 인셋 영역과 콘텐츠가 겹치는 것을 피할 수 있습니다. 전체 통합 예제는 [Cupertino 쇼케이스](example/shared/src/commonMain/kotlin/cupertino/CupertinoWidgetsScreen.kt)를 참고하세요.
 
 <a id="examples"></a>
 
@@ -388,7 +388,7 @@ fun AccountList() {
 }
 ```
 
-고정 헤더는 `stickySection`, 지연 로딩이 필요 없는 콘텐츠는 `CupertinoSection`을 사용하세요. `ProvideSectionStyle`로 `Sidebar`, `InsetGrouped`(기본값), `Grouped`, `Inset`, `Plain` 스타일을 공유할 수 있습니다. 접기 가능한 사이드바 섹션에는 `rememberSectionState()`를 전달하세요. [섹션 쇼케이스](example/composeApp/src/commonMain/kotlin/sections/SectionsScreen.kt)에서 각 변형을 확인할 수 있습니다.
+고정 헤더는 `stickySection`, 지연 로딩이 필요 없는 콘텐츠는 `CupertinoSection`을 사용하세요. `ProvideSectionStyle`로 `Sidebar`, `InsetGrouped`(기본값), `Grouped`, `Inset`, `Plain` 스타일을 공유할 수 있습니다. 접기 가능한 사이드바 섹션에는 `rememberSectionState()`를 전달하세요. [섹션 쇼케이스](example/shared/src/commonMain/kotlin/sections/SectionsScreen.kt)에서 각 변형을 확인할 수 있습니다.
 
 <a id="adaptive"></a>
 
@@ -421,7 +421,15 @@ fun AdaptiveAction(onClick: () -> Unit) {
 
 기본 테마는 iOS에서 Cupertino, 나머지 플랫폼에서 Material 3입니다. `target = Theme.Cupertino` 또는 `Theme.Material3`로 재정의할 수 있습니다. `MaterialThemeSpec`과 `CupertinoThemeSpec`으로 색상, 도형, 타이포그래피를 설정하고, 위젯의 `adaptation` 블록 안에서 `cupertino { ... }`와 `material { ... }`로 각각 조정합니다.
 
-Navigation 3용 `rememberAdaptiveListDetailSceneStrategy<T>()`는 기본적으로 중간 너비부터 두 패널을 사용하며, `BackNavigationBehavior.PopLatest`와 `shouldHandleSinglePaneLayout = true`를 적용합니다. `AdaptiveListDetailPane(role)`로 오른쪽 시스템 영역 처리를 해당 패널에 한정하고, `isAdaptiveListDetailExpanded`로 목표 레이아웃을 확인하며, `adaptivePaneAnimation()`으로 160ms 페이드와 240ms 위치·크기 애니메이션을 적용합니다. 이 헬퍼에는 `ExperimentalMaterial3AdaptiveApi` 사용 선언이 필요합니다. 역할, 선호 너비, 미선택 안내 콘텐츠는 호출자가 entry 메타데이터로 제공해야 합니다. [구현](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt)과 [샘플 내비게이션](example/composeApp/src/commonMain/kotlin/RootNavigationGraph.kt)을 참고하세요.
+Navigation 3용 `rememberAdaptiveListDetailSceneStrategy<T>()`는 기본적으로 중간 너비부터 두 패널을 사용하며, `BackNavigationBehavior.PopLatest`와 `shouldHandleSinglePaneLayout = true`를 적용합니다. `AdaptiveListDetailPane(role)`로 오른쪽 시스템 영역 처리를 해당 패널에 한정하고, `isAdaptiveListDetailExpanded`로 목표 레이아웃을 확인하며, `adaptivePaneAnimation()`으로 160ms 페이드와 240ms 위치·크기 애니메이션을 적용합니다. 이 헬퍼에는 `ExperimentalMaterial3AdaptiveApi` 사용 선언이 필요합니다. 역할, 선호 너비, 미선택 안내 콘텐츠는 호출자가 entry 메타데이터로 제공해야 합니다. [구현](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt)과 [샘플 내비게이션](example/shared/src/commonMain/kotlin/RootNavigationGraph.kt)을 참고하세요.
+
+Navigation 3에서 상단 버튼을 본문과 분리해 전환하려면 `SharedTransitionLayout` 안에서 `ProvideNavigationTopBarTransition(this)`로 `NavDisplay`를 감싸고, 같은 범위를 `NavDisplay(sharedTransitionScope = this@SharedTransitionLayout)`에 전달하세요. 뒤로가기 버튼은 실제 콘텐츠가 있을 때만 공유 전환에 참여합니다. 액션은 각 화면의 배치를 유지하며, 진입·퇴장할 때만 시각적인 크기 효과를 적용합니다.
+
+- **스와이프 중:** 기존 버튼·액션을 유지하고 새 버튼·액션은 숨깁니다. 스와이프를 취소하면 기존 상태를 유지합니다.
+- **퇴장:** 복귀가 확정되면 화면 전환 마지막에만 최대 약 200ms 동안 1배에서 1.15배로 커지며 페이드아웃합니다. 남은 화면 전환 시간이 짧으면 그 시간 안에서 마무리합니다.
+- **진입:** 화면 전환이 완전히 끝난 뒤 같은 위치에서 약 300ms 동안 1.15배에서 원래 크기로 줄어들며 페이드인합니다.
+
+버튼이 없는 화면으로 돌아갈 때도 빈 슬롯으로 이동하지 않고 원래 위치에서 커지며 사라집니다. 없는 `navigationIcon`과 `actions`는 생략하거나 `null`을 전달하세요. [샘플 내비게이션](example/shared/src/commonMain/kotlin/RootNavigationGraph.kt)에 이 구성이 적용되어 있습니다.
 
 <a id="duo"></a>
 
@@ -443,7 +451,7 @@ Navigation 3용 `rememberAdaptiveListDetailSceneStrategy<T>()`는 기본적으�
 
 힌지 관찰은 **iOS 27.1 이상**과 `UIHingeInteraction`을 제공하는 빌드 SDK에서 활성화되도록 보호되어 있습니다. 관찰자는 부분적으로 펼친 힌지와 완전히 펼친 힌지를 모두 열린 상태로 처리합니다. 위 미디어는 접힌·펼친 시뮬레이터 구성을 확인한 결과이며, 실기기나 모든 중간 힌지 각도를 검증한 결과는 아닙니다.
 
-구현 참고: [iOS 배치 처리](hig/src/iosMain/kotlin/zone/ien/hig/CupertinoBarPlacement.ios.kt), [버전 보호가 적용된 UIKit 브리지](hig/src/nativeInterop/cinterop/cupertinoBarPlacement.def), [패널별 영역 처리](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt), [샘플 내비게이션](example/composeApp/src/commonMain/kotlin/RootNavigationGraph.kt).
+구현 참고: [iOS 배치 처리](hig/src/iosMain/kotlin/zone/ien/hig/CupertinoBarPlacement.ios.kt), [버전 보호가 적용된 UIKit 브리지](hig/src/nativeInterop/cinterop/cupertinoBarPlacement.def), [패널별 영역 처리](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt), [샘플 내비게이션](example/shared/src/commonMain/kotlin/RootNavigationGraph.kt).
 
 <a id="native"></a>
 
@@ -524,7 +532,7 @@ iOS에서는 `UIAlertController`를 사용하며, 다른 대상에서는 Compose
 - [`ColorScheme`](hig-core/src/commonMain/kotlin/zone/ien/hig/theme/ColorScheme.kt), `lightColorScheme()`, `darkColorScheme()`, [`CupertinoColors`](hig-core/src/commonMain/kotlin/zone/ien/hig/theme/CupertinoColors.kt)는 의미 기반 색상과 시스템 색상을 제공합니다. `systemRed`를 비롯한 여러 `CupertinoColors` 값은 확장 속성이므로 해당 import가 필요합니다.
 - [`SectionState`](hig/src/commonMain/kotlin/zone/ien/hig/section/SectionState.kt)는 `isCollapsed`, 변경 가능한 `canCollapse`, `toggle()`, `collapse()`, `expand()`를 제공합니다. `rememberSectionState(initiallyCollapsed = false, canCollapse = true)`로 섹션 상태를 저장합니다.
 - [`rememberCupertinoSwipeBoxState`](hig/src/commonMain/kotlin/zone/ien/hig/swipebox/CupertinoSwipeBoxState.kt)는 `CupertinoSwipeBox`가 받는 `AnchoredDraggableState<SwipeBoxStates>`를 생성합니다.
-- [`CupertinoIcons`](hig/src/commonMain/kotlin/zone/ien/hig/icons/CupertinoIcons.kt)는 벡터를 `Outlined`와 `Filled`로 구분합니다. 각 아이콘 확장 속성을 해당 패키지에서 import하세요. [아이콘 샘플](example/composeApp/src/commonMain/kotlin/icons/IconsScreen.kt)을 참고하세요.
+- [`CupertinoIcons`](hig/src/commonMain/kotlin/zone/ien/hig/icons/CupertinoIcons.kt)는 벡터를 `Outlined`와 `Filled`로 구분합니다. 각 아이콘 확장 속성을 해당 패키지에서 import하세요. [아이콘 샘플](example/shared/src/commonMain/kotlin/icons/IconsScreen.kt)을 참고하세요.
 - [`LocalCupertinoRightSystemArea`](hig/src/commonMain/kotlin/zone/ien/hig/CupertinoBarPlacement.kt)는 기본값이 `true`인 `CompositionLocal<Boolean>`입니다. 현재 패널이 오른쪽 시스템 영역을 담당하는지 나타내며, `AdaptiveListDetailPane`이 목록·상세 레이아웃에 맞게 범위를 지정합니다. [Duo 통합 방법](#duo)을 참고하세요.
 - [`Accessibility`](hig-core/src/commonMain/kotlin/zone/ien/hig/Accessibility.kt)는 `isHighContrastEnabled`, `isReduceTransparencyEnabled`를 제공하며, [`rememberCupertinoHapticFeedback()`](hig-core/src/commonMain/kotlin/zone/ien/hig/CupertinoHapticFeedback.kt)은 Compose `HapticFeedback`을 반환합니다.
 
@@ -601,13 +609,13 @@ fun MainViewController(): UIViewController {
 
 사용 가능한 버퍼를 우선 재사용하고 부족할 때만 최대 5개까지 늘리므로 메모리 사용량이 증가할 수 있습니다. 모든 버퍼가 사용 중이면 렌더링 스레드가 기다리거나 프레임을 건너뛸 수 있으며, 메인 스레드에서는 버퍼가 빌 때까지 기다리지 않습니다. 모든 깜빡임의 해결이나 성능 영향이 없음을 보장하는 설정은 아닙니다.
 
-메인 스레드가 아니거나 Compose 내부 구조가 호환되지 않으면 `false`를 반환하므로 위 예제의 `check`가 실패합니다. Compose 공식 API가 아닌 내부 구현 보정이므로 Compose 버전을 변경할 때 호환성과 보정 필요 여부를 다시 확인하세요. [iOS 예제](example/composeApp/src/iosMain/kotlin/main.ios.kt)를 참고하세요.
+메인 스레드가 아니거나 Compose 내부 구조가 호환되지 않으면 `false`를 반환하므로 위 예제의 `check`가 실패합니다. Compose 공식 API가 아닌 내부 구현 보정이므로 Compose 버전을 변경할 때 호환성과 보정 필요 여부를 다시 확인하세요. [iOS 예제](example/shared/src/iosMain/kotlin/main.ios.kt)를 참고하세요.
 
 <a id="development"></a>
 
 ## 개발
 
-저장소 루트에서 포함된 Gradle wrapper로 실행하세요. [샘플 빌드](example/composeApp/build.gradle.kts)는 로컬 모듈 의존성을 사용하므로 배포 바이너리가 아닌 현재 체크아웃을 사용합니다.
+저장소 루트에서 포함된 Gradle wrapper로 실행하세요. [샘플 빌드](example/shared/build.gradle.kts)는 로컬 모듈 의존성을 사용하므로 배포 바이너리가 아닌 현재 체크아웃을 사용합니다.
 
 ```shell
 ./gradlew :hig:tasks :hig-adaptive:tasks --all
@@ -619,9 +627,9 @@ fun MainViewController(): UIViewController {
 샘플 실행 및 빌드 명령입니다.
 
 ```shell
-./gradlew :example:composeApp:run
-./gradlew :example:composeApp:wasmJsBrowserDevelopmentRun
-./gradlew :example:composeApp:wasmJsBrowserDistribution
+./gradlew :example:desktopApp:run
+./gradlew :example:shared:wasmJsBrowserDevelopmentRun
+./gradlew :example:shared:wasmJsBrowserDistribution
 ./gradlew :example:androidApp:assembleDebug
 ```
 
@@ -635,7 +643,7 @@ iOS는 macOS에서 [Xcode 프로젝트](example/iosApp/iosApp.xcodeproj/)를 열
 
 전체 멀티플랫폼 빌드와 로컬 배포에는 해당 플랫폼 도구가 필요합니다. 위 빌드·테스트 명령은 사용 가능한 작업을 안내하며, 문서 정비 과정에서 모든 플랫폼을 실행했다는 의미는 아닙니다. [CI workflow](.github/workflows/gradle.yml)는 Desktop, JS, iOS 시뮬레이터, macOS Native 테스트 작업을 정의하며, [데모 배포](.github/workflows/deploy.yml)는 WasmJS 배포본을 빌드합니다.
 
-주요 예제: [앱 테마](example/composeApp/src/commonMain/kotlin/App.kt), [Cupertino 컨트롤](example/composeApp/src/commonMain/kotlin/cupertino/CupertinoWidgetsScreen.kt), [적응형 컨트롤](example/composeApp/src/commonMain/kotlin/adaptive/AdaptiveWidgetsScreen.kt), [섹션](example/composeApp/src/commonMain/kotlin/sections/SectionsScreen.kt), [햅틱](example/composeApp/src/commonMain/kotlin/haptic/HapticFeedbackScreen.kt).
+주요 예제: [앱 테마](example/shared/src/commonMain/kotlin/App.kt), [Cupertino 컨트롤](example/shared/src/commonMain/kotlin/cupertino/CupertinoWidgetsScreen.kt), [적응형 컨트롤](example/shared/src/commonMain/kotlin/adaptive/AdaptiveWidgetsScreen.kt), [섹션](example/shared/src/commonMain/kotlin/sections/SectionsScreen.kt), [햅틱](example/shared/src/commonMain/kotlin/haptic/HapticFeedbackScreen.kt).
 
 <a id="license"></a>
 

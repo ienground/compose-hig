@@ -1,5 +1,6 @@
 language = Objective-C
 package = zone.ien.hig.uikit
+excludeFilter = **
 ---
 #import <UIKit/UIKit.h>
 

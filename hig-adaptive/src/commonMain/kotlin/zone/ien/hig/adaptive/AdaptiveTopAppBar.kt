@@ -18,6 +18,8 @@
 
 package zone.ien.hig.adaptive
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -32,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
@@ -39,6 +42,8 @@ import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.CupertinoTopAppBarColors
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.LocalTopBarTransition
+import zone.ien.hig.TopBarTransition
 
 /**
  * An adaptive top app bar that adapts between Cupertino and Material design based on the platform.
@@ -59,8 +64,8 @@ import zone.ien.hig.ExperimentalCupertinoApi
 fun AdaptiveTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable (RowScope.() -> Unit) = {},
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable RowScope.() -> Unit)? = null,
     windowInsets: WindowInsets = CupertinoTopAppBarDefaults.windowInsets,
     adaptation: AdaptationScope<CupertinoTopAppBarAdaptation, MaterialTopAppBarAdaptation>.() -> Unit = {},
 ) {
@@ -117,17 +122,32 @@ private fun SingleRowTopAppBar(
     isCenterAligned: Boolean,
     colors: TopAppBarColors,
     modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable (RowScope.() -> Unit) = {},
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable RowScope.() -> Unit)? = null,
     windowInsets: WindowInsets = CupertinoTopAppBarDefaults.windowInsets,
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
+    val transition = LocalTopBarTransition.current
+    val transitioningNavigationIcon: @Composable () -> Unit = {
+        if (navigationIcon != null) {
+            Box(transition?.modifier(TopBarTransition.Slot.NavigationIcon) ?: Modifier) { navigationIcon() }
+        }
+    }
+    val transitioningActions: @Composable RowScope.() -> Unit = {
+        if (actions != null) {
+            Row(
+                modifier = transition?.modifier(TopBarTransition.Slot.Actions) ?: Modifier,
+                verticalAlignment = Alignment.CenterVertically,
+                content = actions,
+            )
+        }
+    }
     if (isCenterAligned) {
         CenterAlignedTopAppBar(
             title = title,
             modifier = modifier,
-            navigationIcon = navigationIcon,
-            actions = actions,
+            navigationIcon = if (transition != null) transitioningNavigationIcon else navigationIcon ?: {},
+            actions = if (transition != null) transitioningActions else actions ?: {},
             windowInsets = windowInsets,
             colors = colors,
             scrollBehavior = scrollBehavior,
@@ -136,8 +156,8 @@ private fun SingleRowTopAppBar(
         TopAppBar(
             title = title,
             modifier = modifier,
-            navigationIcon = navigationIcon,
-            actions = actions,
+            navigationIcon = if (transition != null) transitioningNavigationIcon else navigationIcon ?: {},
+            actions = if (transition != null) transitioningActions else actions ?: {},
             windowInsets = windowInsets,
             colors = colors,
             scrollBehavior = scrollBehavior,
