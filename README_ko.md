@@ -423,6 +423,14 @@ fun AdaptiveAction(onClick: () -> Unit) {
 
 Navigation 3용 `rememberAdaptiveListDetailSceneStrategy<T>()`는 기본적으로 중간 너비부터 두 패널을 사용하며, `BackNavigationBehavior.PopLatest`와 `shouldHandleSinglePaneLayout = true`를 적용합니다. `AdaptiveListDetailPane(role)`로 오른쪽 시스템 영역 처리를 해당 패널에 한정하고, `isAdaptiveListDetailExpanded`로 목표 레이아웃을 확인하며, `adaptivePaneAnimation()`으로 160ms 페이드와 240ms 위치·크기 애니메이션을 적용합니다. 이 헬퍼에는 `ExperimentalMaterial3AdaptiveApi` 사용 선언이 필요합니다. 역할, 선호 너비, 미선택 안내 콘텐츠는 호출자가 entry 메타데이터로 제공해야 합니다. [구현](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt)과 [샘플 내비게이션](example/shared/src/commonMain/kotlin/RootNavigationGraph.kt)을 참고하세요.
 
+Navigation 3에서 상단 버튼을 본문과 분리해 전환하려면 `SharedTransitionLayout` 안에서 `ProvideNavigationTopBarTransition(this)`로 `NavDisplay`를 감싸고, 같은 범위를 `NavDisplay(sharedTransitionScope = this@SharedTransitionLayout)`에 전달하세요. 뒤로가기 버튼은 실제 콘텐츠가 있을 때만 공유 전환에 참여합니다. 액션은 각 화면의 배치를 유지하며, 진입·퇴장할 때만 시각적인 크기 효과를 적용합니다.
+
+- **스와이프 중:** 기존 버튼·액션을 유지하고 새 버튼·액션은 숨깁니다. 스와이프를 취소하면 기존 상태를 유지합니다.
+- **퇴장:** 복귀가 확정되면 화면 전환 마지막에만 최대 약 200ms 동안 1배에서 1.15배로 커지며 페이드아웃합니다. 남은 화면 전환 시간이 짧으면 그 시간 안에서 마무리합니다.
+- **진입:** 화면 전환이 완전히 끝난 뒤 같은 위치에서 약 300ms 동안 1.15배에서 원래 크기로 줄어들며 페이드인합니다.
+
+버튼이 없는 화면으로 돌아갈 때도 빈 슬롯으로 이동하지 않고 원래 위치에서 커지며 사라집니다. 없는 `navigationIcon`과 `actions`는 생략하거나 `null`을 전달하세요. [샘플 내비게이션](example/shared/src/commonMain/kotlin/RootNavigationGraph.kt)에 이 구성이 적용되어 있습니다.
+
 <a id="duo"></a>
 
 ### iPhone Duo 레이아웃

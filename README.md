@@ -423,6 +423,14 @@ The default is Cupertino on iOS and Material 3 on other platforms. Set `target =
 
 For Navigation 3, `rememberAdaptiveListDetailSceneStrategy<T>()` defaults to two panes from medium width, `BackNavigationBehavior.PopLatest`, and `shouldHandleSinglePaneLayout = true`. Use `AdaptiveListDetailPane(role)` to scope right-side system-area handling to the appropriate pane, `isAdaptiveListDetailExpanded` to inspect the target layout, and `adaptivePaneAnimation()` for 160 ms fades and 240 ms bounds animation. These helpers require `ExperimentalMaterial3AdaptiveApi`; roles, preferred widths, and placeholder content remain caller-provided entry metadata. See [implementation](hig-adaptive/src/commonMain/kotlin/zone/ien/hig/adaptive/AdaptiveListDetail.kt) and [sample navigation](example/shared/src/commonMain/kotlin/RootNavigationGraph.kt).
 
+To transition Navigation 3 top-bar controls separately from the screen body, wrap `NavDisplay` with `ProvideNavigationTopBarTransition(this)` inside `SharedTransitionLayout`, and pass the same scope to `NavDisplay(sharedTransitionScope = this@SharedTransitionLayout)`. Back buttons participate in shared transitions only when actual content exists. Actions retain each screen's placement, with visual scaling applied only during entrance and exit.
+
+- **During a back gesture:** Existing buttons and actions remain visible while incoming controls stay hidden. Cancelling the gesture preserves the existing state.
+- **Exit:** Once back navigation is committed, controls fade out while scaling from 1× to 1.15× only at the end of the screen transition, for up to approximately 200 ms. If less time remains, the exit finishes within that remaining time.
+- **Entrance:** After the screen transition fully completes, incoming controls fade in at their own position over approximately 300 ms while scaling down from 1.15× to their original size.
+
+When returning to a screen without controls, outgoing controls grow and disappear in place instead of moving toward an empty slot. Omit absent `navigationIcon` and `actions` callbacks or pass `null`. The [sample navigation](example/shared/src/commonMain/kotlin/RootNavigationGraph.kt) includes this setup.
+
 <a id="duo"></a>
 
 ### iPhone Duo Layouts

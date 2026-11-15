@@ -64,8 +64,8 @@ import zone.ien.hig.TopBarTransition
 fun AdaptiveTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable (RowScope.() -> Unit) = {},
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable RowScope.() -> Unit)? = null,
     windowInsets: WindowInsets = CupertinoTopAppBarDefaults.windowInsets,
     adaptation: AdaptationScope<CupertinoTopAppBarAdaptation, MaterialTopAppBarAdaptation>.() -> Unit = {},
 ) {
@@ -122,28 +122,32 @@ private fun SingleRowTopAppBar(
     isCenterAligned: Boolean,
     colors: TopAppBarColors,
     modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable (RowScope.() -> Unit) = {},
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable RowScope.() -> Unit)? = null,
     windowInsets: WindowInsets = CupertinoTopAppBarDefaults.windowInsets,
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     val transition = LocalTopBarTransition.current
     val transitioningNavigationIcon: @Composable () -> Unit = {
-        Box(transition?.modifier(TopBarTransition.Slot.NavigationIcon) ?: Modifier) { navigationIcon() }
+        if (navigationIcon != null) {
+            Box(transition?.modifier(TopBarTransition.Slot.NavigationIcon) ?: Modifier) { navigationIcon() }
+        }
     }
     val transitioningActions: @Composable RowScope.() -> Unit = {
-        Row(
-            modifier = transition?.modifier(TopBarTransition.Slot.Actions) ?: Modifier,
-            verticalAlignment = Alignment.CenterVertically,
-            content = actions,
-        )
+        if (actions != null) {
+            Row(
+                modifier = transition?.modifier(TopBarTransition.Slot.Actions) ?: Modifier,
+                verticalAlignment = Alignment.CenterVertically,
+                content = actions,
+            )
+        }
     }
     if (isCenterAligned) {
         CenterAlignedTopAppBar(
             title = title,
             modifier = modifier,
-            navigationIcon = if (transition != null) transitioningNavigationIcon else navigationIcon,
-            actions = if (transition != null) transitioningActions else actions,
+            navigationIcon = if (transition != null) transitioningNavigationIcon else navigationIcon ?: {},
+            actions = if (transition != null) transitioningActions else actions ?: {},
             windowInsets = windowInsets,
             colors = colors,
             scrollBehavior = scrollBehavior,
@@ -152,8 +156,8 @@ private fun SingleRowTopAppBar(
         TopAppBar(
             title = title,
             modifier = modifier,
-            navigationIcon = if (transition != null) transitioningNavigationIcon else navigationIcon,
-            actions = if (transition != null) transitioningActions else actions,
+            navigationIcon = if (transition != null) transitioningNavigationIcon else navigationIcon ?: {},
+            actions = if (transition != null) transitioningActions else actions ?: {},
             windowInsets = windowInsets,
             colors = colors,
             scrollBehavior = scrollBehavior,

@@ -23,7 +23,8 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.defaultPopTransitionSpec
+import androidx.compose.animation.SharedTransitionLayout
+import zone.ien.hig.adaptive.ProvideNavigationTopBarTransition
 import androidx.savedstate.serialization.SavedStateConfiguration
 import cupertino.CupertinoWidgetsScreen
 import cupertino.CatalogComponent
@@ -71,114 +72,118 @@ fun RootNavigationGraph(
     val listDetailStrategy = rememberAdaptiveListDetailSceneStrategy<NavKey>(
         shouldHandleSinglePaneLayout = false,
     )
-    NavDisplay(
-        predictivePopTransitionSpec = { defaultPopTransitionSpec<NavKey>().invoke(this) },
-        sceneStrategies = listOf(listDetailStrategy),
-        backStack = backStack,
-        modifier = modifier,
-        entryDecorators = listOf(
-            rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator() // ViewModel lifecycle guarantee
-        ),
-        entryProvider = entryProvider {
-            entry<RootRoute.Cupertino>(
-                metadata = ListDetailSceneStrategy.listPane(detailPlaceholder = {
-                    if (isAdaptiveListDetailExpanded) {
-                        AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
-                            CupertinoScaffold { padding ->
-                                Box(Modifier.fillMaxSize().padding(padding).padding(24.dp), contentAlignment = Alignment.Center) {
-                                    CupertinoText("Select a component from the catalog.")
-                                }
-                            }
-                        }
-                    }
-                }) + ListDetailSceneStrategy.preferredPaneSize(width = 0.4f),
-            ) {
-                AdaptiveListDetailPane(ListDetailPaneScaffoldRole.List) {
-                    val isExpanded = isAdaptiveListDetailExpanded
-                    CupertinoWidgetsScreen(
-                        uiState = viewModel.uiState,
-                        onItemValueChanged = viewModel::updateUiState,
-                        onNavigate = { route ->
-                            if (backStack.lastOrNull() != route) {
-                                if (isExpanded) {
-                                    while (backStack.lastOrNull() != RootRoute.Cupertino && backStack.size > 1) {
-                                        backStack.removeAt(backStack.lastIndex)
+    SharedTransitionLayout {
+        ProvideNavigationTopBarTransition(this) {
+            NavDisplay(
+                sharedTransitionScope = this@SharedTransitionLayout,
+                sceneStrategies = listOf(listDetailStrategy),
+                backStack = backStack,
+                modifier = modifier,
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator() // ViewModel lifecycle guarantee
+                ),
+                entryProvider = entryProvider {
+                    entry<RootRoute.Cupertino>(
+                        metadata = ListDetailSceneStrategy.listPane(detailPlaceholder = {
+                            if (isAdaptiveListDetailExpanded) {
+                                AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                                    CupertinoScaffold { padding ->
+                                        Box(Modifier.fillMaxSize().padding(padding).padding(24.dp), contentAlignment = Alignment.Center) {
+                                            CupertinoText("Select a component from the catalog.")
+                                        }
                                     }
                                 }
-                                backStack.add(route)
+                            }
+                        }) + ListDetailSceneStrategy.preferredPaneSize(width = 0.4f),
+                    ) {
+                        AdaptiveListDetailPane(ListDetailPaneScaffoldRole.List) {
+                            val isExpanded = isAdaptiveListDetailExpanded
+                            CupertinoWidgetsScreen(
+                                uiState = viewModel.uiState,
+                                onItemValueChanged = viewModel::updateUiState,
+                                onNavigate = { route ->
+                                    if (backStack.lastOrNull() != route) {
+                                        if (isExpanded) {
+                                            while (backStack.lastOrNull() != RootRoute.Cupertino && backStack.size > 1) {
+                                                backStack.removeAt(backStack.lastIndex)
+                                            }
+                                        }
+                                        backStack.add(route)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    entry<RootRoute.Adaptive>(
+                        metadata = ListDetailSceneStrategy.detailPane(),
+                    ) {
+                        AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                            val settings = viewModel.uiState.item
+                            GeneratedAdaptiveTheme(
+                                target = if (settings.isMaterial) Theme.Material3 else Theme.Cupertino,
+                                primaryColor = if (settings.isDark) settings.accentColors.second else settings.accentColors.first,
+                                useDarkTheme = settings.isDark,
+                            ) {
+                                AdaptiveWidgetsScreen(
+                                    uiState = viewModel.uiState,
+                                    onItemValueChanged = viewModel::updateUiState,
+                                    navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                                )
                             }
                         }
-                    )
-                }
-            }
-            entry<RootRoute.Adaptive>(
-                metadata = ListDetailSceneStrategy.detailPane(),
-            ) {
-                AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
-                    val settings = viewModel.uiState.item
-                    GeneratedAdaptiveTheme(
-                        target = if (settings.isMaterial) Theme.Material3 else Theme.Cupertino,
-                        primaryColor = if (settings.isDark) settings.accentColors.second else settings.accentColors.first,
-                        useDarkTheme = settings.isDark,
+                    }
+                    entry<RootRoute.Component>(
+                        metadata = ListDetailSceneStrategy.detailPane(),
+                    ) { route ->
+                        AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                            ComponentDetailScreen(
+                                component = route.component,
+                                navigateBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
+                            )
+                        }
+                    }
+                    entry<RootRoute.Integration>(
+                        metadata = ListDetailSceneStrategy.detailPane(),
                     ) {
-                        AdaptiveWidgetsScreen(
-                            uiState = viewModel.uiState,
-                            onItemValueChanged = viewModel::updateUiState,
-                            navigateBack = { backStack.removeAt(backStack.lastIndex) }
-                        )
+                        AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                            CupertinoIntegrationScreen(
+                                uiState = viewModel.uiState,
+                                onItemValueChanged = viewModel::updateUiState,
+                                onNavigate = { route -> backStack.add(route) },
+                                navigateBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
+                            )
+                        }
+                    }
+                    entry<RootRoute.Icons>(
+                        metadata = ListDetailSceneStrategy.detailPane(),
+                    ) {
+                        AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                            IconsScreen(
+                                navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                            )
+                        }
+                    }
+                    entry<RootRoute.Sections>(
+                        metadata = ListDetailSceneStrategy.detailPane(),
+                    ) {
+                        AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                            SectionsScreen(
+                                navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                            )
+                        }
+                    }
+                    entry<RootRoute.HapticFeedback>(
+                        metadata = ListDetailSceneStrategy.detailPane(),
+                    ) {
+                        AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                            HapticFeedbackScreen(
+                                navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                            )
+                        }
                     }
                 }
-            }
-            entry<RootRoute.Component>(
-                metadata = ListDetailSceneStrategy.detailPane(),
-            ) { route ->
-                AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
-                    ComponentDetailScreen(
-                        component = route.component,
-                        navigateBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
-                    )
-                }
-            }
-            entry<RootRoute.Integration>(
-                metadata = ListDetailSceneStrategy.detailPane(),
-            ) {
-                AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
-                    CupertinoIntegrationScreen(
-                        uiState = viewModel.uiState,
-                        onItemValueChanged = viewModel::updateUiState,
-                        onNavigate = { route -> backStack.add(route) },
-                        navigateBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
-                    )
-                }
-            }
-            entry<RootRoute.Icons>(
-                metadata = ListDetailSceneStrategy.detailPane(),
-            ) {
-                AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
-                    IconsScreen(
-                        navigateBack = { backStack.removeAt(backStack.lastIndex) }
-                    )
-                }
-            }
-            entry<RootRoute.Sections>(
-                metadata = ListDetailSceneStrategy.detailPane(),
-            ) {
-                AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
-                    SectionsScreen(
-                        navigateBack = { backStack.removeAt(backStack.lastIndex) }
-                    )
-                }
-            }
-            entry<RootRoute.HapticFeedback>(
-                metadata = ListDetailSceneStrategy.detailPane(),
-            ) {
-                AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
-                    HapticFeedbackScreen(
-                        navigateBack = { backStack.removeAt(backStack.lastIndex) }
-                    )
-                }
-            }
+            )
         }
-    )
+    }
 }
