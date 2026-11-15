@@ -23,6 +23,8 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.defaultPopTransitionSpec
+import androidx.navigation3.ui.defaultPredictivePopTransitionSpec
 import androidx.compose.animation.SharedTransitionLayout
 import zone.ien.hig.adaptive.ProvideNavigationTopBarTransition
 import androidx.savedstate.serialization.SavedStateConfiguration
@@ -79,6 +81,11 @@ fun RootNavigationGraph(
                 sceneStrategies = listOf(listDetailStrategy),
                 backStack = backStack,
                 modifier = modifier,
+                predictivePopTransitionSpec = if (IsIos) {
+                    defaultPredictivePopTransitionSpec()
+                } else {
+                    { _ -> defaultPopTransitionSpec<NavKey>().invoke(this) }
+                },
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
                     rememberViewModelStoreNavEntryDecorator() // ViewModel lifecycle guarantee
