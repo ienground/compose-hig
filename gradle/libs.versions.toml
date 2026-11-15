@@ -1,12 +1,13 @@
 [versions]
 agp = "9.3.1"
 kotlin = "2.4.21"
-lib-version-name = "27.2.7-alpha01"
+lib-version-name = "27.2.7-alpha01-dev02"
 
 # plugin
 compose-plugin = "1.12.2"
 compose-plugin-experimental = "1.12.0-alpha03"
 compose-navigation3 = "1.2.0"
+swift-navigation = "0.0.0"
 compose-adaptive = "1.3.0"
 
 # ui
@@ -47,6 +48,7 @@ compose-ui-tooling = { group = "org.jetbrains.compose.ui", name = "ui-tooling", 
 compose-ui-util = { group = "org.jetbrains.compose.ui", name = "ui-util", version.ref = "compose-plugin" }
 compose-resources = { group = "org.jetbrains.compose.components", name = "components-resources", version.ref = "compose-plugin" }
 compose-navigation3 = { group = "org.jetbrains.androidx.navigation3", name = "navigation3-ui", version.ref = "compose-navigation3" }
+swift-navigation = { module = "zone.ien.navigation:navigation", version.ref = "swift-navigation" }
 
 backdrop = { group = "io.github.kyant0", name = "backdrop", version.ref = "backdrop"}
 #capsule = { group = "io.github.kyant0", name = "shapes", version.ref = "capsule"}

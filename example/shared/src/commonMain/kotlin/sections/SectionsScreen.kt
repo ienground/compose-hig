@@ -22,6 +22,13 @@
 
 package sections
 
+import zone.ien.navigation.LocalNativeScreen
+import zone.ien.navigation.rememberNativeScroll
+import zone.ien.navigation.NativeBarItems
+import zone.ien.navigation.NativeBarButton
+import androidx.compose.foundation.layout.WindowInsets
+import zone.ien.hig.CupertinoScaffoldDefaults
+
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -110,6 +117,12 @@ fun SectionsScreen(
     val defaultState = rememberScrollState()
 
     val currentState = if (isLazy) lazyState else defaultState
+    val isNative = LocalNativeScreen.current
+    val nativeScroll = if (isLazy) rememberNativeScroll(lazyState) else rememberNativeScroll(defaultState)
+    if (isNative) NativeBarItems(trailing = listOf(
+        NativeBarButton("Lazy", enabled = !isLazy, onClick = { isLazy = true }),
+        NativeBarButton("Default", enabled = isLazy, onClick = { isLazy = false }),
+    ))
     val sectionState = rememberSectionState()
     var selectedSidebarItem by rememberSaveable { mutableStateOf("Text Field") }
     val focusManager = LocalFocusManager.current
@@ -128,9 +141,10 @@ fun SectionsScreen(
         Box(Modifier.fillMaxSize().layerBackdrop(backdrop)
             .background(CupertinoTheme.colorScheme.systemGroupedBackground))
         AdaptiveScaffold(
+            contentWindowInsets = if (isNative) WindowInsets(0) else CupertinoScaffoldDefaults.contentWindowInsets,
             adaptation = { cupertino { sidebarBackdrop = backdrop } },
             topBar = {
-                CupertinoTopAppBar(
+                if (!isNative) CupertinoTopAppBar(
                     navigationIcon = {
                         if (!isAdaptiveListDetailExpanded) {
                             CupertinoNavigateBackLiquidButton(
@@ -189,8 +203,9 @@ fun SectionsScreen(
                 if (isLazy) {
                     LazyColumn(
                         state = lazyState,
-                        contentPadding = pv,
-                        modifier = Modifier.fillMaxSize().cupertinoScrollEdge(lazyState),
+                        userScrollEnabled = nativeScroll.userScrollEnabled,
+                        contentPadding = if (isNative) nativeScroll.contentPadding else pv,
+                        modifier = Modifier.fillMaxSize().then(if (isNative) Modifier else Modifier.cupertinoScrollEdge(lazyState)),
                     ) {
                         SectionStyle.entries.forEach { style ->
                             section(
@@ -234,10 +249,10 @@ fun SectionsScreen(
                     Column(
                         modifier =
                             Modifier
-                                .verticalScroll(defaultState)
-                                    .cupertinoScrollEdge(defaultState)
+                                .verticalScroll(defaultState, enabled = nativeScroll.userScrollEnabled)
+                                    .then(if (isNative) Modifier else Modifier.cupertinoScrollEdge(defaultState))
                                 .fillMaxSize()
-                                .padding(pv),
+                                .padding(if (isNative) nativeScroll.contentPadding else pv),
                     ) {
                         SectionStyle.entries.forEach { style ->
                             CupertinoSection(

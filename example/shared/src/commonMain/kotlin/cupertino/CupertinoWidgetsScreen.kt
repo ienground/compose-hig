@@ -39,6 +39,13 @@
 
 package cupertino
 
+import zone.ien.navigation.LocalNativeScreen
+import zone.ien.navigation.rememberNativeScroll
+import zone.ien.navigation.NativeBarItems
+import zone.ien.navigation.NativeBarButton
+import zone.ien.hig.CupertinoScaffoldDefaults
+
+import zone.ien.navigation.nativeScrollExclusion
 import IsIos
 import RootDetails
 import RootRoute
@@ -270,6 +277,11 @@ fun CupertinoWidgetsScreen(
     val category = ComponentCategory.entries.firstOrNull { it.name == categoryName }
     val components = remember(query, category) { filteredComponents(query, category) }
     val listState = rememberLazyListState()
+    val isNative = LocalNativeScreen.current
+    val nativeScroll = rememberNativeScroll(listState, CupertinoTheme.colorScheme.systemGroupedBackground)
+    if (isNative) NativeBarItems(trailing = listOf(
+        NativeBarButton("외형 설정", systemImage = "gearshape", onClick = { showAppearance = !showAppearance }),
+    ))
     val backdrop = rememberLayerBackdrop()
     val background = CupertinoTheme.colorScheme.systemGroupedBackground
     val toolbarBackdrop = rememberLayerBackdrop {
@@ -278,9 +290,11 @@ fun CupertinoWidgetsScreen(
     }
 
     CupertinoScaffold(
+        hasNavigationTitle = !isNative,
+        contentWindowInsets = if (isNative) WindowInsets(0) else CupertinoScaffoldDefaults.contentWindowInsets,
         containerColor = CupertinoTheme.colorScheme.systemGroupedBackground,
         topBar = {
-            CupertinoTopAppBar(
+            if (!isNative) CupertinoTopAppBar(
                 title = { CupertinoText(text = "Compose HIG") },
                 actions = {
                     CupertinoLiquidIconButton(onClick = { showAppearance = !showAppearance }, backdrop = toolbarBackdrop) {
@@ -297,10 +311,18 @@ fun CupertinoWidgetsScreen(
                 ProvideSectionStyle(SectionStyle.InsetGrouped) {
                     LazyColumn(
                         state = listState,
-                        contentPadding = padding + PaddingValues(bottom = 24.dp),
+                        userScrollEnabled = nativeScroll.userScrollEnabled,
+                        contentPadding = if (isNative) nativeScroll.contentPadding else padding,
                         modifier = Modifier.fillMaxSize()
-                            .cupertinoScrollEdge(listState).imePadding(),
+                            .then(if (isNative) Modifier else Modifier.cupertinoScrollEdge(listState).imePadding()),
                     ) {
+                        if (!isNative) {
+                            item(key = "navigation-title") {
+                                CupertinoNavigationTitle {
+                                    Text(text = "Compose HIG")
+                                }
+                            }
+                        }
                         item(key = "search") {
                             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
@@ -333,6 +355,18 @@ fun CupertinoWidgetsScreen(
                                         valueRange = 1f..2f, steps = 3, backdrop = LocalDemoBackdrop.current ?: rememberDefaultBackdrop())
                                     ColorButtons { light, dark -> onItemValueChanged(uiState.item.copy(accentColors = light to dark)) }
                                 }
+                            }
+                        }
+                        item(key = "navigation-mode") {
+                            DemoSection("내비게이션") {
+                                DemoToggle("네이티브 내비게이션", uiState.item.useNativeNavigation) {
+                                    onItemValueChanged(uiState.item.copy(useNativeNavigation = it))
+                                }
+                                CupertinoText(
+                                    text = if (IsIos) "켜면 iOS 시스템 내비게이션, 끄면 CMP 내비게이션을 사용합니다." else "iOS에서 적용되며, 이 플랫폼에서는 CMP 내비게이션을 사용합니다.",
+                                    style = CupertinoTheme.typography.footnote,
+                                    color = CupertinoTheme.colorScheme.secondaryLabel,
+                                )
                             }
                         }
                         if (components.isEmpty()) {
@@ -381,7 +415,13 @@ fun CupertinoIntegrationScreen(
     navigateBack: () -> Unit,
 ) {
 
+    val isNative = LocalNativeScreen.current
     val scrollState = rememberLazyListState()
+    val nativeScroll = rememberNativeScroll(scrollState)
+    if (isNative) NativeBarItems(trailing = listOf(
+        NativeBarButton("밝은 테마", systemImage = "sun.max", onClick = { onItemValueChanged(uiState.item.copy(isDark = false)) }),
+        NativeBarButton("어두운 테마", systemImage = "moon.stars", onClick = { onItemValueChanged(uiState.item.copy(isDark = true)) }),
+    ))
     val sheetListState = rememberLazyListState()
 
     val scaffoldState = rememberCupertinoBottomSheetScaffoldState(
@@ -410,7 +450,8 @@ fun CupertinoIntegrationScreen(
     }
 
     CupertinoBottomSheetScaffold(
-        hasNavigationTitle = true,
+        hasNavigationTitle = !isNative,
+        windowInsets = if (isNative) WindowInsets(0) else CupertinoScaffoldDefaults.contentWindowInsets,
         colors = CupertinoBottomSheetScaffoldDefaults.colors(),
         sheetContent = {
             SheetSample(
@@ -423,7 +464,7 @@ fun CupertinoIntegrationScreen(
         scaffoldState = scaffoldState,
         bottomBarBackdropEnabled = false,
         topBar = {
-            TopBarSample(
+            if (!isNative) TopBarSample(
                 uiState = uiState,
                 onItemValueChanged = onItemValueChanged,
                 backdrop = popupBackdrop,
@@ -448,7 +489,7 @@ fun CupertinoIntegrationScreen(
             Body(
                 uiState = uiState,
                 onItemValueChanged = onItemValueChanged,
-                paddingValues = pv,
+                paddingValues = if (isNative) pv + nativeScroll.contentPadding else pv,
                 scrollState = scrollState,
                 scaffoldState = scaffoldState,
                 nativePickers = nativePickers,
@@ -497,8 +538,9 @@ internal fun Body(
                 .then(modifier)
                 .sectionContainerBackground()
                 .nestedScroll(searchState.nestedScrollConnection)
-                .cupertinoScrollEdge(scrollState),
+                .then(if (LocalNativeScreen.current) Modifier else Modifier.cupertinoScrollEdge(scrollState)),
             state = scrollState,
+            userScrollEnabled = !LocalNativeScreen.current,
             contentPadding = paddingValues + PaddingValues(top = 10.dp),
         ) {
             item(key = "navigation-title") {
@@ -1435,7 +1477,7 @@ fun PickerExample(
     CupertinoWheelPicker(
         state = pickerState,
         items = pickerValues,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().nativeScrollExclusion(),
         containerColor = CupertinoTheme.colorScheme.secondarySystemGroupedBackground
     ) {
         CupertinoText(it)
@@ -1448,12 +1490,12 @@ fun TimePickerExample(
 ) {
     if (native) {
         CupertinoTimePickerNative(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().nativeScrollExclusion(),
             state = state
         )
     } else {
         CupertinoTimePicker(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().nativeScrollExclusion(),
             state = state
         )
     }
@@ -1466,11 +1508,11 @@ fun DatePickerExample(
     if (native) {
         CupertinoDatePickerNative(
             state = state,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().nativeScrollExclusion(),
         )
     } else {
         CupertinoDatePicker(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().nativeScrollExclusion(),
             state = state,
         )
     }
@@ -1486,11 +1528,11 @@ fun DateTimePicker(
     if (native) {
         CupertinoDateTimePickerNative(
             state = state,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().nativeScrollExclusion()
         )
     } else {
         CupertinoDateTimePicker(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().nativeScrollExclusion(),
             state = state
         )
     }

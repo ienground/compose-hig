@@ -3,6 +3,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
+import zone.ien.navigation.NativeNavigationFrame
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -33,50 +37,47 @@ enum class AppRenderStage {
 @Composable
 fun App(
     renderStage: AppRenderStage = AppRenderStage.RootScreen,
+    viewModel: RootViewModel? = null,
+    backStack: NavBackStack<NavKey>? = null,
+    nativeNavigation: Boolean = false,
 ) {
     if (renderStage == AppRenderStage.EmptyBox) {
         Box(Modifier.fillMaxSize())
         return
     }
 
-    val backStack = rememberNavBackStack(rootConfig, RootRoute.Cupertino)
-
-    val viewModel: RootViewModel = koinViewModel()
-    val uiState = viewModel.uiState
-
-    val (lightAccent, darkAccent) = uiState.item.accentColors
-    val isDark = uiState.item.isDark
-    val direction = LocalLayoutDirection.current
-    val density = LocalDensity.current
-
-    val directionState = if (uiState.item.invertLayoutDirection) {
-        if (direction == LayoutDirection.Rtl) LayoutDirection.Ltr else LayoutDirection.Rtl
-    } else {
-        direction
+    val model = viewModel ?: koinViewModel<RootViewModel>()
+    val navigationBackStack = backStack ?: rememberNavBackStack(rootConfig, RootRoute.Cupertino)
+    val initialDarkTheme = isSystemInDarkTheme()
+    LaunchedEffect(Unit) {
+        model.updateUiState(model.uiState.item.copy(isDark = initialDarkTheme))
     }
 
-    CompositionLocalProvider(
-        LocalLayoutDirection provides directionState,
-        LocalDensity provides Density(
-            density = density.density,
-            fontScale = density.fontScale * uiState.item.fontScale,
-        ),
-    ) {
-
-        GeneratedAdaptiveTheme(
-            target = Theme.Cupertino,
-            primaryColor = if (isDark) darkAccent else lightAccent,
-            useDarkTheme = isDark
+    NativeNavigationFrame(frame = { content ->
+        val settings = model.uiState.item
+        val direction = LocalLayoutDirection.current
+        val density = LocalDensity.current
+        val directionState = if (settings.invertLayoutDirection) {
+            if (direction == LayoutDirection.Rtl) LayoutDirection.Ltr else LayoutDirection.Rtl
+        } else {
+            direction
+        }
+        CompositionLocalProvider(
+            LocalLayoutDirection provides directionState,
+            LocalDensity provides Density(density.density, density.fontScale * settings.fontScale),
         ) {
-            when (renderStage) {
-                AppRenderStage.EmptyBox -> Unit
-                AppRenderStage.ThemeWithEmptyBox -> Box(Modifier.fillMaxSize())
-                AppRenderStage.RootScreen ->
-                    RootNavigationGraph(
-                        backStack = backStack,
-                        viewModel = viewModel
-                    )
-            }
+            GeneratedAdaptiveTheme(
+                target = Theme.Cupertino,
+                primaryColor = if (settings.isDark) settings.accentColors.second else settings.accentColors.first,
+                useDarkTheme = settings.isDark,
+                content = content,
+            )
+        }
+    }) {
+        when (renderStage) {
+            AppRenderStage.EmptyBox -> Unit
+            AppRenderStage.ThemeWithEmptyBox -> Box(Modifier.fillMaxSize())
+            AppRenderStage.RootScreen -> RootNavigationGraph(backStack = navigationBackStack, viewModel = model, nativeNavigation = nativeNavigation)
         }
     }
 }

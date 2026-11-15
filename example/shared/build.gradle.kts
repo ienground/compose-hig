@@ -97,6 +97,7 @@ kotlin {
             implementation(libs.serialization)
 
             implementation(libs.compose.navigation3)
+            implementation(libs.swift.navigation)
             implementation(libs.lifecycle.viewmodel)
             implementation(libs.lifecycle.runtime)
 

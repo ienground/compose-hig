@@ -2,6 +2,11 @@
 
 package haptic
 
+import zone.ien.navigation.LocalNativeScreen
+import zone.ien.navigation.rememberNativeScroll
+import androidx.compose.foundation.layout.WindowInsets
+import zone.ien.hig.CupertinoScaffoldDefaults
+
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -35,6 +40,8 @@ fun HapticFeedbackScreen(navigateBack: () -> Unit) {
     val haptic = LocalHapticFeedback.current
     val backdrop = rememberLayerBackdrop()
     val scrollState = rememberLazyListState()
+    val isNative = LocalNativeScreen.current
+    val nativeScroll = rememberNativeScroll(scrollState, CupertinoTheme.colorScheme.systemGroupedBackground)
     val cupertinoTypes = listOf(
         "SelectionChanged" to CupertinoHapticFeedback.SelectionChanged,
         "Success" to CupertinoHapticFeedback.Success,
@@ -48,9 +55,10 @@ fun HapticFeedbackScreen(navigateBack: () -> Unit) {
     )
 
     CupertinoScaffold(
+        contentWindowInsets = if (isNative) WindowInsets(0) else CupertinoScaffoldDefaults.contentWindowInsets,
         containerColor = CupertinoTheme.colorScheme.systemGroupedBackground,
         topBar = {
-            CupertinoTopAppBar(
+            if (!isNative) CupertinoTopAppBar(
                 title = { CupertinoText("Haptic Feedback") },
                 navigationIcon = {
                     if (!isAdaptiveListDetailExpanded) {
@@ -67,11 +75,12 @@ fun HapticFeedbackScreen(navigateBack: () -> Unit) {
     ) { paddingValues ->
         LazyColumn(
             state = scrollState,
-            contentPadding = paddingValues,
+            userScrollEnabled = nativeScroll.userScrollEnabled,
+            contentPadding = if (isNative) nativeScroll.contentPadding else paddingValues,
             modifier = Modifier
                 .fillMaxSize()
                 .layerBackdrop(backdrop)
-                .cupertinoScrollEdge(scrollState),
+                .then(if (isNative) Modifier else Modifier.cupertinoScrollEdge(scrollState)),
         ) {
             item(key = "cupertino") {
                 CupertinoSection(

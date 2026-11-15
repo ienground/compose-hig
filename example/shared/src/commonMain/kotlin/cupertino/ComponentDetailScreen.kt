@@ -2,6 +2,13 @@
 
 package cupertino
 
+import zone.ien.navigation.LocalNativeScreen
+import zone.ien.navigation.rememberNativeScroll
+import zone.ien.navigation.NativeBarItems
+import zone.ien.navigation.NativeBarButton
+import androidx.compose.foundation.layout.WindowInsets
+import zone.ien.hig.CupertinoScaffoldDefaults
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -70,6 +78,11 @@ import zone.ien.hig.theme.CupertinoTheme
 @Composable
 fun ComponentDetailScreen(component: CatalogComponent, scrollState: ScrollState = rememberScrollState(), navigateBack: () -> Unit) {
     var revision by rememberSaveable(component) { mutableIntStateOf(0) }
+    val isNative = LocalNativeScreen.current
+    val nativeScroll = rememberNativeScroll(scrollState, CupertinoTheme.colorScheme.systemGroupedBackground)
+    if (isNative) NativeBarItems(trailing = listOf(
+        NativeBarButton("리셋", systemImage = "arrow.counterclockwise", onClick = { revision++ }),
+    ))
     val background = CupertinoTheme.colorScheme.systemGroupedBackground
     val backdrop = rememberLayerBackdrop {
         drawRect(background)
@@ -82,6 +95,7 @@ fun ComponentDetailScreen(component: CatalogComponent, scrollState: ScrollState 
         ))
     }
     CupertinoBottomSheetScaffold(
+        windowInsets = if (isNative) WindowInsets(0) else CupertinoScaffoldDefaults.contentWindowInsets,
         colors = CupertinoBottomSheetScaffoldDefaults.colors(containerColor = CupertinoTheme.colorScheme.systemGroupedBackground),
         scaffoldState = sheetState,
         sheetContent = {
@@ -90,7 +104,7 @@ fun ComponentDetailScreen(component: CatalogComponent, scrollState: ScrollState 
             }
         },
         topBar = {
-            CupertinoTopAppBar(
+            if (!isNative) CupertinoTopAppBar(
                 title = { CupertinoText(text = component.title) },
                 navigationIcon = {
                     CupertinoNavigateBackLiquidButton(
@@ -108,7 +122,8 @@ fun ComponentDetailScreen(component: CatalogComponent, scrollState: ScrollState 
         },
     ) { padding ->
         Box(
-            modifier = Modifier.fillMaxSize().layerBackdrop(backdrop).padding(padding).imePadding(),
+            modifier = Modifier.fillMaxSize().layerBackdrop(backdrop)
+                .then(if (isNative) Modifier else Modifier.consumeWindowInsets(padding).imePadding()),
             contentAlignment = Alignment.TopCenter,
         ) {
             CompositionLocalProvider(
@@ -116,8 +131,12 @@ fun ComponentDetailScreen(component: CatalogComponent, scrollState: ScrollState 
                 LocalDemoPhoto provides (component in glassComponents),
             ) {
                 Column(
-                    modifier = Modifier.widthIn(max = 760.dp).fillMaxSize().verticalScroll(scrollState)
-                        .cupertinoScrollEdge(scrollState).padding(top = 12.dp, bottom = 28.dp).testTag("component-detail"),
+                    modifier = Modifier.widthIn(max = 760.dp).fillMaxSize().verticalScroll(scrollState, enabled = nativeScroll.userScrollEnabled)
+                        .then(
+                            if (isNative) Modifier.padding(nativeScroll.contentPadding)
+                            else Modifier.cupertinoScrollEdge(scrollState).padding(padding)
+                        )
+                        .padding(top = 12.dp, bottom = 28.dp).testTag("component-detail"),
                     verticalArrangement = Arrangement.spacedBy(28.dp),
                 ) {
                     Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

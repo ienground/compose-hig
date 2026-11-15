@@ -2,6 +2,7 @@
 
 package cupertino
 
+import zone.ien.navigation.nativeScrollExclusion
 import IsIos
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.PaddingValues
@@ -133,7 +134,7 @@ internal fun WheelPickerDemo() {
                 selected = selectedIndex
             }
             CupertinoWheelPicker(state = state, items = values, enabled = enabled, withRotation = rotation,
-                modifier = Modifier.fillMaxWidth()) { CupertinoText(text = it) }
+                modifier = Modifier.fillMaxWidth().nativeScrollExclusion()) { CupertinoText(text = it) }
             DemoResult("Selected: ${values[selectedIndex]} · Index: $selectedIndex")
         }
     }
@@ -156,7 +157,7 @@ internal fun DateTimeDemo(component: CatalogComponent) {
             CatalogComponent.DatePicker -> {
                 val state = rememberCupertinoDatePickerState()
                 if (native) DatePickerExample(state, native = true)
-                else CupertinoDatePicker(state = state, modifier = Modifier.fillMaxWidth(),
+                else CupertinoDatePicker(state = state, modifier = Modifier.fillMaxWidth().nativeScrollExclusion(),
                     style = if (calendar) DatePickerStyle.Pager() else DatePickerStyle.Wheel())
                 DemoResult("Date: ${Instant.fromEpochMilliseconds(state.selectedDateMillis).toLocalDateTime(TimeZone.UTC).date}")
             }
@@ -169,7 +170,7 @@ internal fun DateTimeDemo(component: CatalogComponent) {
             CatalogComponent.DateTimePicker -> {
                 val state = rememberCupertinoDateTimePickerState(initialHour = 9, initialMinute = 30)
                 if (native) DateTimePicker(state, native = true)
-                else CupertinoDateTimePicker(state = state, modifier = Modifier.fillMaxWidth(),
+                else CupertinoDateTimePicker(state = state, modifier = Modifier.fillMaxWidth().nativeScrollExclusion(),
                     style = if (calendar) DatePickerStyle.Pager() else DatePickerStyle.Wheel())
                 DemoResult("Date and time: ${Instant.fromEpochMilliseconds(state.selectedDateTimeMillis).toLocalDateTime(TimeZone.UTC)}")
             }

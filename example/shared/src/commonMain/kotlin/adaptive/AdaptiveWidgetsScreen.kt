@@ -22,6 +22,13 @@
 
 package adaptive
 
+import zone.ien.navigation.LocalNativeScreen
+import zone.ien.navigation.rememberNativeScroll
+import zone.ien.navigation.NativeBarItems
+import zone.ien.navigation.NativeBarButton
+import androidx.compose.foundation.layout.WindowInsets
+import zone.ien.hig.CupertinoScaffoldDefaults
+
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import RootDetails
 import RootUiState
@@ -108,10 +115,17 @@ fun AdaptiveWidgetsScreen(
     navigateBack: () -> Unit,
 ) {
     val backdrop = rememberDefaultBackdrop()
+    val isNative = LocalNativeScreen.current
+    if (isNative) NativeBarItems(trailing = listOf(
+        NativeBarButton(if (uiState.item.isMaterial) "Cupertino 테마" else "Material 테마", onClick = {
+            onItemValueChanged(uiState.item.copy(isMaterial = !uiState.item.isMaterial))
+        }),
+    ))
 
     AdaptiveScaffold(
+        contentWindowInsets = if (isNative) WindowInsets(0) else CupertinoScaffoldDefaults.contentWindowInsets,
         topBar = {
-            AdaptiveTopAppBar(
+            if (!isNative) AdaptiveTopAppBar(
                 navigationIcon = {
                     if (!isAdaptiveListDetailExpanded) {
                         AdaptiveWidget(
@@ -192,18 +206,21 @@ fun AdaptiveWidgetsScreen(
         },
     ) {
         val listState = rememberLazyListState()
+        val nativeScroll = rememberNativeScroll(listState)
+        val nativePadding = nativeScroll.contentPadding
         LazyColumn(
             state = listState,
+            userScrollEnabled = nativeScroll.userScrollEnabled,
             contentPadding =
                 PaddingValues(
                     start = 12.dp,
                     end = 12.dp,
-                    top = it.calculateTopPadding() + 12.dp,
-                    bottom = it.calculateBottomPadding(),
+                    top = (if (isNative) nativePadding.calculateTopPadding() else it.calculateTopPadding()) + 12.dp,
+                    bottom = it.calculateBottomPadding() + if (isNative) nativePadding.calculateBottomPadding() else 0.dp,
                 ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
-                .cupertinoScrollEdge(listState)
+                .then(if (isNative) Modifier else Modifier.cupertinoScrollEdge(listState))
                 .layerBackdrop(backdrop)
                 .fillMaxSize()
         ) {

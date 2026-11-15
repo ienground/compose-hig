@@ -40,4 +40,5 @@ data class RootDetails(
     val isDark: Boolean = false,
     val isMaterial: Boolean = false,
     val fontScale: Float = 1f,
+    val useNativeNavigation: Boolean = false,
 )
