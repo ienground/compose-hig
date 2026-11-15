@@ -7,7 +7,7 @@ lib-version-name = "27.2.7-alpha01-dev02"
 compose-plugin = "1.12.2"
 compose-plugin-experimental = "1.12.0-alpha03"
 compose-navigation3 = "1.2.0"
-swift-navigation = "0.0.0"
+swift-navigation = "1.0.0-alpha01"
 compose-adaptive = "1.3.0"
 
 # ui

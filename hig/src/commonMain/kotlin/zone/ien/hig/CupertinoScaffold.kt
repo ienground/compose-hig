@@ -34,7 +34,9 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.union
@@ -133,6 +135,9 @@ import com.kyant.backdrop.effects.runtimeShaderEffect
  * applied to the content root via [Modifier.padding] and [Modifier.consumeWindowInsets] to
  * properly offset top and bottom bars. If using [Modifier.verticalScroll] or lazy lists,
  * apply this modifier to the child of the scroll, and not on the scrollable container itself.
+ *
+ * 플랫폼이 내비게이션 바를 그리는 화면([LocalCupertinoNativeBarsPadding]이 있는 화면)에서는 [topBar]를
+ * 그리지 않고, 콘텐츠 여백으로 [contentWindowInsets] 대신 플랫폼 바 여백을 넘깁니다.
  */
 @Composable
 @ExperimentalCupertinoApi
@@ -201,8 +206,15 @@ fun CupertinoScaffold(
         placement
     }
     val verticalBarPlacement = barPlacement?.takeIf { it.width > 0.dp }
-    val paneWindowInsets = if (ownsRightSystemArea) contentWindowInsets else
-        contentWindowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Vertical)
+    // 플랫폼 바가 있으면 그 여백이 시스템 영역(상태 바, 홈 인디케이터, 키보드)까지 포함한다.
+    val nativeBarsPadding = LocalCupertinoNativeBarsPadding.current
+    val baseWindowInsets = if (nativeBarsPadding != null) {
+        remember(nativeBarsPadding) { PaddingWindowInsets(nativeBarsPadding) }
+    } else {
+        contentWindowInsets
+    }
+    val paneWindowInsets = if (ownsRightSystemArea) baseWindowInsets else
+        baseWindowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Vertical)
     val layoutWindowInsets = if (verticalBarPlacement != null) {
         paneWindowInsets.union(WindowInsets(right = verticalBarPlacement.width))
     } else {
@@ -210,6 +222,12 @@ fun CupertinoScaffold(
     }
     val remainingWindowInsets = remember(layoutWindowInsets) {
         MutableWindowInsets(layoutWindowInsets)
+    }
+    val density = LocalDensity.current
+    val nativeContentPadding = if (nativeBarsPadding != null) {
+        remember(remainingWindowInsets, density) { NativeBarsContentPadding(remainingWindowInsets, density) }
+    } else {
+        null
     }
     var isTopBarHidden by remember(verticalBarPlacement != null) { mutableStateOf(false) }
     val topBarVisibility = animateFloatAsState(
@@ -220,7 +238,6 @@ fun CupertinoScaffold(
     val currentBarPlacement by rememberUpdatedState(verticalBarPlacement)
     val scrollOffset = remember { mutableStateOf(0f) }
     val scrollSource = remember { mutableStateOf<ScrollableState?>(null) }
-    val density = LocalDensity.current
     val scrollEdgeTarget by remember(density) {
         derivedStateOf(structuralEqualityPolicy()) {
             (scrollOffset.value / with(density) { 24.dp.toPx() }).coerceIn(0f, 1f)
@@ -289,14 +306,14 @@ fun CupertinoScaffold(
 
         CompositionLocalProvider(
             LocalNavigationTitleVisible provides
-                rememberSaveable(hasNavigationTitle) {
+                rememberSaveable(hasNavigationTitle && nativeBarsPadding == null) {
                     mutableStateOf(
-                        hasNavigationTitle,
+                        hasNavigationTitle && nativeBarsPadding == null,
                     )
                 },
             LocalNavigationTitleProgress provides
-                rememberSaveable(hasNavigationTitle) {
-                    mutableStateOf(if (hasNavigationTitle) 0f else 1f)
+                rememberSaveable(hasNavigationTitle && nativeBarsPadding == null) {
+                    mutableStateOf(if (hasNavigationTitle && nativeBarsPadding == null) 0f else 1f)
                 },
             LocalTopScrollOffset provides scrollOffset,
             LocalTopScrollSource provides scrollSource,
@@ -321,11 +338,14 @@ fun CupertinoScaffold(
                     verticalBarPlacement = verticalBarPlacement,
                     fabPosition = floatingActionButtonPosition,
                     topBar = {
-                        CompositionLocalProvider(
-                            LocalContainerColor provides Color.Transparent,
-                            LocalAppBarsState provides appbarState,
-                            content = topBar,
-                        )
+                        // 플랫폼 바가 상단 바 자리를 대신한다.
+                        if (nativeBarsPadding == null) {
+                            CompositionLocalProvider(
+                                LocalContainerColor provides Color.Transparent,
+                                LocalAppBarsState provides appbarState,
+                                content = topBar,
+                            )
+                        }
                     },
                     bottomBar = {
                         CompositionLocalProvider(
@@ -379,6 +399,7 @@ fun CupertinoScaffold(
                         }
                     },
                     content = content,
+                    nativeContentPadding = nativeContentPadding,
                     snackbar = snackbarHost,
                     contentWindowInsets = remainingWindowInsets,
                     fab = floatingActionButton,
@@ -492,6 +513,7 @@ private fun ScaffoldLayout(
     fabPosition: FabPosition,
     topBar: @Composable () -> Unit,
     content: @Composable (PaddingValues) -> Unit,
+    nativeContentPadding: NativeBarsContentPadding?,
     snackbar: @Composable () -> Unit,
     fab: @Composable () -> Unit,
     contentWindowInsets: WindowInsets,
@@ -625,10 +647,17 @@ private fun ScaffoldLayout(
                     0
                 }
 
+            if (nativeContentPadding != null) {
+                val height = bottomBarHeight.takeIf { bottomBarPlaceables.isNotEmpty() }
+                if (nativeContentPadding.bottomBarHeight != height) nativeContentPadding.bottomBarHeight = height
+            }
+
             val bodyContentPlaceables =
                 subcompose(ScaffoldLayoutContent.MainContent) {
                     val insets = contentWindowInsets.asPaddingValues(this@SubcomposeLayout)
-                    val innerPadding =
+                    // 플랫폼 바 여백은 프레임마다 바뀔 수 있다(큰 제목이 접히는 동안). 같은 객체를 넘겨
+                    // 콘텐츠가 레이아웃 시점에 읽게 한다.
+                    val innerPadding = nativeContentPadding ?:
                         PaddingValues(
                             top =
                                 if (topBarPlaceables.isEmpty()) {
@@ -733,7 +762,15 @@ private fun ScaffoldLayout(
                             topModifier
                                 .then(bottomModifier)
                                 .layerBackdrop(contentBackdrop)
-                                .onGloballyPositioned { contentCoordinates.value = it },
+                                .onGloballyPositioned { contentCoordinates.value = it }
+                                // 플랫폼 바 여백에 키보드가 가린 영역이 이미 들어 있다.
+                                .then(
+                                    if (nativeContentPadding != null) {
+                                        Modifier.consumeWindowInsets(WindowInsets.ime)
+                                    } else {
+                                        Modifier
+                                    },
+                                ),
                     ) {
                         Box(
                             Modifier
@@ -990,9 +1027,13 @@ private val LocalScaffoldSoftBottomEdge = staticCompositionLocalOf { false }
 private val LocalTopScrollOffset = compositionLocalOf<MutableState<Float>?> { null }
 private val LocalTopScrollSource = compositionLocalOf<MutableState<ScrollableState?>?> { null }
 
-/** 주 콘텐츠의 실제 스크롤 상태를 Top Bar scroll edge에 연결합니다. */
+/**
+ * 주 콘텐츠의 실제 스크롤 상태를 Top Bar scroll edge에 연결합니다.
+ * 플랫폼이 내비게이션 바를 그리는 화면([LocalCupertinoNativeBarsPadding])에서는 아무 일도 하지 않습니다.
+ */
 @Composable
 fun Modifier.cupertinoScrollEdge(state: ScrollableState): Modifier {
+    if (LocalCupertinoNativeBarsPadding.current != null) return this
     val offset = LocalTopScrollOffset.current ?: return this
     val source = LocalTopScrollSource.current ?: return this
     val distance = with(LocalDensity.current) { 24.dp.toPx() }

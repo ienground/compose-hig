@@ -185,6 +185,13 @@ fun CupertinoBottomSheetScaffold(
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val backdrop = rememberLayerBackdrop()
+    // 플랫폼이 내비게이션 바를 그리면 시트도 그 바 아래에서 시작한다(바는 Compose 위에 있다).
+    val nativeBarsPadding = LocalCupertinoNativeBarsPadding.current
+    val contentWindowInsets = if (nativeBarsPadding != null) {
+        remember(nativeBarsPadding) { PaddingWindowInsets(nativeBarsPadding) }
+    } else {
+        windowInsets
+    }
     BottomSheetScaffoldLayout(
         appBarsBlurAlpha = appBarsBlurAlpha,
         appBarsBlurRadius = appBarsBlurRadius,
@@ -199,6 +206,8 @@ fun CupertinoBottomSheetScaffold(
         bottomSheet = { layoutHeight ->
             CompositionLocalProvider(
                 LocalCupertinoSheetPresentation provides scaffoldState.bottomSheetState.presentationStyle,
+                // 시트는 자기 상단 바를 그린다. 시트를 띄운 화면의 플랫폼 바와 무관하다.
+                LocalCupertinoNativeBarsPadding provides null,
                 LocalTopAppBarInsets provides
                     if (scaffoldState.bottomSheetState.presentationStyle == PresentationStyle.Fullscreen) {
                         CupertinoTopAppBarDefaults.windowInsets
@@ -230,7 +239,7 @@ fun CupertinoBottomSheetScaffold(
         sheetOffset = { scaffoldState.bottomSheetState.offset ?: 0f },
         colors = colors,
         sheetShape = sheetShape,
-        contentWindowInsets = windowInsets,
+        contentWindowInsets = contentWindowInsets,
         applyContentScaling = applyContentScaling
     )
 }

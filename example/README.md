@@ -15,6 +15,8 @@ Android Studio의 Run Configuration으로 각 플랫폼을 실행할 수 있습�
 
 카탈로그의 **내비게이션 → 네이티브 내비게이션** 토글로 iOS의 UIKit 내비게이션과 기존 CMP Navigation 3를 전환합니다. 기본값은 CMP이며 다른 플랫폼에서는 항상 CMP를 사용합니다.
 
+네이티브 모드의 화면은 CMP 모드와 같은 코드입니다. `App.kt`가 네이티브 화면에 `LocalCupertinoNativeBarsPadding`을 넣어 주므로, hig 스캐폴드와 상단 바가 Compose 상단 바를 빼고 UIKit 바 아래 여백을 씁니다. 화면에는 리스트 연결(`rememberNativeScroll`)과 iOS 바 버튼(`NativeBarItems`), 세로 드래그 요소 표시(`nativeScrollExclusion`)만 남습니다.
+
 전환해도 백스택과 외형 설정은 유지하지만, 화면 composition은 다시 생성하므로 검색·스크롤·데모의 화면 내부 상태는 초기화됩니다. iOS 네이티브 모드는 단일 스택이며, CMP 모드의 넓은 화면 목록·상세 배치는 CMP 모드에서 확인할 수 있습니다. 샘플 iOS 앱의 최소 버전은 18.2입니다.
 
 `zone.ien.navigation:navigation:0.0.0`은 `example/shared`에서만 사용합니다. 로컬 버전은 다음 명령으로 먼저 배포합니다. 저장소 설정의 `mavenLocal`은 `zone.ien.navigation` 그룹에만 적용됩니다.

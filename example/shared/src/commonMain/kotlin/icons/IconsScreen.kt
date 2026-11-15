@@ -22,13 +22,10 @@
 
 package icons
 
-import androidx.compose.foundation.layout.PaddingValues
 import zone.ien.navigation.LocalNativeScreen
 import zone.ien.navigation.rememberNativeScroll
 import zone.ien.navigation.NativeBarItems
 import zone.ien.navigation.NativeBarButton
-import androidx.compose.foundation.layout.WindowInsets
-import zone.ien.hig.CupertinoScaffoldDefaults
 
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import androidx.compose.foundation.layout.fillMaxSize
@@ -927,9 +924,8 @@ fun IconsScreen(
     }
 
     CupertinoScaffold(
-        contentWindowInsets = if (isNative) WindowInsets(0) else CupertinoScaffoldDefaults.contentWindowInsets,
         topBar = {
-            if (!isNative) CupertinoTopAppBar(
+            CupertinoTopAppBar(
                 navigationIcon = {
                     if (!isAdaptiveListDetailExpanded) {
                         AdaptiveWidget(
@@ -1020,10 +1016,10 @@ fun IconsScreen(
                 state = gridState,
                 userScrollEnabled = nativeScroll?.userScrollEnabled ?: true,
                 modifier = Modifier.fillMaxSize().then(
-                    if (!isNative && page == pagerState.currentPage) Modifier.cupertinoScrollEdge(gridState) else Modifier,
+                    if (page == pagerState.currentPage) Modifier.cupertinoScrollEdge(gridState) else Modifier,
                 ),
                 columns = GridCells.Adaptive(48.dp),
-                contentPadding = if (isNative) nativeScroll?.contentPadding ?: PaddingValues(0.dp) else pv
+                contentPadding = pv
             ) {
                 items(if (page == 0) Outlined else Filled) { iconProvider ->
                     val icon = iconProvider()

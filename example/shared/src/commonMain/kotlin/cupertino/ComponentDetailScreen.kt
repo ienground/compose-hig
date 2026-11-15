@@ -6,8 +6,6 @@ import zone.ien.navigation.LocalNativeScreen
 import zone.ien.navigation.rememberNativeScroll
 import zone.ien.navigation.NativeBarItems
 import zone.ien.navigation.NativeBarButton
-import androidx.compose.foundation.layout.WindowInsets
-import zone.ien.hig.CupertinoScaffoldDefaults
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -95,7 +93,6 @@ fun ComponentDetailScreen(component: CatalogComponent, scrollState: ScrollState 
         ))
     }
     CupertinoBottomSheetScaffold(
-        windowInsets = if (isNative) WindowInsets(0) else CupertinoScaffoldDefaults.contentWindowInsets,
         colors = CupertinoBottomSheetScaffoldDefaults.colors(containerColor = CupertinoTheme.colorScheme.systemGroupedBackground),
         scaffoldState = sheetState,
         sheetContent = {
@@ -104,7 +101,7 @@ fun ComponentDetailScreen(component: CatalogComponent, scrollState: ScrollState 
             }
         },
         topBar = {
-            if (!isNative) CupertinoTopAppBar(
+            CupertinoTopAppBar(
                 title = { CupertinoText(text = component.title) },
                 navigationIcon = {
                     CupertinoNavigateBackLiquidButton(
@@ -123,7 +120,7 @@ fun ComponentDetailScreen(component: CatalogComponent, scrollState: ScrollState 
     ) { padding ->
         Box(
             modifier = Modifier.fillMaxSize().layerBackdrop(backdrop)
-                .then(if (isNative) Modifier else Modifier.consumeWindowInsets(padding).imePadding()),
+                .consumeWindowInsets(padding).imePadding(),
             contentAlignment = Alignment.TopCenter,
         ) {
             CompositionLocalProvider(
@@ -132,10 +129,7 @@ fun ComponentDetailScreen(component: CatalogComponent, scrollState: ScrollState 
             ) {
                 Column(
                     modifier = Modifier.widthIn(max = 760.dp).fillMaxSize().verticalScroll(scrollState, enabled = nativeScroll.userScrollEnabled)
-                        .then(
-                            if (isNative) Modifier.padding(nativeScroll.contentPadding)
-                            else Modifier.cupertinoScrollEdge(scrollState).padding(padding)
-                        )
+                        .cupertinoScrollEdge(scrollState).padding(padding)
                         .padding(top = 12.dp, bottom = 28.dp).testTag("component-detail"),
                     verticalArrangement = Arrangement.spacedBy(28.dp),
                 ) {

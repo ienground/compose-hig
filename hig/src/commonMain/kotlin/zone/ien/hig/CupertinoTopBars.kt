@@ -210,6 +210,9 @@ fun cupertinoTranslucentTopBarColor(
  * visible if top bar is translucent. Simulates iOS app bars material.
  * @param colors [CupertinoTopAppBarColors] that will be used to resolve the colors used for this top app
  * bar in different states. See [CupertinoTopAppBarDefaults.topAppBarColors].
+ *
+ * 플랫폼이 내비게이션 바를 그리는 화면([LocalCupertinoNativeBarsPadding])에서는 그리지 않습니다.
+ * 제목과 버튼은 플랫폼 바에 따로 선언합니다.
  */
 @Composable
 @ExperimentalCupertinoApi
@@ -226,6 +229,7 @@ fun CupertinoTopAppBar(
     backdrop: LayerBackdrop = LocalCupertinoBackdrop.current ?: rememberDefaultBackdrop(),
     colors: CupertinoTopAppBarColors = CupertinoTopAppBarDefaults.topAppBarColors(),
 ) {
+    if (LocalCupertinoNativeBarsPadding.current != null) return
     val barPlacement = LocalCupertinoVerticalBarPlacement.current
     val verticalPlacement = barPlacement?.takeIf { it.width > 0.dp }
     val transition = LocalTopBarTransition.current
@@ -336,6 +340,9 @@ private val NavTitleMaxFontScaleDistance = 150.dp
  * @param maxFontScaleDistance distance of the scroll overflow at which [maxFontScale] is reached
  * @param paddingValues title padding values
  * @param title title content
+ *
+ * 플랫폼이 내비게이션 바를 그리는 화면([LocalCupertinoNativeBarsPadding])에서는 그리지 않습니다.
+ * 큰 제목은 플랫폼 바가 보입니다.
  * */
 @Composable
 fun CupertinoNavigationTitle(
@@ -349,6 +356,7 @@ fun CupertinoNavigationTitle(
     require(maxFontScale >= 1) {
         "maxFontScale must be >= 1."
     }
+    if (LocalCupertinoNativeBarsPadding.current != null) return
     val navigationTitleVisibility = LocalNavigationTitleVisible.current
     val navigationTitleProgress = LocalNavigationTitleProgress.current
     var visible by navigationTitleVisibility

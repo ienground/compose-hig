@@ -2,6 +2,13 @@ package cupertino
 
 import RootUiState
 import RootDetails
+import App
+import AppRenderStage
+import RootRoute
+import RootViewModel
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -60,6 +67,33 @@ import zone.ien.hig.theme.darkColorScheme
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCupertinoApi::class)
 class ComponentCatalogUiTest {
+    @Test
+    fun appReentryKeepsChosenAppearance() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val model = RootViewModel()
+        val backStack = NavBackStack<NavKey>(RootRoute.Cupertino)
+        var controllerGeneration by mutableStateOf(0)
+        var systemDark = false
+        setContent {
+            systemDark = isSystemInDarkTheme()
+            key(controllerGeneration) {
+                App(renderStage = AppRenderStage.ThemeWithEmptyBox, viewModel = model, backStack = backStack)
+            }
+        }
+        mainClock.advanceTimeBy(500)
+        runOnIdle { assertEquals(systemDark, model.uiState.item.isDark) }
+        val chosenDark = !systemDark
+        runOnIdle { model.updateUiState(model.uiState.item.copy(isDark = chosenDark)) }
+        mainClock.advanceTimeBy(500)
+        repeat(2) {
+            runOnIdle { controllerGeneration++ }
+            mainClock.advanceTimeBy(500)
+            runOnIdle {
+                assertEquals(chosenDark, model.uiState.item.isDark, "모드 전환 후 사용자 외형 설정이 초기화됩니다")
+            }
+        }
+    }
+
     @Test
     @OptIn(InternalComposeUiApi::class)
     fun detailScrollViewportIncludesBottomSafeArea() = runComposeUiTest {

@@ -26,8 +26,6 @@ import zone.ien.navigation.LocalNativeScreen
 import zone.ien.navigation.rememberNativeScroll
 import zone.ien.navigation.NativeBarItems
 import zone.ien.navigation.NativeBarButton
-import androidx.compose.foundation.layout.WindowInsets
-import zone.ien.hig.CupertinoScaffoldDefaults
 
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import RootDetails
@@ -123,9 +121,8 @@ fun AdaptiveWidgetsScreen(
     ))
 
     AdaptiveScaffold(
-        contentWindowInsets = if (isNative) WindowInsets(0) else CupertinoScaffoldDefaults.contentWindowInsets,
         topBar = {
-            if (!isNative) AdaptiveTopAppBar(
+            AdaptiveTopAppBar(
                 navigationIcon = {
                     if (!isAdaptiveListDetailExpanded) {
                         AdaptiveWidget(
@@ -207,7 +204,6 @@ fun AdaptiveWidgetsScreen(
     ) {
         val listState = rememberLazyListState()
         val nativeScroll = rememberNativeScroll(listState)
-        val nativePadding = nativeScroll.contentPadding
         LazyColumn(
             state = listState,
             userScrollEnabled = nativeScroll.userScrollEnabled,
@@ -215,12 +211,12 @@ fun AdaptiveWidgetsScreen(
                 PaddingValues(
                     start = 12.dp,
                     end = 12.dp,
-                    top = (if (isNative) nativePadding.calculateTopPadding() else it.calculateTopPadding()) + 12.dp,
-                    bottom = it.calculateBottomPadding() + if (isNative) nativePadding.calculateBottomPadding() else 0.dp,
+                    top = it.calculateTopPadding() + 12.dp,
+                    bottom = it.calculateBottomPadding(),
                 ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
-                .then(if (isNative) Modifier else Modifier.cupertinoScrollEdge(listState))
+                .cupertinoScrollEdge(listState)
                 .layerBackdrop(backdrop)
                 .fillMaxSize()
         ) {

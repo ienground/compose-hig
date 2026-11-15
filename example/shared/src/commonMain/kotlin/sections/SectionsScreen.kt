@@ -26,8 +26,6 @@ import zone.ien.navigation.LocalNativeScreen
 import zone.ien.navigation.rememberNativeScroll
 import zone.ien.navigation.NativeBarItems
 import zone.ien.navigation.NativeBarButton
-import androidx.compose.foundation.layout.WindowInsets
-import zone.ien.hig.CupertinoScaffoldDefaults
 
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import androidx.compose.foundation.background
@@ -141,10 +139,9 @@ fun SectionsScreen(
         Box(Modifier.fillMaxSize().layerBackdrop(backdrop)
             .background(CupertinoTheme.colorScheme.systemGroupedBackground))
         AdaptiveScaffold(
-            contentWindowInsets = if (isNative) WindowInsets(0) else CupertinoScaffoldDefaults.contentWindowInsets,
             adaptation = { cupertino { sidebarBackdrop = backdrop } },
             topBar = {
-                if (!isNative) CupertinoTopAppBar(
+                CupertinoTopAppBar(
                     navigationIcon = {
                         if (!isAdaptiveListDetailExpanded) {
                             CupertinoNavigateBackLiquidButton(
@@ -204,8 +201,8 @@ fun SectionsScreen(
                     LazyColumn(
                         state = lazyState,
                         userScrollEnabled = nativeScroll.userScrollEnabled,
-                        contentPadding = if (isNative) nativeScroll.contentPadding else pv,
-                        modifier = Modifier.fillMaxSize().then(if (isNative) Modifier else Modifier.cupertinoScrollEdge(lazyState)),
+                        contentPadding = pv,
+                        modifier = Modifier.fillMaxSize().cupertinoScrollEdge(lazyState),
                     ) {
                         SectionStyle.entries.forEach { style ->
                             section(
@@ -250,9 +247,9 @@ fun SectionsScreen(
                         modifier =
                             Modifier
                                 .verticalScroll(defaultState, enabled = nativeScroll.userScrollEnabled)
-                                    .then(if (isNative) Modifier else Modifier.cupertinoScrollEdge(defaultState))
+                                    .cupertinoScrollEdge(defaultState)
                                 .fillMaxSize()
-                                .padding(if (isNative) nativeScroll.contentPadding else pv),
+                                .padding(pv),
                     ) {
                         SectionStyle.entries.forEach { style ->
                             CupertinoSection(

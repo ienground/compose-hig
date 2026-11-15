@@ -43,7 +43,6 @@ import zone.ien.navigation.LocalNativeScreen
 import zone.ien.navigation.rememberNativeScroll
 import zone.ien.navigation.NativeBarItems
 import zone.ien.navigation.NativeBarButton
-import zone.ien.hig.CupertinoScaffoldDefaults
 
 import zone.ien.navigation.nativeScrollExclusion
 import IsIos
@@ -290,11 +289,10 @@ fun CupertinoWidgetsScreen(
     }
 
     CupertinoScaffold(
-        hasNavigationTitle = !isNative,
-        contentWindowInsets = if (isNative) WindowInsets(0) else CupertinoScaffoldDefaults.contentWindowInsets,
+        hasNavigationTitle = true,
         containerColor = CupertinoTheme.colorScheme.systemGroupedBackground,
         topBar = {
-            if (!isNative) CupertinoTopAppBar(
+            CupertinoTopAppBar(
                 title = { CupertinoText(text = "Compose HIG") },
                 actions = {
                     CupertinoLiquidIconButton(onClick = { showAppearance = !showAppearance }, backdrop = toolbarBackdrop) {
@@ -312,15 +310,12 @@ fun CupertinoWidgetsScreen(
                     LazyColumn(
                         state = listState,
                         userScrollEnabled = nativeScroll.userScrollEnabled,
-                        contentPadding = if (isNative) nativeScroll.contentPadding else padding,
-                        modifier = Modifier.fillMaxSize()
-                            .then(if (isNative) Modifier else Modifier.cupertinoScrollEdge(listState).imePadding()),
+                        contentPadding = padding,
+                        modifier = Modifier.fillMaxSize().cupertinoScrollEdge(listState).imePadding(),
                     ) {
-                        if (!isNative) {
-                            item(key = "navigation-title") {
-                                CupertinoNavigationTitle {
-                                    Text(text = "Compose HIG")
-                                }
+                        item(key = "navigation-title") {
+                            CupertinoNavigationTitle {
+                                Text(text = "Compose HIG")
                             }
                         }
                         item(key = "search") {
@@ -417,7 +412,8 @@ fun CupertinoIntegrationScreen(
 
     val isNative = LocalNativeScreen.current
     val scrollState = rememberLazyListState()
-    val nativeScroll = rememberNativeScroll(scrollState)
+    // iOS 네이티브 화면에서는 시스템 스크롤이 이 리스트를 움직인다(Body의 userScrollEnabled).
+    rememberNativeScroll(scrollState)
     if (isNative) NativeBarItems(trailing = listOf(
         NativeBarButton("밝은 테마", systemImage = "sun.max", onClick = { onItemValueChanged(uiState.item.copy(isDark = false)) }),
         NativeBarButton("어두운 테마", systemImage = "moon.stars", onClick = { onItemValueChanged(uiState.item.copy(isDark = true)) }),
@@ -450,8 +446,7 @@ fun CupertinoIntegrationScreen(
     }
 
     CupertinoBottomSheetScaffold(
-        hasNavigationTitle = !isNative,
-        windowInsets = if (isNative) WindowInsets(0) else CupertinoScaffoldDefaults.contentWindowInsets,
+        hasNavigationTitle = true,
         colors = CupertinoBottomSheetScaffoldDefaults.colors(),
         sheetContent = {
             SheetSample(
@@ -464,7 +459,7 @@ fun CupertinoIntegrationScreen(
         scaffoldState = scaffoldState,
         bottomBarBackdropEnabled = false,
         topBar = {
-            if (!isNative) TopBarSample(
+            TopBarSample(
                 uiState = uiState,
                 onItemValueChanged = onItemValueChanged,
                 backdrop = popupBackdrop,
@@ -489,7 +484,7 @@ fun CupertinoIntegrationScreen(
             Body(
                 uiState = uiState,
                 onItemValueChanged = onItemValueChanged,
-                paddingValues = if (isNative) pv + nativeScroll.contentPadding else pv,
+                paddingValues = pv,
                 scrollState = scrollState,
                 scaffoldState = scaffoldState,
                 nativePickers = nativePickers,
@@ -538,7 +533,7 @@ internal fun Body(
                 .then(modifier)
                 .sectionContainerBackground()
                 .nestedScroll(searchState.nestedScrollConnection)
-                .then(if (LocalNativeScreen.current) Modifier else Modifier.cupertinoScrollEdge(scrollState)),
+                .cupertinoScrollEdge(scrollState),
             state = scrollState,
             userScrollEnabled = !LocalNativeScreen.current,
             contentPadding = paddingValues + PaddingValues(top = 10.dp),
