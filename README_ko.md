@@ -520,7 +520,7 @@ NativeNavigationFrame(frame = { content ->
 값이 있으면 다음처럼 동작합니다. 기본값 `null`이면 지금과 같습니다.
 
 - `CupertinoTopAppBar`, `AdaptiveTopAppBar`, `CupertinoNavigationTitle`은 그리지 않습니다. 제목과 버튼은 플랫폼 바에 선언합니다.
-- `CupertinoScaffold`, `AdaptiveScaffold`(Cupertino, Material 모두), `CupertinoBottomSheetScaffold`는 `topBar`를 그리지 않습니다. 콘텐츠 여백은 `contentWindowInsets`가 여백을 두는 변(0보다 큰 변)만 이 값으로 바꾸고, 0인 변은 그대로 0입니다. 그래서 기본값(`WindowInsets.systemBars`)은 플랫폼 바 여백이 되고, 앱 전체를 감싸는 틀처럼 `WindowInsets(0)`을 넘긴 스캐폴드는 여백을 더하지 않습니다. `bottomBar`가 있으면 아래 여백은 그 높이입니다.
+- `CupertinoScaffold`, `AdaptiveScaffold`(Cupertino, Material 모두), `CupertinoBottomSheetScaffold`는 `topBar`를 그리지 않습니다. 콘텐츠 여백은 `contentWindowInsets`가 여백을 두는 변(0보다 큰 변)만 이 값으로 바꾸고, 0인 변은 그대로 0입니다. 그래서 기본값(`WindowInsets.systemBars`)은 플랫폼 바 여백이 되고, 앱 전체를 감싸는 틀처럼 `WindowInsets(0)`을 넘긴 스캐폴드는 여백을 더하지 않습니다. `bottomBar`가 있으면 `CupertinoScaffold`는 그 높이와 플랫폼 하단 여백 중 큰 값을 사용하여 키보드 여백을 유지합니다.
 - 직접 만든 스캐폴드에도 같은 규칙을 쓰려면 `contentWindowInsets.withCupertinoNativeBars()`를 씁니다.
 - 이 여백에는 키보드가 가린 영역도 들어 있습니다. 그래서 스캐폴드 콘텐츠 안에서는 키보드 인셋을 소비한 것으로 두고, 콘텐츠의 `imePadding()`은 0이 됩니다.
 - `cupertinoScrollEdge`는 아무 일도 하지 않습니다. 스크롤 가장자리 효과는 플랫폼 바가 그립니다.

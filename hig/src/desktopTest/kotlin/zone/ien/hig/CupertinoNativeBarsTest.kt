@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -13,6 +14,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.platform.LocalPlatformWindowInsets
+import androidx.compose.ui.platform.PlatformInsets
+import androidx.compose.ui.platform.PlatformWindowInsets
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -93,6 +98,29 @@ class CupertinoNativeBarsTest {
         }
         onNodeWithTag("body").assertPositionInRootIsEqualTo(0.dp, 100.dp)
         onNodeWithTag("body").assertHeightIsEqualTo(400.dp - 100.dp - 50.dp)
+    }
+
+    @Test
+    @OptIn(InternalComposeUiApi::class)
+    fun aBottomBarKeepsContentAboveTheKeyboard() = runComposeUiTest {
+        val keyboard = object : PlatformWindowInsets {
+            override val ime = PlatformInsets(bottom = 200)
+        }
+        setContent {
+            CompositionLocalProvider(LocalPlatformWindowInsets provides keyboard) {
+                NativeBars(padding = PaddingValues(top = 100.dp, bottom = 200.dp)) {
+                    CupertinoScaffold(
+                        modifier = Modifier.size(240.dp, 400.dp),
+                        bottomBar = { Box(Modifier.fillMaxWidth().height(50.dp)) },
+                        contentWindowInsets = WindowInsets(top = 20.dp, bottom = 10.dp),
+                    ) { padding ->
+                        Box(Modifier.fillMaxSize().padding(padding).imePadding().testTag("body"))
+                    }
+                }
+            }
+        }
+        onNodeWithTag("body").assertPositionInRootIsEqualTo(0.dp, 100.dp)
+        onNodeWithTag("body").assertHeightIsEqualTo(100.dp)
     }
 
     @Test
