@@ -30,6 +30,9 @@ dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositories {
         google()
+        mavenLocal {
+            content { includeGroup("zone.ien.navigation") }
+        }
         mavenCentral()
 //        mavenLocal()
     }

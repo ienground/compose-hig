@@ -2,6 +2,8 @@
 
 package haptic
 
+import zone.ien.navigation.rememberNativeScroll
+
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -35,6 +37,7 @@ fun HapticFeedbackScreen(navigateBack: () -> Unit) {
     val haptic = LocalHapticFeedback.current
     val backdrop = rememberLayerBackdrop()
     val scrollState = rememberLazyListState()
+    val nativeScroll = rememberNativeScroll(scrollState, CupertinoTheme.colorScheme.systemGroupedBackground)
     val cupertinoTypes = listOf(
         "SelectionChanged" to CupertinoHapticFeedback.SelectionChanged,
         "Success" to CupertinoHapticFeedback.Success,
@@ -67,6 +70,7 @@ fun HapticFeedbackScreen(navigateBack: () -> Unit) {
     ) { paddingValues ->
         LazyColumn(
             state = scrollState,
+            userScrollEnabled = nativeScroll.userScrollEnabled,
             contentPadding = paddingValues,
             modifier = Modifier
                 .fillMaxSize()

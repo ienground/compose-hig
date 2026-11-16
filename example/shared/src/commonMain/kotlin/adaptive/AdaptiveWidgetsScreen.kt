@@ -22,6 +22,11 @@
 
 package adaptive
 
+import zone.ien.navigation.LocalNativeScreen
+import zone.ien.navigation.rememberNativeScroll
+import zone.ien.navigation.NativeBarItems
+import zone.ien.navigation.NativeBarButton
+
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import RootDetails
 import RootUiState
@@ -108,6 +113,12 @@ fun AdaptiveWidgetsScreen(
     navigateBack: () -> Unit,
 ) {
     val backdrop = rememberDefaultBackdrop()
+    val isNative = LocalNativeScreen.current
+    if (isNative) NativeBarItems(trailing = listOf(
+        NativeBarButton(if (uiState.item.isMaterial) "Cupertino 테마" else "Material 테마", onClick = {
+            onItemValueChanged(uiState.item.copy(isMaterial = !uiState.item.isMaterial))
+        }),
+    ))
 
     AdaptiveScaffold(
         topBar = {
@@ -192,8 +203,10 @@ fun AdaptiveWidgetsScreen(
         },
     ) {
         val listState = rememberLazyListState()
+        val nativeScroll = rememberNativeScroll(listState)
         LazyColumn(
             state = listState,
+            userScrollEnabled = nativeScroll.userScrollEnabled,
             contentPadding =
                 PaddingValues(
                     start = 12.dp,

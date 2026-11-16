@@ -42,6 +42,7 @@ import zone.ien.hig.CupertinoTopAppBar
 import zone.ien.hig.CupertinoTopAppBarColors
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.LocalCupertinoNativeBarsPadding
 import zone.ien.hig.LocalTopBarTransition
 import zone.ien.hig.TopBarTransition
 
@@ -69,6 +70,8 @@ fun AdaptiveTopAppBar(
     windowInsets: WindowInsets = CupertinoTopAppBarDefaults.windowInsets,
     adaptation: AdaptationScope<CupertinoTopAppBarAdaptation, MaterialTopAppBarAdaptation>.() -> Unit = {},
 ) {
+    // 플랫폼이 내비게이션 바를 그리는 화면에서는 두 디자인 모두 그리지 않는다.
+    if (LocalCupertinoNativeBarsPadding.current != null) return
     AdaptiveWidget(
         adaptation =
             remember {

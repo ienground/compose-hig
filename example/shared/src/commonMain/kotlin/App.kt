@@ -3,6 +3,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
+import zone.ien.navigation.LocalNativeScreen
+import zone.ien.navigation.NativeNavigationFrame
+import zone.ien.navigation.nativeContentPadding
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -12,6 +18,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.materialkolor.dynamicColorScheme
 import org.koin.compose.viewmodel.koinViewModel
+import zone.ien.hig.LocalCupertinoNativeBarsPadding
 import zone.ien.hig.adaptive.AdaptiveTheme
 import zone.ien.hig.adaptive.CupertinoThemeSpec
 import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
@@ -33,50 +40,49 @@ enum class AppRenderStage {
 @Composable
 fun App(
     renderStage: AppRenderStage = AppRenderStage.RootScreen,
+    viewModel: RootViewModel? = null,
+    backStack: NavBackStack<NavKey>? = null,
+    nativeNavigation: Boolean = false,
 ) {
     if (renderStage == AppRenderStage.EmptyBox) {
         Box(Modifier.fillMaxSize())
         return
     }
 
-    val backStack = rememberNavBackStack(rootConfig, RootRoute.Cupertino)
-
-    val viewModel: RootViewModel = koinViewModel()
-    val uiState = viewModel.uiState
-
-    val (lightAccent, darkAccent) = uiState.item.accentColors
-    val isDark = uiState.item.isDark
-    val direction = LocalLayoutDirection.current
-    val density = LocalDensity.current
-
-    val directionState = if (uiState.item.invertLayoutDirection) {
-        if (direction == LayoutDirection.Rtl) LayoutDirection.Ltr else LayoutDirection.Rtl
-    } else {
-        direction
+    val model = viewModel ?: koinViewModel<RootViewModel>()
+    val navigationBackStack = backStack ?: rememberNavBackStack(rootConfig, RootRoute.Cupertino)
+    val initialDarkTheme = isSystemInDarkTheme()
+    LaunchedEffect(model) {
+        model.initializeAppearance(initialDarkTheme)
     }
 
-    CompositionLocalProvider(
-        LocalLayoutDirection provides directionState,
-        LocalDensity provides Density(
-            density = density.density,
-            fontScale = density.fontScale * uiState.item.fontScale,
-        ),
-    ) {
-
-        GeneratedAdaptiveTheme(
-            target = Theme.Cupertino,
-            primaryColor = if (isDark) darkAccent else lightAccent,
-            useDarkTheme = isDark
+    NativeNavigationFrame(frame = { content ->
+        val settings = model.uiState.item
+        val direction = LocalLayoutDirection.current
+        val density = LocalDensity.current
+        val directionState = if (settings.invertLayoutDirection) {
+            if (direction == LayoutDirection.Rtl) LayoutDirection.Ltr else LayoutDirection.Rtl
+        } else {
+            direction
+        }
+        CompositionLocalProvider(
+            LocalLayoutDirection provides directionState,
+            LocalDensity provides Density(density.density, density.fontScale * settings.fontScale),
+            // iOS 네이티브 화면은 UIKit이 내비게이션 바를 그린다. hig 스캐폴드는 Compose 상단 바를 빼고 그 여백을 쓴다.
+            LocalCupertinoNativeBarsPadding provides if (LocalNativeScreen.current) nativeContentPadding() else null,
         ) {
-            when (renderStage) {
-                AppRenderStage.EmptyBox -> Unit
-                AppRenderStage.ThemeWithEmptyBox -> Box(Modifier.fillMaxSize())
-                AppRenderStage.RootScreen ->
-                    RootNavigationGraph(
-                        backStack = backStack,
-                        viewModel = viewModel
-                    )
-            }
+            GeneratedAdaptiveTheme(
+                target = Theme.Cupertino,
+                primaryColor = if (settings.isDark) settings.accentColors.second else settings.accentColors.first,
+                useDarkTheme = settings.isDark,
+                content = content,
+            )
+        }
+    }) {
+        when (renderStage) {
+            AppRenderStage.EmptyBox -> Unit
+            AppRenderStage.ThemeWithEmptyBox -> Box(Modifier.fillMaxSize())
+            AppRenderStage.RootScreen -> RootNavigationGraph(backStack = navigationBackStack, viewModel = model, nativeNavigation = nativeNavigation)
         }
     }
 }

@@ -43,6 +43,7 @@ Compose-HIG는 [Apple Human Interface Guidelines](https://developer.apple.com/de
   - [적응형 컴포넌트](#adaptive)
   - [iPhone Duo 레이아웃](#duo)
   - [iOS 네이티브 대화상자](#native)
+  - [플랫폼 내비게이션 바](#native-bars)
 - [API 레퍼런스](#api)
   - [컴포넌트 구성](#component-api)
   - [테마 및 상태](#theme-api)
@@ -493,6 +494,41 @@ fun DeleteConfirmation(
 ```
 
 iOS에서는 `UIAlertController`를 사용하며, 다른 대상에서는 Compose Cupertino 대화상자에 위임합니다. `NativeAlertDialogActionsScope`는 `action`, `default`, `cancel`, `destructive`를 제공하고 액션의 `enabled` 기본값은 `true`입니다. 공통 네이티브 API에는 액션 시트, 메뉴, 내비게이션 바, 날짜·시간 피커도 포함됩니다. `CupertinoColorPickerNative`는 iOS 전용입니다. [네이티브 소스 세트](hig-native/src/)와 [깜빡임 대응 방법](#flickering)을 참고하세요.
+
+<a id="native-bars"></a>
+
+### 플랫폼 내비게이션 바
+
+iOS UIKit `UINavigationController`처럼 플랫폼이 내비게이션 바를 그리는 화면(예: compose-swift-navigation3의 네이티브 화면)에서는 그 바가 차지하는 여백을 `LocalCupertinoNativeBarsPadding`으로 넘깁니다. 화면 코드는 바꾸지 않아도 됩니다.
+
+```kotlin
+import androidx.compose.runtime.CompositionLocalProvider
+import zone.ien.hig.LocalCupertinoNativeBarsPadding
+import zone.ien.navigation.LocalNativeScreen
+import zone.ien.navigation.NativeNavigationFrame
+import zone.ien.navigation.nativeContentPadding
+
+NativeNavigationFrame(frame = { content ->
+    CompositionLocalProvider(
+        LocalCupertinoNativeBarsPadding provides if (LocalNativeScreen.current) nativeContentPadding() else null,
+    ) {
+        AppTheme(content)
+    }
+}) { /* NativeStack / NativeTabs */ }
+```
+
+값이 있으면 다음처럼 동작합니다. 기본값 `null`이면 지금과 같습니다.
+
+- `CupertinoTopAppBar`, `AdaptiveTopAppBar`, `CupertinoNavigationTitle`은 그리지 않습니다. 제목과 버튼은 플랫폼 바에 선언합니다.
+- `CupertinoScaffold`, `AdaptiveScaffold`(Cupertino, Material 모두), `CupertinoBottomSheetScaffold`는 `topBar`를 그리지 않습니다. 콘텐츠 여백은 `contentWindowInsets`가 여백을 두는 변(0보다 큰 변)만 이 값으로 바꾸고, 0인 변은 그대로 0입니다. 그래서 기본값(`WindowInsets.systemBars`)은 플랫폼 바 여백이 되고, 앱 전체를 감싸는 틀처럼 `WindowInsets(0)`을 넘긴 스캐폴드는 여백을 더하지 않습니다. `bottomBar`가 있으면 아래 여백은 그 높이입니다.
+- 직접 만든 스캐폴드에도 같은 규칙을 쓰려면 `contentWindowInsets.withCupertinoNativeBars()`를 씁니다.
+- 이 여백에는 키보드가 가린 영역도 들어 있습니다. 그래서 스캐폴드 콘텐츠 안에서는 키보드 인셋을 소비한 것으로 두고, 콘텐츠의 `imePadding()`은 0이 됩니다.
+- `cupertinoScrollEdge`는 아무 일도 하지 않습니다. 스크롤 가장자리 효과는 플랫폼 바가 그립니다.
+- 시트(`CupertinoBottomSheetContent`, `CupertinoBottomSheetScaffold`의 시트) 안에서는 적용하지 않습니다. 시트는 자기 상단 바를 그립니다. `CupertinoBottomSheetScaffold`의 시트는 플랫폼 바 아래에서 시작합니다.
+
+값은 레이아웃 시점에 읽습니다. 큰 제목이 접히는 동안처럼 여백이 프레임마다 바뀌면, 같은 `PaddingValues` 객체가 최신 값을 돌려주게 합니다(`nativeContentPadding()`이 그렇습니다). 그러면 콘텐츠는 다시 그리지 않고 다시 배치만 됩니다.
+
+한계: 탭 바가 보이는 화면에서 Compose `bottomBar`는 화면 맨 아래에 놓이므로 시스템 탭 바에 가려집니다. 플랫폼 툴바를 쓰거나 탭 바를 숨긴 화면에서 씁니다.
 
 <a id="api"></a>
 

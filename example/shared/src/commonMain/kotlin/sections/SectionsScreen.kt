@@ -22,6 +22,11 @@
 
 package sections
 
+import zone.ien.navigation.LocalNativeScreen
+import zone.ien.navigation.rememberNativeScroll
+import zone.ien.navigation.NativeBarItems
+import zone.ien.navigation.NativeBarButton
+
 import zone.ien.hig.CupertinoTopAppBarDefaults
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -110,6 +115,12 @@ fun SectionsScreen(
     val defaultState = rememberScrollState()
 
     val currentState = if (isLazy) lazyState else defaultState
+    val isNative = LocalNativeScreen.current
+    val nativeScroll = if (isLazy) rememberNativeScroll(lazyState) else rememberNativeScroll(defaultState)
+    if (isNative) NativeBarItems(trailing = listOf(
+        NativeBarButton("Lazy", enabled = !isLazy, onClick = { isLazy = true }),
+        NativeBarButton("Default", enabled = isLazy, onClick = { isLazy = false }),
+    ))
     val sectionState = rememberSectionState()
     var selectedSidebarItem by rememberSaveable { mutableStateOf("Text Field") }
     val focusManager = LocalFocusManager.current
@@ -189,6 +200,7 @@ fun SectionsScreen(
                 if (isLazy) {
                     LazyColumn(
                         state = lazyState,
+                        userScrollEnabled = nativeScroll.userScrollEnabled,
                         contentPadding = pv,
                         modifier = Modifier.fillMaxSize().cupertinoScrollEdge(lazyState),
                     ) {
@@ -234,7 +246,7 @@ fun SectionsScreen(
                     Column(
                         modifier =
                             Modifier
-                                .verticalScroll(defaultState)
+                                .verticalScroll(defaultState, enabled = nativeScroll.userScrollEnabled)
                                     .cupertinoScrollEdge(defaultState)
                                 .fillMaxSize()
                                 .padding(pv),

@@ -1,17 +1,32 @@
 package cupertino
 
 import RootUiState
+import RootDetails
+import App
+import AppRenderStage
+import RootRoute
+import RootViewModel
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalPlatformWindowInsets
+import androidx.compose.ui.platform.PlatformInsets
+import androidx.compose.ui.platform.PlatformWindowInsets
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
@@ -20,6 +35,8 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.hasText
@@ -50,6 +67,77 @@ import zone.ien.hig.theme.darkColorScheme
 
 @OptIn(ExperimentalTestApi::class, ExperimentalCupertinoApi::class)
 class ComponentCatalogUiTest {
+    @Test
+    fun appReentryKeepsChosenAppearance() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val model = RootViewModel()
+        val backStack = NavBackStack<NavKey>(RootRoute.Cupertino)
+        var controllerGeneration by mutableStateOf(0)
+        var systemDark = false
+        setContent {
+            systemDark = isSystemInDarkTheme()
+            key(controllerGeneration) {
+                App(renderStage = AppRenderStage.ThemeWithEmptyBox, viewModel = model, backStack = backStack)
+            }
+        }
+        mainClock.advanceTimeBy(500)
+        runOnIdle { assertEquals(systemDark, model.uiState.item.isDark) }
+        val chosenDark = !systemDark
+        runOnIdle { model.updateUiState(model.uiState.item.copy(isDark = chosenDark)) }
+        mainClock.advanceTimeBy(500)
+        repeat(2) {
+            runOnIdle { controllerGeneration++ }
+            mainClock.advanceTimeBy(500)
+            runOnIdle {
+                assertEquals(chosenDark, model.uiState.item.isDark, "모드 전환 후 사용자 외형 설정이 초기화됩니다")
+            }
+        }
+    }
+
+    @Test
+    @OptIn(InternalComposeUiApi::class)
+    fun detailScrollViewportIncludesBottomSafeArea() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        setContent {
+            val density = LocalDensity.current
+            val insets = remember(density) {
+                object : PlatformWindowInsets {
+                    override val systemBars = with(density) { PlatformInsets(top = 62.dp, bottom = 34.dp) }
+                }
+            }
+            CompositionLocalProvider(LocalPlatformWindowInsets provides insets) {
+                CupertinoTheme {
+                    Box(Modifier.size(400.dp, 800.dp).testTag("screen")) {
+                        ComponentDetailScreen(CatalogComponent.Button) {}
+                    }
+                }
+            }
+        }
+        mainClock.advanceTimeBy(500)
+        val screenBottom = onNodeWithTag("screen").fetchSemanticsNode().boundsInRoot.bottom
+        val scrollBottom = onNodeWithTag("component-detail").fetchSemanticsNode().boundsInRoot.bottom
+        assertEquals(screenBottom, scrollBottom, "공통 상세 화면의 스크롤 영역이 하단 안전 영역 앞에서 잘립니다")
+    }
+
+    @Test
+    fun navigationModeToggleCanSwitchBothWays() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        var settings by mutableStateOf(RootDetails())
+        setContent {
+            CupertinoTheme {
+                Box(Modifier.size(400.dp, 900.dp)) {
+                    CupertinoWidgetsScreen(RootUiState(settings), { settings = it }, {})
+                }
+            }
+        }
+        mainClock.advanceTimeBy(500)
+        onNodeWithContentDescription("네이티브 내비게이션").assertIsOff().performClick()
+        mainClock.advanceTimeBy(500)
+        onNodeWithContentDescription("네이티브 내비게이션").assertIsOn().performClick()
+        mainClock.advanceTimeBy(500)
+        onNodeWithContentDescription("네이티브 내비게이션").assertIsOff()
+    }
+
     @Test
     @OptIn(ExperimentalAdaptiveApi::class)
     fun iconCatalogCreatesOnlyDisplayedIconsAndKeepsSelection() = runComposeUiTest {

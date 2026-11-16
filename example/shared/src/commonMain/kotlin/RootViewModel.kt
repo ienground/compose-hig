@@ -25,6 +25,14 @@ class RootViewModel: ViewModel() {
     var uiState by mutableStateOf(RootUiState())
         private set
 
+    private var isAppearanceInitialized = false
+
+    fun initializeAppearance(isDark: Boolean) {
+        if (isAppearanceInitialized) return
+        isAppearanceInitialized = true
+        updateUiState(uiState.item.copy(isDark = isDark))
+    }
+
     fun updateUiState(item: RootDetails) {
         uiState = RootUiState(item = item)
     }
@@ -40,4 +48,5 @@ data class RootDetails(
     val isDark: Boolean = false,
     val isMaterial: Boolean = false,
     val fontScale: Float = 1f,
+    val useNativeNavigation: Boolean = false,
 )

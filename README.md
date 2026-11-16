@@ -43,6 +43,7 @@ This README describes the current project APIs. Installation examples use versio
   - [Adaptive Components](#adaptive)
   - [iPhone Duo Layouts](#duo)
   - [Native iOS Dialogs](#native)
+  - [Platform Navigation Bars](#native-bars)
 - [API Reference](#api)
   - [Component Families](#component-api)
   - [Theme and State](#theme-api)
@@ -493,6 +494,41 @@ fun DeleteConfirmation(
 ```
 
 On iOS this uses `UIAlertController`; on other targets it delegates to the Compose Cupertino dialog. `NativeAlertDialogActionsScope` provides `action`, `default`, `cancel`, and `destructive`; action `enabled` defaults to `true`. The common native APIs also include action sheets, menus, navigation bars, and date/time pickers. `CupertinoColorPickerNative` is iOS-only. See the [native source sets](hig-native/src/) and the [flickering workaround](#flickering).
+
+<a id="native-bars"></a>
+
+### Platform Navigation Bars
+
+On screens whose navigation bar is drawn by the platform, such as a UIKit `UINavigationController` (for example the native screens of compose-swift-navigation3), pass the padding those bars take through `LocalCupertinoNativeBarsPadding`. Screen code stays the same.
+
+```kotlin
+import androidx.compose.runtime.CompositionLocalProvider
+import zone.ien.hig.LocalCupertinoNativeBarsPadding
+import zone.ien.navigation.LocalNativeScreen
+import zone.ien.navigation.NativeNavigationFrame
+import zone.ien.navigation.nativeContentPadding
+
+NativeNavigationFrame(frame = { content ->
+    CompositionLocalProvider(
+        LocalCupertinoNativeBarsPadding provides if (LocalNativeScreen.current) nativeContentPadding() else null,
+    ) {
+        AppTheme(content)
+    }
+}) { /* NativeStack / NativeTabs */ }
+```
+
+With a value, components behave as follows. The default, `null`, changes nothing.
+
+- `CupertinoTopAppBar`, `AdaptiveTopAppBar`, and `CupertinoNavigationTitle` draw nothing. Declare titles and buttons on the platform bar instead.
+- `CupertinoScaffold`, `AdaptiveScaffold` (Cupertino and Material), and `CupertinoBottomSheetScaffold` do not draw `topBar`. For their content padding, the sides `contentWindowInsets` pads (greater than zero) take this value, and zero sides stay zero. The default (`WindowInsets.systemBars`) therefore becomes the platform bars' padding, while a scaffold given `WindowInsets(0)`, such as an app-wide wrapper, adds no padding. With a `bottomBar`, the bottom padding is its height.
+- To apply the same rule in your own scaffold, use `contentWindowInsets.withCupertinoNativeBars()`.
+- The padding already covers the area hidden by the keyboard, so keyboard insets count as consumed inside scaffold content and `imePadding()` there is zero.
+- `cupertinoScrollEdge` does nothing; the platform bar draws the scroll edge effect.
+- Sheets (`CupertinoBottomSheetContent` and the sheet of `CupertinoBottomSheetScaffold`) ignore it and draw their own top bar. The sheet of `CupertinoBottomSheetScaffold` starts below the platform bar.
+
+The value is read at layout time. When the padding changes every frame (for example while a large title collapses), provide one `PaddingValues` object that returns the latest values, as `nativeContentPadding()` does; content is then only re-laid out, not recomposed.
+
+Limitation: on a screen with a visible tab bar, a Compose `bottomBar` sits at the bottom of the screen behind the system tab bar. Use the platform toolbar, or use it on screens that hide the tab bar.
 
 <a id="api"></a>
 
