@@ -137,7 +137,7 @@ import com.kyant.backdrop.effects.runtimeShaderEffect
  * apply this modifier to the child of the scroll, and not on the scrollable container itself.
  *
  * 플랫폼이 내비게이션 바를 그리는 화면([LocalCupertinoNativeBarsPadding]이 있는 화면)에서는 [topBar]를
- * 그리지 않고, 콘텐츠 여백으로 [contentWindowInsets] 대신 플랫폼 바 여백을 넘깁니다.
+ * 그리지 않고, [contentWindowInsets]가 여백을 두는 변을 플랫폼 바 여백으로 바꿉니다([withCupertinoNativeBars]).
  */
 @Composable
 @ExperimentalCupertinoApi
@@ -207,12 +207,9 @@ fun CupertinoScaffold(
     }
     val verticalBarPlacement = barPlacement?.takeIf { it.width > 0.dp }
     // 플랫폼 바가 있으면 그 여백이 시스템 영역(상태 바, 홈 인디케이터, 키보드)까지 포함한다.
+    // contentWindowInsets가 여백을 두는 변만 플랫폼 바 여백으로 바꾼다(0인 변은 0).
     val nativeBarsPadding = LocalCupertinoNativeBarsPadding.current
-    val baseWindowInsets = if (nativeBarsPadding != null) {
-        remember(nativeBarsPadding) { PaddingWindowInsets(nativeBarsPadding) }
-    } else {
-        contentWindowInsets
-    }
+    val baseWindowInsets = contentWindowInsets.withCupertinoNativeBars()
     val paneWindowInsets = if (ownsRightSystemArea) baseWindowInsets else
         baseWindowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Vertical)
     val layoutWindowInsets = if (verticalBarPlacement != null) {

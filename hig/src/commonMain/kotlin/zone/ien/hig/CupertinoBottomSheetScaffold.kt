@@ -186,12 +186,7 @@ fun CupertinoBottomSheetScaffold(
 ) {
     val backdrop = rememberLayerBackdrop()
     // 플랫폼이 내비게이션 바를 그리면 시트도 그 바 아래에서 시작한다(바는 Compose 위에 있다).
-    val nativeBarsPadding = LocalCupertinoNativeBarsPadding.current
-    val contentWindowInsets = if (nativeBarsPadding != null) {
-        remember(nativeBarsPadding) { PaddingWindowInsets(nativeBarsPadding) }
-    } else {
-        windowInsets
-    }
+    val contentWindowInsets = windowInsets.withCupertinoNativeBars()
     BottomSheetScaffoldLayout(
         appBarsBlurAlpha = appBarsBlurAlpha,
         appBarsBlurRadius = appBarsBlurRadius,

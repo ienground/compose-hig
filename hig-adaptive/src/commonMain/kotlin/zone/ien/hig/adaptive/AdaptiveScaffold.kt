@@ -54,9 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.constrainHeight
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
@@ -67,6 +65,7 @@ import zone.ien.hig.CupertinoScaffoldDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.FabPosition
 import zone.ien.hig.LocalCupertinoNativeBarsPadding
+import zone.ien.hig.withCupertinoNativeBars
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.cupertinoSidebarMaterial
 import zone.ien.hig.utils.rememberDefaultBackdrop
@@ -128,7 +127,7 @@ fun AdaptiveScaffold(
             )
         },
         material = {
-            val nativeBars = rememberMaterialNativeBars(retainedContent)
+            val nativeBars = rememberMaterialNativeBars(paneWindowInsets, retainedContent)
             Scaffold(
                 modifier = modifier,
                 topBar = if (nativeBars == null) topBar else ({}),
@@ -335,7 +334,7 @@ fun AdaptiveScaffold(
             )
         },
         material = {
-            val nativeBars = rememberMaterialNativeBars(retainedContent)
+            val nativeBars = rememberMaterialNativeBars(paneWindowInsets, retainedContent)
             Scaffold(
                 modifier = modifier,
                 topBar = if (nativeBars == null) topBar else ({}),
@@ -426,18 +425,17 @@ private val AdaptiveSidebarWidthBreakpoint = 600.dp
 
 /**
  * 플랫폼이 내비게이션 바를 그리는 화면([LocalCupertinoNativeBarsPadding])에서 Material 스캐폴드에 줄 값입니다.
- * Cupertino 스캐폴드와 같게, 콘텐츠 여백은 플랫폼 바 여백을 쓰고 콘텐츠 안의 키보드 인셋은 소비한 것으로 둡니다.
- * 플랫폼 바가 없으면 `null`입니다.
+ * Cupertino 스캐폴드와 같게, [paneWindowInsets]가 여백을 두는 변만 플랫폼 바 여백으로 바꾸고
+ * ([withCupertinoNativeBars]) 콘텐츠 안의 키보드 인셋은 소비한 것으로 둡니다. 플랫폼 바가 없으면 `null`입니다.
  */
 @Composable
-private fun rememberMaterialNativeBars(content: @Composable (PaddingValues) -> Unit): MaterialNativeBars? {
-    val padding = LocalCupertinoNativeBarsPadding.current ?: return null
-    val ownsRightSystemArea = LocalCupertinoRightSystemArea.current
-    return remember(padding, content, ownsRightSystemArea) {
-        // forCurrentPane과 같은 규칙: 오른쪽 시스템 영역을 맡지 않으면 오른쪽 여백은 뺀다.
-        val insets = PaddingWindowInsets(padding).let { insets ->
-            if (ownsRightSystemArea) insets else insets.only(WindowInsetsSides.Left + WindowInsetsSides.Vertical)
-        }
+private fun rememberMaterialNativeBars(
+    paneWindowInsets: WindowInsets,
+    content: @Composable (PaddingValues) -> Unit,
+): MaterialNativeBars? {
+    if (LocalCupertinoNativeBarsPadding.current == null) return null
+    val insets = paneWindowInsets.withCupertinoNativeBars()
+    return remember(insets, content) {
         MaterialNativeBars(insets) { innerPadding ->
             Box(Modifier.consumeWindowInsets(WindowInsets.ime)) { content(innerPadding) }
         }
@@ -448,19 +446,6 @@ private class MaterialNativeBars(
     val insets: WindowInsets,
     val content: @Composable (PaddingValues) -> Unit,
 )
-
-/** [padding]을 레이아웃 시점에 읽는 [WindowInsets]입니다. */
-private class PaddingWindowInsets(private val padding: PaddingValues) : WindowInsets {
-    override fun getTop(density: Density): Int = with(density) { padding.calculateTopPadding().roundToPx() }
-
-    override fun getBottom(density: Density): Int = with(density) { padding.calculateBottomPadding().roundToPx() }
-
-    override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int =
-        with(density) { padding.calculateLeftPadding(layoutDirection).roundToPx() }
-
-    override fun getRight(density: Density, layoutDirection: LayoutDirection): Int =
-        with(density) { padding.calculateRightPadding(layoutDirection).roundToPx() }
-}
 
 @Composable
 private fun WindowInsets.forCurrentPane(): WindowInsets =
