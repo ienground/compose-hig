@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.LayoutDirection
  * - [CupertinoTopAppBar]와 [CupertinoNavigationTitle]은 그리지 않습니다. 제목과 버튼은 플랫폼 바가 보입니다.
  * - [CupertinoScaffold]는 `topBar`를 그리지 않고 `hasNavigationTitle`을 끕니다. 콘텐츠 여백은
  *   [withCupertinoNativeBars] 규칙을 따릅니다. `contentWindowInsets`가 여백을 두는 변은 이 값으로 바꾸고,
- *   0인 변은 그대로 0입니다(`bottomBar`가 있으면 아래 여백은 그 높이). 그래서 여백 없는 틀로 쓰는 스캐폴드
- *   (`contentWindowInsets = WindowInsets(0)`)는 여백을 더하지 않습니다.
+ *   0인 변은 그대로 0입니다(`bottomBar`가 있으면 아래 여백은 그 높이와 플랫폼 여백 중 큰 값).
+ *   그래서 여백 없는 틀로 쓰는 스캐폴드(`contentWindowInsets = WindowInsets(0)`)는 여백을 더하지 않습니다.
  *   이 값에는 키보드가 가린 영역도 들어 있으므로, 콘텐츠 안에서는 키보드 인셋을 소비한 것으로 둡니다.
  *   그래서 콘텐츠의 `imePadding()`은 0이 됩니다.
  * - [cupertinoScrollEdge]는 아무 일도 하지 않습니다. 스크롤 가장자리 효과는 플랫폼 바가 그립니다.
@@ -105,7 +105,7 @@ internal class NativeBarsContentPadding(
 
     override fun calculateTopPadding(): Dp = insets.getTop(screenDensity).pxToDp()
 
-    override fun calculateBottomPadding(): Dp = (bottomBarHeight ?: insets.getBottom(screenDensity)).pxToDp()
+    override fun calculateBottomPadding(): Dp = maxOf(bottomBarHeight ?: 0, insets.getBottom(screenDensity)).pxToDp()
 
     override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp =
         insets.getLeft(screenDensity, layoutDirection).pxToDp()

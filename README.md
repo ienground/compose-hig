@@ -520,7 +520,7 @@ NativeNavigationFrame(frame = { content ->
 With a value, components behave as follows. The default, `null`, changes nothing.
 
 - `CupertinoTopAppBar`, `AdaptiveTopAppBar`, and `CupertinoNavigationTitle` draw nothing. Declare titles and buttons on the platform bar instead.
-- `CupertinoScaffold`, `AdaptiveScaffold` (Cupertino and Material), and `CupertinoBottomSheetScaffold` do not draw `topBar`. For their content padding, the sides `contentWindowInsets` pads (greater than zero) take this value, and zero sides stay zero. The default (`WindowInsets.systemBars`) therefore becomes the platform bars' padding, while a scaffold given `WindowInsets(0)`, such as an app-wide wrapper, adds no padding. With a `bottomBar`, the bottom padding is its height.
+- `CupertinoScaffold`, `AdaptiveScaffold` (Cupertino and Material), and `CupertinoBottomSheetScaffold` do not draw `topBar`. For their content padding, the sides `contentWindowInsets` pads (greater than zero) take this value, and zero sides stay zero. The default (`WindowInsets.systemBars`) therefore becomes the platform bars' padding, while a scaffold given `WindowInsets(0)`, such as an app-wide wrapper, adds no padding. With a `bottomBar`, `CupertinoScaffold` uses the greater of its height and the platform bottom padding, preserving keyboard clearance.
 - To apply the same rule in your own scaffold, use `contentWindowInsets.withCupertinoNativeBars()`.
 - The padding already covers the area hidden by the keyboard, so keyboard insets count as consumed inside scaffold content and `imePadding()` there is zero.
 - `cupertinoScrollEdge` does nothing; the platform bar draws the scroll edge effect.
