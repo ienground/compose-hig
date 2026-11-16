@@ -21,7 +21,7 @@ export default function ComponentPage({
   if (!component) notFound();
   const source =
     component.file === "@sample"
-      ? "example/composeApp/src/commonMain/kotlin/cupertino/CupertinoWidgetsScreen.kt"
+      ? "example/shared/src/commonMain/kotlin/cupertino/CupertinoWidgetsScreen.kt"
       : `hig/src/commonMain/kotlin/zone/ien/hig/${component.file}`;
   return (
     <>

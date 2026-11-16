@@ -120,7 +120,11 @@ fun CupertinoBottomSheetContent(
         } else {
             containerColor
         }
-    CompositionLocalProvider(LocalCupertinoSheetPresentation provides presentationStyle) {
+    CompositionLocalProvider(
+        LocalCupertinoSheetPresentation provides presentationStyle,
+        // 시트는 자기 상단 바를 그린다. 시트를 띄운 화면의 플랫폼 바와 무관하다.
+        LocalCupertinoNativeBarsPadding provides null,
+    ) {
         CupertinoScaffold(
             modifier = modifier,
             containerColor = scaffoldContainerColor,

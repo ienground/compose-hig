@@ -35,6 +35,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -195,10 +196,10 @@ fun cupertinoTranslucentTopBarColor(
  *
  * @param title the title to be displayed at the center of the top app bar.
  * @param modifier the [Modifier] to be applied to this top app bar.
- * @param navigationIcon the navigation icon displayed at the start of the top app bar. This should
- * typically be an [CupertinoIconButton].
- * @param actions the actions displayed at the end of the top app bar. This should typically be
- * [CupertinoIconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
+ * @param navigationIcon 상단 바 시작 버튼. 버튼이 없는 화면에서는 null로 두어 공유 전환에서 제외합니다.
+ * 일반적으로 [CupertinoIconButton]을 사용합니다.
+ * @param actions 상단 바 끝 액션. 액션이 없는 화면에서는 null로 두어 공유 전환에서 제외합니다.
+ * 기본 [Row] 안에 [CupertinoIconButton]을 가로로 배치합니다.
  * [CupertinoScaffold] 안에서는 Duo의 시스템 예약 영역에 맞춰 내비게이션 버튼과 액션을
  * 오른쪽 세로 영역으로 옮깁니다. 제목은 상단에 유지하며 스캐폴드의 스크롤 동작을 따릅니다.
  *
@@ -209,6 +210,9 @@ fun cupertinoTranslucentTopBarColor(
  * visible if top bar is translucent. Simulates iOS app bars material.
  * @param colors [CupertinoTopAppBarColors] that will be used to resolve the colors used for this top app
  * bar in different states. See [CupertinoTopAppBarDefaults.topAppBarColors].
+ *
+ * 플랫폼이 내비게이션 바를 그리는 화면([LocalCupertinoNativeBarsPadding])에서는 그리지 않습니다.
+ * 제목과 버튼은 플랫폼 바에 따로 선언합니다.
  */
 @Composable
 @ExperimentalCupertinoApi
@@ -216,8 +220,8 @@ fun CupertinoTopAppBar(
     title: @Composable () -> Unit,
     subtitle: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable (RowScope.() -> Unit) = {},
+    navigationIcon: (@Composable () -> Unit)? = null,
+    actions: (@Composable RowScope.() -> Unit)? = null,
     windowInsets: WindowInsets = LocalTopAppBarInsets.current ?: CupertinoTopAppBarDefaults.windowInsets,
     isCenterAligned: Boolean = true,
     isBackgroundAdaptive: Boolean = true,
@@ -225,14 +229,37 @@ fun CupertinoTopAppBar(
     backdrop: LayerBackdrop = LocalCupertinoBackdrop.current ?: rememberDefaultBackdrop(),
     colors: CupertinoTopAppBarColors = CupertinoTopAppBarDefaults.topAppBarColors(),
 ) {
+    if (LocalCupertinoNativeBarsPadding.current != null) return
     val barPlacement = LocalCupertinoVerticalBarPlacement.current
     val verticalPlacement = barPlacement?.takeIf { it.width > 0.dp }
+    val transition = LocalTopBarTransition.current
     InlineTopAppBar(
         title = title,
         subtitle = subtitle,
         modifier = modifier,
-        navigationIcon = if (verticalPlacement == null) navigationIcon else ({}),
-        actions = if (verticalPlacement == null) actions else ({}),
+        navigationIcon = {
+            if (verticalPlacement == null && navigationIcon != null) {
+                if (transition != null) {
+                    Box(transition.modifier(TopBarTransition.Slot.NavigationIcon)) { navigationIcon() }
+                } else {
+                    navigationIcon()
+                }
+            }
+        },
+        actions = {
+            if (verticalPlacement == null && actions != null) {
+                if (transition != null) {
+                    Row(
+                        modifier = transition.modifier(TopBarTransition.Slot.Actions).heightIn(min = 48.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        content = actions,
+                    )
+                } else {
+                    actions()
+                }
+            }
+        },
         windowInsets = when {
             verticalPlacement != null -> windowInsets.only(WindowInsetsSides.Left + WindowInsetsSides.Top)
                 .union(WindowInsets(top = verticalPlacement.topBarInset, right = verticalPlacement.width))
@@ -258,14 +285,14 @@ fun CupertinoTopAppBar(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             CompositionLocalProvider(LocalCupertinoBarControlWidth provides CupertinoVerticalBarControlWidth) {
-                Box(contentAlignment = Alignment.Center) { navigationIcon() }
+                Box(contentAlignment = Alignment.Center) { navigationIcon?.invoke() }
                 FlowRow(
                     modifier = Modifier.width(CupertinoVerticalBarControlWidth),
                     maxItemsInEachRow = 1,
                     horizontalArrangement = Arrangement.Center,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    actions()
+                    actions?.invoke(this)
                 }
             }
         }
@@ -313,6 +340,9 @@ private val NavTitleMaxFontScaleDistance = 150.dp
  * @param maxFontScaleDistance distance of the scroll overflow at which [maxFontScale] is reached
  * @param paddingValues title padding values
  * @param title title content
+ *
+ * 플랫폼이 내비게이션 바를 그리는 화면([LocalCupertinoNativeBarsPadding])에서는 그리지 않습니다.
+ * 큰 제목은 플랫폼 바가 보입니다.
  * */
 @Composable
 fun CupertinoNavigationTitle(
@@ -326,6 +356,7 @@ fun CupertinoNavigationTitle(
     require(maxFontScale >= 1) {
         "maxFontScale must be >= 1."
     }
+    if (LocalCupertinoNativeBarsPadding.current != null) return
     val navigationTitleVisibility = LocalNavigationTitleVisible.current
     val navigationTitleProgress = LocalNavigationTitleProgress.current
     var visible by navigationTitleVisibility

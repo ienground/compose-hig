@@ -2,7 +2,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id(libs.plugins.android.application.get().pluginId)
-    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
 }
 
@@ -46,12 +45,12 @@ kotlin {
             )
         }
     }
+}
 
-    dependencies {
-        implementation(project(":example:composeApp"))
-        implementation(libs.activity.compose)
-        debugImplementation(libs.compose.ui.tooling)
+dependencies {
+    implementation(projects.example.shared)
+    implementation(libs.activity.compose)
+    debugImplementation(libs.compose.ui.tooling)
 
-        implementation(libs.koin.android)
-    }
+    implementation(libs.koin.android)
 }

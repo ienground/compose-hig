@@ -24,10 +24,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
 
       - name: Set up Node.js
@@ -41,7 +41,7 @@ jobs:
         run: npm ci --prefix website
 
       - name: Build wasmJs
-        run: ./gradlew :example:composeApp:wasmJsBrowserDistribution
+        run: ./gradlew :example:shared:wasmJsBrowserDistribution
 
       - name: Build Next.js website
         run: npm --prefix website run build

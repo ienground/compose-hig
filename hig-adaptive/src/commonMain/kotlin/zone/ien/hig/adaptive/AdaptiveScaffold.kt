@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -62,6 +64,8 @@ import zone.ien.hig.CupertinoScaffold
 import zone.ien.hig.CupertinoScaffoldDefaults
 import zone.ien.hig.ExperimentalCupertinoApi
 import zone.ien.hig.FabPosition
+import zone.ien.hig.LocalCupertinoNativeBarsPadding
+import zone.ien.hig.withCupertinoNativeBars
 import zone.ien.hig.theme.CupertinoTheme
 import zone.ien.hig.utils.cupertinoSidebarMaterial
 import zone.ien.hig.utils.rememberDefaultBackdrop
@@ -123,9 +127,10 @@ fun AdaptiveScaffold(
             )
         },
         material = {
+            val nativeBars = rememberMaterialNativeBars(paneWindowInsets, retainedContent)
             Scaffold(
                 modifier = modifier,
-                topBar = topBar,
+                topBar = if (nativeBars == null) topBar else ({}),
                 bottomBar = bottomBar,
                 snackbarHost = snackbarHost,
                 floatingActionButton = floatingActionButton,
@@ -135,8 +140,8 @@ fun AdaptiveScaffold(
                 },
                 containerColor = it.containerColor,
                 contentColor = it.contentColor,
-                contentWindowInsets = paneWindowInsets,
-                content = retainedContent
+                contentWindowInsets = nativeBars?.insets ?: paneWindowInsets,
+                content = nativeBars?.content ?: retainedContent
             )
         }
     )
@@ -329,9 +334,10 @@ fun AdaptiveScaffold(
             )
         },
         material = {
+            val nativeBars = rememberMaterialNativeBars(paneWindowInsets, retainedContent)
             Scaffold(
                 modifier = modifier,
-                topBar = topBar,
+                topBar = if (nativeBars == null) topBar else ({}),
                 bottomBar = bottomBar,
                 snackbarHost = snackbarHost,
                 floatingActionButton = floatingActionButton,
@@ -345,8 +351,8 @@ fun AdaptiveScaffold(
                 contentColor = contentColor.takeOrElse {
                     MaterialTheme.colorScheme.onBackground
                 },
-                contentWindowInsets = paneWindowInsets,
-                content = retainedContent
+                contentWindowInsets = nativeBars?.insets ?: paneWindowInsets,
+                content = nativeBars?.content ?: retainedContent
             )
         }
     )
@@ -416,6 +422,30 @@ private class ScaffoldAdaptationImpl :
 private val AdaptiveSidebarWidth = 256.dp
 private val AdaptiveSidebarHorizontalPadding = 12.dp
 private val AdaptiveSidebarWidthBreakpoint = 600.dp
+
+/**
+ * 플랫폼이 내비게이션 바를 그리는 화면([LocalCupertinoNativeBarsPadding])에서 Material 스캐폴드에 줄 값입니다.
+ * Cupertino 스캐폴드와 같게, [paneWindowInsets]가 여백을 두는 변만 플랫폼 바 여백으로 바꾸고
+ * ([withCupertinoNativeBars]) 콘텐츠 안의 키보드 인셋은 소비한 것으로 둡니다. 플랫폼 바가 없으면 `null`입니다.
+ */
+@Composable
+private fun rememberMaterialNativeBars(
+    paneWindowInsets: WindowInsets,
+    content: @Composable (PaddingValues) -> Unit,
+): MaterialNativeBars? {
+    if (LocalCupertinoNativeBarsPadding.current == null) return null
+    val insets = paneWindowInsets.withCupertinoNativeBars()
+    return remember(insets, content) {
+        MaterialNativeBars(insets) { innerPadding ->
+            Box(Modifier.consumeWindowInsets(WindowInsets.ime)) { content(innerPadding) }
+        }
+    }
+}
+
+private class MaterialNativeBars(
+    val insets: WindowInsets,
+    val content: @Composable (PaddingValues) -> Unit,
+)
 
 @Composable
 private fun WindowInsets.forCurrentPane(): WindowInsets =

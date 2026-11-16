@@ -30,6 +30,9 @@ dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositories {
         google()
+        mavenLocal {
+            content { includeGroup("zone.ien.navigation") }
+        }
         mavenCentral()
 //        mavenLocal()
     }
@@ -37,25 +40,13 @@ dependencyResolutionManagement {
 
 rootProject.name = "compose-hig"
 
-// Skip the example app when building the libraries
-//if (gradle.startParameter.taskNames.none { it.startsWith(":example:composeApp") }) {
-//    startParameter.excludedTaskNames.addAll(
-//        listOf(
-//            ":example:composeApp:build",
-//            ":example:composeApp:assembleDebug",
-//            ":example:composeApp:assembleDebugUnitTest",
-//            ":example:composeApp:assembleDebugAndroidTest",
-//            ":example:composeApp:assemble",
-//        ),
-//    )
-//}
-
 include(
     ":hig",
     ":hig-core",
     ":hig-native",
     ":hig-adaptive",
     ":hig-icons-extended",
-    ":example:composeApp",
+    ":example:shared",
     ":example:androidApp",
+    ":example:desktopApp",
 )

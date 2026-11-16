@@ -1,0 +1,205 @@
+import adaptive.AdaptiveWidgetsScreen
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import zone.ien.hig.CupertinoScaffold
+import zone.ien.hig.CupertinoText
+import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.adaptive.AdaptiveListDetailPane
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.Theme
+import zone.ien.hig.adaptive.isAdaptiveListDetailExpanded
+import zone.ien.hig.adaptive.rememberAdaptiveListDetailSceneStrategy
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavBackStack
+import zone.ien.navigation.NativeStack
+import zone.ien.navigation.nativeScreen
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.defaultPopTransitionSpec
+import androidx.navigation3.ui.defaultPredictivePopTransitionSpec
+import androidx.compose.animation.SharedTransitionLayout
+import zone.ien.hig.adaptive.ProvideNavigationTopBarTransition
+import androidx.savedstate.serialization.SavedStateConfiguration
+import cupertino.CupertinoWidgetsScreen
+import cupertino.CatalogComponent
+import cupertino.ComponentDetailScreen
+import cupertino.CupertinoIntegrationScreen
+import icons.IconsScreen
+import haptic.HapticFeedbackScreen
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import sections.SectionsScreen
+
+@Serializable
+sealed interface RootRoute: NavKey {
+    @Serializable data object Cupertino: RootRoute
+    @Serializable data object Adaptive: RootRoute
+    @Serializable data object Icons: RootRoute
+    @Serializable data object Sections: RootRoute
+    @Serializable data object HapticFeedback: RootRoute
+    @Serializable data object Integration: RootRoute
+    @Serializable data class Component(val component: CatalogComponent): RootRoute
+}
+
+val rootConfig = SavedStateConfiguration {
+    serializersModule = SerializersModule {
+        polymorphic(NavKey::class) {
+            subclass(RootRoute.Cupertino::class, RootRoute.Cupertino.serializer())
+            subclass(RootRoute.Adaptive::class, RootRoute.Adaptive.serializer())
+            subclass(RootRoute.Icons::class, RootRoute.Icons.serializer())
+            subclass(RootRoute.Sections::class, RootRoute.Sections.serializer())
+            subclass(RootRoute.HapticFeedback::class, RootRoute.HapticFeedback.serializer())
+            subclass(RootRoute.Integration::class, RootRoute.Integration.serializer())
+            subclass(RootRoute.Component::class, RootRoute.Component.serializer())
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalCupertinoApi::class, ExperimentalAdaptiveApi::class)
+@Composable
+fun RootNavigationGraph(
+    modifier: Modifier = Modifier,
+    backStack: NavBackStack<NavKey>,
+    viewModel: RootViewModel,
+    nativeNavigation: Boolean = false,
+) {
+    val entries = entryProvider<NavKey> {
+        entry<RootRoute.Cupertino>(
+            metadata = nativeScreen(title = "Compose HIG", largeTitle = true) + ListDetailSceneStrategy.listPane(detailPlaceholder = {
+                if (isAdaptiveListDetailExpanded) {
+                    AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                        CupertinoScaffold { padding ->
+                            Box(Modifier.fillMaxSize().padding(padding).padding(24.dp), contentAlignment = Alignment.Center) {
+                                CupertinoText("Select a component from the catalog.")
+                            }
+                        }
+                    }
+                }
+            }) + ListDetailSceneStrategy.preferredPaneSize(width = 0.4f),
+        ) {
+            AdaptiveListDetailPane(ListDetailPaneScaffoldRole.List) {
+                val isExpanded = isAdaptiveListDetailExpanded
+                CupertinoWidgetsScreen(
+                    uiState = viewModel.uiState,
+                    onItemValueChanged = viewModel::updateUiState,
+                    onNavigate = { route ->
+                        if (backStack.lastOrNull() != route) {
+                            if (isExpanded) {
+                                while (backStack.lastOrNull() != RootRoute.Cupertino && backStack.size > 1) {
+                                    backStack.removeAt(backStack.lastIndex)
+                                }
+                            }
+                            backStack.add(route)
+                        }
+                    }
+                )
+            }
+        }
+        entry<RootRoute.Adaptive>(
+            metadata = nativeScreen(title = "Adaptive") + ListDetailSceneStrategy.detailPane(),
+        ) {
+            AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                val settings = viewModel.uiState.item
+                GeneratedAdaptiveTheme(
+                    target = if (settings.isMaterial) Theme.Material3 else Theme.Cupertino,
+                    primaryColor = if (settings.isDark) settings.accentColors.second else settings.accentColors.first,
+                    useDarkTheme = settings.isDark,
+                ) {
+                    AdaptiveWidgetsScreen(
+                        uiState = viewModel.uiState,
+                        onItemValueChanged = viewModel::updateUiState,
+                        navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
+                }
+            }
+        }
+        entry<RootRoute.Component>(
+            metadata = { route -> nativeScreen(title = route.component.title) + ListDetailSceneStrategy.detailPane() },
+        ) { route ->
+            AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                ComponentDetailScreen(
+                    component = route.component,
+                    navigateBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
+                )
+            }
+        }
+        entry<RootRoute.Integration>(
+            metadata = nativeScreen(title = "Showcase") + ListDetailSceneStrategy.detailPane(),
+        ) {
+            AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                CupertinoIntegrationScreen(
+                    uiState = viewModel.uiState,
+                    onItemValueChanged = viewModel::updateUiState,
+                    onNavigate = { route -> backStack.add(route) },
+                    navigateBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
+                )
+            }
+        }
+        entry<RootRoute.Icons>(
+            metadata = nativeScreen(title = "Icons") + ListDetailSceneStrategy.detailPane(),
+        ) {
+            AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                IconsScreen(
+                    navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                )
+            }
+        }
+        entry<RootRoute.Sections>(
+            metadata = nativeScreen(title = "Sections") + ListDetailSceneStrategy.detailPane(),
+        ) {
+            AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                SectionsScreen(
+                    navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                )
+            }
+        }
+        entry<RootRoute.HapticFeedback>(
+            metadata = nativeScreen(title = "Haptic Feedback") + ListDetailSceneStrategy.detailPane(),
+        ) {
+            AdaptiveListDetailPane(ListDetailPaneScaffoldRole.Detail) {
+                HapticFeedbackScreen(
+                    navigateBack = { backStack.removeAt(backStack.lastIndex) }
+                )
+            }
+        }
+    }
+    val decorators = listOf(
+        rememberSaveableStateHolderNavEntryDecorator<NavKey>(),
+        rememberViewModelStoreNavEntryDecorator<NavKey>(),
+    )
+    if (nativeNavigation) {
+        NativeStack(backStack = backStack, entryDecorators = decorators, entryProvider = entries) {}
+        return
+    }
+    val listDetailStrategy = rememberAdaptiveListDetailSceneStrategy<NavKey>(
+        shouldHandleSinglePaneLayout = false,
+    )
+    SharedTransitionLayout {
+        ProvideNavigationTopBarTransition(this) {
+            NavDisplay(
+                sharedTransitionScope = this@SharedTransitionLayout,
+                sceneStrategies = listOf(listDetailStrategy),
+                backStack = backStack,
+                modifier = modifier,
+                predictivePopTransitionSpec = if (IsIos) {
+                    defaultPredictivePopTransitionSpec()
+                } else {
+                    { _ -> defaultPopTransitionSpec<NavKey>().invoke(this) }
+                },
+                entryDecorators = decorators,
+                entryProvider = entries,
+            )
+        }
+    }
+}

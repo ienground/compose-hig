@@ -1,0 +1,405 @@
+@file:OptIn(ExperimentalMaterial3AdaptiveApi::class)
+
+/*
+ * Copyright (c) 2023-2024. Compose Cupertino project and open source contributors.
+ * Copyright (c) 2025. Scott Lanoue.
+ * Copyright (c) 2026. IENGROUND of IENLAB.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+package adaptive
+
+import zone.ien.navigation.LocalNativeScreen
+import zone.ien.navigation.rememberNativeScroll
+import zone.ien.navigation.NativeBarItems
+import zone.ien.navigation.NativeBarButton
+
+import zone.ien.hig.CupertinoTopAppBarDefaults
+import RootDetails
+import RootUiState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import zone.ien.hig.adaptive.isAdaptiveListDetailExpanded
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import com.kyant.backdrop.backdrops.layerBackdrop
+import zone.ien.hig.cupertinoScrollEdge
+import zone.ien.hig.utils.rememberDefaultBackdrop
+import zone.ien.hig.CupertinoIcon
+import zone.ien.hig.CupertinoLiquidButtonDefaults
+import zone.ien.hig.CupertinoNavigateBackLiquidButton
+import zone.ien.hig.ExperimentalCupertinoApi
+import zone.ien.hig.adaptive.AdaptiveAlertDialog
+import zone.ien.hig.adaptive.AdaptiveButton
+import zone.ien.hig.adaptive.AdaptiveCheckbox
+import zone.ien.hig.adaptive.AdaptiveCircularProgressIndicator
+import zone.ien.hig.adaptive.AdaptiveDatePicker
+import zone.ien.hig.adaptive.AdaptiveFilledIconButton
+import zone.ien.hig.adaptive.AdaptiveIconButton
+import zone.ien.hig.adaptive.AdaptiveNavigationBar
+import zone.ien.hig.adaptive.AdaptiveNavigationBarItem
+import zone.ien.hig.adaptive.AdaptiveScaffold
+import zone.ien.hig.adaptive.AdaptiveSlider
+import zone.ien.hig.adaptive.AdaptiveSwitch
+import zone.ien.hig.adaptive.AdaptiveTextButton
+import zone.ien.hig.adaptive.AdaptiveTopAppBar
+import zone.ien.hig.adaptive.AdaptiveTriStateCheckbox
+import zone.ien.hig.adaptive.AdaptiveWidget
+import zone.ien.hig.adaptive.ExperimentalAdaptiveApi
+import zone.ien.hig.adaptive.icons.AccountCircle
+import zone.ien.hig.adaptive.icons.KeyboardArrowLeft
+import zone.ien.hig.adaptive.icons.KeyboardArrowRight
+import zone.ien.hig.adaptive.icons.AdaptiveIcons
+import zone.ien.hig.adaptive.icons.Add
+import zone.ien.hig.adaptive.icons.Create
+import zone.ien.hig.adaptive.icons.Delete
+import zone.ien.hig.adaptive.icons.Menu
+import zone.ien.hig.adaptive.icons.Person
+import zone.ien.hig.adaptive.icons.Search
+import zone.ien.hig.adaptive.icons.Settings
+import zone.ien.hig.adaptive.icons.Share
+import zone.ien.hig.adaptive.icons.ThumbUp
+import zone.ien.hig.cancel
+import zone.ien.hig.default
+import zone.ien.hig.rememberCupertinoDatePickerState
+
+@OptIn(
+    ExperimentalAdaptiveApi::class,
+    ExperimentalLayoutApi::class,
+    ExperimentalCupertinoApi::class,
+)
+@Composable
+fun AdaptiveWidgetsScreen(
+    uiState: RootUiState,
+    onItemValueChanged: (RootDetails) -> Unit,
+    navigateBack: () -> Unit,
+) {
+    val backdrop = rememberDefaultBackdrop()
+    val isNative = LocalNativeScreen.current
+    if (isNative) NativeBarItems(trailing = listOf(
+        NativeBarButton(if (uiState.item.isMaterial) "Cupertino 테마" else "Material 테마", onClick = {
+            onItemValueChanged(uiState.item.copy(isMaterial = !uiState.item.isMaterial))
+        }),
+    ))
+
+    AdaptiveScaffold(
+        topBar = {
+            AdaptiveTopAppBar(
+                navigationIcon = {
+                    if (!isAdaptiveListDetailExpanded) {
+                        AdaptiveWidget(
+                            cupertino = {
+                                CupertinoNavigateBackLiquidButton(
+                                    onClick = navigateBack,
+                                    backdrop = backdrop,
+                                    modifier = Modifier.padding(CupertinoTopAppBarDefaults.navigationIconPadding)
+                                        .semantics { contentDescription = "Back" },
+                                )
+                            },
+                            material = {
+                                IconButton(
+                                    onClick = navigateBack,
+                                ) {
+                                    Icon(
+                                        imageVector =
+                                            if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
+                                                AdaptiveIcons.Outlined.KeyboardArrowLeft
+                                            } else {
+                                                AdaptiveIcons.Outlined.KeyboardArrowRight
+                                            },
+                                        contentDescription = "Back",
+                                    )
+                                }
+                            },
+                        )
+                    }
+                },
+                title = {
+                    Text("Adaptive")
+                },
+                actions = {
+                    Text("Theme")
+                    AdaptiveSwitch(
+                        modifier = Modifier.padding(horizontal = 6.dp),
+                        checked = uiState.item.isMaterial,
+                        onCheckedChange = { onItemValueChanged(uiState.item.copy(isMaterial = it)) },
+                    )
+                },
+                adaptation = {
+                    cupertino { this.backdrop = backdrop }
+                }
+            )
+        },
+        bottomBar = {
+            var selected by rememberSaveable { mutableStateOf(0) }
+            val content = listOf(
+                "Profile" to AdaptiveIcons.Outlined.Person,
+                "Menu" to AdaptiveIcons.Outlined.Menu,
+                "Settings" to AdaptiveIcons.Outlined.Settings,
+            )
+
+            AdaptiveNavigationBar(
+                selectedTabIndex = { selected },
+                onTabSelected = { selected = it },
+                tabsCount = content.size,
+                adaptation = {
+                    cupertino { this.backdrop = backdrop }
+                }
+            ) {
+                content.forEachIndexed { index, pair ->
+                    AdaptiveNavigationBarItem(
+                        index = index,
+                        onClick = { selected = index },
+                        icon = {
+                            CupertinoIcon(
+                                imageVector = pair.second,
+                                contentDescription = pair.first,
+                            )
+                        },
+                        label = {
+                            Text(pair.first)
+                        },
+                    )
+                }
+            }
+        },
+    ) {
+        val listState = rememberLazyListState()
+        val nativeScroll = rememberNativeScroll(listState)
+        LazyColumn(
+            state = listState,
+            userScrollEnabled = nativeScroll.userScrollEnabled,
+            contentPadding =
+                PaddingValues(
+                    start = 12.dp,
+                    end = 12.dp,
+                    top = it.calculateTopPadding() + 12.dp,
+                    bottom = it.calculateBottomPadding(),
+                ),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .cupertinoScrollEdge(listState)
+                .layerBackdrop(backdrop)
+                .fillMaxSize()
+        ) {
+            item {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    adaptiveIcons().forEach {
+                        Icon(
+                            modifier = Modifier.size(24.dp),
+                            imageVector = it,
+                            contentDescription = it.name,
+                        )
+                    }
+                }
+            }
+
+            item {
+                var checked by rememberSaveable { mutableStateOf(false) }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    AdaptiveSwitch(
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                        },
+                    )
+                    AdaptiveSwitch(
+                        checked = !checked,
+                        onCheckedChange = {
+                            checked = !it
+                        },
+                    )
+
+                    AdaptiveCircularProgressIndicator()
+                }
+            }
+
+            item {
+                var v by rememberSaveable {
+                    mutableStateOf(.5f)
+                }
+
+                AdaptiveSlider(v, { v = it })
+            }
+
+            item {
+                var v by rememberSaveable {
+                    mutableStateOf(.5f)
+                }
+
+                AdaptiveSlider(v, { v = it }, steps = 5)
+            }
+
+            item {
+                var alertVisible by remember {
+                    mutableStateOf(false)
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    AdaptiveButton(
+                        onClick = {
+                            alertVisible = true
+                        },
+                        adaptation = {
+                            cupertino {
+                                colors = CupertinoLiquidButtonDefaults.glassProminentButtonColors()
+                            }
+                        }
+                    ) {
+                        Text("Alert")
+                    }
+                    AdaptiveTextButton(
+                        onClick = {},
+                    ) {
+                        Text("Text Button")
+                    }
+
+                    AdaptiveIconButton(
+                        onClick = {},
+                    ) {
+                        Icon(
+                            imageVector = AdaptiveIcons.Outlined.Delete,
+                            contentDescription = null,
+                        )
+                    }
+                    AdaptiveFilledIconButton(
+                        onClick = {}
+                    ) {
+                        Icon(
+                            imageVector = AdaptiveIcons.Outlined.Delete,
+                            contentDescription = null,
+                        )
+                    }
+                }
+
+                if (alertVisible) {
+                    AdaptiveAlertDialog(
+                        onDismissRequest = {
+                            alertVisible = false
+                        },
+                        title = {
+                            Text("Alert")
+                        },
+                        message = {
+                            Text("Adaptive Alert Dialog")
+                        },
+                    ) {
+                        cancel(onClick = {
+                            alertVisible = false
+                        }) {
+                            Text("Cancel")
+                        }
+                        default(onClick = {
+                            alertVisible = false
+                        }) {
+                            Text("OK")
+                        }
+                    }
+                }
+            }
+
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    var a by rememberSaveable { mutableStateOf(true) }
+                    var b by rememberSaveable { mutableStateOf(false) }
+                    var c by remember { mutableStateOf(ToggleableState.Indeterminate) }
+
+                    AdaptiveCheckbox(checked = a, onCheckedChange = { a = it })
+                    AdaptiveCheckbox(checked = b, onCheckedChange = { b = it })
+                    AdaptiveTriStateCheckbox(state = c, onClick = {
+                        c =
+                            when (c) {
+                                ToggleableState.On -> ToggleableState.Off
+                                ToggleableState.Off -> ToggleableState.Indeterminate
+                                ToggleableState.Indeterminate -> ToggleableState.On
+                            }
+                    })
+                }
+            }
+
+            item {
+                AdaptiveDatePicker(
+                    state = rememberCupertinoDatePickerState(),
+                    modifier = Modifier.fillMaxWidth(),
+                    adaptation = {
+                        material {
+                            headline = null
+                            showModeToggle = false
+                            title = null
+                        }
+                    },
+                )
+            }
+
+//            item {
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(1000.dp)
+//                        .background(Color.Blue)
+//                )
+//            }
+        }
+    }
+}
+
+@Composable
+private fun adaptiveIcons() =
+    listOf(
+        AdaptiveIcons.Outlined.Add,
+        AdaptiveIcons.Outlined.Create,
+        AdaptiveIcons.Outlined.Share,
+        AdaptiveIcons.Outlined.Settings,
+        AdaptiveIcons.Outlined.Person,
+        AdaptiveIcons.Outlined.AccountCircle,
+        AdaptiveIcons.Outlined.Delete,
+        AdaptiveIcons.Outlined.ThumbUp,
+        AdaptiveIcons.Outlined.Search,
+    )
