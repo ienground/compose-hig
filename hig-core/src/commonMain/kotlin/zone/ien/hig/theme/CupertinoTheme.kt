@@ -20,7 +20,6 @@
 
 package zone.ien.hig.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import zone.ien.hig.InternalCupertinoApi
@@ -28,21 +27,12 @@ import zone.ien.hig.InternalCupertinoApi
 @OptIn(InternalCupertinoApi::class)
 object CupertinoTheme {
     /**
-     * 상위에서 제공한 [ColorScheme]을 반환하며, 제공된 값이 없으면 시스템의 밝은/어두운 테마를 따릅니다.
+     * Retrieves the current [ColorScheme] at the call site's position in the hierarchy.
      */
     val colorScheme: ColorScheme
         @Composable
         @ReadOnlyComposable
-        get() {
-            val colorScheme = LocalColorScheme.current
-            return if (colorScheme !== defaultCupertinoColorScheme) {
-                colorScheme
-            } else if (isSystemInDarkTheme()) {
-                darkColorScheme()
-            } else {
-                lightColorScheme()
-            }
-        }
+        get() = LocalColorScheme.current
 
     /**
      * Retrieves the current [Typography] at the call site's position in the hierarchy.

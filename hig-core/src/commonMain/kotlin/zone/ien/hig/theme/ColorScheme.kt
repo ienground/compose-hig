@@ -248,7 +248,7 @@ fun darkColorScheme(
     darkText = darkText
 )
 
-internal val defaultCupertinoColorScheme = lightColorScheme()
+private val defaultCupertinoColorScheme = lightColorScheme()
 
 @InternalCupertinoApi
 val LocalColorScheme = staticCompositionLocalOf {
